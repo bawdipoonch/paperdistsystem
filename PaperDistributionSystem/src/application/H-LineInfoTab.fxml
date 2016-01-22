@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.HLineInfoTabController">
+   <children>
+      <HBox prefHeight="571.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="571.0">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="41.0" prefWidth="232.0" spacing="15.0">
+                     <children>
+                        <TextField fx:id="addLineNumField" prefHeight="25.0" prefWidth="104.0" promptText="Line Number" />
+                        <Button mnemonicParsing="false" onAction="#addLineButtonClicked" text="Add Line" />
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
+                  <TableView fx:id="lineNumTable" prefWidth="232.0" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="lineNumColumn" prefWidth="240.0" resizable="false" text="Line Number" />
+                     </columns>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox prefHeight="571.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <ButtonBar prefHeight="40.0" prefWidth="200.0">
+                     <buttons>
+                        <Button layoutX="956.0" layoutY="14.0" mnemonicParsing="false" onAction="#shuffleHouseSeqClicked" text="Shuffle House Sequences" />
+                     </buttons>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </ButtonBar>
+                  <TableView fx:id="lineNumCustomersTable" prefHeight="548.0" prefWidth="1039.0" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="customerIDColumn" prefWidth="126.0" text="Customer ID" />
+                        <TableColumn fx:id="customerNameColumn" prefWidth="250.0" text="Customer Name" />
+                        <TableColumn fx:id="mobileNumColumn" prefWidth="125.0" text="Mobile Number" />
+                        <TableColumn fx:id="houseSeqColumn" prefWidth="110.0" text="House Sequence" />
+                     </columns>
+                  </TableView>
+               </children>
+               <HBox.margin>
+                  <Insets right="10.0" />
+               </HBox.margin>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>

@@ -1,0 +1,71 @@
+package application;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import org.controlsfx.control.Notifications;
+
+import javafx.beans.property.*;
+
+
+public class LineInfo {
+	private final SimpleLongProperty lineId = new SimpleLongProperty();
+	private final SimpleIntegerProperty lineNum = new SimpleIntegerProperty();
+	private final SimpleLongProperty hawkerId = new SimpleLongProperty();
+
+	
+	public LineInfo(long lineId, int lineNum, long hawkerId){
+		setLineId(lineId);
+		setLineNum(lineNum);
+		setHawkerId(hawkerId);
+	}
+	public Long getLineId() {
+		return lineId.get();
+	}
+	
+	public void setLineId(long lineId) {
+		this.lineId.set(lineId);
+	}
+	
+	public int getLineNum() {
+		return lineNum.get();
+	}
+
+	public void setLineNum(int lineNum) {
+		this.lineNum.set(lineNum);
+	}
+	
+	public Long getHawkerId() {
+		return hawkerId.get();
+	}
+	
+	public void setHawkerId(long hawkerId) {
+		this.hawkerId.set(hawkerId);
+	}
+		
+	public String toString() {
+		return getLineNum()+"";
+	}
+
+	public void updateLineNumRecord(){
+		try {
+			
+			Connection con = Main.dbConnection;
+			while(!con.isValid(0)){
+				con = Main.reconnect();
+			}
+			String updateString = "update line_info set line_num=? where line_id=?";
+			PreparedStatement updateStmt = con.prepareStatement(updateString);
+			updateStmt.setInt(1, getLineNum());
+			updateStmt.setLong(2, getLineId());
+			updateStmt.executeUpdate();
+			con.commit();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Notifications.create().title("Failed").text("Line number update failed").showError();
+		}
+	}
+
+}

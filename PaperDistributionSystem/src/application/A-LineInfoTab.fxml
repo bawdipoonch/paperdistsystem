@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.ALineInfoTabController">
+   <children>
+      <HBox spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox alignment="TOP_CENTER" HBox.hgrow="NEVER">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="68.0" prefWidth="232.0">
+                     <children>
+                        <Label text="Hawker : " />
+                        <ComboBox fx:id="hawkerComboBox" prefWidth="150.0" promptText="Select Hawker" />
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
+                  <TableView fx:id="lineNumTable" prefHeight="575.0" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="lineNumColumn" prefWidth="240.0" resizable="false" text="Line Number" />
+                     </columns>
+                  </TableView>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="212.0" spacing="15.0">
+                     <children>
+                        <TextField fx:id="addLineNumField" prefHeight="25.0" prefWidth="104.0" promptText="Line Number" />
+                        <Button mnemonicParsing="false" onAction="#addLineButtonClicked" text="Add Line" />
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_RIGHT" prefHeight="43.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#shuffleHouseSeqClicked" text="Shuffle House Sequences" />
+                     </children></HBox>
+                  <TableView fx:id="lineNumCustomersTable" prefHeight="548.0" prefWidth="1039.0">
+                     <columns>
+                        <TableColumn fx:id="customerIDColumn" prefWidth="126.0" text="Customer ID" />
+                        <TableColumn fx:id="customerNameColumn" prefWidth="250.0" text="Customer Name" />
+                        <TableColumn fx:id="mobileNumColumn" prefWidth="125.0" text="Mobile Number" />
+                        <TableColumn fx:id="houseSeqColumn" prefWidth="110.0" text="House Sequence" />
+                     </columns>
+                  </TableView>
+               </children>
+               <HBox.margin>
+                  <Insets right="10.0" />
+               </HBox.margin>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </HBox>
+   </children>
+</AnchorPane>
