@@ -20,6 +20,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -32,6 +33,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
+import javafx.util.Duration;
 import javafx.util.Pair;
 
 public class HLineInfoTabController implements Initializable {
@@ -142,16 +144,16 @@ public class HLineInfoTabController implements Initializable {
 					lineNumTable.getSelectionModel().getSelectedItem().updateLineNumRecord();
 					updateLineNumForCust(newLineNum,customerData);
 					lineNumTable.refresh();
-					Notifications.create().title("Successful").text("Line number update successful.").showInformation();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Successful").text("Line number update successful.").showInformation();
 				}
 				else {
-					Notifications.create().title("Invalid line num").text("This line number already exists.").showError();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid line num").text("This line number already exists.").showError();
 				}
 				
 			} catch (NumberFormatException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				Notifications.create().title("Invalid line num").text("Please enter numeric line number only").showError();
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid line num").text("Please enter numeric line number only").showError();
 			}
 		});
 		dialog.showAndWait();
@@ -192,131 +194,155 @@ public class HLineInfoTabController implements Initializable {
 						deleteStmt.setLong(1, lineRow.getLineId());
 						deleteStmt.executeUpdate();
 						con.commit();
-						Notifications.create().title("Delete Successful").text("Deletion of line was successful")
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Delete Successful").text("Deletion of line was successful")
 								.showInformation();
-						lineNumData.remove(lineRow);
-						lineNumTable.refresh();
+						refreshLineNumTable();
 					} else
 					{
-						Notifications.create().title("Delete not allowed").text("This line has customers associated to it, hence cannot be deleted").showError();
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Delete not allowed").text("This line has customers associated to it, hence cannot be deleted").showError();
 					}
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					Notifications.create().title("Delete failed").text("Delete request of line has failed").showError();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed").text("Delete request of line has failed").showError();
 				}
 		 }
 		return false;
 	}
 	
 	private void populateCustomersForLine() {
-		// TODO Auto-generated method stub
-		try {
-			
-			Connection con = Main.dbConnection;
-			while(!con.isValid(0)){
-				con = Main.reconnect();
-			}
-			customerData.clear();
-			PreparedStatement stmt = con.prepareStatement("select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3 from customer where hawker_code = ? and line_num = ?");
-			stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
-			stmt.setInt(2, lineNumTable.getSelectionModel().selectedItemProperty().getValue().getLineNum());
-			ResultSet rs = stmt.executeQuery();
-			while(rs.next()){
-				customerData.add(new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4), rs.getString(5), 
-						rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),rs.getString(13),rs.getString(14),
-						rs.getString(15), rs.getString(16),rs.getString(17)));
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if(!customerData.isEmpty())
-			lineNumCustomersTable.setItems(customerData);
-		lineNumCustomersTable.refresh();
-	}
-	
-	@FXML private void addLineButtonClicked(ActionEvent event){
-		try {
-			Integer lineNum = Integer.parseInt(addLineNumField.getText());
-			if(checkExistingLineNum(lineNum)){
-				PreparedStatement insertLineNum = null;
-				String insertStatement = 
-						"INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + 
-								"VALUES (?,?)";
-				Connection con = Main.dbConnection;
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
 				try {
+					
+					Connection con = Main.dbConnection;
 					while(!con.isValid(0)){
 						con = Main.reconnect();
 					}
-						insertLineNum = con.prepareStatement(insertStatement);
-						long hawkerId = HawkerLoginController.loggedInHawker.getHawkerId();
-						if (hawkerId>=1) {
-							insertLineNum.setInt(1, Integer.parseInt(addLineNumField.getText()));
-							insertLineNum.setLong(2, hawkerId);
-							insertLineNum.execute();
-							refreshLineNumTable();
-							addLineNumField.clear();
-						}
-				}catch (SQLException e) {
+					customerData.clear();
+					PreparedStatement stmt = con.prepareStatement("select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3 from customer where hawker_code = ? and line_num = ? ORDER BY HOUSE_SEQ");
+					stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
+					stmt.setInt(2, lineNumTable.getSelectionModel().selectedItemProperty().getValue().getLineNum());
+					ResultSet rs = stmt.executeQuery();
+					while(rs.next()){
+						customerData.add(new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4), rs.getString(5), 
+								rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),rs.getString(13),rs.getString(14),
+								rs.getString(15), rs.getString(16),rs.getString(17)));
+					}
+				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					Notifications.create().title("Invalid line num").text("Please enter numeric line number only").showError();
 				}
+				if(!customerData.isEmpty())
+					lineNumCustomersTable.setItems(customerData);
+				lineNumCustomersTable.refresh();
+				return null;
 			}
 			
-		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Notifications.create().title("Error").text("Please enter proper numeric value in Line Number field").showError();
-		}
+		};
+		new Thread(task).start();
+	}
+	
+	@FXML private void addLineButtonClicked(ActionEvent event){
+		Task<Void> task = new Task<Void> (){
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+					Integer lineNum = Integer.parseInt(addLineNumField.getText());
+					if(checkExistingLineNum(lineNum)){
+						PreparedStatement insertLineNum = null;
+						String insertStatement = 
+								"INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + 
+										"VALUES (?,?)";
+						Connection con = Main.dbConnection;
+						try {
+							while(!con.isValid(0)){
+								con = Main.reconnect();
+							}
+								insertLineNum = con.prepareStatement(insertStatement);
+								long hawkerId = HawkerLoginController.loggedInHawker.getHawkerId();
+								if (hawkerId>=1) {
+									insertLineNum.setInt(1, Integer.parseInt(addLineNumField.getText()));
+									insertLineNum.setLong(2, hawkerId);
+									insertLineNum.execute();
+									refreshLineNumTable();
+									addLineNumField.clear();
+								}
+						}catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid line num").text("Please enter numeric line number only").showError();
+						}
+					}
+					
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Error").text("Please enter proper numeric value in Line Number field").showError();
+				}
+				return null;
+			}
+			
+		};
+		new Thread(task).start();
 	
 	}
 	
 	private void refreshLineNumTable() {
-		// TODO Auto-generated method stub
-		lineNumTable.getItems().clear();
-		try {
-			
-			Connection con = Main.dbConnection;
-			while(!con.isValid(0)){
-				con = Main.reconnect();
-			}
-			lineNumData.clear();
-			PreparedStatement hawkerIdStatement = null;
-			String hawkerIdQuery = "select hawker_id from hawker_info where hawker_code = ?";
-			hawkerIdStatement = con.prepareStatement(hawkerIdQuery);
-			hawkerIdStatement.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
-			ResultSet hawkerIdRs = hawkerIdStatement.executeQuery();
-			long hawkerId=-1;
-			if(hawkerIdRs.next()){
-				hawkerId=hawkerIdRs.getLong(1);
-			}
-			if (hawkerId>=1) {
-				PreparedStatement lineNumStatement = null;
-				String lineNumQuery = "select line_id, line_num, hawker_id from line_info where hawker_id = ?";
-				lineNumStatement = con.prepareStatement(lineNumQuery);
-				lineNumStatement.setLong(1, hawkerId);
-				//			Statement stmt = con.createStatement();
-				ResultSet rs = lineNumStatement.executeQuery();
-				while (rs.next()) {
-					lineNumData.add(new LineInfo(rs.getLong(1), rs.getInt(2), rs.getLong(3)));
-				}
-				System.out.println("LineNumData = "+lineNumData.toString());
-				lineNumTable.getItems().addAll(lineNumData);
-				lineNumTable.refresh();
-			}
-			else
-			{
-				lineNumData.clear();
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
 				lineNumTable.getItems().clear();
-				lineNumTable.refresh();
-				Notifications.create().title("No lines found").text("No lines found under the hawker").show();
+				try {
+					
+					Connection con = Main.dbConnection;
+					while(!con.isValid(0)){
+						con = Main.reconnect();
+					}
+					lineNumData.clear();
+					PreparedStatement hawkerIdStatement = null;
+					String hawkerIdQuery = "select hawker_id from hawker_info where hawker_code = ?";
+					hawkerIdStatement = con.prepareStatement(hawkerIdQuery);
+					hawkerIdStatement.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
+					ResultSet hawkerIdRs = hawkerIdStatement.executeQuery();
+					long hawkerId=-1;
+					if(hawkerIdRs.next()){
+						hawkerId=hawkerIdRs.getLong(1);
+					}
+					if (hawkerId>=1) {
+						PreparedStatement lineNumStatement = null;
+						String lineNumQuery = "select line_id, line_num, hawker_id from line_info where hawker_id = ?";
+						lineNumStatement = con.prepareStatement(lineNumQuery);
+						lineNumStatement.setLong(1, hawkerId);
+						//			Statement stmt = con.createStatement();
+						ResultSet rs = lineNumStatement.executeQuery();
+						while (rs.next()) {
+							lineNumData.add(new LineInfo(rs.getLong(1), rs.getInt(2), rs.getLong(3)));
+						}
+						System.out.println("LineNumData = "+lineNumData.toString());
+						lineNumTable.getItems().addAll(lineNumData);
+						lineNumTable.refresh();
+					}
+					else
+					{
+						lineNumData.clear();
+						lineNumTable.getItems().clear();
+						lineNumTable.refresh();
+						Notifications.create().hideAfter(Duration.seconds(5)).title("No lines found").text("No lines found under the hawker").show();
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			
+		};
+		new Thread(task).start();
 	}
 	
 	private boolean checkExistingLineNum(Integer lineNum) {
@@ -333,7 +359,7 @@ public class HLineInfoTabController implements Initializable {
 			lineNumExists.setLong(2, HawkerLoginController.loggedInHawker.getHawkerId());
 			ResultSet lineNumExistsRs = lineNumExists.executeQuery();
 			if(lineNumExistsRs.next()){
-				Notifications.create().title("Line number exists").text("This line number already exists in the hawker selected").showError();
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Line number exists").text("This line number already exists in the hawker selected").showError();
 				return false;
 			}
 		}catch (SQLException e) {
@@ -372,13 +398,13 @@ public class HLineInfoTabController implements Initializable {
 						if (!newHouseSeq.contains(NumberUtils.tryParseInt(newHouseSeqTFArray.get(i).getText()))) {
 							newHouseSeq.add(i,NumberUtils.tryParseInt(newHouseSeqTFArray.get(i).getText()));
 						} else{
-							Notifications.create().title("Invalid sequence").text("Duplicate house sequence found")
+							Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid sequence").text("Duplicate house sequence found")
 							.showError();
 							newHouseSeq.clear();
 							btnevent.consume();
 						}
 					} else{
-						Notifications.create().title("Invalid sequence").text("House sequence should not be empty and must be NUMBERS only")
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid sequence").text("House sequence should not be empty and must be NUMBERS only")
 						.showError();
 						newHouseSeq.clear();
 						btnevent.consume();
@@ -429,7 +455,7 @@ public class HLineInfoTabController implements Initializable {
 				}
 			}
 		}else {
-			Notifications.create().title("No customers").text("There are no customers in this line").showError();
+			Notifications.create().hideAfter(Duration.seconds(5)).title("No customers").text("There are no customers in this line").showError();
 		}
 	}
 

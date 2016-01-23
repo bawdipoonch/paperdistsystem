@@ -161,6 +161,7 @@ public class EditCustomerController implements Initializable {
 	}
 	
 	public Customer returnUpdatedCustomer(){
+		
 		Customer edittedCustomer = new Customer(custRow);
 		edittedCustomer.setCustomerCode(Long.parseLong(editCustomerCodeTF.getText()));
         edittedCustomer.setName(editNameTF.getText());
@@ -181,5 +182,6 @@ public class EditCustomerController implements Initializable {
         edittedCustomer.updateCustomerRecord();
     	return edittedCustomer;
 	}
+	
 
 }

@@ -27,7 +27,7 @@
         </rowConstraints>
          <children>
             <Label text="Name" />
-            <Label text="Customer Code" GridPane.columnIndex="2" />
+            <Label text="Customer Code" GridPane.columnIndex="2"/>
             <Label text="Mobile Number" GridPane.rowIndex="1" />
             <Label text="Hawker Code" GridPane.columnIndex="2" GridPane.rowIndex="1" />
             <Label text="Line Number" GridPane.rowIndex="2" />
@@ -43,7 +43,7 @@
             <Label text="Profile 2" GridPane.rowIndex="7" />
             <Label text="Profile 3" GridPane.columnIndex="2" GridPane.rowIndex="7" />
             <TextField fx:id="editNameTF" GridPane.columnIndex="1" />
-            <TextField fx:id="editCustomerCodeTF" GridPane.columnIndex="3" />
+            <TextField fx:id="editCustomerCodeTF" GridPane.columnIndex="3" disable="true"/>
             <TextField fx:id="editMobileNumTF" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="editHouseSeqTF" GridPane.columnIndex="3" GridPane.rowIndex="2" />
             <TextField fx:id="editOldHouseNumTF" GridPane.columnIndex="1" GridPane.rowIndex="3" />

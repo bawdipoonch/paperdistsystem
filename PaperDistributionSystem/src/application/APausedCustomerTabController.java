@@ -13,5 +13,9 @@ public class APausedCustomerTabController implements Initializable {
 		System.out.println("Entered HPausedCustomerTab");
 
 	}
+	
+	public void reloadData(){
+		
+	}
 
 }

@@ -16,6 +16,7 @@ import com.amazonaws.util.NumberUtils;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -37,6 +38,7 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import javafx.util.Duration;
 
 
 public class HLineDistributorTabController implements Initializable {
@@ -138,7 +140,7 @@ public class HLineDistributorTabController implements Initializable {
 						deleteStmt.setLong(1, lineDistRow.getLineDistId());
 						deleteStmt.executeUpdate();
 						con.commit();
-						Notifications.create().title("Delete Successful").text("Deletion of line distributor was successful")
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Delete Successful").text("Deletion of line distributor was successful")
 								.showInformation();
 						lineDistData.remove(lineDistRow);
 						lineDistInfoTable.refresh();
@@ -146,7 +148,7 @@ public class HLineDistributorTabController implements Initializable {
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					Notifications.create().title("Delete failed").text("Delete request of line distributor has failed").showError();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed").text("Delete request of line distributor has failed").showError();
 				}
 		 }
 	}
@@ -190,11 +192,11 @@ public class HLineDistributorTabController implements Initializable {
 		Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
 		saveButton.addEventFilter(ActionEvent.ACTION, btnevent -> {
 			if(nameTF.getText()==null || mobileTF.getText()==null || lineNumTF.getSelectionModel().getSelectedItem()==null) {
-				Notifications.create().title("Invalid value").text("Name, Mobile Number and Line number must have appropriate values").showError();
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value").text("Name, Mobile Number and Line number must have appropriate values").showError();
 				btnevent.consume();
 			}
 			else if(lineDistForLineExists(lineNumTF.getSelectionModel().getSelectedItem())){
-				Notifications.create().title("Error").text("Line Distributor already exists for this line number").showError();
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Error").text("Line Distributor already exists for this line number").showError();
 				btnevent.consume();
 			}
 				
@@ -231,45 +233,56 @@ public class HLineDistributorTabController implements Initializable {
 		
 	@FXML
 	private void addButtonClicked(ActionEvent event){
-		try {
-			if (addNameField.getText()!=null && addMobileNumField.getText()!=null && addLineNumField.getSelectionModel().selectedItemProperty().isNotNull().get()) {
-				
-					if (!lineDistForLineExists(addLineNumField.getSelectionModel().selectedItemProperty().getValue())) {
-						PreparedStatement insertLineNum = null;
-						String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID) "
-								+ "VALUES (?,?,?,?)";
-						Connection con = Main.dbConnection;
-						try {
-							while (!con.isValid(0)) {
-								con = Main.reconnect();
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+					if (addNameField.getText()!=null && addMobileNumField.getText()!=null && addLineNumField.getSelectionModel().selectedItemProperty().isNotNull().get()) {
+						
+							if (!lineDistForLineExists(addLineNumField.getSelectionModel().selectedItemProperty().getValue())) {
+								PreparedStatement insertLineNum = null;
+								String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID) "
+										+ "VALUES (?,?,?,?)";
+								Connection con = Main.dbConnection;
+								try {
+									while (!con.isValid(0)) {
+										con = Main.reconnect();
+									}
+									insertLineNum = con.prepareStatement(insertStatement);
+									long hawkerId = HawkerLoginController.loggedInHawker.getHawkerId();
+									insertLineNum.setString(1, addNameField.getText());
+									insertLineNum.setString(2, addMobileNumField.getText());
+									insertLineNum.setInt(3, addLineNumField.getSelectionModel().selectedItemProperty().get());
+									insertLineNum.setLong(4, hawkerId);
+									insertLineNum.execute();
+									
+									refreshLineDistTable();
+								} catch (SQLException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								} 
 							}
-							insertLineNum = con.prepareStatement(insertStatement);
-							long hawkerId = HawkerLoginController.loggedInHawker.getHawkerId();
-							insertLineNum.setString(1, addNameField.getText());
-							insertLineNum.setString(2, addMobileNumField.getText());
-							insertLineNum.setInt(3, addLineNumField.getSelectionModel().selectedItemProperty().get());
-							insertLineNum.setLong(4, hawkerId);
-							insertLineNum.execute();
-							
-							refreshLineDistTable();
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} 
+							else {
+								Notifications.create().hideAfter(Duration.seconds(5)).title("Error").text("Line Distributor already exists for this line number").showError();
+							}
+						
+					}else {
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Required fields").text("Please enter value in Name, Mobile Number and Line Number").showError();
 					}
-					else {
-						Notifications.create().title("Error").text("Line Distributor already exists for this line number").showError();
-					}
-				
-			}else {
-				Notifications.create().title("Required fields").text("Please enter value in Name, Mobile Number and Line Number").showError();
+					
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Error").text("Please enter proper numeric value in Line Number field").showError();
+				}
+				return null;
 			}
 			
-		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Notifications.create().title("Error").text("Please enter proper numeric value in Line Number field").showError();
-		}
+		};
+		
+		new Thread(task).start();
+		
 	}
 	
 	@FXML
@@ -280,49 +293,66 @@ public class HLineDistributorTabController implements Initializable {
 	}
 	
 	private void populateLineNumbersForHawkerCode() {
-		// TODO Auto-generated method stub
-		try {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+					
+					Connection con = Main.dbConnection;
+					while(!con.isValid(0)){
+						con = Main.reconnect();
+					}
+					lineNumData.clear();
+					PreparedStatement stmt = con.prepareStatement("select distinct line_num from line_info where hawker_id = ?");
+					stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
+					ResultSet rs = stmt.executeQuery();
+					while(rs.next()){
+						lineNumData.add(rs.getInt(1));
+					}
+					addLineNumField.getItems().clear();
+					addLineNumField.getItems().addAll(lineNumData);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}
 			
-			Connection con = Main.dbConnection;
-			while(!con.isValid(0)){
-				con = Main.reconnect();
-			}
-			lineNumData.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct line_num from line_info where hawker_id = ?");
-			stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
-			ResultSet rs = stmt.executeQuery();
-			while(rs.next()){
-				lineNumData.add(rs.getInt(1));
-			}
-			addLineNumField.getItems().clear();
-			addLineNumField.getItems().addAll(lineNumData);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		};
+		new Thread(task).start();
 	}
 	
 	public void refreshLineDistTable(){
-		try {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+					
+					Connection con = Main.dbConnection;
+					while(!con.isValid(0)){
+						con = Main.reconnect();
+					}
+					lineDistData.clear();
+					PreparedStatement stmt = con.prepareStatement("select line_dist_id, name, mobile_num, hawker_id, line_num from line_distributor where hawker_id = ?");
+					stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
+					ResultSet rs = stmt.executeQuery();
+					while(rs.next()){
+						lineDistData.add(new LineDistributor(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4), rs.getInt(5)));
+					}
+//					lineDistInfoTable.getItems().clear();
+					lineDistInfoTable.setItems(lineDistData);
+					lineDistInfoTable.refresh();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}
 			
-			Connection con = Main.dbConnection;
-			while(!con.isValid(0)){
-				con = Main.reconnect();
-			}
-			lineDistData.clear();
-			PreparedStatement stmt = con.prepareStatement("select line_dist_id, name, mobile_num, hawker_id, line_num from line_distributor where hawker_id = ?");
-			stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
-			ResultSet rs = stmt.executeQuery();
-			while(rs.next()){
-				lineDistData.add(new LineDistributor(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4), rs.getInt(5)));
-			}
-//			lineDistInfoTable.getItems().clear();
-			lineDistInfoTable.setItems(lineDistData);
-			lineDistInfoTable.refresh();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		};
+		new Thread(task).start();
 	}
 	
 	public boolean lineDistForLineExists(int line_num){

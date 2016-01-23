@@ -12,11 +12,18 @@ import javafx.scene.layout.Pane;
 import javafx.fxml.FXMLLoader;
 import org.controlsfx.control.Notifications;
 
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.rds.AmazonRDSClient;
+
 
 public class Main extends Application {
 	public static Connection dbConnection = null;
-	final private String ACCESS_KEY = "AKIAIHSVYHESVS7MW4WA";
-	final private String SECRET = "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";
+	final private static String ACCESS_KEY = "AKIAILIR5CDWQ2B4KORQ";
+	final private static String SECRET = "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";
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -38,8 +45,8 @@ public class Main extends Application {
 
 			// step2 create the connection object
 			dbConnection = DriverManager.getConnection(
-					"jdbc:oracle:thin:@paperdistsystem.cvgknfws850z.ap-southeast-1.rds.amazonaws.com:1521:ORCL", "admin","LateefAhmed");
-
+					"jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL", "admin","LateefAhmedPDS");
+			
 			// step3 create the statement object
 //			Statement stmt = dbConnection.createStatement();
 
@@ -80,16 +87,13 @@ public class Main extends Application {
 
 				// step2 create the connection object
 				dbConnection = DriverManager.getConnection(
-						"jdbc:oracle:thin:@paperdistsystem.cvgknfws850z.ap-southeast-1.rds.amazonaws.com:1521:ORCL", "admin","LateefAhmed");
+						"jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL", "admin","LateefAhmedPDS");
 				
 				Notifications.create().title("Connection Success!").text("Database reconnected").show();
 			} else {
 				Notifications.create().title("All good!").text("Dabatase connection seems fine, please try again.").showInformation();
 			}
 			
-
-			
-
 		} catch (Exception e) {
 			System.out.println(e);
 			Notifications.create().title("Connection Error!").text("Cannot connect to amazon database, contact administrator!").showError();

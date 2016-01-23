@@ -23,6 +23,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.sql.*;
 
 public class HawkerLoginController implements Initializable {
@@ -76,21 +78,29 @@ public class HawkerLoginController implements Initializable {
 				stmt.setString(1, mobileNum.getText());
 				ResultSet rs = stmt.executeQuery();
 				if(rs.next()){
-					loggedInHawker = new Hawker(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6).equalsIgnoreCase("Y"), 
-							rs.getDouble(7), rs.getString(8), rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),rs.getString(14),
-							rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21));
-					Notifications.create().title("Logged in").text("Login successful").showInformation();
-					stage = (Stage) loginButton.getScene().getWindow();
-					// load up OTHER FXML document
-					root = FXMLLoader.load(getClass().getResource("HawkerHome.fxml"));
-
-					Scene scene = new Scene(root);
-					stage.setScene(scene);
-					stage.show();
+					if (rs.getString(6).equalsIgnoreCase("Y")) {
+						loggedInHawker = new Hawker(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),
+								rs.getString(5), rs.getString(6).equalsIgnoreCase("Y"), rs.getDouble(7),
+								rs.getString(8), rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
+								rs.getString(13), rs.getString(14), rs.getString(15), rs.getString(16),
+								rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20),
+								rs.getString(21));
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Logged in").text("Login successful").showInformation();
+						stage = (Stage) loginButton.getScene().getWindow();
+						// load up OTHER FXML document
+						root = FXMLLoader.load(getClass().getResource("HawkerHome.fxml"));
+						Scene scene = new Scene(root);
+						stage.setScene(scene);
+						stage.show();
+					}
+					else
+					{
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Inactive Hawker").text("Hawker with given mobile number is not activated yet. Please contact administrator.").showError();
+					}
 				}
 			}
 			else {
-				Notifications.create().title("Invalid mobile number").text("Hawker with given mobile number doesn't exist").showError();
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid mobile number").text("Hawker with given mobile number doesn't exist").showError();
 			}
 			
 			

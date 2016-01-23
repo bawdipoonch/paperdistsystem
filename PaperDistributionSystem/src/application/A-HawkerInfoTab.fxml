@@ -80,7 +80,7 @@
                <children>
                   <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label text="Hawker Billing Settlement">
+                        <Label text="Hawker Billing Statement">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -92,15 +92,24 @@
                            <columns>
                               <TableColumn fx:id="hwkBillStartDateColumn" prefWidth="105.0" text="Start Date" />
                               <TableColumn fx:id="hwkBillEndDateColumn" prefWidth="94.0" sortType="DESCENDING" text="End Date" />
-                              <TableColumn fx:id="hwkBillAmountColumn" prefWidth="83.0" text="Amount" />
-                              <TableColumn fx:id="hwkBillPaidColumn" prefWidth="83.0" text="Paid" />
-                              <TableColumn fx:id="hwkBillDueColumn" prefWidth="83.0" text="Due" />
+                              <TableColumn fx:id="hwkBillAmountColumn" minWidth="125.0" prefWidth="125.0" text="Bill Amount" />
+                              <TableColumn fx:id="hwkBillPaidColumn" minWidth="125.0" prefWidth="125.0" text="Amount Received" />
+                              <TableColumn fx:id="hwkBillDueColumn" minWidth="125.0" prefWidth="125.0" text="Payment Due" />
                            </columns>
                            <VBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </VBox.margin>
                         </TableView>
                      </children>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
                   </VBox>
                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
