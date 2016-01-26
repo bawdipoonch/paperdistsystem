@@ -24,6 +24,7 @@ public class Main extends Application {
 	public static Connection dbConnection = null;
 	final private static String ACCESS_KEY = "AKIAILIR5CDWQ2B4KORQ";
 	final private static String SECRET = "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";
+	final private static String dbConnectionString = "jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL";
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -45,7 +46,7 @@ public class Main extends Application {
 
 			// step2 create the connection object
 			dbConnection = DriverManager.getConnection(
-					"jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL", "admin","LateefAhmedPDS");
+					dbConnectionString, "admin","LateefAhmedPDS");
 			
 			// step3 create the statement object
 //			Statement stmt = dbConnection.createStatement();
@@ -87,7 +88,7 @@ public class Main extends Application {
 
 				// step2 create the connection object
 				dbConnection = DriverManager.getConnection(
-						"jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL", "admin","LateefAhmedPDS");
+						dbConnectionString, "admin","LateefAhmedPDS");
 				
 				Notifications.create().title("Connection Success!").text("Database reconnected").show();
 			} else {

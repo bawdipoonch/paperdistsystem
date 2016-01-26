@@ -2,7 +2,10 @@ package application;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
+
+import org.controlsfx.control.Notifications;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -17,10 +20,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 public class HawkerHomeController implements Initializable {
 	
 	@FXML private Button logoutButton;
+	@FXML private Button refreshButton;
+	@FXML private Button changePwdButton;
 	@FXML private Label hawkerName;
 	@FXML private Label code;
 	@FXML private Label agencyName;
@@ -129,7 +135,7 @@ public class HawkerHomeController implements Initializable {
 			FXMLLoader lineDistTabLoader = new FXMLLoader(getClass().getResource("H-LineDistributorTab.fxml"));
 			Parent linedistroot = (Parent)lineDistTabLoader.load();
 			lineDistTabController = lineDistTabLoader.<HLineDistributorTabController>getController();
-			lineDistTab.setText("Line Distributors");
+			lineDistTab.setText("Line Distribution Boy");
 			lineDistTab.setContent(linedistroot);
 			lineDistTab.setOnSelectionChanged(new EventHandler<Event>() {
 				
@@ -171,7 +177,7 @@ public class HawkerHomeController implements Initializable {
 				}
 			});
 			
-			tabPane.getTabs().addAll(customersTab, lineDistTab, lineInfoTab);
+			tabPane.getTabs().addAll(customersTab, lineInfoTab, lineDistTab );
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -185,6 +191,27 @@ public class HawkerHomeController implements Initializable {
 		lineDistTabController.reloadData();
 		lineInfoTabController.reloadData();
 //		pausedCustTabController.reloadData();
+	}
+	
+	@FXML private void changePasswordClicked(ActionEvent evt){
+		TextInputDialog changePwdDialog = new TextInputDialog();
+		changePwdDialog.setTitle("Change password");
+		changePwdDialog.setHeaderText("Please enter the new password. \nPassword must be atleast 5 characters long.");
+//		changePwdDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+		final Button btOk = (Button) changePwdDialog.getDialogPane().lookupButton(ButtonType.OK);
+		 btOk.addEventFilter(ActionEvent.ACTION, event -> {
+		     if (changePwdDialog.getEditor().getText().isEmpty() && changePwdDialog.getEditor().getText().length()>=5) {
+		         Notifications.create().title("Empty password").text("Password cannot be left empty and must be more than 5 characters. Try again.").hideAfter(Duration.seconds(5)).showError();
+		    	 event.consume();
+		     }
+		 });
+		Optional<String> result = changePwdDialog.showAndWait();
+		 if (result.isPresent()) {
+//		     changeHawkerPwd(hawkerRow,result.get());
+			 HawkerLoginController.loggedInHawker.setPassword(result.get());
+			 HawkerLoginController.loggedInHawker.updateHawkerRecord();
+			 Notifications.create().title("Password updated").text("Password was successfully updated").hideAfter(Duration.seconds(5)).showInformation();
+		 }
 	}
 	
 

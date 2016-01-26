@@ -53,6 +53,8 @@ public class AHawkerInfoTabController implements Initializable {
 	@FXML
 	private TextField addHwkName;
 	@FXML
+	private TextField addHwkInitials;
+	@FXML
 	private TextField addHwkCode;
 	@FXML
 	private TextField addHwkMob;
@@ -76,6 +78,12 @@ public class AHawkerInfoTabController implements Initializable {
 	private CheckBox addHwkActive;
 	@FXML
 	private ComboBox<String> addHwkState;
+	@FXML
+	private TextField addHwkProf1;
+	@FXML
+	private TextField addHwkProf2;
+	@FXML
+	private TextField addHwkProf3;
 
 	// ScreenAccess Checkbox
 	@FXML
@@ -96,6 +104,8 @@ public class AHawkerInfoTabController implements Initializable {
 	// Hawker Columns
 	@FXML
 	private TableColumn<Hawker, String> hwkNameColumn;
+	@FXML
+	private TableColumn<Hawker, String> hwkInitialsColumn;
 	@FXML
 	private TableColumn<Hawker, String> hwkCodeColumn;
 	@FXML
@@ -122,6 +132,12 @@ public class AHawkerInfoTabController implements Initializable {
 	private TableColumn<Hawker, String> hwkCityColumn;
 	@FXML
 	private TableColumn<Hawker, String> hwkStateColumn;
+	@FXML
+	private TableColumn<Hawker, String> profile1Column;
+	@FXML
+	private TableColumn<Hawker, String> profile2Column;
+	@FXML
+	private TableColumn<Hawker, String> profile3Column;
 
 	// Billing columns
 	@FXML
@@ -157,7 +173,7 @@ public class AHawkerInfoTabController implements Initializable {
 		// Set cell value factories
 
 		hwkNameColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("name"));
-
+		hwkInitialsColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("initials"));
 		hwkCodeColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("hawkerCode"));
 
 		hwkMobileColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("mobileNum"));
@@ -182,6 +198,9 @@ public class AHawkerInfoTabController implements Initializable {
 		hwkLocalityColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("locality"));
 		hwkCityColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("city"));
 		hwkStateColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("state"));
+		profile1Column.setCellValueFactory(new PropertyValueFactory<Hawker, String>("profile1"));
+		profile2Column.setCellValueFactory(new PropertyValueFactory<Hawker, String>("profile2"));
+		profile3Column.setCellValueFactory(new PropertyValueFactory<Hawker, String>("profile3"));
 
 		hwkBillStartDateColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Date>("startDate"));
 		hwkBillEndDateColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Date>("endDate"));
@@ -324,6 +343,17 @@ public class AHawkerInfoTabController implements Initializable {
 					}
 
 				});
+				
+				MenuItem mnuPwd = new MenuItem("Change Password");
+				mnuPwd.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Hawker hawkerRow = hawkerMasterData.get(hawkerTable.getSelectionModel().getSelectedIndex());
+						showPwdChangeDialog(hawkerRow);
+						
+					}
+
+				});
 
 				/*
 				 * MenuItem mnuBill = new MenuItem("Generate bill");
@@ -338,7 +368,7 @@ public class AHawkerInfoTabController implements Initializable {
 				 * });
 				 */
 				ContextMenu menu = new ContextMenu();
-				menu.getItems().addAll(mnuEdit, mnuDel);
+				menu.getItems().addAll(mnuEdit, mnuDel, mnuPwd);
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
 				return row;
@@ -512,6 +542,24 @@ public class AHawkerInfoTabController implements Initializable {
 		}
 
 	}
+	private void showPwdChangeDialog(Hawker hawkerRow) {
+		TextInputDialog changePwdDialog = new TextInputDialog();
+		changePwdDialog.setTitle("Change password");
+		changePwdDialog.setHeaderText("Please enter the new password. \nPassword must be atleast 5 characters long.");
+		final Button btOk = (Button) changePwdDialog.getDialogPane().lookupButton(ButtonType.OK);
+		 btOk.addEventFilter(ActionEvent.ACTION, event -> {
+			 if (changePwdDialog.getEditor().getText().isEmpty() && changePwdDialog.getEditor().getText().length()>=5) {
+		         Notifications.create().title("Empty password").text("Password cannot be left empty and must be more than 5 characters. Try again.").hideAfter(Duration.seconds(5)).showError();
+		    	 event.consume();
+		     }
+		 });
+		Optional<String> result = changePwdDialog.showAndWait();
+		 if (result.isPresent()) {
+			 hawkerRow.setPassword(result.get());
+			 hawkerRow.updateHawkerRecord();
+			 Notifications.create().title("Password updated").text("Password was successfully updated").hideAfter(Duration.seconds(5)).showInformation();
+		 }
+	}
 
 	private void showEditHawkerDialog(Hawker hawkerRow) {
 		int selectedIndex = hawkerTable.getSelectionModel().selectedIndexProperty().get();
@@ -576,13 +624,13 @@ public class AHawkerInfoTabController implements Initializable {
 					hawkerMasterData.clear();
 					Statement stmt = con.createStatement();
 					ResultSet rs = stmt.executeQuery(
-							"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access  from hawker_info");
+							"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials  from hawker_info");
 					while (rs.next()) {
 						Hawker hwkRow = new Hawker(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),
 								rs.getString(5), rs.getString(6).equalsIgnoreCase("Y"), rs.getDouble(7), rs.getString(8),
 								rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
 								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17), rs.getString(18),
-								rs.getString(19), rs.getString(20), rs.getString(21));
+								rs.getString(19), rs.getString(20), rs.getString(21), rs.getString(22), rs.getString(23), rs.getString(24),rs.getString(25));
 						hwkRow.calculateTotalDue();
 						hawkerMasterData.add(hwkRow);
 					}
@@ -678,7 +726,7 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 			
 		};
-		
+		new Thread(task).start();
 	}
 
 	@FXML
@@ -689,10 +737,7 @@ public class AHawkerInfoTabController implements Initializable {
 			.text("Hawker with same Hawker Code alraedy exists. Please choose different hawker code")
 			.hideAfter(Duration.seconds(5)).showError();
 		} else {
-			Task<Void> task = new Task<Void>() {
-
-				@Override
-				protected Void call() throws Exception {
+			
 					boolean validate = true;
 					if (addHwkName.getText() == null) {
 						validate = false;
@@ -706,11 +751,11 @@ public class AHawkerInfoTabController implements Initializable {
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
 						.text("Fee per subscription should not be empty and must be numeric only").showError();
 					}
-
+					
 					if (validate) {
 						PreparedStatement insertHawker = null;
-						String insertStatement = "INSERT INTO HAWKER_INFO(NAME,HAWKER_CODE, MOBILE_NUM, AGENCY_NAME,FEE,ACTIVE_FLAG, OLD_HOUSE_NUM, NEW_HOUSE_NUM,ADDR_LINE1,ADDR_LINE2,LOCALITY,CITY,STATE,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access) "
-								+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+						String insertStatement = "INSERT INTO HAWKER_INFO(NAME,HAWKER_CODE, MOBILE_NUM, AGENCY_NAME,FEE,ACTIVE_FLAG, OLD_HOUSE_NUM, NEW_HOUSE_NUM,ADDR_LINE1,ADDR_LINE2,LOCALITY,CITY,STATE,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials ) "
+								+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 						Connection con = Main.dbConnection;
 						try {
 							while (!con.isValid(0)) {
@@ -738,6 +783,10 @@ public class AHawkerInfoTabController implements Initializable {
 							insertHawker.setString(18, "N");
 							insertHawker.setString(19, "N");
 							insertHawker.setString(20, "N");
+							insertHawker.setString(21, addHwkProf1.getText());
+							insertHawker.setString(22, addHwkProf2.getText());
+							insertHawker.setString(23, addHwkProf3.getText());
+							insertHawker.setString(24, addHwkInitials.getText());
 
 							insertHawker.execute();
 							Double d = Double.parseDouble(addHwkFee.getText());
@@ -766,12 +815,6 @@ public class AHawkerInfoTabController implements Initializable {
 						}
 						resetClicked(event);
 					}
-					return null;
-				}
-				
-			};
-			
-			new Thread(task).start();
 			
 		}
 
@@ -803,6 +846,10 @@ public class AHawkerInfoTabController implements Initializable {
 		addHwkCity.clear();
 		addHwkActive.setSelected(false);
 		addHwkState.setValue("State");
+		addHwkProf1.clear();
+		addHwkProf2.clear();
+		addHwkProf3.clear();
+		addHwkInitials.clear();
 	}
 
 	@FXML
@@ -865,6 +912,18 @@ public class AHawkerInfoTabController implements Initializable {
 						else if (hawker.getOldHouseNum().toUpperCase().contains(searchText.toUpperCase()))
 							return true;
 						else if (hawker.getState().toUpperCase().contains(searchText.toUpperCase()))
+							return true;
+						else if (hawker.getProfile1() != null
+								&& hawker.getProfile1().toUpperCase().contains(searchText.toUpperCase()))
+							return true;
+						else if (hawker.getProfile2() != null
+								&& hawker.getProfile2().toUpperCase().contains(searchText.toUpperCase()))
+							return true;
+						else if (hawker.getProfile3() != null
+								&& hawker.getProfile3().toUpperCase().contains(searchText.toUpperCase()))
+							return true;
+						else if (hawker.getInitials() != null
+								&& hawker.getInitials().toUpperCase().contains(searchText.toUpperCase()))
 							return true;
 						return false;
 					}

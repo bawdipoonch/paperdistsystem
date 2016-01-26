@@ -20,6 +20,7 @@
 											<children>
 												<TextField fx:id="addCustName" promptText="Customer Name" />
 												<TextField fx:id="addCustMobile" promptText="Mobile Number" />
+                                    <TextField fx:id="addCustInitials" layoutX="845.0" layoutY="10.0" prefHeight="25.0" prefWidth="73.0" promptText="Initials" />
 												<ComboBox fx:id="addCustLineNum" prefHeight="25.0" prefWidth="114.0" promptText="Line Number" />
 												<TextField fx:id="addCustHouseSeq" layoutX="532.0" layoutY="10.0" prefHeight="25.0" prefWidth="103.0" promptText="House Sequence" />
 												<TextField fx:id="addCustOldHouseNum" prefHeight="25.0" prefWidth="73.0" promptText="Old House#" />
@@ -61,6 +62,7 @@
 							<columns>
 								<TableColumn fx:id="customerCodeColumn" prefWidth="126.0" text="Customer Code" />
 								<TableColumn fx:id="customerNameColumn" prefWidth="250.0" text="Customer Name" />
+                        <TableColumn fx:id="customerInitialsColumn" prefWidth="75.0" text="Initials" />
 								<TableColumn fx:id="mobileNumColumn" prefWidth="125.0" text="Mobile Number" />
 								<TableColumn fx:id="lineNumColumn" prefWidth="67.0" text="Line#" />
 								<TableColumn fx:id="houseSeqColumn" prefWidth="110.0" text="House Sequence" />

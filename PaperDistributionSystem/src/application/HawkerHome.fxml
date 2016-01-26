@@ -13,6 +13,9 @@
 			<children>
 				<ButtonBar prefHeight="40.0" prefWidth="200.0">
 					<buttons>
+						<Button fx:id="changePwdButton" mnemonicParsing="false" onAction="#changePasswordClicked" text="Change Password" />
+					</buttons>
+					<buttons>
 						<Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
 					</buttons>
 					<buttons>

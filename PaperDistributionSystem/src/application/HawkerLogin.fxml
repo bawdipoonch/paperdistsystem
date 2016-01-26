@@ -28,10 +28,16 @@
                   <Font size="18.0" />
                </font>
             </Label>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+            <HBox alignment="CENTER" prefHeight="75.0" prefWidth="1260.0">
                <children>
                   <Label text="Mobile Number : " />
                   <TextField fx:id="mobileNum" promptText="Enter mobile number" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" layoutX="20.0" layoutY="386.0" prefHeight="75.0" prefWidth="1260.0">
+               <children>
+                  <Label text="          Password : " />
+                  <PasswordField fx:id="password" promptText="Enter password" />
                </children>
             </HBox>
             <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginClicked" text="Login">

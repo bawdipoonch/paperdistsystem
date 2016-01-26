@@ -45,7 +45,7 @@
                      </children></HBox>
                   <TableView fx:id="lineNumCustomersTable" prefHeight="548.0" prefWidth="1039.0">
                      <columns>
-                        <TableColumn fx:id="customerIDColumn" prefWidth="126.0" text="Customer ID" />
+                        <TableColumn fx:id="customerIDColumn" prefWidth="126.0" text="Customer Code" />
                         <TableColumn fx:id="customerNameColumn" prefWidth="250.0" text="Customer Name" />
                         <TableColumn fx:id="mobileNumColumn" prefWidth="125.0" text="Mobile Number" />
                         <TableColumn fx:id="houseSeqColumn" prefWidth="110.0" text="House Sequence" />

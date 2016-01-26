@@ -2,7 +2,13 @@ package application;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
+
+import org.controlsfx.control.Notifications;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,6 +18,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class AdminLoginController implements Initializable {
 	
@@ -36,13 +43,36 @@ public class AdminLoginController implements Initializable {
 	private void loginClicked(ActionEvent event) throws IOException {
 		System.out.println("Admin Login button clicked");
 		
-		stage=(Stage) adminLoginButton.getScene().getWindow();
-        //load up OTHER FXML document
-		root = FXMLLoader.load(getClass().getResource("AdminHome.fxml"));
+try {
+			
+			Connection con = Main.dbConnection;
+			while(!con.isValid(0)){
+				con = Main.reconnect();
+			}
+			
+			PreparedStatement existsStmt = con.prepareStatement("select username,password from admin_login where username = ? and password=?");
+			existsStmt.setString(1, adminUsername.getText());
+			existsStmt.setString(2, adminPassword.getText());
+			if(existsStmt.executeQuery().next()){
+				stage=(Stage) adminLoginButton.getScene().getWindow();
+		        //load up OTHER FXML document
+				root = FXMLLoader.load(getClass().getResource("AdminHome.fxml"));
+				
+				Scene scene = new Scene(root);
+			      stage.setScene(scene);
+			      stage.show();
+			}
+			else {
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid login details").text("Invalid Administrator username or password").showError();
+			}
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		Scene scene = new Scene(root);
-	      stage.setScene(scene);
-	      stage.show();
+		
 		
 	}
 

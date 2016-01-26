@@ -11,29 +11,33 @@
    <children>
       <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <HBox alignment="CENTER" prefHeight="75.0" prefWidth="1280.0" spacing="50.0">
+            <HBox alignment="CENTER" prefHeight="75.0" prefWidth="1280.0" spacing="10.0">
                <children>
                   <VBox spacing="10.0">
                      <children>
-                        <HBox alignment="CENTER" spacing="25.0">
+                        <HBox alignment="CENTER" spacing="10.0">
                            <children>
                               <TextField fx:id="addHwkName" promptText="Hawker Name" />
+                              <TextField fx:id="addHwkInitials" layoutX="52.0" layoutY="10.0" prefHeight="25.0" prefWidth="67.0" promptText="Initials" />
                               <TextField fx:id="addHwkCode" promptText="Hawker Code" />
                               <TextField fx:id="addHwkMob" promptText="Mobile Number" />
                               <TextField fx:id="addHwkAgencyName" layoutX="446.0" layoutY="10.0" promptText="Agency Name" />
                               <TextField fx:id="addHwkFee" prefHeight="25.0" prefWidth="103.0" promptText="Fee" />
+                              <TextField fx:id="addHwkOldHNum" prefHeight="25.0" prefWidth="73.0" promptText="Old House#" />
+                              <TextField fx:id="addHwkNewHNum" prefHeight="25.0" prefWidth="73.0" promptText="New House#" />
                               <CheckBox fx:id="addHwkActive" mnemonicParsing="false" text="Active" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" spacing="10.0">
                            <children>
-                              <TextField fx:id="addHwkOldHNum" prefHeight="25.0" prefWidth="73.0" promptText="Old House#" />
-                              <TextField fx:id="addHwkNewHNum" layoutX="30.0" layoutY="12.0" prefHeight="25.0" prefWidth="73.0" promptText="New House#" />
                               <TextField fx:id="addHwkAddrLine1" promptText="Address Line 1" />
                               <TextField fx:id="addHwkAddrLine2" layoutX="363.0" layoutY="12.0" promptText="Address Line 2" />
                               <TextField fx:id="addHwkLocality" layoutX="537.0" layoutY="12.0" prefHeight="25.0" prefWidth="114.0" promptText="Locality" />
                               <TextField fx:id="addHwkCity" layoutX="537.0" layoutY="12.0" prefHeight="25.0" prefWidth="111.0" promptText="City" />
-                              <ComboBox fx:id="addHwkState" prefWidth="150.0" promptText="State" visibleRowCount="30" />
+                              <ComboBox fx:id="addHwkState" prefHeight="25.0" prefWidth="127.0" promptText="State" visibleRowCount="30" />
+                              <TextField fx:id="addHwkProf1" layoutX="546.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile1" />
+                              <TextField fx:id="addHwkProf2" layoutX="766.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile2" />
+                              <TextField fx:id="addHwkProf3" layoutX="854.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile3" />
                            </children>
                         </HBox>
                      </children>
@@ -58,19 +62,23 @@
             <TableView fx:id="hawkerTable" prefHeight="600.0" prefWidth="1280.0">
                <columns>
                   <TableColumn fx:id="hwkNameColumn" prefWidth="250.0" text="Hawker Name" />
-                  <TableColumn fx:id="hwkCodeColumn" prefWidth="126.0" text="Hawker Code" />
-                  <TableColumn fx:id="hwkMobileColumn" prefWidth="125.0" text="Mobile Number" />
-                  <TableColumn fx:id="hwkAgencyColumn" prefWidth="125.0" text="Agency Name" />
-                  <TableColumn fx:id="hwkFeeColumn" prefWidth="87.0" text="Fee" />
-                  <TableColumn fx:id="hwkActiveColumn" prefWidth="67.0" text="Active" />
-                  <TableColumn fx:id="hwkTotalDueColumn" prefWidth="67.0" text="Total Due" />
-                  <TableColumn fx:id="hwkOldHouseNumColumn" prefWidth="113.0" text="Old House#" />
+                  <TableColumn fx:id="hwkInitialsColumn" prefWidth="58.0" text="Initials" />
+                  <TableColumn fx:id="hwkCodeColumn" prefWidth="172.0" text="Hawker Code" />
+                  <TableColumn fx:id="hwkMobileColumn" prefWidth="172.0" text="Mobile Number" />
+                  <TableColumn fx:id="hwkAgencyColumn" prefWidth="190.0" text="Agency Name" />
+                  <TableColumn fx:id="hwkFeeColumn" prefWidth="85.0" text="Fee" />
+                  <TableColumn fx:id="hwkActiveColumn" prefWidth="74.0" text="Active" />
+                  <TableColumn fx:id="hwkTotalDueColumn" prefWidth="87.0" text="Total Due" />
+                  <TableColumn fx:id="hwkOldHouseNumColumn" prefWidth="122.0" text="Old House#" />
                   <TableColumn fx:id="hwkNewHouseNumColumn" prefWidth="113.0" text="New House#" />
                   <TableColumn fx:id="hwkAddrLine1Column" prefWidth="192.0" text="Address Line1" />
                   <TableColumn fx:id="hwkAddrLine2Column" prefWidth="192.0" text="Address Line2" />
                   <TableColumn fx:id="hwkLocalityColumn" prefWidth="192.0" text="Locality" />
                   <TableColumn fx:id="hwkCityColumn" prefWidth="192.0" text="City" />
                   <TableColumn fx:id="hwkStateColumn" prefWidth="192.0" text="State" />
+                  <TableColumn fx:id="profile1Column" prefWidth="192.0" text="Profile1" />
+                  <TableColumn fx:id="profile2Column" prefWidth="192.0" text="Profile2" />
+                  <TableColumn fx:id="profile3Column" prefWidth="192.0" text="Profile3" />
                </columns>
             </TableView>
             <HBox>

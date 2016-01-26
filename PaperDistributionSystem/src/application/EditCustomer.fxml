@@ -24,40 +24,43 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label text="Name" />
-            <Label text="Customer Code" GridPane.columnIndex="2"/>
-            <Label text="Mobile Number" GridPane.rowIndex="1" />
-            <Label text="Hawker Code" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <Label text="Line Number" GridPane.rowIndex="2" />
-            <Label text="House Sequence" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <Label text="Old House Number" GridPane.rowIndex="3" />
-            <Label text="New House Number" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-            <Label text="Address Line1" GridPane.rowIndex="4" />
-            <Label text="Address Line2" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-            <Label text="Locality" GridPane.rowIndex="5" />
-            <Label text="City" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-            <Label text="State" GridPane.rowIndex="6" />
-            <Label text="Profile 1" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-            <Label text="Profile 2" GridPane.rowIndex="7" />
-            <Label text="Profile 3" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+            <Label text="Customer Code" GridPane.rowIndex="1" />
+            <Label text="Mobile Number" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Label text="Hawker Code" GridPane.rowIndex="2" />
+            <Label text="Line Number" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Label text="House Sequence" GridPane.rowIndex="3" />
+            <Label text="Old House Number" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <Label text="New House Number" GridPane.rowIndex="4" />
+            <Label text="Address Line1" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+            <Label text="Address Line2" GridPane.rowIndex="5" />
+            <Label text="Locality" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+            <Label text="City" GridPane.rowIndex="6" />
+            <Label text="State" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+            <Label text="Profile 1" GridPane.rowIndex="7" />
+            <Label text="Profile 2" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+            <Label text="Profile 3" GridPane.rowIndex="8" />
             <TextField fx:id="editNameTF" GridPane.columnIndex="1" />
-            <TextField fx:id="editCustomerCodeTF" GridPane.columnIndex="3" disable="true"/>
-            <TextField fx:id="editMobileNumTF" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <TextField fx:id="editHouseSeqTF" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-            <TextField fx:id="editOldHouseNumTF" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <TextField fx:id="editNewHouseNumTF" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-            <TextField fx:id="editAddrLine1" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <TextField fx:id="editAddrLine2" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-            <TextField fx:id="editLocalityTF" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <TextField fx:id="editCityTF" GridPane.columnIndex="3" GridPane.rowIndex="5" />
-            <TextField fx:id="editProfile1TF" GridPane.columnIndex="3" GridPane.rowIndex="6" />
-            <TextField fx:id="editProfile2TF" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-            <TextField fx:id="editProfile3TF" GridPane.columnIndex="3" GridPane.rowIndex="7" />
-            <ComboBox fx:id="editHawkerCodeLOV" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-            <ComboBox fx:id="editLineNumLOV" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <ComboBox fx:id="editStateLOV" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <TextField fx:id="editCustomerCodeTF" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="editMobileNumTF" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <TextField fx:id="editHouseSeqTF" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="editOldHouseNumTF" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+            <TextField fx:id="editNewHouseNumTF" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <TextField fx:id="editAddrLine1" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+            <TextField fx:id="editAddrLine2" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <TextField fx:id="editLocalityTF" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+            <TextField fx:id="editCityTF" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <TextField fx:id="editProfile1TF" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <TextField fx:id="editProfile2TF" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+            <TextField fx:id="editProfile3TF" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+            <ComboBox fx:id="editHawkerCodeLOV" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <ComboBox fx:id="editLineNumLOV" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            <ComboBox fx:id="editStateLOV" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+            <Label text="Initials" GridPane.columnIndex="2" />
+            <TextField fx:id="initialsTF" GridPane.columnIndex="3" />
          </children>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

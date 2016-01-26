@@ -36,6 +36,10 @@ private Hawker hawkerRow;
 	@FXML private TextField editFeeTF;
 	@FXML private CheckBox editActiveCheck;
 	@FXML private ComboBox<String> editStateLOV;
+	@FXML private TextField editProfile1TF;
+	@FXML private TextField editProfile2TF;
+	@FXML private TextField editProfile3TF;
+	@FXML private TextField initialsTF;
 
 	
 	@Override
@@ -69,6 +73,10 @@ private Hawker hawkerRow;
 		editAgencyNameTF.setText(hawkerRow.getAgencyName());
 		editFeeTF.setText(""+hawkerRow.getFee());
 		editActiveCheck.setSelected(hawkerRow.getActiveFlag());
+		editProfile1TF.setText(hawkerRow.getProfile1());
+		editProfile2TF.setText(hawkerRow.getProfile2());
+		editProfile3TF.setText(hawkerRow.getProfile3());
+		initialsTF.setText(hawkerRow.getInitials());
 	}
 	
 	public Hawker returnUpdatedHawker(){
@@ -86,6 +94,10 @@ private Hawker hawkerRow;
         edittedHawker.setFee(Double.parseDouble(editFeeTF.getText()));
         edittedHawker.setActiveFlag(editActiveCheck.isSelected());
         edittedHawker.setAgencyName(editAgencyNameTF.getText());
+        edittedHawker.setProfile1(editProfile1TF.getText());
+        edittedHawker.setProfile2(editProfile2TF.getText());
+        edittedHawker.setProfile3(editProfile3TF.getText());
+        edittedHawker.setInitials(initialsTF.getText());
         edittedHawker.updateHawkerRecord();
     	return edittedHawker;
 	}

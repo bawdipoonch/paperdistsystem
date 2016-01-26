@@ -35,12 +35,18 @@ public class Hawker {
 	private SimpleStringProperty productAccess = new SimpleStringProperty("");
 	private SimpleStringProperty reportsAccess = new SimpleStringProperty("");
 	private final SimpleDoubleProperty totalDue = new SimpleDoubleProperty();
+	private final SimpleStringProperty profile1 = new SimpleStringProperty("");
+	private final SimpleStringProperty profile2 = new SimpleStringProperty("");
+	private final SimpleStringProperty profile3 = new SimpleStringProperty("");
+	private final SimpleStringProperty password = new SimpleStringProperty("");
+	private final SimpleStringProperty initials = new SimpleStringProperty("");
 	
 	public Hawker(long hawkerId, String name, String hawkerCode,
 			String moblieNum, String agencyName, boolean activeFlag,
 			double fee, String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2,
 			String locality, String city, String state, String customerAccess, String billingAccess, 
-			String lineInfoAccess, String lineDistAccess, String pausedCustAccess, String productAccess, String reportsAccess) {
+			String lineInfoAccess, String lineDistAccess, String pausedCustAccess, String productAccess, String reportsAccess,
+			String profile1, String profile2, String profile3, String initials) {
 		super();
 		setHawkerId(hawkerId);
 		setName(name);
@@ -63,6 +69,10 @@ public class Hawker {
 		setPausedCustAccess(pausedCustAccess);
 		setProductAccess(productAccess);
 		setReportsAccess(reportsAccess);
+		setProfile1(profile1);
+		setProfile2(profile2);
+		setProfile3(profile3);
+		setInitials(initials);
 	}
 
 	public Hawker(Hawker hawkerRow) {
@@ -88,6 +98,10 @@ public class Hawker {
 		setPausedCustAccess(hawkerRow.getPausedCustAccess());
 		setProductAccess(hawkerRow.getProductAccess());
 		setReportsAccess(hawkerRow.getReportsAccess());
+		setPassword(hawkerRow.getPassword());
+		setProfile1(hawkerRow.getProfile1());
+		setProfile2(hawkerRow.getProfile2());
+		setProfile3(hawkerRow.getProfile3());
 	}
 
 	public Long getHawkerId() {
@@ -155,6 +169,10 @@ public class Hawker {
 	public String getState() {
 		return state.get();
 	}
+	
+	public String getPassword() {
+		return password.get();
+	}
 
 
 
@@ -202,6 +220,10 @@ public class Hawker {
 	}
 	public void setState(String state) {
 		this.state.set(state);
+	}
+	
+	public void setPassword(String password) {
+		this.password.set(password);
 	}
 	
 	public String getCustomerAccess() {
@@ -267,6 +289,38 @@ public class Hawker {
 	public void setTotalDue(double totalDue) {
 		this.totalDue.set(totalDue);
 	}
+	
+
+	public String getProfile1() {
+		return profile1.get();
+	}
+
+	public void setProfile1(String profile1) {
+		this.profile1.set(profile1);
+	}
+	
+	public String getProfile2() {
+		return profile2.get();
+	}
+
+	public void setProfile2(String profile2) {
+		this.profile2.set(profile2);
+	}
+	
+	public String getProfile3() {
+		return profile3.get();
+	}
+
+	public void setProfile3(String profile3) {
+		this.profile3.set(profile3);
+	}
+	public String getInitials() {
+		return initials.get();
+	}
+
+	public void setInitials(String initials) {
+		this.initials.set(initials);
+	}
 
 	public String toString(){
 		return getHawkerCode();
@@ -299,7 +353,7 @@ public class Hawker {
 			while(!con.isValid(0)){
 				con = Main.reconnect();
 			}
-			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=? where hawker_id = ?";
+			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=? where hawker_id = ?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setString(1, getName());
 			updateStmt.setString(2, getHawkerCode());
@@ -321,8 +375,12 @@ public class Hawker {
 			updateStmt.setString(18, getPausedCustAccess());
 			updateStmt.setString(19, getProductAccess());
 			updateStmt.setString(20, getReportsAccess());
-			updateStmt.setLong(22, getHawkerId()); 
+			updateStmt.setLong(26, getHawkerId()); 
 			updateStmt.setDouble(21, getTotalDue());
+			updateStmt.setString(22, getProfile1());
+			updateStmt.setString(23, getProfile2());
+			updateStmt.setString(24, getProfile3());
+			updateStmt.setString(25, getPassword());
 			updateStmt.executeUpdate();
 			con.commit();
 			

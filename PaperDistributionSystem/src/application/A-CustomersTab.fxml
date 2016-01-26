@@ -14,10 +14,11 @@
                <children>
                   <VBox spacing="10.0">
                      <children>
-                        <HBox alignment="CENTER" prefWidth="900.0" spacing="25.0">
+                        <HBox alignment="CENTER" prefWidth="900.0" spacing="10.0">
                            <children>
                               <TextField fx:id="addCustName" promptText="Customer Name" />
                               <TextField fx:id="addCustMobile" promptText="Mobile Number" />
+                              <TextField fx:id="addCustInitials" layoutX="858.0" layoutY="10.0" prefHeight="25.0" prefWidth="73.0" promptText="Initials" />
                               <ComboBox fx:id="addCustHwkCode" layoutX="435.0" layoutY="10.0" prefHeight="25.0" prefWidth="114.0" promptText="Hawker" />
                               <ComboBox fx:id="addCustLineNum" prefHeight="25.0" prefWidth="114.0" promptText="Line Number" />
                               <TextField fx:id="addCustHouseSeq" layoutX="532.0" layoutY="10.0" prefHeight="25.0" prefWidth="103.0" promptText="House Sequence" />
@@ -66,6 +67,7 @@
                <columns>
                   <TableColumn fx:id="customerCodeColumn" prefWidth="126.0" text="Customer Code" />
                   <TableColumn fx:id="customerNameColumn" prefWidth="250.0" text="Customer Name" />
+                  <TableColumn fx:id="customerInitialsColumn" prefWidth="75.0" text="Initials" />
                   <TableColumn fx:id="mobileNumColumn" prefWidth="125.0" text="Mobile Number" />
                   <TableColumn fx:id="hawkerCodeColumn" prefWidth="87.0" text="Hawker Code" />
                   <TableColumn fx:id="lineNumColumn" prefWidth="67.0" text="Line#" />

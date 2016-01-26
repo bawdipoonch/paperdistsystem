@@ -35,6 +35,7 @@ public class EditCustomerController implements Initializable {
 	@FXML private TextField editProfile1TF;
 	@FXML private TextField editProfile2TF;
 	@FXML private TextField editProfile3TF;
+	@FXML private TextField initialsTF;
 	@FXML private ComboBox<String> editHawkerCodeLOV;
 	@FXML private ComboBox<String> editLineNumLOV;
 	@FXML private ComboBox<String> editStateLOV;
@@ -92,6 +93,7 @@ public class EditCustomerController implements Initializable {
 		editProfile1TF.setText(custRow.getProfile1());
 		editProfile2TF.setText(custRow.getProfile2());
 		editProfile3TF.setText(custRow.getProfile3());
+		initialsTF.setText(custRow.getInitials());
 	}
 	
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {
@@ -179,6 +181,7 @@ public class EditCustomerController implements Initializable {
         edittedCustomer.setProfile1(editProfile1TF.getText());
         edittedCustomer.setProfile2(editProfile2TF.getText());
         edittedCustomer.setProfile3(editProfile3TF.getText());
+        edittedCustomer.setInitials(initialsTF.getText());
         edittedCustomer.updateCustomerRecord();
     	return edittedCustomer;
 	}

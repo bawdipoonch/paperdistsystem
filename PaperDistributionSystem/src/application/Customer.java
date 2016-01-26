@@ -27,10 +27,11 @@ public class Customer {
 	private final SimpleStringProperty profile1 = new SimpleStringProperty("");
 	private final SimpleStringProperty profile2 = new SimpleStringProperty("");
 	private final SimpleStringProperty profile3 = new SimpleStringProperty("");
+	private final SimpleStringProperty initials = new SimpleStringProperty("");
 	
 	public Customer(long customerId, long customerCode, String name, String mobileNum, String hawkerCode, long lineNum, int houseSeq, 
 			String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2, String locality, String city, String state,
-			String profile1, String profile2, String profile3){
+			String profile1, String profile2, String profile3, String initials){
 		setCustomerCode(customerCode);
 		setCustomerId(customerId);
 		setName(name);
@@ -48,6 +49,7 @@ public class Customer {
 		setProfile1(profile1);
 		setProfile2(profile2);
 		setProfile3(profile3);
+		setInitials(initials);
 	}
 	
 	public Customer(Customer custRow) {
@@ -69,6 +71,7 @@ public class Customer {
 		setProfile1(custRow.getProfile1());
 		setProfile2(custRow.getProfile2());
 		setProfile3(custRow.getProfile3());
+		setInitials(custRow.getInitials());
 	}
 
 	public Long getCustomerId() {
@@ -215,6 +218,14 @@ public class Customer {
 		this.profile3.set(profile3);
 	}
 	
+	public String getInitials() {
+		return initials.get();
+	}
+
+	public void setInitials(String initials) {
+		this.initials.set(initials);
+	}
+	
 	public void updateCustomerRecord(){
 		try {
 			
@@ -222,7 +233,7 @@ public class Customer {
 			while(!con.isValid(0)){
 				con = Main.reconnect();
 			}
-			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=? where customer_id=?";
+			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=?, initials=? where customer_id=?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setLong(1, getCustomerCode());
 			updateStmt.setString(2, getName());
@@ -240,7 +251,8 @@ public class Customer {
 			updateStmt.setString(14, getProfile1());
 			updateStmt.setString(15, getProfile2());
 			updateStmt.setString(16, getProfile3());
-			updateStmt.setLong(17, getCustomerId()); 
+			updateStmt.setString(17, getInitials());
+			updateStmt.setLong(18, getCustomerId()); 
 			updateStmt.executeUpdate();
 			con.commit();
 			

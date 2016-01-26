@@ -35,6 +35,7 @@ public class HawkerLoginController implements Initializable {
 	private Button adminLoginButton;
 	@FXML
 	private TextField mobileNum;
+	@FXML private TextField password;
 
 	Stage stage;
 	Parent root;
@@ -71,10 +72,11 @@ public class HawkerLoginController implements Initializable {
 				con = Main.reconnect();
 			}
 			
-			PreparedStatement existsStmt = con.prepareStatement("select hawker_code from hawker_info where mobile_num = ?");
+			PreparedStatement existsStmt = con.prepareStatement("select hawker_code from hawker_info where mobile_num = ? and password=?");
 			existsStmt.setString(1, mobileNum.getText());
+			existsStmt.setString(2, password.getText());
 			if(existsStmt.executeQuery().next()){
-				PreparedStatement stmt = con.prepareStatement("select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access  from hawker_info where mobile_num = ?");
+				PreparedStatement stmt = con.prepareStatement("select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials  from hawker_info where mobile_num = ?");
 				stmt.setString(1, mobileNum.getText());
 				ResultSet rs = stmt.executeQuery();
 				if(rs.next()){
@@ -84,7 +86,7 @@ public class HawkerLoginController implements Initializable {
 								rs.getString(8), rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
 								rs.getString(13), rs.getString(14), rs.getString(15), rs.getString(16),
 								rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20),
-								rs.getString(21));
+								rs.getString(21), rs.getString(22), rs.getString(23), rs.getString(24),rs.getString(25));
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Logged in").text("Login successful").showInformation();
 						stage = (Stage) loginButton.getScene().getWindow();
 						// load up OTHER FXML document
@@ -100,7 +102,7 @@ public class HawkerLoginController implements Initializable {
 				}
 			}
 			else {
-				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid mobile number").text("Hawker with given mobile number doesn't exist").showError();
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid login details").text("Invalid mobile number or password").showError();
 			}
 			
 			
