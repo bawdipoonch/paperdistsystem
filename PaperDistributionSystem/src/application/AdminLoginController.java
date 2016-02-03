@@ -11,12 +11,15 @@ import java.util.ResourceBundle;
 import org.controlsfx.control.Notifications;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -36,11 +39,31 @@ public class AdminLoginController implements Initializable {
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
+		adminUsername.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
+			@Override
+			public void handle(KeyEvent event) {
+				// TODO Auto-generated method stub
+				if(event.getCode()==KeyCode.ENTER){
+					loginClicked(new ActionEvent());
+				}
+			}
+		});
+		
+		adminPassword.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				// TODO Auto-generated method stub
+				if(event.getCode()==KeyCode.ENTER){
+					loginClicked(new ActionEvent());
+				}
+			}
+		});
 	}
 	
 	@FXML
-	private void loginClicked(ActionEvent event) throws IOException {
+	private void loginClicked(ActionEvent event) {
 		System.out.println("Admin Login button clicked");
 		
 try {
@@ -68,6 +91,9 @@ try {
 			
 			
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -39,10 +39,10 @@ public class HawkerHomeController implements Initializable {
     @FXML private Tab lineDistTab;
     @FXML private TabPane tabPane;
     
-    private HCustomerInfoTabController customerTabController;
-    private HLineDistributorTabController lineDistTabController;
-    private HLineInfoTabController lineInfoTabController;
-    private HPausedCustomerTabController pausedCustTabController;
+    private ACustomerInfoTabController customerTabController;
+    private ALineDistributorTabController lineDistTabController;
+    private ALineInfoTabController lineInfoTabController;
+    private APausedCustomerTabController pausedCustTabController;
     
 
 
@@ -116,9 +116,9 @@ public class HawkerHomeController implements Initializable {
 	private void loadTabs(){
 		tabPane.getTabs().clear();
 		try {
-			FXMLLoader customerTabLoader = new FXMLLoader(getClass().getResource("H-CustomerInfoTab.fxml"));
+			FXMLLoader customerTabLoader = new FXMLLoader(getClass().getResource("A-CustomersTab.fxml"));
 			Parent custroot = (Parent)customerTabLoader.load();
-			customerTabController = customerTabLoader.<HCustomerInfoTabController>getController();
+			customerTabController = customerTabLoader.<ACustomerInfoTabController>getController();
 			customersTab = new Tab();
 			customersTab.setText("Customers");
 			customersTab.setContent(custroot);
@@ -132,9 +132,9 @@ public class HawkerHomeController implements Initializable {
 			});
 			
 			lineDistTab = new Tab();
-			FXMLLoader lineDistTabLoader = new FXMLLoader(getClass().getResource("H-LineDistributorTab.fxml"));
+			FXMLLoader lineDistTabLoader = new FXMLLoader(getClass().getResource("A-LineDistributorTab.fxml"));
 			Parent linedistroot = (Parent)lineDistTabLoader.load();
-			lineDistTabController = lineDistTabLoader.<HLineDistributorTabController>getController();
+			lineDistTabController = lineDistTabLoader.<ALineDistributorTabController>getController();
 			lineDistTab.setText("Line Distribution Boy");
 			lineDistTab.setContent(linedistroot);
 			lineDistTab.setOnSelectionChanged(new EventHandler<Event>() {
@@ -147,9 +147,9 @@ public class HawkerHomeController implements Initializable {
 			});
 			
 			lineInfoTab = new Tab();
-			FXMLLoader lineInfoTabLoader = new FXMLLoader(getClass().getResource("H-LineInfoTab.fxml"));
+			FXMLLoader lineInfoTabLoader = new FXMLLoader(getClass().getResource("A-LineInfoTab.fxml"));
 			Parent lineinforoot = (Parent)lineInfoTabLoader.load();
-			lineInfoTabController = lineInfoTabLoader.<HLineInfoTabController>getController();
+			lineInfoTabController = lineInfoTabLoader.<ALineInfoTabController>getController();
 			lineInfoTab.setText("Line Information");
 			lineInfoTab.setContent(lineinforoot);
 			
@@ -163,9 +163,9 @@ public class HawkerHomeController implements Initializable {
 			});
 			
 			pausedCustTab = new Tab();
-			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("H-PausedCustomerTab.fxml"));
+			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("A-PausedCustomersTab.fxml"));
 			Parent pausedcustroot = (Parent)pausedCustTabLoader.load();
-			pausedCustTabController = pausedCustTabLoader.<HPausedCustomerTabController>getController();
+			pausedCustTabController = pausedCustTabLoader.<APausedCustomerTabController>getController();
 			pausedCustTab.setText("Paused Customers");
 			pausedCustTab.setContent(pausedcustroot);
 			pausedCustTab.setOnSelectionChanged(new EventHandler<Event>() {
@@ -200,7 +200,7 @@ public class HawkerHomeController implements Initializable {
 //		changePwdDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 		final Button btOk = (Button) changePwdDialog.getDialogPane().lookupButton(ButtonType.OK);
 		 btOk.addEventFilter(ActionEvent.ACTION, event -> {
-		     if (changePwdDialog.getEditor().getText().isEmpty() && changePwdDialog.getEditor().getText().length()>=5) {
+			 if (changePwdDialog.getEditor().getText().isEmpty() || changePwdDialog.getEditor().getText().length()<5) {
 		         Notifications.create().title("Empty password").text("Password cannot be left empty and must be more than 5 characters. Try again.").hideAfter(Duration.seconds(5)).showError();
 		    	 event.consume();
 		     }

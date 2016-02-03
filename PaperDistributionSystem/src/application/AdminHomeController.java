@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -14,7 +12,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 
 public class AdminHomeController implements Initializable {
@@ -28,12 +28,15 @@ public class AdminHomeController implements Initializable {
     @FXML private Tab lineInfoTab;
     @FXML private Tab pausedCustTab;
     @FXML private Tab hawkerTab;
+    @FXML private Tab lineDistTab;
+    @FXML private Tab additionalItemsTab;
 
     private ACustomerInfoTabController customerTabController;
     private AHawkerInfoTabController hawkerTabController;
     private ALineInfoTabController lineInfoTabController;
     private APausedCustomerTabController pausedCustTabController;
-    
+    private ALineDistributorTabController lineDistTabController;
+    private AdditionalItemsController additionalItemsTabController;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -127,6 +130,36 @@ public class AdminHomeController implements Initializable {
 				}
 			});
 			
+			lineDistTab = new Tab();
+			FXMLLoader lineDistTabLoader = new FXMLLoader(getClass().getResource("A-LineDistributorTab.fxml"));
+			Parent linedistroot = (Parent)lineDistTabLoader.load();
+			lineDistTabController = lineDistTabLoader.<ALineDistributorTabController>getController();
+			lineDistTab.setText("Line Distribution Boy");
+			lineDistTab.setContent(linedistroot);
+			lineDistTab.setOnSelectionChanged(new EventHandler<Event>() {
+				
+				@Override
+				public void handle(Event event) {
+					// TODO Auto-generated method stub
+					lineDistTabController.reloadData();
+				}
+			});
+			
+			additionalItemsTab = new Tab();
+			FXMLLoader additionalItemsTabLoader = new FXMLLoader(getClass().getResource("AdditionalItems.fxml"));
+			Parent additionalItemsRoot = (Parent)additionalItemsTabLoader.load();
+			additionalItemsTabController = additionalItemsTabLoader.<AdditionalItemsController>getController();
+			additionalItemsTab.setText("Additional Items");
+			additionalItemsTab.setContent(additionalItemsRoot);
+			additionalItemsTab.setOnSelectionChanged(new EventHandler<Event>() {
+				
+				@Override
+				public void handle(Event event) {
+					// TODO Auto-generated method stub
+					additionalItemsTabController.reloadData();
+				}
+			});
+			
 			/*pausedCustTab = new Tab();
 			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("A-PausedCustomerTab.fxml"));
 			Parent pausedcustroot = (Parent)pausedCustTabLoader.load();
@@ -142,7 +175,7 @@ public class AdminHomeController implements Initializable {
 				}
 			});*/
 			
-			tabPane.getTabs().addAll(hawkerTab,customersTab,  lineInfoTab);
+			tabPane.getTabs().addAll(hawkerTab,customersTab, lineInfoTab,lineDistTab, additionalItemsTab);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -155,6 +188,7 @@ public class AdminHomeController implements Initializable {
 		customerTabController.reloadData();
 		hawkerTabController.reloadData();
 		lineInfoTabController.reloadData();
+		lineDistTabController.reloadData();
 //		pausedCustTabController.reloadData();
 	}
 	

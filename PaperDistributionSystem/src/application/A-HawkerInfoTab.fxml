@@ -11,10 +11,11 @@
    <children>
       <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <HBox alignment="CENTER" prefHeight="75.0" prefWidth="1280.0" spacing="10.0">
+            <HBox alignment="CENTER" prefHeight="75.0" prefWidth="1280.0" spacing="5.0">
                <children>
-                  <VBox spacing="10.0">
+                  <VBox spacing="5.0">
                      <children>
+                        <Label prefHeight="17.0" prefWidth="1018.0" text="               Hawker Name                         Initials             Hawker Code                            Mobile Number                     Agency Name                         Fee/Subscription         Point Name" />
                         <HBox alignment="CENTER" spacing="10.0">
                            <children>
                               <TextField fx:id="addHwkName" promptText="Hawker Name" />
@@ -23,38 +24,64 @@
                               <TextField fx:id="addHwkMob" promptText="Mobile Number" />
                               <TextField fx:id="addHwkAgencyName" layoutX="446.0" layoutY="10.0" promptText="Agency Name" />
                               <TextField fx:id="addHwkFee" prefHeight="25.0" prefWidth="103.0" promptText="Fee" />
-                              <TextField fx:id="addHwkOldHNum" prefHeight="25.0" prefWidth="73.0" promptText="Old House#" />
-                              <TextField fx:id="addHwkNewHNum" prefHeight="25.0" prefWidth="73.0" promptText="New House#" />
-                              <CheckBox fx:id="addHwkActive" mnemonicParsing="false" text="Active" />
+                              <ComboBox fx:id="addHwkPointName" prefHeight="25.0" prefWidth="110.0" promptText="Point Name" />
+                              <CheckBox fx:id="addHwkActive" mnemonicParsing="false" selected="true" text="Active" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" spacing="10.0">
                            <children>
-                              <TextField fx:id="addHwkAddrLine1" promptText="Address Line 1" />
-                              <TextField fx:id="addHwkAddrLine2" layoutX="363.0" layoutY="12.0" promptText="Address Line 2" />
-                              <TextField fx:id="addHwkLocality" layoutX="537.0" layoutY="12.0" prefHeight="25.0" prefWidth="114.0" promptText="Locality" />
-                              <TextField fx:id="addHwkCity" layoutX="537.0" layoutY="12.0" prefHeight="25.0" prefWidth="111.0" promptText="City" />
-                              <ComboBox fx:id="addHwkState" prefHeight="25.0" prefWidth="127.0" promptText="State" visibleRowCount="30" />
-                              <TextField fx:id="addHwkProf1" layoutX="546.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile1" />
-                              <TextField fx:id="addHwkProf2" layoutX="766.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile2" />
-                              <TextField fx:id="addHwkProf3" layoutX="854.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile3" />
+                              <Label alignment="CENTER_RIGHT" text="Old HNum:" />
+                              <TextField fx:id="addHwkOldHNum" prefHeight="25.0" prefWidth="73.0" promptText="Old House#" />
+                              <Label alignment="CENTER_RIGHT" text="New HNum:" />
+                              <TextField fx:id="addHwkNewHNum" prefHeight="25.0" prefWidth="73.0" promptText="New House#" />
+                              <Label alignment="CENTER_RIGHT" text="Bldg/Street  Name:" />
+                              <TextField fx:id="addHwkBuildingStreet" prefHeight="25.0" prefWidth="132.0" promptText="Building/Street Name" />
+                              <Label alignment="CENTER_RIGHT" text="Addr Line1:" />
+                              <TextField fx:id="addHwkAddrLine1" prefHeight="25.0" prefWidth="129.0" promptText="Address Line 1" />
+                              <Label alignment="CENTER_RIGHT" text="Addr Line2:" />
+                              <TextField fx:id="addHwkAddrLine2" prefHeight="25.0" prefWidth="116.0" promptText="Address Line 2" />
                            </children>
                         </HBox>
+                        <HBox alignment="CENTER" spacing="10.0">
+                           <children>
+                              <TextField fx:id="addHwkLocality" layoutX="537.0" layoutY="12.0" prefHeight="25.0" prefWidth="111.0" promptText="Locality" />
+                              <TextField fx:id="addHwkCity" layoutX="537.0" layoutY="12.0" prefHeight="25.0" prefWidth="108.0" promptText="City" />
+                              <ComboBox fx:id="addHwkState" prefHeight="25.0" prefWidth="101.0" promptText="State" visibleRowCount="30" />
+                              <ComboBox fx:id="addHwkProf1" prefHeight="25.0" prefWidth="120.0" promptText="Profile 1" />
+                              <ComboBox fx:id="addHwkProf2" prefHeight="25.0" prefWidth="117.0" promptText="Profile 2" />
+                              <TextField fx:id="addHwkProf3" prefHeight="25.0" prefWidth="111.0" promptText="Profile3" />
+                              <ComboBox fx:id="addHwkEmployment" prefHeight="25.0" prefWidth="111.0" promptText="Employment" />
+                              <TextField fx:id="addHwkComments" prefHeight="25.0" prefWidth="137.0" promptText="Comments" />
+                           </children>
+                           <padding>
+                              <Insets left="10.0" />
+                           </padding>
+                        </HBox>
+                        <Label prefHeight="17.0" prefWidth="1085.0" text="                 Locality                    City                          State                          Profile1                           Profile2                          Profile3                         Employment                 Comments" />
                      </children>
                      <HBox.margin>
                         <Insets bottom="5.0" top="10.0" />
                      </HBox.margin>
                   </VBox>
-                  <VBox alignment="CENTER" spacing="15.0">
+                  <VBox alignment="CENTER" spacing="10.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#addHawkerClicked" text="Add Hawker" />
-                        <Button mnemonicParsing="false" onAction="#resetClicked" text="Reset" />
-                     </children>
-                  </VBox>
-                  <VBox alignment="CENTER" layoutX="1074.0" layoutY="10.0" spacing="15.0">
-                     <children>
-                        <Button mnemonicParsing="false" onAction="#filterHawkersClicked" text="Filter Hawkers" />
-                        <Button mnemonicParsing="false" onAction="#clearClicked" text="Clear" />
+                        <HBox alignment="CENTER" spacing="5.0">
+                           <children>
+                              <VBox alignment="CENTER" spacing="15.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#addHawkerClicked" prefHeight="25.0" prefWidth="74.0" text="Save" />
+                                    <Button mnemonicParsing="false" onAction="#resetClicked" prefHeight="25.0" prefWidth="74.0" text="Reset" />
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER" spacing="15.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#filterHawkersClicked" prefWidth="74.0" text="Search" />
+                                    <Button mnemonicParsing="false" onAction="#clearClicked" prefHeight="25.0" prefWidth="74.0" text="Clear" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <Button fx:id="addHwkExtraButton" mnemonicParsing="false" onAction="#addHawkerExtraClicked" prefWidth="160.0" text="Add Hawker: Extra Screen" />
                      </children>
                   </VBox>
                </children>
@@ -67,10 +94,12 @@
                   <TableColumn fx:id="hwkMobileColumn" prefWidth="172.0" text="Mobile Number" />
                   <TableColumn fx:id="hwkAgencyColumn" prefWidth="190.0" text="Agency Name" />
                   <TableColumn fx:id="hwkFeeColumn" prefWidth="85.0" text="Fee" />
+                  <TableColumn fx:id="pointNameColumn" prefWidth="192.0" text="Point Name" />
                   <TableColumn fx:id="hwkActiveColumn" prefWidth="74.0" text="Active" />
                   <TableColumn fx:id="hwkTotalDueColumn" prefWidth="87.0" text="Total Due" />
                   <TableColumn fx:id="hwkOldHouseNumColumn" prefWidth="122.0" text="Old House#" />
                   <TableColumn fx:id="hwkNewHouseNumColumn" prefWidth="113.0" text="New House#" />
+                  <TableColumn fx:id="buildingStreetColumn" prefWidth="190.0" text="Building/Street Name" />
                   <TableColumn fx:id="hwkAddrLine1Column" prefWidth="192.0" text="Address Line1" />
                   <TableColumn fx:id="hwkAddrLine2Column" prefWidth="192.0" text="Address Line2" />
                   <TableColumn fx:id="hwkLocalityColumn" prefWidth="192.0" text="Locality" />
@@ -79,6 +108,8 @@
                   <TableColumn fx:id="profile1Column" prefWidth="192.0" text="Profile1" />
                   <TableColumn fx:id="profile2Column" prefWidth="192.0" text="Profile2" />
                   <TableColumn fx:id="profile3Column" prefWidth="192.0" text="Profile3" />
+                  <TableColumn fx:id="employmentColumn" prefWidth="192.0" text="Employment" />
+                  <TableColumn fx:id="commentsColumn" prefWidth="192.0" text="Comments" />
                </columns>
             </TableView>
             <HBox>

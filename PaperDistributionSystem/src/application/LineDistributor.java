@@ -1,6 +1,7 @@
 package application;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.controlsfx.control.Notifications;
@@ -12,6 +13,7 @@ public class LineDistributor {
 	private final SimpleStringProperty name = new SimpleStringProperty();
 	private final SimpleStringProperty mobileNum = new SimpleStringProperty();
 	private final SimpleLongProperty hawkerId = new SimpleLongProperty();
+	private final SimpleStringProperty hawkerCode = new SimpleStringProperty();
 	private final SimpleIntegerProperty lineNum = new SimpleIntegerProperty();
 	private final SimpleStringProperty oldHouseNum = new SimpleStringProperty("");
 	private final SimpleStringProperty newHouseNum = new SimpleStringProperty("");
@@ -20,17 +22,20 @@ public class LineDistributor {
 	private final SimpleStringProperty locality = new SimpleStringProperty("");
 	private final SimpleStringProperty city = new SimpleStringProperty("");
 	private final SimpleStringProperty state = new SimpleStringProperty("");
-	private final SimpleDoubleProperty totalDue = new SimpleDoubleProperty();
 	private final SimpleStringProperty profile1 = new SimpleStringProperty("");
 	private final SimpleStringProperty profile2 = new SimpleStringProperty("");
 	private final SimpleStringProperty profile3 = new SimpleStringProperty("");
 	private final SimpleStringProperty initials = new SimpleStringProperty("");
+	private final SimpleStringProperty employment = new SimpleStringProperty("");
+	private final SimpleStringProperty comments = new SimpleStringProperty("");
+	private final SimpleStringProperty buildingStreet = new SimpleStringProperty("");
 	
 	
 	
-	public LineDistributor(long lineDistId, String name, String mobileNum, long hawkerId, int lineNum, String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2,
+	public LineDistributor(long lineDistId, String name, String mobileNum, long hawkerId, int lineNum, String oldHouseNum, 
+			String newHouseNum, String addrLine1, String addrLine2,
 			String locality, String city, String state,
-			String profile1, String profile2, String profile3, String initials){
+			String profile1, String profile2, String profile3, String initials, String employment, String comments,String buildingStreet, String hawkerCode){
 		setLineDistId(lineDistId);
 		setName(name);
 		setMobileNum(mobileNum);
@@ -47,6 +52,10 @@ public class LineDistributor {
 		setProfile2(profile2);
 		setProfile3(profile3);
 		setInitials(initials);
+		setEmployment(employment);
+		setComments(comments);
+		setBuildingStreet(buildingStreet);
+		setHawkerCode(hawkerCode);
 	}
 	
 	public Long getLineDistId() {
@@ -177,6 +186,43 @@ public class LineDistributor {
 	public void setInitials(String initials) {
 		this.initials.set(initials);
 	}
+
+	public void setBuildingStreet(String buildingStreet) {
+		this.buildingStreet.set(buildingStreet);		
+	}
+
+	public void setComments(String comments) {
+		this.comments.set(comments);
+		
+	}
+
+	public String getEmployment() {
+		return this.employment.get();
+	}
+	
+	public String getBuildingStreet() {
+		return this.buildingStreet.get();		
+	}
+
+	public String getComments() {
+		return this.comments.get();
+		
+	}
+
+	public void setEmployment(String employment) {
+		this.employment.set(employment);
+	}
+	
+	public void setHawkerCode(String hawkerCode) {
+		this.hawkerCode.set(hawkerCode);
+	}
+	
+	public String getHawkerCode(){
+		return hawkerCode.get();
+	}
+	
+
+
 	
 	public void updateLineDistRecord(){
 		try {
@@ -185,12 +231,11 @@ public class LineDistributor {
 			while(!con.isValid(0)){
 				con = Main.reconnect();
 			}
-			String updateString = "update line_distributor set name=?, mobile_num=?, line_num=?,  old_house_num=?,  new_house_num=?,  address_line1=?,  address_line2=?,  locality=?,  city=?, profile1=?, profile2=?, profile3=?  where line_dist_id=?";
+			String updateString = "update line_distributor set name=?, mobile_num=?, line_num=?,  old_house_num=?,  new_house_num=?,  address_line1=?,  address_line2=?,  locality=?,  city=?, state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, point_name=?, building_street=?  where line_dist_id=?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setString(1, getName());
 			updateStmt.setString(2, getMobileNum());
 			updateStmt.setInt(3, getLineNum());
-			updateStmt.setLong(13, getLineDistId());
 			updateStmt.setString(4, getOldHouseNum());
 			updateStmt.setString(5, getNewHouseNum());
 			updateStmt.setString(6, getAddrLine1());
@@ -201,6 +246,11 @@ public class LineDistributor {
 			updateStmt.setString(11, getProfile1());
 			updateStmt.setString(12, getProfile2());
 			updateStmt.setString(13, getProfile3());
+			updateStmt.setString(14, getInitials());
+			updateStmt.setString(15, getEmployment());
+			updateStmt.setString(16, getComments());
+			updateStmt.setString(18, getBuildingStreet());
+			updateStmt.setLong(19, getLineDistId());
 			updateStmt.executeUpdate();
 			con.commit();
 			

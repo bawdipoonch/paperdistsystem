@@ -31,12 +31,23 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import javafx.util.Pair;
 
 public class ACustomerInfoTabController implements Initializable {
 
@@ -70,11 +81,17 @@ public class ACustomerInfoTabController implements Initializable {
 	@FXML
 	private ComboBox<String> addCustState;
 	@FXML
-	private TextField addCustProf1;
+	private ComboBox<String> addCustProf1;
 	@FXML
-	private TextField addCustProf2;
+	private ComboBox<String> addCustProf2;
 	@FXML
 	private TextField addCustProf3;
+	@FXML
+	private ComboBox<String> addCustEmployment;
+	@FXML
+	private TextField addCustComments;
+	@FXML
+	private TextField addCustBuildingStreet;
 
 	// Columns
 	@FXML
@@ -88,7 +105,7 @@ public class ACustomerInfoTabController implements Initializable {
 	@FXML
 	private TableColumn<Customer, String> hawkerCodeColumn;
 	@FXML
-	private TableColumn<Customer, Long> lineNumColumn;
+	private TableColumn<Customer, String> lineNumColumn;
 	@FXML
 	private TableColumn<Customer, Long> houseSeqColumn;
 	@FXML
@@ -111,13 +128,23 @@ public class ACustomerInfoTabController implements Initializable {
 	private TableColumn<Customer, String> profile2Column;
 	@FXML
 	private TableColumn<Customer, String> profile3Column;
+	@FXML
+	private TableColumn<Customer, String> employmentColumn;
+	@FXML
+	private TableColumn<Customer, String> commentsColumn;
+	@FXML
+	private TableColumn<Customer, String> buildingStreetColumn;
 
 	private FilteredList<Customer> filteredData;
 	private String searchText;
+	
+	@FXML private Button addCustExtraButton;
 
 	private ObservableList<Customer> customerMasterData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerLineNumData = FXCollections.observableArrayList();
+	private ObservableList<String> employmentData = FXCollections.observableArrayList();
+	private ObservableList<String> profileValues = FXCollections.observableArrayList();
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -129,7 +156,7 @@ public class ACustomerInfoTabController implements Initializable {
 		customerNameColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("name"));
 		customerInitialsColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("initials"));
 		hawkerCodeColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("hawkerCode"));
-		lineNumColumn.setCellValueFactory(new PropertyValueFactory<Customer, Long>("lineNum"));
+		lineNumColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("lineNum"));
 		houseSeqColumn.setCellValueFactory(new PropertyValueFactory<Customer, Long>("houseSeq"));
 		mobileNumColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("mobileNum"));
 		newHouseNumColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("newHouseNum"));
@@ -142,7 +169,10 @@ public class ACustomerInfoTabController implements Initializable {
 		profile1Column.setCellValueFactory(new PropertyValueFactory<Customer, String>("profile1"));
 		profile2Column.setCellValueFactory(new PropertyValueFactory<Customer, String>("profile2"));
 		profile3Column.setCellValueFactory(new PropertyValueFactory<Customer, String>("profile3"));
-
+		employmentColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("employment"));
+		commentsColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("comments"));
+		buildingStreetColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("buildingStreet"));
+		
 		addCustLineNum.setDisable(true);
 		addCustHouseSeq.setDisable(true);
 		addCustLineNum.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
@@ -165,10 +195,10 @@ public class ACustomerInfoTabController implements Initializable {
 
 		});
 
-		addCustState.getItems().addAll("Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa",
-				"Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala",
-				"Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
-				"Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
+		addCustState.getItems().addAll("Tamil Nadu", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
+				"Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand",
+				"Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland",
+				"Odisha", "Punjab", "Rajasthan", "Sikkim", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
 				"West Bengal");
 
 		ACustInfoTable.setRowFactory(new Callback<TableView<Customer>, TableRow<Customer>>() {
@@ -211,6 +241,28 @@ public class ACustomerInfoTabController implements Initializable {
 				return row;
 			}
 		});
+		
+		
+		addCustExtraButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if(event.getCode()==KeyCode.ENTER){
+					addCustomerExtraScreenClicked(new ActionEvent());
+				}
+			}
+		});
+		
+		addCustInitials.textProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				// TODO Auto-generated method stub
+				if (newValue.length() > 3)
+					addCustInitials.setText(oldValue);
+			}
+		});
+
 		// ACustInfoTable.setContextMenu(menu);
 		// populateHawkerCodes();
 		// refreshCustomerTable();
@@ -276,10 +328,14 @@ public class ACustomerInfoTabController implements Initializable {
 			editCustomerDialog.setResultConverter(dialogButton -> {
 				if (dialogButton == saveButtonType) {
 					Customer edittedCustomer = editCustController.returnUpdatedCustomer();
-					ArrayList<Customer> custData = getCustomerDataToShift(custRow.getHawkerCode(),
-							custRow.getLineNum().intValue());
-					shiftHouseSeqFromToForCustId(custData, prevHouseSeq, edittedCustomer.getHouseSeq(),
-							custRow.getCustomerId());
+					if (houseSequenceExistsInLine(edittedCustomer.getHawkerCode(), edittedCustomer.getHouseSeq(),
+							edittedCustomer.getLineNum())) {
+						ArrayList<Customer> custData = getCustomerDataToShift(custRow.getHawkerCode(),
+								custRow.getLineNum().intValue());
+						shiftHouseSeqFromToForCustId(custData, prevHouseSeq, edittedCustomer.getHouseSeq(),
+								custRow.getCustomerId());
+
+					}
 					return edittedCustomer;
 				}
 				return null;
@@ -306,6 +362,62 @@ public class ACustomerInfoTabController implements Initializable {
 		}
 	}
 
+	public void addCustomerExtraScreenClicked(ActionEvent event) {
+		try {
+
+			Dialog<String> addCustomerDialog = new Dialog<String>();
+			addCustomerDialog.setTitle("Add new customer");
+			addCustomerDialog.setHeaderText("Add new Customer data below.");
+
+			// Set the button types.
+			ButtonType saveButtonType = new ButtonType("Save and add new", ButtonData.OK_DONE);
+			addCustomerDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CLOSE);
+			Button saveButton = (Button) addCustomerDialog.getDialogPane().lookupButton(saveButtonType);
+			FXMLLoader addCustomerLoader = new FXMLLoader(getClass().getResource("AddCustomersExtraScreen.fxml"));
+			Parent addCustomerGrid = (Parent) addCustomerLoader.load();
+			AddCustomerExtraScreenController addCustController = addCustomerLoader
+					.<AddCustomerExtraScreenController> getController();
+			saveButton.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent event) {
+					// TODO Auto-generated method stub
+					addCustController.addCustomer();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Customer created")
+							.text("Customer created successfully.").showInformation();
+					addCustController.reset();
+					reloadData();
+					event.consume();
+				}
+			});
+			addCustomerDialog.getDialogPane().setContent(addCustomerGrid);
+			addCustController.setupBindings();
+
+			addCustomerDialog.setResultConverter(dialogButton -> {
+				if (dialogButton != saveButtonType) {
+					return null;
+				}
+				return null;
+			});
+
+			Optional<String> updatedCustomer = addCustomerDialog.showAndWait();
+			// refreshCustomerTable();
+
+			updatedCustomer.ifPresent(new Consumer<String>() {
+
+				@Override
+				public void accept(String t) {
+					// TODO Auto-generated method stub
+					addCustomerDialog.showAndWait();
+				}
+			});
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {
 		// TODO Auto-generated method stub
 
@@ -316,8 +428,8 @@ public class ACustomerInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			hawkerLineNumData.clear();
-			PreparedStatement stmt = con
-					.prepareStatement("select distinct line_num from line_info where hawker_id = ?");
+			PreparedStatement stmt = con.prepareStatement(
+					"select li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num");
 			stmt.setLong(1, hawkerIdForCode(hawkerCode));
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -367,14 +479,24 @@ public class ACustomerInfoTabController implements Initializable {
 					}
 					customerMasterData.clear();
 					populateHawkerCodes();
-					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery(
-							"select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials from customer order by hawker_code,line_num,house_seq");
+					String queryString;
+					PreparedStatement stmt;
+					if (HawkerLoginController.loggedInHawker != null) {
+						queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer where hawker_code=? order by hawker_code,line_num,house_seq";
+						stmt = con.prepareStatement(queryString);
+						stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
+					} else {
+						queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer order by hawker_code,line_num,house_seq";
+						stmt = con.prepareStatement(queryString);
+					}
+
+					ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
 						customerMasterData.add(new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3),
 								rs.getString(4), rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8),
 								rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
-								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17), rs.getString(18)));
+								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
+								rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21)));
 					}
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -410,8 +532,7 @@ public class ACustomerInfoTabController implements Initializable {
 			while (rs.next()) {
 				hawkerCodeData.add(rs.getString(1));
 			}
-			addCustHwkCode.getItems().clear();
-			addCustHwkCode.getItems().addAll(hawkerCodeData);
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -424,7 +545,7 @@ public class ACustomerInfoTabController implements Initializable {
 		System.out.println("addCustomerClicked");
 
 		boolean validate = true;
-		if (addCustHwkCode.getSelectionModel().selectedIndexProperty().get() == -1) {
+		if (addCustHwkCode.getSelectionModel().getSelectedItem() != null) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
 					.text("Please select a hawker before adding the the customer").showError();
@@ -438,14 +559,18 @@ public class ACustomerInfoTabController implements Initializable {
 		}
 
 		if (validate) {
-
-			ArrayList<Customer> custData = getCustomerDataToShift(addCustHwkCode.getSelectionModel().getSelectedItem(),
-					Integer.parseInt(addCustLineNum.getSelectionModel().getSelectedItem()));
-			shiftHouseSeqFrom(custData, Integer.parseInt(addCustHouseSeq.getText()));
+			if (houseSequenceExistsInLine(addCustHwkCode.getSelectionModel().getSelectedItem(),
+					Integer.parseInt(addCustHouseSeq.getText()),
+					Long.parseLong(addCustLineNum.getSelectionModel().getSelectedItem()))) {
+				ArrayList<Customer> custData = getCustomerDataToShift(
+						addCustHwkCode.getSelectionModel().getSelectedItem(),
+						Integer.parseInt(addCustLineNum.getSelectionModel().getSelectedItem()));
+				shiftHouseSeqFrom(custData, Integer.parseInt(addCustHouseSeq.getText()));
+			}
 
 			PreparedStatement insertCustomer = null;
-			String insertStatement = "INSERT INTO CUSTOMER(name,mobile_num,hawker_code, line_num, house_seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials) "
-					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			String insertStatement = "INSERT INTO CUSTOMER(name,mobile_num,hawker_code, line_num, house_seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, point_name, building_street) "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
 				while (!con.isValid(0)) {
@@ -470,14 +595,18 @@ public class ACustomerInfoTabController implements Initializable {
 				insertCustomer.setString(10, addCustLocality.getText());
 				insertCustomer.setString(11, addCustCity.getText());
 				insertCustomer.setString(12, addCustState.getSelectionModel().getSelectedItem());
-				insertCustomer.setString(13, addCustProf1.getText());
-				insertCustomer.setString(14, addCustProf2.getText());
+				insertCustomer.setString(13, addCustProf1.getSelectionModel().getSelectedItem());
+				insertCustomer.setString(14, addCustProf2.getSelectionModel().getSelectedItem());
 				insertCustomer.setString(15, addCustProf3.getText());
 				insertCustomer.setString(16, addCustInitials.getText());
+				insertCustomer.setString(17, addCustEmployment.getSelectionModel().getSelectedItem());
+				insertCustomer.setString(18, addCustComments.getText());
+				insertCustomer.setString(19, addCustBuildingStreet.getText());
 
 				insertCustomer.execute();
 				refreshCustomerTable();
 				con.commit();
+				resetClicked(event);
 				// con.close();
 
 			} catch (SQLException e) {
@@ -489,7 +618,7 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 
 		}
-		resetClicked(event);
+
 	}
 
 	public ArrayList<Customer> getCustomerDataToShift(String hawkerCode, int lineNum) {
@@ -501,7 +630,7 @@ public class ACustomerInfoTabController implements Initializable {
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials from customer where hawker_code=? and line_num=?";
+			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer where hawker_code=? and line_num=? order by house_seq";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, hawkerCode);
 			stmt.setInt(2, lineNum);
@@ -510,7 +639,8 @@ public class ACustomerInfoTabController implements Initializable {
 				custData.add(new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4),
 						rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9),
 						rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14),
-						rs.getString(15), rs.getString(16), rs.getString(17),rs.getString(18)));
+						rs.getString(15), rs.getString(16), rs.getString(17), rs.getString(18), rs.getString(19),
+						rs.getString(20), rs.getString(21)));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -522,10 +652,20 @@ public class ACustomerInfoTabController implements Initializable {
 
 	private void shiftHouseSeqFrom(ArrayList<Customer> custData, int seq) {
 		// TODO Auto-generated method stub
-		for (Customer cust : custData) {
+		for (int i = 0; i < custData.size(); i++) {
+			Customer cust = custData.get(i);
 			if (cust != null && cust.getHouseSeq() >= seq) {
-				cust.setHouseSeq(cust.getHouseSeq() + 1);
-				cust.updateCustomerRecord();
+				if (cust.getHouseSeq() == seq) {
+					cust.setHouseSeq(cust.getHouseSeq() + 1);
+					cust.updateCustomerRecord();
+				} else if (cust.getHouseSeq() > seq) {
+					if (i > 0 && custData.get(i - 1).getHouseSeq() == cust.getHouseSeq()) {
+						cust.setHouseSeq(cust.getHouseSeq() + 1);
+						cust.updateCustomerRecord();
+					} else
+						return;
+				}
+
 			}
 		}
 		// reloadData();
@@ -533,7 +673,8 @@ public class ACustomerInfoTabController implements Initializable {
 
 	private void shiftHouseSeqForDelete(ArrayList<Customer> custData, int seq) {
 		// TODO Auto-generated method stub
-		for (Customer cust : custData) {
+		for (int i = 0; i < custData.size(); i++) {
+			Customer cust = custData.get(i);
 			if (cust != null && cust.getHouseSeq() >= seq) {
 				cust.setHouseSeq(cust.getHouseSeq() - 1);
 				cust.updateCustomerRecord();
@@ -544,7 +685,8 @@ public class ACustomerInfoTabController implements Initializable {
 
 	private void shiftHouseSeqFromToForCustId(ArrayList<Customer> custData, int fromSeq, int toSeq, long custId) {
 		if (fromSeq < toSeq) {
-			for (Customer cust : custData) {
+			for (int i = 0; i < custData.size(); i++) {
+				Customer cust = custData.get(i);
 				if (cust != null && cust.getHouseSeq() > fromSeq && cust.getHouseSeq() <= toSeq
 						&& cust.getCustomerId() != custId) {
 					cust.setHouseSeq(cust.getHouseSeq() - 1);
@@ -552,7 +694,8 @@ public class ACustomerInfoTabController implements Initializable {
 				}
 			}
 		} else if (fromSeq > toSeq) {
-			for (Customer cust : custData) {
+			for (int i = 0; i < custData.size(); i++) {
+				Customer cust = custData.get(i);
 				if (cust != null && cust.getHouseSeq() < fromSeq && cust.getHouseSeq() >= toSeq
 						&& cust.getCustomerId() != custId) {
 					cust.setHouseSeq(cust.getHouseSeq() + 1);
@@ -569,7 +712,10 @@ public class ACustomerInfoTabController implements Initializable {
 		System.out.println("resetClicked");
 		addCustName.clear();
 		addCustMobile.clear();
-		addCustHwkCode.setValue(null);
+		if (HawkerLoginController.loggedInHawker == null) {
+			addCustHwkCode.getSelectionModel().clearSelection();
+		}
+
 		addCustLineNum.setValue(null);
 		addCustLineNum.setDisable(true);
 		addCustHouseSeq.clear();
@@ -580,11 +726,14 @@ public class ACustomerInfoTabController implements Initializable {
 		addCustAddrLine2.clear();
 		addCustLocality.clear();
 		addCustCity.clear();
-		addCustState.setValue("State");
-		addCustProf1.clear();
-		addCustProf2.clear();
+		// addCustState.setValue("State");
+		addCustProf1.getSelectionModel().clearSelection();
+		addCustProf2.getSelectionModel().clearSelection();
 		addCustProf3.clear();
 		addCustInitials.clear();
+		addCustEmployment.getSelectionModel().clearSelection();
+		addCustComments.clear();
+		addCustBuildingStreet.clear();
 	}
 
 	@FXML
@@ -645,10 +794,16 @@ public class ACustomerInfoTabController implements Initializable {
 						else if (customer.getInitials() != null
 								&& customer.getInitials().toUpperCase().contains(searchText.toUpperCase()))
 							return true;
-						else if ((customer.getCustomerCode()+"").toUpperCase().contains(searchText.toUpperCase()))
+						else if ((customer.getCustomerCode() + "").toUpperCase().contains(searchText.toUpperCase()))
+							return true;
+						else if ((customer.getEmployment() + "").toUpperCase().contains(searchText.toUpperCase()))
+							return true;
+						else if ((customer.getComments() + "").toUpperCase().contains(searchText.toUpperCase()))
+							return true;
+						else if ((customer.getBuildingStreet() + "").toUpperCase().contains(searchText.toUpperCase()))
 							return true;
 						return false;
-						
+
 					}
 				});
 
@@ -678,7 +833,124 @@ public class ACustomerInfoTabController implements Initializable {
 
 	public void reloadData() {
 		populateHawkerCodes();
+		addCustHwkCode.getItems().clear();
+		addCustHwkCode.getItems().addAll(hawkerCodeData);
+		if (HawkerLoginController.loggedInHawker != null) {
+			addCustHwkCode.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
+			addCustHwkCode.setDisable(true);
+		}
+		populateProfileValues();
+		populateEmploymentValues();
+		addCustProf1.getItems().addAll(profileValues);
+		addCustProf2.getItems().addAll(profileValues);
+		addCustEmployment.getItems().addAll(employmentData);
 		refreshCustomerTable();
+
 	}
+
+	private void populateProfileValues() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					while (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					profileValues.clear();
+					Statement stmt = con.createStatement();
+					ResultSet rs = stmt.executeQuery("select distinct name from profile_values");
+					while (rs.next()) {
+						profileValues.add(rs.getString(1));
+					}
+
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				addCustProf1.getItems().clear();
+				addCustProf2.getItems().clear();
+				addCustProf1.getItems().addAll(profileValues);
+				addCustProf2.getItems().addAll(profileValues);
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
+	}
+
+	private void populateEmploymentValues() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					while (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					employmentData.clear();
+					Statement stmt = con.createStatement();
+					ResultSet rs = stmt.executeQuery("select distinct value from employment_status");
+					while (rs.next()) {
+						employmentData.add(rs.getString(1));
+					}
+
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				addCustEmployment.getItems().clear();
+				addCustEmployment.getItems().addAll(employmentData);
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
+	}
+
+	public boolean houseSequenceExistsInLine(String hawkerCode, int seq, Long lineNum) {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials from customer where house_seq=? and line_num=? and hawker_code=?";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setInt(1, seq);
+			stmt.setLong(2, lineNum);
+			stmt.setString(3, hawkerCode);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/*private class HyperlinkCell implements  Callback<TableColumn<Customer, Hyperlink>, TableCell<Customer, Hyperlink>> {
+
+		@Override
+		public TableCell<Customer, Hyperlink> call(TableColumn<Customer, Hyperlink> arg) {
+			TableCell<Customer, Hyperlink> cell = new TableCell<Customer, Hyperlink>() {
+				@Override
+				protected void updateItem(Hyperlink item, boolean empty) {
+					setGraphic(item);
+				}
+			};
+			return cell;
+		}
+	}*/
 
 }

@@ -28,14 +28,17 @@ public class Customer {
 	private final SimpleStringProperty profile2 = new SimpleStringProperty("");
 	private final SimpleStringProperty profile3 = new SimpleStringProperty("");
 	private final SimpleStringProperty initials = new SimpleStringProperty("");
+	private final SimpleStringProperty employment = new SimpleStringProperty("");
+	private final SimpleStringProperty comments = new SimpleStringProperty("");
+	private final SimpleStringProperty buildingStreet = new SimpleStringProperty("");
 	
 	public Customer(long customerId, long customerCode, String name, String mobileNum, String hawkerCode, long lineNum, int houseSeq, 
 			String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2, String locality, String city, String state,
-			String profile1, String profile2, String profile3, String initials){
+			String profile1, String profile2, String profile3, String initials, String employment, String comments, String buildingStreet){
 		setCustomerCode(customerCode);
 		setCustomerId(customerId);
-		setName(name);
-		setMobileNum(mobileNum);
+		setName(name.toLowerCase());
+		setMobileNum(mobileNum.toLowerCase());
 		setHawkerCode(hawkerCode);
 		setLineNum(lineNum);
 		setHouseSeq(houseSeq);
@@ -50,6 +53,9 @@ public class Customer {
 		setProfile2(profile2);
 		setProfile3(profile3);
 		setInitials(initials);
+		setEmployment(employment);
+		setComments(comments);
+		setBuildingStreet(buildingStreet);
 	}
 	
 	public Customer(Customer custRow) {
@@ -72,6 +78,9 @@ public class Customer {
 		setProfile2(custRow.getProfile2());
 		setProfile3(custRow.getProfile3());
 		setInitials(custRow.getInitials());
+		setEmployment(""+custRow.getEmployment());
+		setComments(""+custRow.getComments());
+		setBuildingStreet(""+custRow.getBuildingStreet());
 	}
 
 	public Long getCustomerId() {
@@ -225,6 +234,34 @@ public class Customer {
 	public void setInitials(String initials) {
 		this.initials.set(initials);
 	}
+
+	public void setBuildingStreet(String buildingStreet) {
+		this.buildingStreet.set(buildingStreet);		
+	}
+
+
+	public void setComments(String comments) {
+		this.comments.set(comments);
+		
+	}
+
+	public String getEmployment() {
+		return this.employment.get();
+	}
+	
+	public String getBuildingStreet() {
+		return this.buildingStreet.get();		
+	}
+
+
+	public String getComments() {
+		return this.comments.get();
+		
+	}
+
+	public void setEmployment(String employment) {
+		this.employment.set(employment);
+	}
 	
 	public void updateCustomerRecord(){
 		try {
@@ -233,7 +270,7 @@ public class Customer {
 			while(!con.isValid(0)){
 				con = Main.reconnect();
 			}
-			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=?, initials=? where customer_id=?";
+			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, point_name=?, building_street=? where customer_id=?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setLong(1, getCustomerCode());
 			updateStmt.setString(2, getName());
@@ -252,7 +289,10 @@ public class Customer {
 			updateStmt.setString(15, getProfile2());
 			updateStmt.setString(16, getProfile3());
 			updateStmt.setString(17, getInitials());
-			updateStmt.setLong(18, getCustomerId()); 
+			updateStmt.setString(18, getEmployment());
+			updateStmt.setString(19, getComments());
+			updateStmt.setString(21, getBuildingStreet());
+			updateStmt.setLong(22, getCustomerId()); 
 			updateStmt.executeUpdate();
 			con.commit();
 			

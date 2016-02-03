@@ -96,22 +96,22 @@
 					<tabs>
 						<Tab fx:id="customersTab" text="Customers">
 							<content>
-								<fx:include source="H-CustomerInfoTab.fxml" />
+								<fx:include source="A-CustomersTab.fxml" />
 							</content>
 						</Tab>
 						<Tab fx:id="lineInfoTab" text="Line Information">
 							<content>
-								<fx:include source="H-LineInfoTab.fxml" />
+								<fx:include source="A-LineInfoTab.fxml" />
 							</content>
 						</Tab>
 						<Tab fx:id="pausedCustTab" text="Paused Customers">
 							<content>
-								<fx:include source="H-PausedCustomerTab.fxml" />
+								<fx:include source="A-PausedCustomersTab.fxml" />
 							</content>
 						</Tab>
 						<Tab fx:id="lineDistTab" text="Line Distributor">
 							<content>
-								<fx:include source="H-LineDistributorTab.fxml" />
+								<fx:include source="A-LineDistributorTab.fxml" />
 							</content>
 						</Tab>
 					</tabs>

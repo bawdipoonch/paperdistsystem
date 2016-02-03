@@ -7,9 +7,7 @@ import java.sql.SQLException;
 import org.controlsfx.control.Notifications;
 
 import javafx.beans.property.*;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import javafx.beans.value.ObservableBooleanValue;
 
 public class Hawker {
 	
@@ -40,19 +38,24 @@ public class Hawker {
 	private final SimpleStringProperty profile3 = new SimpleStringProperty("");
 	private final SimpleStringProperty password = new SimpleStringProperty("");
 	private final SimpleStringProperty initials = new SimpleStringProperty("");
+	private final SimpleStringProperty employment = new SimpleStringProperty("");
+	private final SimpleStringProperty comments = new SimpleStringProperty("");
+	private final SimpleStringProperty pointName = new SimpleStringProperty("");
+	private final SimpleStringProperty buildingStreet = new SimpleStringProperty("");
 	
 	public Hawker(long hawkerId, String name, String hawkerCode,
 			String moblieNum, String agencyName, boolean activeFlag,
 			double fee, String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2,
 			String locality, String city, String state, String customerAccess, String billingAccess, 
 			String lineInfoAccess, String lineDistAccess, String pausedCustAccess, String productAccess, String reportsAccess,
-			String profile1, String profile2, String profile3, String initials) {
+			String profile1, String profile2, String profile3, String initials,String password, String employment, String comments,
+			String pointName, String buildingStreet) {
 		super();
 		setHawkerId(hawkerId);
 		setName(name);
 		setHawkerCode(hawkerCode);
 		setMobileNum(moblieNum);
-		setAgencyName(agencyName);
+		setAgencyName((""+agencyName));
 		setActiveFlag(activeFlag);
 		setFee(fee);
 		setOldHouseNum(oldHouseNum);
@@ -73,6 +76,11 @@ public class Hawker {
 		setProfile2(profile2);
 		setProfile3(profile3);
 		setInitials(initials);
+		setPassword(password);
+		setEmployment(employment);
+		setComments(comments);
+		setPointName(pointName);
+		setBuildingStreet(buildingStreet);
 	}
 
 	public Hawker(Hawker hawkerRow) {
@@ -98,10 +106,15 @@ public class Hawker {
 		setPausedCustAccess(hawkerRow.getPausedCustAccess());
 		setProductAccess(hawkerRow.getProductAccess());
 		setReportsAccess(hawkerRow.getReportsAccess());
-		setPassword(hawkerRow.getPassword());
+		setInitials(hawkerRow.getInitials());
 		setProfile1(hawkerRow.getProfile1());
 		setProfile2(hawkerRow.getProfile2());
 		setProfile3(hawkerRow.getProfile3());
+		setPassword(hawkerRow.getPassword());
+		setEmployment(hawkerRow.getEmployment());
+		setComments(hawkerRow.getComments());
+		setPointName(hawkerRow.getPointName());
+		setBuildingStreet(hawkerRow.getBuildingStreet());
 	}
 
 	public Long getHawkerId() {
@@ -314,6 +327,7 @@ public class Hawker {
 	public void setProfile3(String profile3) {
 		this.profile3.set(profile3);
 	}
+	
 	public String getInitials() {
 		return initials.get();
 	}
@@ -322,8 +336,46 @@ public class Hawker {
 		this.initials.set(initials);
 	}
 
+	public void setBuildingStreet(String buildingStreet) {
+		this.buildingStreet.set(buildingStreet);		
+	}
+
+	public void setPointName(String pointName) {
+		this.pointName.set(pointName);
+	}
+
+	public void setComments(String comments) {
+		this.comments.set(comments);
+		
+	}
+
+	public String getEmployment() {
+		return this.employment.get();
+	}
+	
+	public String getBuildingStreet() {
+		return this.buildingStreet.get();		
+	}
+
+	public String getPointName() {
+		return this.pointName.get();
+	}
+
+	public String getComments() {
+		return this.comments.get();
+		
+	}
+
+	public void setEmployment(String employment) {
+		this.employment.set(employment);
+	}
+
 	public String toString(){
 		return getHawkerCode();
+	}
+	
+	public ObservableBooleanValue isActive() {
+	    return activeFlag;
 	}
 	
 	public void calculateTotalDue(){
@@ -353,7 +405,7 @@ public class Hawker {
 			while(!con.isValid(0)){
 				con = Main.reconnect();
 			}
-			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=? where hawker_id = ?";
+			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=?, initials=?, employment=?, comments=?, point_name=?, building_street=? where hawker_id = ?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setString(1, getName());
 			updateStmt.setString(2, getHawkerCode());
@@ -375,12 +427,17 @@ public class Hawker {
 			updateStmt.setString(18, getPausedCustAccess());
 			updateStmt.setString(19, getProductAccess());
 			updateStmt.setString(20, getReportsAccess());
-			updateStmt.setLong(26, getHawkerId()); 
 			updateStmt.setDouble(21, getTotalDue());
 			updateStmt.setString(22, getProfile1());
 			updateStmt.setString(23, getProfile2());
 			updateStmt.setString(24, getProfile3());
 			updateStmt.setString(25, getPassword());
+			updateStmt.setString(26, getInitials());
+			updateStmt.setString(27, getEmployment());
+			updateStmt.setString(28, getComments());
+			updateStmt.setString(29, getPointName());
+			updateStmt.setString(30, getBuildingStreet());
+			updateStmt.setLong(31, getHawkerId()); 
 			updateStmt.executeUpdate();
 			con.commit();
 			

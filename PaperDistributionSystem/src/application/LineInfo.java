@@ -12,12 +12,14 @@ public class LineInfo {
 	private final SimpleLongProperty lineId = new SimpleLongProperty();
 	private final SimpleIntegerProperty lineNum = new SimpleIntegerProperty();
 	private final SimpleLongProperty hawkerId = new SimpleLongProperty();
+	private final SimpleStringProperty lineNumDist = new SimpleStringProperty();
 
 	
-	public LineInfo(long lineId, int lineNum, long hawkerId){
+	public LineInfo(long lineId, int lineNum, long hawkerId, String lineNumDist){
 		setLineId(lineId);
 		setLineNum(lineNum);
 		setHawkerId(hawkerId);
+		setLineNumDist(lineNumDist);
 	}
 	public Long getLineId() {
 		return lineId.get();
@@ -41,6 +43,14 @@ public class LineInfo {
 	
 	public void setHawkerId(long hawkerId) {
 		this.hawkerId.set(hawkerId);
+	}
+	
+	public String getLineNumDist() {
+		return lineNumDist.get();
+	}
+	
+	public void setLineNumDist(String lineNumDist) {
+		this.lineNumDist.set(lineNumDist);
 	}
 		
 	public String toString() {
