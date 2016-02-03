@@ -1,12 +1,13 @@
 package application;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.controlsfx.control.Notifications;
 
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 public class LineDistributor {
 	private final SimpleLongProperty lineDistId = new SimpleLongProperty();
