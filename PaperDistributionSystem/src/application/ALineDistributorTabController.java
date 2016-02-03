@@ -354,6 +354,7 @@ public class ALineDistributorTabController implements Initializable {
 			// Set the button types.
 			ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
 			editLineDistributorDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+			Button saveButton = (Button) editLineDistributorDialog.getDialogPane().lookupButton(saveButtonType);
 
 			FXMLLoader editLineDistributorLoader = new FXMLLoader(getClass().getResource("EditLineDistributor.fxml"));
 			Parent editLineDistributorGrid = (Parent) editLineDistributorLoader.load();
@@ -363,6 +364,12 @@ public class ALineDistributorTabController implements Initializable {
 			editLineDistributorDialog.getDialogPane().setContent(editLineDistributorGrid);
 			editLineDistributorController.setLineDistToEdit(lineDistRow);
 			editLineDistributorController.setupBindings();
+			saveButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+				if(!editLineDistributorController.isLineDistValid()){
+					Notifications.create().title("Invalid Line Distributor").text("Please provide appropriate values for line distributor").hideAfter(Duration.seconds(5)).showError();
+					btnEvent.consume();
+				}
+			});
 
 			editLineDistributorDialog.setResultConverter(dialogButton -> {
 				if (dialogButton == saveButtonType) {

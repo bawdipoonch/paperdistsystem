@@ -231,7 +231,7 @@ public class LineDistributor {
 			while(!con.isValid(0)){
 				con = Main.reconnect();
 			}
-			String updateString = "update line_distributor set name=?, mobile_num=?, line_num=?,  old_house_num=?,  new_house_num=?,  address_line1=?,  address_line2=?,  locality=?,  city=?, state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, point_name=?, building_street=?  where line_dist_id=?";
+			String updateString = "update line_distributor set name=?, mobile_num=?, line_num=?,  old_house_num=?,  new_house_num=?,  address_line1=?,  address_line2=?,  locality=?,  city=?, state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, building_street=?  where line_dist_id=?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setString(1, getName());
 			updateStmt.setString(2, getMobileNum());
@@ -249,8 +249,8 @@ public class LineDistributor {
 			updateStmt.setString(14, getInitials());
 			updateStmt.setString(15, getEmployment());
 			updateStmt.setString(16, getComments());
-			updateStmt.setString(18, getBuildingStreet());
-			updateStmt.setLong(19, getLineDistId());
+			updateStmt.setString(17, getBuildingStreet());
+			updateStmt.setLong(18, getLineDistId());
 			updateStmt.executeUpdate();
 			con.commit();
 			
