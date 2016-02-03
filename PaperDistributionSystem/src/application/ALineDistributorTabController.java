@@ -249,7 +249,7 @@ public class ALineDistributorTabController implements Initializable {
 					addInitialsField.setText(oldValue);
 			}
 		});
-
+		addNameField.requestFocus();
 	}
 
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {

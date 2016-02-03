@@ -608,7 +608,7 @@ public class ACustomerInfoTabController implements Initializable {
 				con.commit();
 				resetClicked(event);
 				// con.close();
-
+				addCustName.requestFocus();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

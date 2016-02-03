@@ -14,8 +14,8 @@
                <children>
                   <VBox alignment="CENTER_LEFT" spacing="10.0">
                      <children>
-                        <Label alignment="CENTER" text="                                                 Customer Name                       Initials                Mobile Number                     Hawker                          Line Number                  House Sequence" />
-                        <HBox alignment="CENTER" prefWidth="900.0" spacing="10.0">
+                        <Label alignment="CENTER" text="   Customer Name                       Initials                Mobile Number                     Hawker                          Line Number                  House Sequence" />
+                        <HBox alignment="CENTER_LEFT" prefWidth="900.0" spacing="10.0">
                            <children>
                               <TextField fx:id="addCustName" accessibleHelp="Customer Name" accessibleText="Customer Name" promptText="Customer Name" />
                               <TextField fx:id="addCustInitials" layoutX="858.0" layoutY="10.0" prefHeight="25.0" prefWidth="73.0" promptText="Initials" />
@@ -24,22 +24,28 @@
                               <ComboBox fx:id="addCustLineNum" prefHeight="25.0" prefWidth="114.0" promptText="Line Number" />
                               <TextField fx:id="addCustHouseSeq" layoutX="532.0" layoutY="10.0" prefHeight="25.0" prefWidth="103.0" promptText="House Sequence" />
                            </children>
+                           <VBox.margin>
+                              <Insets left="10.0" />
+                           </VBox.margin>
                         </HBox>
-                        <HBox alignment="CENTER" spacing="10.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
                               <Label alignment="CENTER_RIGHT" text="Old HNum:" />
-                              <TextField fx:id="addCustOldHouseNum" prefHeight="25.0" prefWidth="73.0" promptText="Old House#" />
+                              <TextField fx:id="addCustOldHouseNum" prefHeight="25.0" prefWidth="89.0" promptText="Old House#" />
                               <Label alignment="CENTER_RIGHT" text="New HNum:" />
-                              <TextField fx:id="addCustNewHouseNum" prefHeight="25.0" prefWidth="73.0" promptText="New House#" />
+                              <TextField fx:id="addCustNewHouseNum" prefHeight="25.0" prefWidth="88.0" promptText="New House#" />
                               <Label alignment="CENTER_RIGHT" text="Bldg/Street  Name:" />
                               <TextField fx:id="addCustBuildingStreet" prefHeight="25.0" prefWidth="132.0" promptText="Building/Street Name" />
                               <Label alignment="CENTER_RIGHT" text="Addr Line1:" />
-                              <TextField fx:id="addCustAddrLine1" prefHeight="25.0" prefWidth="129.0" promptText="Address Line 1" />
+                              <TextField fx:id="addCustAddrLine1" prefHeight="25.0" prefWidth="147.0" promptText="Address Line 1" />
                               <Label alignment="CENTER_RIGHT" text="Addr Line2:" />
-                              <TextField fx:id="addCustAddrLine2" prefHeight="25.0" prefWidth="116.0" promptText="Address Line 2" />
+                              <TextField fx:id="addCustAddrLine2" prefHeight="25.0" prefWidth="138.0" promptText="Address Line 2" />
                            </children>
+                           <VBox.margin>
+                              <Insets left="10.0" />
+                           </VBox.margin>
                         </HBox>
-                        <HBox alignment="CENTER" spacing="10.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
                               <TextField fx:id="addCustLocality" prefHeight="25.0" prefWidth="88.0" promptText="Locality" />
                               <TextField fx:id="addCustCity" prefHeight="25.0" prefWidth="111.0" promptText="City" />
@@ -51,23 +57,20 @@
                               <TextField fx:id="addCustComments" promptText="Comments" />
                            </children>
                            <VBox.margin>
-                              <Insets />
-                           </VBox.margin>
-                           <padding>
                               <Insets left="10.0" />
-                           </padding>
+                           </VBox.margin>
                         </HBox>
-                        <Label prefHeight="17.0" prefWidth="1080.0" text="        Locality                  City                               State                                         Profile 1                           Profile 2                         Profile 3                        Employment                     Comments" />
+                        <Label prefHeight="17.0" prefWidth="1080.0" text="  Locality                   City                               State                                       Profile 1                           Profile 2                          Profile 3                       Employment                    Comments" />
                      </children>
                      <HBox.margin>
                         <Insets bottom="5.0" top="10.0" />
                      </HBox.margin>
                   </VBox>
-                  <VBox alignment="CENTER" spacing="10.0">
+                  <VBox alignment="CENTER" minHeight="164.0" minWidth="175.0" spacing="10.0" HBox.hgrow="ALWAYS">
                      <children>
                         <HBox spacing="10.0">
                            <children>
-                              <VBox alignment="CENTER" spacing="10.0">
+                              <VBox alignment="CENTER" spacing="10.0" HBox.hgrow="ALWAYS">
                                  <children>
                                     <Button mnemonicParsing="false" onAction="#addCustomerClicked" prefHeight="25.0" prefWidth="74.0" text="Save" />
                                     <Button mnemonicParsing="false" onAction="#resetClicked" prefHeight="25.0" prefWidth="74.0" text="Reset" />
@@ -83,6 +86,9 @@
                         </HBox>
                         <Button fx:id="addCustExtraButton" mnemonicParsing="false" onAction="#addCustomerExtraScreenClicked" text="Add Customer : Extra Screen" />
                      </children>
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
                   </VBox>
                </children>
             </HBox>

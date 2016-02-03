@@ -496,7 +496,7 @@ public class AHawkerInfoTabController implements Initializable {
 		});
 
 		// refreshHawkerTable();
-
+		addHwkName.requestFocus();
 	}
 
 	/*

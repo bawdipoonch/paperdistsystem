@@ -118,6 +118,7 @@ public class EditCustomerController implements Initializable {
 					initialsTF.setText(oldValue);
 			}
 		});
+		editNameTF.requestFocus();
 	}
 	
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {

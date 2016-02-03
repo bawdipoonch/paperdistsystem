@@ -128,6 +128,7 @@ public class EditHawkerController implements Initializable {
 		editCommentsTF.setText(hawkerRow.getComments());
 		editPointNameLOV.getItems().addAll(pointNameValues);
 		editPointNameLOV.getSelectionModel().select(hawkerRow.getPointName());
+		editNameTF.requestFocus();
 	}
 
 	public Hawker returnUpdatedHawker() {
