@@ -139,6 +139,10 @@ public class ACustomerInfoTabController implements Initializable {
 	private String searchText;
 	
 	@FXML private Button addCustExtraButton;
+	@FXML private Button saveCustomerButton;
+	@FXML private Button resetButton;
+	@FXML private Button searchButton;
+	@FXML private Button clearButton;
 
 	private ObservableList<Customer> customerMasterData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
@@ -260,6 +264,43 @@ public class ACustomerInfoTabController implements Initializable {
 				// TODO Auto-generated method stub
 				if (newValue.length() > 3)
 					addCustInitials.setText(oldValue);
+			}
+		});
+		
+		saveCustomerButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if(event.getCode()==KeyCode.ENTER){
+					addCustomerClicked(new ActionEvent());
+				}
+			}
+		});
+		resetButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if(event.getCode()==KeyCode.ENTER){
+					resetClicked(new ActionEvent());
+				}
+			}
+		});
+		searchButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if(event.getCode()==KeyCode.ENTER){
+					filterCustomersClicked(new ActionEvent());
+				}
+			}
+		});
+		clearButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if(event.getCode()==KeyCode.ENTER){
+					clearClicked(new ActionEvent());
+				}
 			}
 		});
 
@@ -545,7 +586,7 @@ public class ACustomerInfoTabController implements Initializable {
 		System.out.println("addCustomerClicked");
 
 		boolean validate = true;
-		if (addCustHwkCode.getSelectionModel().getSelectedItem() != null) {
+		if (addCustHwkCode.getSelectionModel().getSelectedItem() == null) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
 					.text("Please select a hawker before adding the the customer").showError();
@@ -561,16 +602,16 @@ public class ACustomerInfoTabController implements Initializable {
 		if (validate) {
 			if (houseSequenceExistsInLine(addCustHwkCode.getSelectionModel().getSelectedItem(),
 					Integer.parseInt(addCustHouseSeq.getText()),
-					Long.parseLong(addCustLineNum.getSelectionModel().getSelectedItem()))) {
+					Long.parseLong(addCustLineNum.getSelectionModel().getSelectedItem().split(" ")[0].trim()))) {
 				ArrayList<Customer> custData = getCustomerDataToShift(
 						addCustHwkCode.getSelectionModel().getSelectedItem(),
-						Integer.parseInt(addCustLineNum.getSelectionModel().getSelectedItem()));
+						Integer.parseInt(addCustLineNum.getSelectionModel().getSelectedItem().split(" ")[0].trim()));
 				shiftHouseSeqFrom(custData, Integer.parseInt(addCustHouseSeq.getText()));
 			}
 
 			PreparedStatement insertCustomer = null;
-			String insertStatement = "INSERT INTO CUSTOMER(name,mobile_num,hawker_code, line_num, house_seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, point_name, building_street) "
-					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			String insertStatement = "INSERT INTO CUSTOMER(name,mobile_num,hawker_code, line_num, house_seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street) "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
 				while (!con.isValid(0)) {
@@ -581,7 +622,7 @@ public class ACustomerInfoTabController implements Initializable {
 				insertCustomer.setString(2, addCustMobile.getText());
 				insertCustomer.setString(3, addCustHwkCode.getSelectionModel().getSelectedItem());
 				if (!addCustLineNum.isDisabled())
-					insertCustomer.setLong(4, Long.parseLong(addCustLineNum.getSelectionModel().getSelectedItem()));
+					insertCustomer.setLong(4, Long.parseLong(addCustLineNum.getSelectionModel().getSelectedItem().split(" ")[0].trim()));
 				else
 					insertCustomer.setString(4, null);
 				if (!addCustHouseSeq.isDisabled())
@@ -716,7 +757,7 @@ public class ACustomerInfoTabController implements Initializable {
 			addCustHwkCode.getSelectionModel().clearSelection();
 		}
 
-		addCustLineNum.setValue(null);
+		addCustLineNum.getSelectionModel().clearSelection();
 		addCustLineNum.setDisable(true);
 		addCustHouseSeq.clear();
 		addCustHouseSeq.setDisable(true);

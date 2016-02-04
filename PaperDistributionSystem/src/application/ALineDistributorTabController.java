@@ -138,6 +138,11 @@ public class ALineDistributorTabController implements Initializable {
 	@FXML
 	private Button addLineDistExtraButton;
 
+	@FXML private Button saveButton;
+	@FXML private Button clearButton;
+	@FXML private Button searchButton;
+	@FXML private Button resetButton;
+
 	private FilteredList<LineDistributor> filteredData;
 	private String searchText;
 
@@ -249,6 +254,51 @@ public class ALineDistributorTabController implements Initializable {
 					addInitialsField.setText(oldValue);
 			}
 		});
+		
+		saveButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					addButtonClicked(new ActionEvent());
+				}
+
+			}
+		});
+		
+		resetButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					resetClicked(new ActionEvent());
+				}
+
+			}
+		});
+		
+		clearButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					clearClicked(new ActionEvent());
+				}
+
+			}
+		});
+		
+		searchButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					filterLineDistClicked(new ActionEvent());
+				}
+
+			}
+		});
+		
 		addNameField.requestFocus();
 	}
 
@@ -466,8 +516,8 @@ public class ALineDistributorTabController implements Initializable {
 				if (!lineDistForLineExists(
 						addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim())) {
 					PreparedStatement insertLineNum = null;
-					String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID,old_house_num, new_house_num, address_line1, address_line2, locality, city, state,profile1,profile2,profile3,initials) "
-							+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+					String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID,old_house_num, new_house_num, address_line1, address_line2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street) "
+							+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 					Connection con = Main.dbConnection;
 					try {
 						while (!con.isValid(0)) {
@@ -491,6 +541,9 @@ public class ALineDistributorTabController implements Initializable {
 						insertLineNum.setString(13, addProf2.getSelectionModel().getSelectedItem());
 						insertLineNum.setString(14, addProf3.getText());
 						insertLineNum.setString(15, addInitialsField.getText());
+						insertLineNum.setString(16, addEmployment.getSelectionModel().getSelectedItem());
+						insertLineNum.setString(17, addComments.getText());
+						insertLineNum.setString(18, addBuildingStreet.getText());
 						insertLineNum.execute();
 						resetClicked(event);
 						refreshLineDistTable();

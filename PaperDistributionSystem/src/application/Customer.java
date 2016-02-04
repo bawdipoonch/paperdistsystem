@@ -272,7 +272,7 @@ public class Customer {
 			while(!con.isValid(0)){
 				con = Main.reconnect();
 			}
-			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, point_name=?, building_street=? where customer_id=?";
+			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, building_street=? where customer_id=?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setLong(1, getCustomerCode());
 			updateStmt.setString(2, getName());
@@ -293,8 +293,8 @@ public class Customer {
 			updateStmt.setString(17, getInitials());
 			updateStmt.setString(18, getEmployment());
 			updateStmt.setString(19, getComments());
-			updateStmt.setString(21, getBuildingStreet());
-			updateStmt.setLong(22, getCustomerId()); 
+			updateStmt.setString(20, getBuildingStreet());
+			updateStmt.setLong(21, getCustomerId()); 
 			updateStmt.executeUpdate();
 			con.commit();
 			

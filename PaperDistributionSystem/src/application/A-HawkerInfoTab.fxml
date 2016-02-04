@@ -69,14 +69,14 @@
                            <children>
                               <VBox alignment="CENTER" spacing="15.0">
                                  <children>
-                                    <Button mnemonicParsing="false" onAction="#addHawkerClicked" prefHeight="25.0" prefWidth="74.0" text="Save" />
-                                    <Button mnemonicParsing="false" onAction="#resetClicked" prefHeight="25.0" prefWidth="74.0" text="Reset" />
+                                    <Button fx:id="saveButton" mnemonicParsing="false" onAction="#addHawkerClicked" prefHeight="25.0" prefWidth="74.0" text="Save" />
+                                    <Button fx:id="resetButton" mnemonicParsing="false" onAction="#resetClicked" prefHeight="25.0" prefWidth="74.0" text="Reset" />
                                  </children>
                               </VBox>
                               <VBox alignment="CENTER" spacing="15.0">
                                  <children>
-                                    <Button mnemonicParsing="false" onAction="#filterHawkersClicked" prefWidth="74.0" text="Search" />
-                                    <Button mnemonicParsing="false" onAction="#clearClicked" prefHeight="25.0" prefWidth="74.0" text="Clear" />
+                                    <Button fx:id="searchButton" mnemonicParsing="false" onAction="#filterHawkersClicked" prefWidth="74.0" text="Search" />
+                                    <Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearClicked" prefHeight="25.0" prefWidth="74.0" text="Clear" />
                                  </children>
                               </VBox>
                            </children>

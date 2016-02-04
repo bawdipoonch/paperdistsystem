@@ -185,6 +185,11 @@ public class AHawkerInfoTabController implements Initializable {
 	private Button disableAllButton;
 	@FXML
 	private Button addHwkExtraButton;
+	
+	@FXML private Button saveButton;
+	@FXML private Button clearButton;
+	@FXML private Button searchButton;
+	@FXML private Button resetButton;
 
 	private ObservableList<Hawker> hawkerMasterData = FXCollections.observableArrayList();
 	private ObservableList<HawkerBilling> hawkerBillingMasterData = FXCollections.observableArrayList();
@@ -480,6 +485,50 @@ public class AHawkerInfoTabController implements Initializable {
 			public void handle(KeyEvent event) {
 				if (event.getCode() == KeyCode.ENTER) {
 					addHawkerExtraClicked(new ActionEvent());
+				}
+
+			}
+		});
+		
+		saveButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					addHawkerClicked(new ActionEvent());
+				}
+
+			}
+		});
+		
+		resetButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					resetClicked(new ActionEvent());
+				}
+
+			}
+		});
+		
+		clearButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					clearClicked(new ActionEvent());
+				}
+
+			}
+		});
+		
+		searchButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					filterHawkersClicked(new ActionEvent());
 				}
 
 			}
