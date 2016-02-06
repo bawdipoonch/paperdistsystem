@@ -753,12 +753,14 @@ public class ACustomerInfoTabController implements Initializable {
 		System.out.println("resetClicked");
 		addCustName.clear();
 		addCustMobile.clear();
+		addCustLineNum.getSelectionModel().clearSelection();
 		if (HawkerLoginController.loggedInHawker == null) {
 			addCustHwkCode.getSelectionModel().clearSelection();
+			addCustLineNum.setDisable(true);
 		}
 
-		addCustLineNum.getSelectionModel().clearSelection();
-		addCustLineNum.setDisable(true);
+		
+		
 		addCustHouseSeq.clear();
 		addCustHouseSeq.setDisable(true);
 		addCustOldHouseNum.clear();
@@ -880,6 +882,7 @@ public class ACustomerInfoTabController implements Initializable {
 			addCustHwkCode.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
 			addCustHwkCode.setDisable(true);
 		}
+		addCustLineNum.getSelectionModel().clearSelection();
 		populateProfileValues();
 		populateEmploymentValues();
 		addCustProf1.getItems().addAll(profileValues);
