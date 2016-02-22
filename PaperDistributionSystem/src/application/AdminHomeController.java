@@ -2,7 +2,13 @@ package application;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Optional;
 import java.util.ResourceBundle;
+
+import org.controlsfx.control.Notifications;
 
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -13,9 +19,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class AdminHomeController implements Initializable {
 
@@ -23,6 +32,7 @@ public class AdminHomeController implements Initializable {
 	Stage stage; 
     Parent root;
     @FXML private TabPane tabPane;
+	@FXML private Button changePwdButton;
     
     @FXML private Tab customersTab;
     @FXML private Tab lineInfoTab;
@@ -30,6 +40,7 @@ public class AdminHomeController implements Initializable {
     @FXML private Tab hawkerTab;
     @FXML private Tab lineDistTab;
     @FXML private Tab additionalItemsTab;
+    @FXML private Tab productsTab;
 
     private ACustomerInfoTabController customerTabController;
     private AHawkerInfoTabController hawkerTabController;
@@ -37,6 +48,7 @@ public class AdminHomeController implements Initializable {
     private APausedCustomerTabController pausedCustTabController;
     private ALineDistributorTabController lineDistTabController;
     private AdditionalItemsController additionalItemsTabController;
+    private AProductsTabController productsTabController;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -44,28 +56,6 @@ public class AdminHomeController implements Initializable {
 
 		loadTabs();
 		
-		
-		/*tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
-				// TODO Auto-generated method stub
-				System.out.println("Tab changed from "+oldValue.getText()+" to "+newValue.getText());
-				if(newValue == customersTab){
-					customerTabController.reloadData();
-				}
-				else if(newValue == lineInfoTab){
-					lineInfoTabController.reloadData();
-				}
-				else if(newValue == hawkerTab){
-					hawkerTabController.reloadData();
-				}
-				else if(newValue == pausedCustTab){
-					pausedCustTabController.reloadData();
-				}
-				
-			}
-		});*/
 	}
 	
 	@FXML
@@ -160,8 +150,23 @@ public class AdminHomeController implements Initializable {
 				}
 			});
 			
-			/*pausedCustTab = new Tab();
-			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("A-PausedCustomerTab.fxml"));
+			productsTab = new Tab();
+			FXMLLoader productsTabLoader = new FXMLLoader(getClass().getResource("AProductsTab.fxml"));
+			Parent productsRoot = (Parent)productsTabLoader.load();
+			productsTabController = productsTabLoader.<AProductsTabController>getController();
+			productsTab.setText("Products");
+			productsTab.setContent(productsRoot);
+			productsTab.setOnSelectionChanged(new EventHandler<Event>() {
+				
+				@Override
+				public void handle(Event event) {
+					// TODO Auto-generated method stub
+					productsTabController.reloadData();
+				}
+			});
+			
+			pausedCustTab = new Tab();
+			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("A-PausedCustomersTab.fxml"));
 			Parent pausedcustroot = (Parent)pausedCustTabLoader.load();
 			pausedCustTabController = pausedCustTabLoader.<APausedCustomerTabController>getController();
 			pausedCustTab.setText("Paused Customers");
@@ -173,9 +178,9 @@ public class AdminHomeController implements Initializable {
 					// TODO Auto-generated method stub
 					pausedCustTabController.reloadData();
 				}
-			});*/
+			});
 			
-			tabPane.getTabs().addAll(hawkerTab,customersTab, lineInfoTab,lineDistTab, additionalItemsTab);
+			tabPane.getTabs().addAll(hawkerTab,customersTab, lineInfoTab,lineDistTab, productsTab, additionalItemsTab, pausedCustTab);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -190,6 +195,47 @@ public class AdminHomeController implements Initializable {
 		lineInfoTabController.reloadData();
 		lineDistTabController.reloadData();
 //		pausedCustTabController.reloadData();
+	}
+	@FXML private void changePasswordClicked(ActionEvent evt){
+		TextInputDialog changePwdDialog = new TextInputDialog();
+		changePwdDialog.setTitle("Change password");
+		changePwdDialog.setHeaderText("Please enter the new password. \nPassword must be atleast 5 characters long.");
+//		changePwdDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+		final Button btOk = (Button) changePwdDialog.getDialogPane().lookupButton(ButtonType.OK);
+		 btOk.addEventFilter(ActionEvent.ACTION, event -> {
+			 if (changePwdDialog.getEditor().getText().isEmpty() || changePwdDialog.getEditor().getText().length()<5) {
+		         Notifications.create().title("Empty password").text("Password cannot be left empty and must be more than 5 characters. Try again.").hideAfter(Duration.seconds(5)).showError();
+		    	 event.consume();
+		     }
+		 });
+		Optional<String> result = changePwdDialog.showAndWait();
+		 if (result.isPresent()) {
+			 try {
+
+					Connection con = Main.dbConnection;
+					while (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					String deleteString = "update admin_login set password =? where username='admin'";
+					PreparedStatement deleteStmt = con.prepareStatement(deleteString);
+					deleteStmt.setString(1, changePwdDialog.getEditor().getText());
+
+					deleteStmt.executeUpdate();
+					con.commit();
+
+					Notifications.create().title("Password updated").text("Password was successfully updated. Please login again!").hideAfter(Duration.seconds(5)).showInformation();
+					logoutClicked(new ActionEvent());
+				} catch (SQLException e) {
+
+					e.printStackTrace();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
+							.text("Delete request of hawker bill has failed").showError();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			 
+		 }
 	}
 	
 

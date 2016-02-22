@@ -66,40 +66,6 @@ public class HawkerHomeController implements Initializable {
 			if(!HawkerLoginController.loggedInHawker.getLineDistAccess().equals("Y"))
 				tabPane.getTabs().remove(lineDistTab);
 			
-			/*tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-
-				@Override
-				public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
-					// TODO Auto-generated method stub
-					System.out.println("Tab changed from "+oldValue.getText()+" to "+newValue.getText());
-					if(newValue == customersTab){
-						FXMLLoader customerTabLoader = new FXMLLoader(getClass().getResource("H-CustomerInfoTab.fxml"));
-						root = (Parent)customerTabLoader.load();
-						customerTabController = customerTabLoader.<HCustomerInfoTabController>getController();
-						customerTabController.reloadData();
-					}
-					else if(newValue == lineInfoTab){
-						FXMLLoader lineDistTabLoader = new FXMLLoader(getClass().getResource("H-LineDistributorTab.fxml"));
-						root = (Parent)lineDistTabLoader.load();
-						lineDistTabController = lineDistTabLoader.<HLineDistributorTabController>getController();
-						lineInfoTabController.reloadData();
-					}
-					else if(newValue == lineDistTab){
-						FXMLLoader lineInfoTabLoader = new FXMLLoader(getClass().getResource("H-LineInfoTab.fxml"));
-						root = (Parent)lineInfoTabLoader.load();
-						lineInfoTabController = lineInfoTabLoader.<HLineInfoTabController>getController();
-						lineDistTabController.reloadData();
-					}
-					else if(newValue == pausedCustTab){
-						FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("H-PausedCustomerTab.fxml"));
-						root = (Parent)pausedCustTabLoader.load();
-						pausedCustTabController = pausedCustTabLoader.<HPausedCustomerTabController>getController();
-						pausedCustTabController.reloadData();
-					}
-					
-				}
-			});*/
-		
 	}
 	
 	@FXML
@@ -179,7 +145,7 @@ public class HawkerHomeController implements Initializable {
 				}
 			});
 			
-			tabPane.getTabs().addAll(customersTab, lineInfoTab, lineDistTab );
+			tabPane.getTabs().addAll(customersTab, lineInfoTab, lineDistTab,pausedCustTab );
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

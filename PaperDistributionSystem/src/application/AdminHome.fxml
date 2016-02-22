@@ -11,25 +11,23 @@
    <children>
       <VBox alignment="TOP_CENTER" layoutY="10.0" prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <ButtonBar prefHeight="40.0" prefWidth="200.0">
-               <buttons>
-                  <Button layoutX="1195.0" layoutY="10.0" mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
-                  <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
-               </buttons>
-               <VBox.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </VBox.margin>
-            </ButtonBar>
-            <HBox alignment="CENTER" prefHeight="64.0" spacing="25.0" VBox.vgrow="ALWAYS">
+            <HBox alignment="CENTER_RIGHT" maxHeight="-Infinity" prefHeight="50.0" spacing="25.0" VBox.vgrow="ALWAYS">
                <children>
-                  <Label text="Paper Distribution System - Admin Homepage">
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="800.0" text="Paper Distribution System - Admin Homepage" HBox.hgrow="ALWAYS">
                      <font>
                         <Font size="24.0" />
                      </font>
                   </Label>
+                  <ButtonBar maxHeight="-Infinity" prefHeight="40.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                     <buttons>
+                     	<Button fx:id="changePwdButton" mnemonicParsing="false" onAction="#changePasswordClicked" prefHeight="25.0" text="Change Password" />
+                        <Button layoutX="1195.0" layoutY="10.0" mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
+                        <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
+                     </buttons>
+                  </ButtonBar>
                </children>
                <VBox.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </HBox>
             <VBox prefHeight="691.0" prefWidth="1280.0" VBox.vgrow="ALWAYS">
@@ -57,6 +55,11 @@
                         <Tab text="Paused Customers">
                            <content>
                               <fx:include source="A-PausedCustomersTab.fxml" />
+                           </content>
+                        </Tab>
+                        <Tab text="Products">
+                           <content>
+                              <fx:include source="AProductsTab.fxml" />
                            </content>
                         </Tab>
                      </tabs>

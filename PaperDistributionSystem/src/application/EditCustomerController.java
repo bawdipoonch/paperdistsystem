@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import org.controlsfx.control.Notifications;
@@ -53,7 +54,7 @@ public class EditCustomerController implements Initializable {
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
+		
 
 //		setupBindings();
 		
@@ -109,11 +110,12 @@ public class EditCustomerController implements Initializable {
 		editEmploymentLOV.getSelectionModel().select(custRow.getEmployment());
 		editCommentsTF.setText(custRow.getComments());
 		initialsTF.setText(custRow.getInitials());
+		editBldgStreetTF.setText(custRow.getBuildingStreet());
 		initialsTF.textProperty().addListener(new ChangeListener<String>() {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				// TODO Auto-generated method stub
+				
 				if(newValue.length()>3)
 					initialsTF.setText(oldValue);
 			}
@@ -122,7 +124,7 @@ public class EditCustomerController implements Initializable {
 	}
 	
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {
-		// TODO Auto-generated method stub
+		
 		try {
 			
 			Connection con = Main.dbConnection;
@@ -137,13 +139,13 @@ public class EditCustomerController implements Initializable {
 				hawkerLineNumData.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
 	
 	private long hawkerIdForCode(String hawkerCode) {
-		// TODO Auto-generated method stub
+		
 		long hawkerId=-1;
 		Connection con = Main.dbConnection;
 		try {
@@ -160,7 +162,7 @@ public class EditCustomerController implements Initializable {
 				hawkerId=hawkerIdRs.getLong(1);
 			}
 		}catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -168,7 +170,7 @@ public class EditCustomerController implements Initializable {
 	
 	
 	private void populateHawkerCodes() {
-		// TODO Auto-generated method stub
+		
 		try {
 			
 			Connection con = Main.dbConnection;
@@ -182,13 +184,13 @@ public class EditCustomerController implements Initializable {
 				hawkerCodeData.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
 	
 	public Customer returnUpdatedCustomer(){
-		
+		shuffleHouseSequences();
 		Customer edittedCustomer = new Customer(custRow);
 		edittedCustomer.setCustomerCode(Long.parseLong(editCustomerCodeTF.getText()));
         edittedCustomer.setName(editNameTF.getText());
@@ -212,6 +214,23 @@ public class EditCustomerController implements Initializable {
         edittedCustomer.setComments(editCommentsTF.getText());
         edittedCustomer.updateCustomerRecord();
     	return edittedCustomer;
+	}
+
+	private void shuffleHouseSequences() {
+		if(this.custRow.getHawkerCode().equals(editHawkerCodeLOV.getSelectionModel().getSelectedItem())){
+			if(this.custRow.getLineNum()==Long.parseLong(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0])){
+				if(this.custRow.getHouseSeq()!=Integer.parseInt(editHouseSeqTF.getText())){
+					shiftHouseSeqFromToForCustId(getCustomerDataToShift(this.custRow.getHawkerCode(),this.custRow.getLineNum().intValue()), this.custRow.getHouseSeq(), Integer.parseInt(editHouseSeqTF.getText()), this.custRow.getCustomerId());
+				}
+			} else {
+				shiftHouseSeqForDelete(getCustomerDataToShift(this.custRow.getHawkerCode(),this.custRow.getLineNum().intValue()), this.custRow.getHouseSeq());
+				shiftHouseSeqFrom(getCustomerDataToShift(this.custRow.getHawkerCode(),Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0])), Integer.parseInt(editHouseSeqTF.getText()));
+			}
+		} else {
+			shiftHouseSeqForDelete(getCustomerDataToShift(this.custRow.getHawkerCode(),this.custRow.getLineNum().intValue()), this.custRow.getHouseSeq());
+			shiftHouseSeqFrom(getCustomerDataToShift(editHawkerCodeLOV.getSelectionModel().getSelectedItem(),Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0])), Integer.parseInt(editHouseSeqTF.getText()));
+		}
+		
 	}
 
 	public boolean validateCustomer() {
@@ -239,7 +258,7 @@ public class EditCustomerController implements Initializable {
 				return true;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		return false;
@@ -256,13 +275,13 @@ public class EditCustomerController implements Initializable {
 			}
 			profileValues.clear();
 			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select distinct name from profile_values");
+			ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 			while (rs.next()) {
 				profileValues.add(rs.getString(1));
 			}
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		
@@ -277,15 +296,125 @@ public class EditCustomerController implements Initializable {
 			}
 			employmentData.clear();
 			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select distinct value from employment_status");
+			ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 			while (rs.next()) {
 				employmentData.add(rs.getString(1));
 			}
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public ArrayList<Customer> getCustomerDataToShift(String hawkerCode, int lineNum) {
+		ArrayList<Customer> custData = new ArrayList<Customer>();
+
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer where hawker_code=? and line_num=? order by house_seq";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, hawkerCode);
+			stmt.setInt(2, lineNum);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				custData.add(new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4),
+						rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9),
+						rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14),
+						rs.getString(15), rs.getString(16), rs.getString(17), rs.getString(18), rs.getString(19),
+						rs.getString(20), rs.getString(21)));
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+
+		return custData;
+	}
+
+
+	private void shiftHouseSeqFrom(ArrayList<Customer> custData, int seq) {
+
+		for (int i = 0; i < custData.size(); i++) {
+			Customer cust = custData.get(i);
+			if (cust != null && cust.getHouseSeq() >= seq) {
+				if (cust.getHouseSeq() == seq) {
+					cust.setHouseSeq(cust.getHouseSeq() + 1);
+					cust.updateCustomerRecord();
+				} else if (cust.getHouseSeq() > seq) {
+					if (i > 0 && custData.get(i - 1).getHouseSeq() == cust.getHouseSeq()) {
+						cust.setHouseSeq(cust.getHouseSeq() + 1);
+						cust.updateCustomerRecord();
+					} else
+						return;
+				}
+
+			}
+		}
+		// reloadData();
+	}
+
+	private void shiftHouseSeqForDelete(ArrayList<Customer> custData, int seq) {
+
+		for (int i = 0; i < custData.size(); i++) {
+			Customer cust = custData.get(i);
+			if (cust != null && cust.getHouseSeq() >= seq) {
+				cust.setHouseSeq(cust.getHouseSeq() - 1);
+				cust.updateCustomerRecord();
+			}
+		}
+		// reloadData();
+	}
+
+	private void shiftHouseSeqFromToForCustId(ArrayList<Customer> custData, int fromSeq, int toSeq, long custId) {
+		if (fromSeq < toSeq) {
+			for (int i = 0; i < custData.size(); i++) {
+				Customer cust = custData.get(i);
+				if (cust != null && cust.getHouseSeq() > fromSeq && cust.getHouseSeq() <= toSeq
+						&& cust.getCustomerId() != custId) {
+					cust.setHouseSeq(cust.getHouseSeq() - 1);
+					cust.updateCustomerRecord();
+				}
+			}
+		} else if (fromSeq > toSeq) {
+			for (int i = 0; i < custData.size(); i++) {
+				Customer cust = custData.get(i);
+				if (cust != null && cust.getHouseSeq() < fromSeq && cust.getHouseSeq() >= toSeq
+						&& cust.getCustomerId() != custId) {
+					cust.setHouseSeq(cust.getHouseSeq() + 1);
+					cust.updateCustomerRecord();
+				}
+			}
+		}
+
+		// reloadData();
+	}
+	
+	public boolean houseSequenceExistsInLine(String hawkerCode, int seq, Long lineNum) {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials from customer where house_seq=? and line_num=? and hawker_code=?";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setInt(1, seq);
+			stmt.setLong(2, lineNum);
+			stmt.setString(3, hawkerCode);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

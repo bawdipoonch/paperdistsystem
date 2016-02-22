@@ -34,8 +34,8 @@
 														<TextField fx:id="addOldHNum" prefHeight="25.0" prefWidth="73.0" promptText="Old House#" />
 														<Label alignment="CENTER_RIGHT" text="New HNum:" />
 														<TextField fx:id="addNewHNum" prefHeight="25.0" prefWidth="73.0" promptText="New House#" />
-														<Label alignment="CENTER_RIGHT" text="Bldg/Street  Name:" />
-														<TextField fx:id="addBuildingStreet" prefHeight="25.0" prefWidth="132.0" promptText="Building/Street Name" />
+														<Label alignment="CENTER_RIGHT" text="Flat/Street  Name:" />
+														<TextField fx:id="addBuildingStreet" prefHeight="25.0" prefWidth="132.0" promptText="Flat/Street Name" />
 														<Label alignment="CENTER_RIGHT" text="Addr Line1:" />
 														<TextField fx:id="addAddrLine1" prefHeight="25.0" prefWidth="129.0" promptText="Address Line 1" />
 														<Label alignment="CENTER_RIGHT" text="Addr Line2:" />
@@ -50,7 +50,7 @@
 														<ComboBox fx:id="addProf1" layoutX="546.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile1" />
 														<ComboBox fx:id="addProf2" layoutX="766.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile2" />
 														<TextField fx:id="addProf3" layoutX="854.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile3" />
-														<ComboBox fx:id="addEmployment" prefHeight="25.0" prefWidth="123.0" promptText="Employment" />
+														<ComboBox fx:id="addEmployment" prefHeight="25.0" prefWidth="123.0" promptText="Job Searching" />
 														<TextField fx:id="addComments" prefHeight="25.0" prefWidth="129.0" promptText="Comments" />
 													</children>
 												</HBox>
@@ -95,7 +95,7 @@
 										<TableColumn fx:id="lineDistLineNumColumn" prefWidth="87.0" text="Line Number" />
 										<TableColumn fx:id="OldHouseNumColumn" prefWidth="113.0" text="Old House#" />
 										<TableColumn fx:id="NewHouseNumColumn" prefWidth="113.0" text="New House#" />
-										<TableColumn fx:id="buildingStreetColumn" prefWidth="192.0" text="Building/Street Name" />
+										<TableColumn fx:id="buildingStreetColumn" prefWidth="192.0" text="Flat/Street Name" />
 										<TableColumn fx:id="AddrLine1Column" prefWidth="192.0" text="Address Line1" />
 										<TableColumn fx:id="AddrLine2Column" prefWidth="192.0" text="Address Line2" />
 										<TableColumn fx:id="LocalityColumn" prefWidth="192.0" text="Locality" />

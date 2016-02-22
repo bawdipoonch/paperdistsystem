@@ -46,7 +46,7 @@
             <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="160.0" text="Profile 2" GridPane.columnIndex="2" GridPane.rowIndex="6" />
             <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="125.0" text="Profile 3" GridPane.columnIndex="2" GridPane.rowIndex="7" />
             <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="125.0" text="Initials" GridPane.rowIndex="1" />
-            <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="138.0" text="Building/Street Name" GridPane.rowIndex="9" />
+            <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="138.0" text="Flat/Street Name" GridPane.rowIndex="9" />
             <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="127.0" text="Employment" GridPane.columnIndex="2" GridPane.rowIndex="8" />
             <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="134.0" text="Comments" GridPane.columnIndex="2" GridPane.rowIndex="9" />
             <TextField fx:id="editNameTF" GridPane.columnIndex="1" />

@@ -170,7 +170,7 @@ public class EditHawkerController implements Initializable {
 					}
 					profileValues.clear();
 					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery("select distinct name from profile_values");
+					ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 					while (rs.next()) {
 						profileValues.add(rs.getString(1));
 					}
@@ -199,7 +199,7 @@ public class EditHawkerController implements Initializable {
 					}
 					employmentData.clear();
 					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery("select distinct value from employment_status");
+					ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 					while (rs.next()) {
 						employmentData.add(rs.getString(1));
 					}

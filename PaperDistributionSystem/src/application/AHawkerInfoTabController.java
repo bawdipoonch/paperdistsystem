@@ -15,8 +15,6 @@ import java.util.function.Predicate;
 
 import org.controlsfx.control.Notifications;
 
-import com.amazonaws.util.NumberUtils;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -185,11 +183,15 @@ public class AHawkerInfoTabController implements Initializable {
 	private Button disableAllButton;
 	@FXML
 	private Button addHwkExtraButton;
-	
-	@FXML private Button saveButton;
-	@FXML private Button clearButton;
-	@FXML private Button searchButton;
-	@FXML private Button resetButton;
+
+	@FXML
+	private Button saveButton;
+	@FXML
+	private Button clearButton;
+	@FXML
+	private Button searchButton;
+	@FXML
+	private Button resetButton;
 
 	private ObservableList<Hawker> hawkerMasterData = FXCollections.observableArrayList();
 	private ObservableList<HawkerBilling> hawkerBillingMasterData = FXCollections.observableArrayList();
@@ -205,7 +207,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		// TODO Auto-generated method stub
+
 		// Set cell value factories
 
 		hwkNameColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("name"));
@@ -221,8 +223,7 @@ public class AHawkerInfoTabController implements Initializable {
 		 * Callback<TableColumn<Hawker,Boolean>, TableCell<Hawker, Boolean>>() {
 		 * 
 		 * @Override public TableCell<Hawker, Boolean> call(TableColumn<Hawker,
-		 * Boolean> param) { // TODO Auto-generated method stub
-		 * CheckBoxTableCell<Hawker, Boolean> cell = new
+		 * Boolean> param) { CheckBoxTableCell<Hawker, Boolean> cell = new
 		 * CheckBoxTableCell<Hawker, Boolean>();
 		 * cell.selectedStateCallbackProperty().set return null; } });
 		 */
@@ -263,7 +264,7 @@ public class AHawkerInfoTabController implements Initializable {
 			public void changed(ObservableValue<? extends Hawker> observable, Hawker oldValue, Hawker newValue) {
 				if (newValue != null) {
 					if (oldValue != null) {
-						// TODO Auto-generated method stub
+
 						// oldValue.updateHawkerRecord();
 					}
 					enableAllChild();
@@ -285,7 +286,6 @@ public class AHawkerInfoTabController implements Initializable {
 			@Override
 			public void changed(ObservableValue<? extends HawkerBilling> observable, HawkerBilling oldValue,
 					HawkerBilling newValue) {
-				// TODO Auto-generated method stub
 
 			}
 		});
@@ -293,7 +293,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				// TODO Auto-generated method stub
+
 				hawkerTable.getSelectionModel().getSelectedItem().setCustomerAccess(newValue ? "Y" : "N");
 				hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
 			}
@@ -302,7 +302,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				// TODO Auto-generated method stub
+
 				hawkerTable.getSelectionModel().getSelectedItem().setBillingAccess(newValue ? "Y" : "N");
 				hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
 			}
@@ -311,7 +311,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				// TODO Auto-generated method stub
+
 				hawkerTable.getSelectionModel().getSelectedItem().setLineInfoAccess(newValue ? "Y" : "N");
 				hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
 			}
@@ -320,7 +320,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				// TODO Auto-generated method stub
+
 				hawkerTable.getSelectionModel().getSelectedItem().setLineDistAccess(newValue ? "Y" : "N");
 				hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
 			}
@@ -329,7 +329,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				// TODO Auto-generated method stub
+
 				hawkerTable.getSelectionModel().getSelectedItem().setPausedCustAccess(newValue ? "Y" : "N");
 				hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
 			}
@@ -338,7 +338,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				// TODO Auto-generated method stub
+
 				hawkerTable.getSelectionModel().getSelectedItem().setProductAccess(newValue ? "Y" : "N");
 				hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
 			}
@@ -347,7 +347,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				// TODO Auto-generated method stub
+
 				hawkerTable.getSelectionModel().getSelectedItem().setReportsAccess(newValue ? "Y" : "N");
 				hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
 			}
@@ -357,7 +357,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public TableRow<Hawker> call(TableView<Hawker> param) {
-				// TODO Auto-generated method stub
+
 				final TableRow<Hawker> row = new TableRow<>();
 				MenuItem mnuDel = new MenuItem("Delete hawker");
 				mnuDel.setOnAction(new EventHandler<ActionEvent>() {
@@ -420,7 +420,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public TableRow<HawkerBilling> call(TableView<HawkerBilling> arg0) {
-				// TODO Auto-generated method stub
+
 				final TableRow<HawkerBilling> row = new TableRow<HawkerBilling>();
 
 				MenuItem mnuDel = new MenuItem("Delete Bill");
@@ -445,7 +445,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 					@Override
 					public void handle(ActionEvent event) {
-						// TODO Auto-generated method stub
+
 						HawkerBilling hwkBillRow = hawkerBillingTable.getSelectionModel().getSelectedItem();
 						TextInputDialog payRcvdDialog = new TextInputDialog(
 								"" + hawkerTable.getSelectionModel().getSelectedItem().getTotalDue());
@@ -463,7 +463,7 @@ public class AHawkerInfoTabController implements Initializable {
 								hawkerBillingTable.refresh();
 								hawkerTable.refresh();
 							} catch (NumberFormatException e) {
-								// TODO Auto-generated catch block
+
 								e.printStackTrace();
 								Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 										.text("Please enter numeric value only").showError();
@@ -489,18 +489,19 @@ public class AHawkerInfoTabController implements Initializable {
 
 			}
 		});
-		
+
 		saveButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
 			public void handle(KeyEvent event) {
 				if (event.getCode() == KeyCode.ENTER) {
 					addHawkerClicked(new ActionEvent());
+					addHwkName.requestFocus();
 				}
 
 			}
 		});
-		
+
 		resetButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -511,7 +512,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			}
 		});
-		
+
 		clearButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -522,7 +523,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			}
 		});
-		
+
 		searchButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -538,20 +539,20 @@ public class AHawkerInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				// TODO Auto-generated method stub
+
 				if (newValue.length() > 3)
 					addHwkInitials.setText(oldValue);
 			}
 		});
-
+		addHwkFee.setText("1.0");
 		// refreshHawkerTable();
 		addHwkName.requestFocus();
 	}
 
 	/*
-	 * private void generateBill(Hawker hawkerRow) { // TODO Auto-generated
-	 * method stub Date[] currentMonthDR = getDateRange(); PreparedStatement
-	 * insertHawker = null; String insertStatement =
+	 * private void generateBill(Hawker hawkerRow) { method stub Date[]
+	 * currentMonthDR = getDateRange(); PreparedStatement insertHawker = null;
+	 * String insertStatement =
 	 * "INSERT INTO HAWKER_BILLING(hawker_id, start_date, end_date, bill_amount, paid, due) "
 	 * + "VALUES (?,?,?,?,?,?)"; Connection con = Main.dbConnection; try {
 	 * while(!con.isValid(0)){ con = Main.reconnect(); } insertHawker =
@@ -569,8 +570,7 @@ public class AHawkerInfoTabController implements Initializable {
 	 * hawkerRow.calculateTotalDue(); hawkerRow.updateHawkerRecord(); //
 	 * hawkerTable.refresh(); con.commit();
 	 * 
-	 * } catch (SQLException e) { // TODO Auto-generated catch block
-	 * e.printStackTrace();
+	 * } catch (SQLException e) { e.printStackTrace();
 	 * Notifications.create().hideAfter(Duration.seconds(5)).title("Error!").
 	 * text(
 	 * "There has been some error during hawker bill creation, please retry"
@@ -580,7 +580,7 @@ public class AHawkerInfoTabController implements Initializable {
 	 */
 
 	private void deleteHawkerBill(HawkerBilling hwkBillRow) {
-		// TODO Auto-generated method stub
+
 		Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
 		deleteWarning.setTitle("Warning");
 		deleteWarning.setHeaderText("Are you sure you want to delete this record?");
@@ -606,7 +606,7 @@ public class AHawkerInfoTabController implements Initializable {
 				hawkerBillingMasterData.remove(hwkBillRow);
 				hawkerBillingTable.refresh();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker bill has failed").showError();
@@ -640,7 +640,7 @@ public class AHawkerInfoTabController implements Initializable {
 				hawkerMasterData.remove(hawkerRow);
 				hawkerTable.refresh();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker has failed").showError();
@@ -692,8 +692,10 @@ public class AHawkerInfoTabController implements Initializable {
 			editHawkerController.setHawkerToEdit(hawkerRow);
 			editHawkerController.setupBindings();
 			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
-				if(!editHawkerController.isHawkerDataValid()){
-					Notifications.create().title("Mobile number exists").text("Another hawker with same mobile number already exists.").hideAfter(Duration.seconds(5)).showError();
+				if (!editHawkerController.isHawkerDataValid()) {
+					Notifications.create().title("Mobile number exists")
+							.text("Another hawker with same mobile number already exists.")
+							.hideAfter(Duration.seconds(5)).showError();
 					btnEvent.consume();
 				}
 			});
@@ -712,7 +714,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 				@Override
 				public void accept(Hawker t) {
-					// TODO Auto-generated method stub
+
 					hawkerMasterData.add(selectedIndex, t);
 					hawkerMasterData.remove(hawkerRow);
 					hawkerTable.getSelectionModel().select(t);
@@ -721,7 +723,7 @@ public class AHawkerInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 	}
@@ -740,7 +742,7 @@ public class AHawkerInfoTabController implements Initializable {
 					hawkerMasterData.clear();
 					Statement stmt = con.createStatement();
 					ResultSet rs = stmt.executeQuery(
-							"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street  from hawker_info");
+							"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street  from hawker_info order by name");
 					while (rs.next()) {
 						Hawker hwkRow = new Hawker(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),
 								rs.getString(5), rs.getString(6).equalsIgnoreCase("Y"), rs.getDouble(7),
@@ -755,7 +757,7 @@ public class AHawkerInfoTabController implements Initializable {
 					}
 					// con.close();
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 				}
 				if (!hawkerMasterData.isEmpty()) {
@@ -765,6 +767,7 @@ public class AHawkerInfoTabController implements Initializable {
 					hawkerTable.setItems(sortedData);
 				}
 				hawkerTable.refresh();
+				hawkerTable.getSelectionModel().select(0);
 				return null;
 			}
 
@@ -775,7 +778,7 @@ public class AHawkerInfoTabController implements Initializable {
 	}
 
 	private void disableAllChild() {
-		// TODO Auto-generated method stub
+
 		customerCheckBox.setDisable(true);
 		billingCheckBox.setDisable(true);
 		lineInfoCheckBox.setDisable(true);
@@ -799,7 +802,7 @@ public class AHawkerInfoTabController implements Initializable {
 	}
 
 	private void enableAllChild() {
-		// TODO Auto-generated method stub
+
 		customerCheckBox.setDisable(false);
 		billingCheckBox.setDisable(false);
 		lineInfoCheckBox.setDisable(false);
@@ -838,7 +841,7 @@ public class AHawkerInfoTabController implements Initializable {
 					// con.close();
 
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 				}
 				return null;
@@ -866,16 +869,27 @@ public class AHawkerInfoTabController implements Initializable {
 				validate = false;
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
 						.text("Please select a hawker before adding the the customer").showError();
+				try {
+					Double.parseDouble(addHwkFee.getText());
+				} catch (NumberFormatException e) {
+					validate = false;
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
+							.text("Fee per subscription should not be empty and must be numeric only").showError();
+					e.printStackTrace();
+				}
 			}
 			// if(addCustLineNum.getSelectionModel().selectedIndexProperty().get()!=-1)
 			// validate=true;
-			if (NumberUtils.tryParseInt(addHwkFee.getText()) == null) {
-				validate = false;
-				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
-						.text("Fee per subscription should not be empty and must be numeric only").showError();
-			}
+			// if (NumberUtils.tryParseInt(addHwkFee.getText()) == null) {
+			// validate = false;
+			// Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid
+			// fee")
+			// .text("Fee per subscription should not be empty and must be
+			// numeric only").showError();
+			// }
 
 			if (validate) {
+				addHwkName.requestFocus();
 				PreparedStatement insertHawker = null;
 				String insertStatement = "INSERT INTO HAWKER_INFO(NAME,HAWKER_CODE, MOBILE_NUM, AGENCY_NAME,FEE,ACTIVE_FLAG, OLD_HOUSE_NUM, NEW_HOUSE_NUM,ADDR_LINE1,ADDR_LINE2,LOCALITY,CITY,STATE,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials, employment, comments, point_name, building_street,password ) "
 						+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -922,7 +936,7 @@ public class AHawkerInfoTabController implements Initializable {
 					con.commit();
 
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 							.text("There has been some error during hawker creation, please retry").showError();
@@ -952,7 +966,7 @@ public class AHawkerInfoTabController implements Initializable {
 		addHwkCode.clear();
 		addHwkMob.clear();
 		addHwkAgencyName.clear();
-		addHwkFee.clear();
+		addHwkFee.setText("1.0");
 		addHwkOldHNum.clear();
 		addHwkNewHNum.clear();
 		addHwkAddrLine1.clear();
@@ -1007,7 +1021,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 					@Override
 					public boolean test(Hawker hawker) {
-						// TODO Auto-generated method stub
+
 						if (searchText == null || searchText.isEmpty())
 							return true;
 						else if (hawker.getAddrLine1().contains(searchText))
@@ -1058,7 +1072,7 @@ public class AHawkerInfoTabController implements Initializable {
 				disableAllChild();
 
 			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -1108,7 +1122,7 @@ public class AHawkerInfoTabController implements Initializable {
 				return true;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		return false;
@@ -1130,19 +1144,23 @@ public class AHawkerInfoTabController implements Initializable {
 			Parent addHawkerGrid = (Parent) addHawkerLoader.load();
 			AddHawkerExtraScreenController addHwkController = addHawkerLoader
 					.<AddHawkerExtraScreenController> getController();
-			saveButton.setOnAction(new EventHandler<ActionEvent>() {
-
-				@Override
-				public void handle(ActionEvent event) {
-					// TODO Auto-generated method stub
+			saveButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+				if (addHwkController.isValid()) {
 					addHwkController.addHawker();
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker created")
 							.text("Hawker created successfully.").showInformation();
-					addHwkController.reset();
-					reloadData();
-					event.consume();
+					refreshHawkerTable();
+				} else {
+					btnEvent.consume();
 				}
+
 			});
+			// saveButton.setOnAction(new EventHandler<ActionEvent>() {
+			//
+			// @Override
+			// public void handle(ActionEvent event) {
+			//
+			// });
 			addHawkerDialog.getDialogPane().setContent(addHawkerGrid);
 			addHwkController.setupBindings();
 
@@ -1160,13 +1178,13 @@ public class AHawkerInfoTabController implements Initializable {
 
 				@Override
 				public void accept(String t) {
-					// TODO Auto-generated method stub
+
 					// addHawkerDialog.showAndWait();
 				}
 			});
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 	}
@@ -1179,13 +1197,14 @@ public class AHawkerInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			profileValues.clear();
-			PreparedStatement stmt = con.prepareStatement("select name from profile_values order by name");
+			PreparedStatement stmt = con.prepareStatement(
+					"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				profileValues.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
@@ -1199,13 +1218,14 @@ public class AHawkerInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			employmentValues.clear();
-			PreparedStatement stmt = con.prepareStatement("select value from employment_status order by value");
+			PreparedStatement stmt = con.prepareStatement(
+					"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				employmentValues.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
@@ -1225,7 +1245,7 @@ public class AHawkerInfoTabController implements Initializable {
 				pointNameValues.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 

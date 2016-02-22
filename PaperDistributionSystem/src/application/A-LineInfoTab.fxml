@@ -26,12 +26,17 @@
                               <Button mnemonicParsing="false" onAction="#addLineButtonClicked" text="Add Line" />
                            </children>
                         </HBox>
-                        <Separator prefHeight="0.0" prefWidth="685.0" HBox.hgrow="ALWAYS">
+                        <Separator prefHeight="0.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </HBox.margin>
                         </Separator>
-                        <Button mnemonicParsing="false" onAction="#shuffleHouseSeqClicked" text="Shuffle House Sequences" />
+                        <Button fx:id="addCustExtraButton" layoutX="1147.0" layoutY="19.0" mnemonicParsing="false" onAction="#addCustomerExtraScreenClicked" prefWidth="130.0" text="Add Customer">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#shuffleHouseSeqClicked" prefWidth="150.0" text="Shuffle House Sequences" />
                      </children></HBox>
                   <HBox VBox.vgrow="ALWAYS">
                      <children>
@@ -42,10 +47,13 @@
                         </TableView>
                         <TableView fx:id="lineNumCustomersTable" prefHeight="548.0" prefWidth="1039.0" HBox.hgrow="ALWAYS">
                            <columns>
-                              <TableColumn fx:id="customerIDColumn" prefWidth="126.0" text="Customer Code" />
-                              <TableColumn fx:id="customerNameColumn" prefWidth="250.0" text="Customer Name" />
-                              <TableColumn fx:id="mobileNumColumn" prefWidth="125.0" text="Mobile Number" />
-                              <TableColumn fx:id="houseSeqColumn" prefWidth="110.0" text="House Sequence" />
+                              <TableColumn fx:id="customerIDColumn" prefWidth="107.0" text="Customer Code" />
+                              <TableColumn fx:id="customerNameColumn" prefWidth="213.0" text="Customer Name" />
+                              <TableColumn fx:id="mobileNumColumn" prefWidth="121.0" text="Mobile Number" />
+                              <TableColumn fx:id="flatNameColumn" prefWidth="121.0" text="Flat/Street Name" />
+                              <TableColumn fx:id="line1Column" prefWidth="145.0" text="Line 1" />
+                              <TableColumn fx:id="line2Column" prefWidth="145.0" text="Line 2" />
+                              <TableColumn fx:id="houseSeqColumn" prefWidth="106.0" text="House Sequence" />
                            </columns>
                         </TableView>
                      </children>

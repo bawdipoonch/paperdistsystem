@@ -148,7 +148,7 @@ public class ALineDistributorTabController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		// TODO Auto-generated method stub
+		
 		System.out.println("Entered HLineDistributorTabController");
 		lineDistData.clear();
 		lineNumData.clear();
@@ -200,7 +200,7 @@ public class ALineDistributorTabController implements Initializable {
 			@Override
 			public TableRow<LineDistributor> call(TableView<LineDistributor> param) {
 				final TableRow<LineDistributor> row = new TableRow<>();
-				MenuItem mnuDel = new MenuItem("Delete line");
+				MenuItem mnuDel = new MenuItem("Delete line distributor");
 				mnuDel.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent t) {
@@ -249,7 +249,7 @@ public class ALineDistributorTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				// TODO Auto-generated method stub
+				
 				if (newValue.length() > 3)
 					addInitialsField.setText(oldValue);
 			}
@@ -324,7 +324,7 @@ public class ALineDistributorTabController implements Initializable {
 					addLineNumField.getItems().clear();
 					addLineNumField.getItems().addAll(lineNumData);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 				return null;
@@ -353,7 +353,7 @@ public class ALineDistributorTabController implements Initializable {
 				hawkerId = hawkerIdRs.getLong(1);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -385,7 +385,7 @@ public class ALineDistributorTabController implements Initializable {
 				lineDistInfoTable.refresh();
 
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of line distributor has failed").showError();
@@ -437,7 +437,7 @@ public class ALineDistributorTabController implements Initializable {
 
 				@Override
 				public void accept(LineDistributor t) {
-					// TODO Auto-generated method stub
+					
 					lineDistData.add(selectedIndex, t);
 					lineDistData.remove(lineDistRow);
 					lineDistInfoTable.getSelectionModel().select(t);
@@ -446,7 +446,7 @@ public class ALineDistributorTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
@@ -470,11 +470,12 @@ public class ALineDistributorTabController implements Initializable {
 
 				@Override
 				public void handle(ActionEvent event) {
-					// TODO Auto-generated method stub
-					addLineDistController.addLineDistributor();
-					Notifications.create().hideAfter(Duration.seconds(5)).title("Line Distributor created")
-							.text("Line Distributor created successfully.").showInformation();
-					reloadData();
+					if(addLineDistController.isValid()){
+						addLineDistController.addLineDistributor();
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Line Distributor created")
+								.text("Line Distributor created successfully.").showInformation();
+						refreshLineDistTable();
+					} else
 					event.consume();
 				}
 			});
@@ -495,13 +496,13 @@ public class ALineDistributorTabController implements Initializable {
 
 				@Override
 				public void accept(String t) {
-					// TODO Auto-generated method stub
+					
 					addLineDistDialog.showAndWait();
 				}
 			});
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
@@ -524,7 +525,7 @@ public class ALineDistributorTabController implements Initializable {
 							con = Main.reconnect();
 						}
 						insertLineNum = con.prepareStatement(insertStatement);
-						long hawkerId = HawkerLoginController.loggedInHawker.getHawkerId();
+						long hawkerId = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem());
 						insertLineNum.setString(1, addNameField.getText());
 						insertLineNum.setString(2, addMobileNumField.getText());
 						insertLineNum.setString(3,
@@ -546,9 +547,10 @@ public class ALineDistributorTabController implements Initializable {
 						insertLineNum.setString(18, addBuildingStreet.getText());
 						insertLineNum.execute();
 						resetClicked(event);
+						addNameField.requestFocus();
 						refreshLineDistTable();
 					} catch (SQLException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 					}
 				} else {
@@ -562,7 +564,7 @@ public class ALineDistributorTabController implements Initializable {
 			}
 
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Please enter proper numeric value in Line Number field").showError();
@@ -593,13 +595,15 @@ public class ALineDistributorTabController implements Initializable {
 
 		addCity.clear();
 
-		addState.getSelectionModel().clearSelection();
+//		addState.getSelectionModel().clearSelection();
 
 		addProf1.getSelectionModel().clearSelection();
 
 		addProf2.getSelectionModel().clearSelection();
 
 		addProf3.clear();
+		addBuildingStreet.clear();
+		addComments.clear();
 
 		if (HawkerLoginController.loggedInHawker != null) {
 			addHwkCode.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
@@ -647,7 +651,7 @@ public class ALineDistributorTabController implements Initializable {
 						lineDistInfoTable.refresh();
 					}
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 
@@ -667,14 +671,14 @@ public class ALineDistributorTabController implements Initializable {
 			}
 			PreparedStatement stmt = con
 					.prepareStatement("select count(*) from line_distributor where hawker_id = ? and line_num=?");
-			stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
+			stmt.setLong(1, HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem()));
 			stmt.setString(2, line_num);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next() && rs.getInt(1) > 0) {
 				return true;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		return false;
@@ -694,7 +698,7 @@ public class ALineDistributorTabController implements Initializable {
 
 					@Override
 					public boolean test(LineDistributor lineDistributor) {
-						// TODO Auto-generated method stub
+						
 						if (searchText == null || searchText.isEmpty())
 							return true;
 						else if (lineDistributor.getAddrLine1() != null
@@ -757,7 +761,7 @@ public class ALineDistributorTabController implements Initializable {
 				lineDistInfoTable.refresh();
 
 			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -809,7 +813,7 @@ public class ALineDistributorTabController implements Initializable {
 				addHwkCode.setDisable(true);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
@@ -828,14 +832,14 @@ public class ALineDistributorTabController implements Initializable {
 					}
 					profileValues.clear();
 					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery("select distinct name from profile_values");
+					ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 					while (rs.next()) {
 						profileValues.add(rs.getString(1));
 					}
 					addProf1.getItems().addAll(profileValues);
 					addProf2.getItems().addAll(profileValues);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 				return null;
@@ -858,14 +862,14 @@ public class ALineDistributorTabController implements Initializable {
 					}
 					employmentData.clear();
 					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery("select distinct value from employment_status");
+					ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 					while (rs.next()) {
 						employmentData.add(rs.getString(1));
 					}
 
 					addEmployment.getItems().addAll(employmentData);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 				return null;

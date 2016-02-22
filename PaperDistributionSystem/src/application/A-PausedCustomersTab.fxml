@@ -7,61 +7,34 @@
 <?import javafx.scene.text.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40">
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.APausedCustomerTabController">
    <children>
-      <HBox prefHeight="571.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox prefHeight="571.0" prefWidth="1060.0" HBox.hgrow="ALWAYS">
-               <children>
-                  <VBox>
-                     <children>
-                        <ButtonBar prefHeight="40.0" prefWidth="200.0">
-                           <buttons>
-                              <Button mnemonicParsing="false" text="Filter" />
-                              <Button layoutX="1215.0" layoutY="18.0" mnemonicParsing="false" text="Reset" />
-                           </buttons>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </ButtonBar>
-                        <TableView prefHeight="600.0" prefWidth="1280.0">
-                           <columns>
-                              <TableColumn prefWidth="126.0" text="Customer ID" />
-                              <TableColumn prefWidth="250.0" text="Customer Name" />
-                              <TableColumn prefWidth="125.0" text="Mobile Number" />
-                              <TableColumn prefWidth="87.0" text="Hawker Code" />
-                              <TableColumn prefWidth="67.0" text="Line#" />
-                              <TableColumn prefWidth="110.0" text="House Sequence" />
-                              <TableColumn prefWidth="505.0" text="Full Address" />
-                           </columns>
-                        </TableView>
-                     </children>
-                  </VBox>
-                  <VBox alignment="CENTER">
-                     <children>
-                        <Label text="Paused Subscriptions">
-                           <font>
-                              <Font size="18.0" />
-                           </font>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </Label>
-                        <TableView>
-                           <columns>
-                              <TableColumn prefWidth="158.0" text="Product Name" />
-                              <TableColumn prefWidth="137.0" text="Product Type" />
-                              <TableColumn prefWidth="150.0" text="Start Date" />
-                              <TableColumn prefWidth="150.0" text="End Date" />
-                           </columns>
-                        </TableView>
-                     </children>
-                  </VBox>
-               </children>
+            <VBox HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
+               <children>
+                  <TableView fx:id="pausedCustTable" prefHeight="200.0" prefWidth="1280.0" VBox.vgrow="ALWAYS">
+                    <columns>
+                      <TableColumn fx:id="custNameCol" prefWidth="161.0" text="Customer Name" />
+                      <TableColumn fx:id="custCodeCol" prefWidth="156.0" text="Customer Code" />
+                        <TableColumn fx:id="custMobCol" prefWidth="156.0" text="Mobile Num" />
+                        <TableColumn fx:id="custHwkCodeCol" prefWidth="161.0" text="Hawker Code" />
+                        <TableColumn fx:id="custLineNumCol" prefWidth="156.0" text="Line Num" />
+                        <TableColumn fx:id="custHouseSeqCol" prefWidth="156.0" text="House Seq" />
+                        <TableColumn fx:id="prodNameCol" prefWidth="161.0" text="Product Name" />
+                        <TableColumn fx:id="prodTypeCol" prefWidth="156.0" text="Product Type" />
+                        <TableColumn fx:id="subTypeCol" prefWidth="156.0" text="Subscription Type" />
+                        <TableColumn fx:id="freqCol" prefWidth="156.0" text="Frequency" />
+                        <TableColumn fx:id="paymentTypeCol" prefWidth="161.0" text="Payment Type" />
+                        <TableColumn fx:id="subCostCol" prefWidth="156.0" text="Subscription Cost" />
+                        <TableColumn fx:id="srvChargeCol" prefWidth="156.0" text="Service Charge" />
+                        <TableColumn fx:id="pausedDateCol" prefWidth="156.0" text="Paused Date" />
+                    </columns>
+                  </TableView>
+               </children>
             </VBox>
          </children>
       </HBox>

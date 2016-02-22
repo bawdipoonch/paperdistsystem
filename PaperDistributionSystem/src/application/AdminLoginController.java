@@ -25,17 +25,18 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class AdminLoginController implements Initializable {
-	
+
 	@FXML
 	private Button adminLoginButton;
 	@FXML
 	private TextField adminUsername;
 	@FXML
 	private PasswordField adminPassword;
-	@FXML private Button backButton;
-	
-	Stage stage; 
-    Parent root;
+	@FXML
+	private Button backButton;
+
+	Stage stage;
+	Parent root;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -45,52 +46,67 @@ public class AdminLoginController implements Initializable {
 			@Override
 			public void handle(KeyEvent event) {
 				// TODO Auto-generated method stub
-				if(event.getCode()==KeyCode.ENTER){
+				if (event.getCode() == KeyCode.ENTER) {
 					loginClicked(new ActionEvent());
 				}
 			}
 		});
-		
+
 		adminPassword.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
 			public void handle(KeyEvent event) {
 				// TODO Auto-generated method stub
-				if(event.getCode()==KeyCode.ENTER){
+				if (event.getCode() == KeyCode.ENTER) {
 					loginClicked(new ActionEvent());
 				}
 			}
 		});
+		backButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				// TODO Auto-generated method stub
+				if (event.getCode() == KeyCode.ENTER) {
+					try {
+						backButtonClicked(new ActionEvent());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		});
 	}
-	
+
 	@FXML
 	private void loginClicked(ActionEvent event) {
 		System.out.println("Admin Login button clicked");
-		
-try {
-			
+
+		try {
+
 			Connection con = Main.dbConnection;
-			while(!con.isValid(0)){
+			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			
-			PreparedStatement existsStmt = con.prepareStatement("select username,password from admin_login where username = ? and password=?");
+
+			PreparedStatement existsStmt = con
+					.prepareStatement("select username,password from admin_login where username = ? and password=?");
 			existsStmt.setString(1, adminUsername.getText());
 			existsStmt.setString(2, adminPassword.getText());
-			if(existsStmt.executeQuery().next()){
-				stage=(Stage) adminLoginButton.getScene().getWindow();
-		        //load up OTHER FXML document
+			if (existsStmt.executeQuery().next()) {
+				stage = (Stage) adminLoginButton.getScene().getWindow();
+				// load up OTHER FXML document
 				root = FXMLLoader.load(getClass().getResource("AdminHome.fxml"));
-				
+
 				Scene scene = new Scene(root);
-			      stage.setScene(scene);
-			      stage.show();
+				stage.setScene(scene);
+				stage.show();
+			} else {
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid login details")
+						.text("Invalid Administrator username or password").showError();
 			}
-			else {
-				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid login details").text("Invalid Administrator username or password").showError();
-			}
-			
-			
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -98,21 +114,19 @@ try {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
+
 	}
 
 	@FXML
 	private void backButtonClicked(ActionEvent event) throws IOException {
 
-		stage=(Stage) adminLoginButton.getScene().getWindow();
-        //load up OTHER FXML document
+		stage = (Stage) adminLoginButton.getScene().getWindow();
+		// load up OTHER FXML document
 		root = FXMLLoader.load(getClass().getResource("HawkerLogin.fxml"));
-		
+
 		Scene scene = new Scene(root);
-	      stage.setScene(scene);
-	      stage.show();
+		stage.setScene(scene);
+		stage.show();
 	}
-	
+
 }
