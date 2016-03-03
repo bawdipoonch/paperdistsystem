@@ -11,95 +11,113 @@
    <children>
       <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="1280.0" spacing="15.0">
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
                <children>
-                  <VBox alignment="CENTER_LEFT" spacing="10.0">
-                     <children>
-                        <Label alignment="CENTER" text="   Customer Name                       Initials                Mobile Number                     Hawker                          Line Number                  House Sequence" />
-                        <HBox alignment="CENTER_LEFT" prefWidth="900.0" spacing="10.0">
-                           <children>
-                              <TextField fx:id="addCustName" accessibleHelp="Customer Name" accessibleText="Customer Name" promptText="Customer Name" />
-                              <TextField fx:id="addCustInitials" layoutX="858.0" layoutY="10.0" prefHeight="25.0" prefWidth="73.0" promptText="Initials" />
-                              <TextField fx:id="addCustMobile" promptText="Mobile Number" />
-                              <ComboBox fx:id="addCustHwkCode" layoutX="435.0" layoutY="10.0" prefHeight="25.0" prefWidth="114.0" promptText="Hawker" />
-                              <ComboBox fx:id="addCustLineNum" prefHeight="25.0" prefWidth="114.0" promptText="Line Number" />
-                              <TextField fx:id="addCustHouseSeq" layoutX="532.0" layoutY="10.0" prefHeight="25.0" prefWidth="103.0" promptText="House Sequence" />
-                           </children>
-                           <VBox.margin>
-                              <Insets left="10.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                           <children>
-                              <Label alignment="CENTER_RIGHT" text="Old HNum:" />
-                              <TextField fx:id="addCustOldHouseNum" prefHeight="25.0" prefWidth="89.0" promptText="Old House#" />
-                              <Label alignment="CENTER_RIGHT" text="New HNum:" />
-                              <TextField fx:id="addCustNewHouseNum" prefHeight="25.0" prefWidth="88.0" promptText="New House#" />
-                              <Label alignment="CENTER_RIGHT" text="Flat/Street  Name:" />
-                              <TextField fx:id="addCustBuildingStreet" prefHeight="25.0" prefWidth="132.0" promptText="Flat/Street Name" />
-                              <Label alignment="CENTER_RIGHT" text="Addr Line1:" />
-                              <TextField fx:id="addCustAddrLine1" prefHeight="25.0" prefWidth="147.0" promptText="Address Line 1" />
-                              <Label alignment="CENTER_RIGHT" text="Addr Line2:" />
-                              <TextField fx:id="addCustAddrLine2" prefHeight="25.0" prefWidth="138.0" promptText="Address Line 2" />
-                           </children>
-                           <VBox.margin>
-                              <Insets left="10.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                           <children>
-                              <TextField fx:id="addCustLocality" prefHeight="25.0" prefWidth="88.0" promptText="Locality" />
-                              <TextField fx:id="addCustCity" prefHeight="25.0" prefWidth="111.0" promptText="City" />
-                              <ComboBox fx:id="addCustState" prefWidth="150.0" promptText="State" visibleRowCount="30" />
-                              <ComboBox fx:id="addCustProf1" prefHeight="25.0" prefWidth="120.0" promptText="Profile 1" />
-                              <ComboBox fx:id="addCustProf2" prefHeight="25.0" prefWidth="117.0" promptText="Profile 2" />
-                              <TextField fx:id="addCustProf3" layoutX="854.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile3" />
-                              <ComboBox fx:id="addCustEmployment" prefHeight="25.0" prefWidth="122.0" promptText="Job Searching" />
-                              <TextField fx:id="addCustComments" promptText="Comments" />
-                           </children>
-                           <VBox.margin>
-                              <Insets left="10.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <Label prefHeight="17.0" prefWidth="1080.0" text="  Locality                   City                               State                                       Profile 1                           Profile 2                          Profile 3                       Employment                    Comments" />
-                     </children>
-                     <HBox.margin>
-                        <Insets bottom="5.0" top="10.0" />
-                     </HBox.margin>
-                  </VBox>
-                  <VBox alignment="CENTER" minHeight="164.0" minWidth="175.0" spacing="10.0">
-                     <children>
-                        <HBox spacing="10.0">
-                           <children>
-                              <VBox alignment="CENTER" spacing="10.0">
-                                 <children>
-                                    <Button fx:id="saveCustomerButton" mnemonicParsing="false" onAction="#addCustomerClicked" prefHeight="25.0" prefWidth="74.0" text="Save" />
-                                    <Button fx:id="resetButton" mnemonicParsing="false" onAction="#resetClicked" prefHeight="25.0" prefWidth="74.0" text="Reset" />
-                                 </children>
-                              </VBox>
-                              <VBox alignment="CENTER" spacing="10.0">
-                                 <children>
-                                    <Button fx:id="searchButton" mnemonicParsing="false" onAction="#filterCustomersClicked" prefHeight="25.0" prefWidth="82.0" text="Search" />
-                                    <Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearClicked" text="Clear Search" />
-                                 </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                        <Button fx:id="addCustExtraButton" mnemonicParsing="false" onAction="#addCustomerExtraScreenClicked" text="Add Customer : Extra Screen" />
-                     </children>
-                     <HBox.margin>
-                        <Insets right="10.0" />
-                     </HBox.margin>
-                  </VBox>
+                  <Label text="Point Name :" />
+                  <ComboBox fx:id="addPointName" prefWidth="150.0" />
+                  <Label text="Hawker Code :" />
+                  <ComboBox fx:id="addCustHwkCode" prefWidth="150.0" />
                </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
             </HBox>
+            <Accordion>
+              <panes>
+                <TitledPane animated="false" expanded="false" text="Input and Buttons Panel">
+                     <content>
+                        <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="1280.0" spacing="15.0">
+                           <children>
+                              <VBox alignment="CENTER_LEFT" spacing="10.0">
+                                 <children>
+                                    <Label prefHeight="17.0" prefWidth="894.0" text="   Line Number                  Customer Name                       Initials                Mobile Number                     House Sequence" />
+                                    <HBox alignment="CENTER_LEFT" prefWidth="900.0" spacing="10.0">
+                                       <children>
+                                          <ComboBox fx:id="addCustLineNum" prefHeight="25.0" prefWidth="114.0" promptText="Line Number" />
+                                          <TextField fx:id="addCustName" accessibleHelp="Customer Name" accessibleText="Customer Name" promptText="Customer Name" />
+                                          <TextField fx:id="addCustInitials" layoutX="858.0" layoutY="10.0" prefHeight="25.0" prefWidth="73.0" promptText="Initials" />
+                                          <TextField fx:id="addCustMobile" promptText="Mobile Number" />
+                                          <TextField fx:id="addCustHouseSeq" layoutX="532.0" layoutY="10.0" prefHeight="25.0" prefWidth="103.0" promptText="House Sequence" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets left="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                       <children>
+                                          <Label alignment="CENTER_RIGHT" text="Old HNum:" />
+                                          <TextField fx:id="addCustOldHouseNum" prefHeight="25.0" prefWidth="89.0" promptText="Old House#" />
+                                          <Label alignment="CENTER_RIGHT" text="New HNum:" />
+                                          <TextField fx:id="addCustNewHouseNum" prefHeight="25.0" prefWidth="88.0" promptText="New House#" />
+                                          <Label alignment="CENTER_RIGHT" text="Flat/Street  Name:" />
+                                          <TextField fx:id="addCustBuildingStreet" prefHeight="25.0" prefWidth="132.0" promptText="Flat/Street Name" />
+                                          <Label alignment="CENTER_RIGHT" text="Addr Line1:" />
+                                          <TextField fx:id="addCustAddrLine1" prefHeight="25.0" prefWidth="147.0" promptText="Address Line 1" />
+                                          <Label alignment="CENTER_RIGHT" text="Addr Line2:" />
+                                          <TextField fx:id="addCustAddrLine2" prefHeight="25.0" prefWidth="138.0" promptText="Address Line 2" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets left="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                       <children>
+                                          <TextField fx:id="addCustLocality" prefHeight="25.0" prefWidth="88.0" promptText="Locality" />
+                                          <TextField fx:id="addCustCity" prefHeight="25.0" prefWidth="111.0" promptText="City" />
+                                          <ComboBox fx:id="addCustState" prefWidth="150.0" promptText="State" visibleRowCount="30" />
+                                          <ComboBox fx:id="addCustProf1" prefHeight="25.0" prefWidth="120.0" promptText="Profile 1" />
+                                          <ComboBox fx:id="addCustProf2" prefHeight="25.0" prefWidth="117.0" promptText="Profile 2" />
+                                          <TextField fx:id="addCustProf3" layoutX="854.0" layoutY="10.0" prefHeight="25.0" prefWidth="111.0" promptText="Profile3" />
+                                          <ComboBox fx:id="addCustEmployment" prefHeight="25.0" prefWidth="122.0" promptText="Job Searching" />
+                                          <TextField fx:id="addCustComments" promptText="Comments" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets left="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <Label prefHeight="17.0" prefWidth="1080.0" text="  Locality                   City                               State                                       Profile 1                           Profile 2                          Profile 3                       Employment                    Comments" />
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" top="10.0" />
+                                 </HBox.margin>
+                              </VBox>
+                              <VBox alignment="CENTER" minHeight="164.0" minWidth="175.0" spacing="10.0">
+                                 <children>
+                                    <HBox spacing="10.0">
+                                       <children>
+                                          <VBox alignment="CENTER" spacing="10.0">
+                                             <children>
+                                                <Button fx:id="saveCustomerButton" mnemonicParsing="false" onAction="#addCustomerClicked" prefHeight="25.0" prefWidth="74.0" text="Save" />
+                                                <Button fx:id="resetButton" mnemonicParsing="false" onAction="#resetClicked" prefHeight="25.0" prefWidth="74.0" text="Reset" />
+                                             </children>
+                                          </VBox>
+                                          <VBox alignment="CENTER" spacing="10.0">
+                                             <children>
+                                                <Button fx:id="searchButton" mnemonicParsing="false" onAction="#filterCustomersClicked" prefHeight="25.0" prefWidth="82.0" text="Search" />
+                                                <Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearClicked" text="Clear Search" />
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </HBox>
+                                    <Button fx:id="addCustExtraButton" mnemonicParsing="false" onAction="#addCustomerExtraScreenClicked" text="Add Customer : Extra Screen" />
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin>
+                              </VBox>
+                           </children>
+                        </HBox>
+                     </content>
+                  </TitledPane>
+              </panes>
+            </Accordion>
             <VBox alignment="TOP_CENTER" spacing="5.0" VBox.vgrow="ALWAYS">
                <children>
                   <TableView fx:id="ACustInfoTable" prefWidth="1280.0" VBox.vgrow="ALWAYS">
                      <columns>
                         <TableColumn fx:id="customerCodeColumn" prefWidth="126.0" text="Customer Code" />
                         <TableColumn fx:id="customerNameColumn" prefWidth="250.0" text="Customer Name" />
-                        <TableColumn fx:id="customerInitialsColumn" prefWidth="75.0" text="Initials" />
+                        <TableColumn fx:id="customerInitialsColumn" prefWidth="35" text="Initials" />
                         <TableColumn fx:id="mobileNumColumn" prefWidth="125.0" text="Mobile Number" />
                         <TableColumn fx:id="hawkerCodeColumn" prefWidth="87.0" text="Hawker Code" />
                         <TableColumn fx:id="lineNumColumn" prefWidth="67.0" text="Line#" />
@@ -119,7 +137,7 @@
                         <TableColumn fx:id="commentsColumn" prefWidth="250.0" text="Comments" />
                      </columns>
                   </TableView>
-                  <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                  <HBox prefHeight="200.0" spacing="10.0">
                      <children>
                         <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
                            <children>
@@ -145,6 +163,7 @@
                                     <TableColumn fx:id="subsStatusColumn" prefWidth="70.0" text="Status" />
                                     <TableColumn fx:id="subsStartDateColumn" prefWidth="86.0" text="Start Date" />
                                     <TableColumn fx:id="subsPausedDateColumn" prefWidth="86.0" text="Paused Date" />
+                                    <TableColumn fx:id="subsResumeDateColumn" prefWidth="86.0" text="Resume Date" />
                                     <TableColumn fx:id="subsNumberColumn" prefWidth="86.0" text="Subscription Number" />
                                 </columns>
                               </TableView>
@@ -169,6 +188,9 @@
                            </children>
                         </VBox>
                      </children>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
                   </HBox>
                </children>
             </VBox>

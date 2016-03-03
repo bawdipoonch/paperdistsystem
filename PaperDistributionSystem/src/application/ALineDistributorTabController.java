@@ -99,6 +99,9 @@ public class ALineDistributorTabController implements Initializable {
 	private TextField addBuildingStreet;
 
 	@FXML
+	private ComboBox<String> addPointName;
+
+	@FXML
 	private TableColumn<LineDistributor, String> OldHouseNumColumn;
 	@FXML
 	private TableColumn<LineDistributor, String> NewHouseNumColumn;
@@ -134,6 +137,7 @@ public class ALineDistributorTabController implements Initializable {
 
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
+	private ObservableList<String> pointNameValues = FXCollections.observableArrayList();
 
 	@FXML
 	private Button addLineDistExtraButton;
@@ -181,9 +185,17 @@ public class ALineDistributorTabController implements Initializable {
 				"West Bengal");
 		addLineNumField.getSelectionModel().clearSelection();
 		addLineNumField.setDisable(true);
-		populateHawkerCodes();
-		addHwkCode.getItems().clear();
-		addHwkCode.getItems().addAll(hawkerCodeData);
+		
+		addPointName.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				populateHawkerCodes();
+				addHwkCode.getItems().clear();
+				addHwkCode.getItems().addAll(hawkerCodeData);
+			}
+		});
+		
 		addHwkCode.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -192,9 +204,12 @@ public class ALineDistributorTabController implements Initializable {
 				addLineNumField.getItems().clear();
 				populateLineNumbersForHawkerCode(newValue);
 				addLineNumField.getItems().addAll(lineNumData);
+				refreshLineDistTable();
 			}
 
 		});
+		
+		
 		lineDistInfoTable.setRowFactory(new Callback<TableView<LineDistributor>, TableRow<LineDistributor>>() {
 
 			@Override
@@ -442,6 +457,7 @@ public class ALineDistributorTabController implements Initializable {
 					lineDistData.remove(lineDistRow);
 					lineDistInfoTable.getSelectionModel().select(t);
 					lineDistInfoTable.getSelectionModel().getSelectedItem().updateLineDistRecord();
+					editLineDistributorController.releaseVariables();
 				}
 			});
 
@@ -497,7 +513,7 @@ public class ALineDistributorTabController implements Initializable {
 				@Override
 				public void accept(String t) {
 					
-					addLineDistDialog.showAndWait();
+					addLineDistController.releaseVariables();
 				}
 			});
 
@@ -631,7 +647,8 @@ public class ALineDistributorTabController implements Initializable {
 						stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
 					} else {
 						stmt = con.prepareStatement(
-								"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
+								"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where hwk.hawker_code=? and ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
+						stmt.setString(1, addHwkCode.getSelectionModel().getSelectedItem());
 					}
 
 					ResultSet rs = stmt.executeQuery();
@@ -778,19 +795,28 @@ public class ALineDistributorTabController implements Initializable {
 		lineDistInfoTable.setItems(sortedData);
 		lineDistInfoTable.getSelectionModel().clearSelection();
 	}
-
+//	@Override
 	public void reloadData() {
 		System.out.println("Line Distributor reloadData");
 		addProf1.getItems().clear();
 		addProf2.getItems().clear();
 		addEmployment.getItems().clear();
+		addPointName.getItems().clear();
 		addHwkCode.getItems().clear();
-		populateHawkerCodes();
+//		populateHawkerCodes();
 		populateProfileValues();
 		populateEmploymentValues();
 
-		refreshLineDistTable();
-		// populateLineNumbersForHawkerCode();
+		populatePointNames();
+		addPointName.getItems().clear();
+		addPointName.getItems().addAll(pointNameValues);
+
+		if(HawkerLoginController.loggedInHawker!=null){
+			addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
+			addPointName.setDisable(true);
+			addHwkCode.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
+			addHwkCode.setDisable(true);
+		}
 	}
 
 	private void populateHawkerCodes() {
@@ -802,8 +828,9 @@ public class ALineDistributorTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
-			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select distinct hawker_code from hawker_info");
+			PreparedStatement stmt = con.prepareStatement("select distinct hawker_code from hawker_info where point_name=?");
+			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
+			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				hawkerCodeData.add(rs.getString(1));
 			}
@@ -877,6 +904,44 @@ public class ALineDistributorTabController implements Initializable {
 
 		};
 		new Thread(task).start();
+	}
+	
+	public void populatePointNames() {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			pointNameValues.clear();
+			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name order by name");
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				pointNameValues.add(rs.getString(1));
+			}
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+
+	}
+	
+//	@Override
+	public void releaseVariables(){
+		filteredData=null;
+		searchText=null;
+		hawkerCodeData = null;
+		employmentData = null;
+		profileValues = null;
+		lineDistData = null;
+		lineNumData = null;
+		pointNameValues=null;
+		hawkerCodeData = FXCollections.observableArrayList();
+		employmentData = FXCollections.observableArrayList();
+		profileValues = FXCollections.observableArrayList();
+		lineNumData = FXCollections.observableArrayList();
+		lineDistData = FXCollections.observableArrayList();
+		pointNameValues = FXCollections.observableArrayList();
 	}
 
 }

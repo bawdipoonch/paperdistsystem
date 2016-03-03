@@ -79,6 +79,16 @@
 												<Font size="14.0" />
 											</font>
 										</Label>
+										<Label text="Bill Category : ">
+											<font>
+												<Font size="14.0" />
+											</font>
+										</Label>
+										<Label fx:id="billCategory" text="&lt;Bill Category&gt;">
+											<font>
+												<Font size="14.0" />
+											</font>
+										</Label>
 									</children>
 								</HBox>
 							</children>

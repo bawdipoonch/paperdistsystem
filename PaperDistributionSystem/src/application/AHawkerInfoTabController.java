@@ -49,7 +49,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
-public class AHawkerInfoTabController implements Initializable {
+public class AHawkerInfoTabController implements Initializable{
 
 	@FXML
 	private TableView<Hawker> hawkerTable;
@@ -96,7 +96,7 @@ public class AHawkerInfoTabController implements Initializable {
 	@FXML
 	private TextField addHwkComments;
 	@FXML
-	private ComboBox<String> addHwkPointName;
+	private ComboBox<String> addPointName;
 	@FXML
 	private TextField addHwkBuildingStreet;
 
@@ -258,6 +258,15 @@ public class AHawkerInfoTabController implements Initializable {
 		if (hawkerTable.getSelectionModel().getSelectedItem() == null) {
 			disableAllChild();
 		}
+		
+		addPointName.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				refreshHawkerTable();
+			}
+		});
+		
 		hawkerTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Hawker>() {
 
 			@Override
@@ -719,6 +728,7 @@ public class AHawkerInfoTabController implements Initializable {
 					hawkerMasterData.remove(hawkerRow);
 					hawkerTable.getSelectionModel().select(t);
 					hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
+					editHawkerController.releaseVariables();
 				}
 			});
 
@@ -740,9 +750,9 @@ public class AHawkerInfoTabController implements Initializable {
 						con = Main.reconnect();
 					}
 					hawkerMasterData.clear();
-					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery(
-							"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street  from hawker_info order by name");
+					PreparedStatement stmt = con.prepareStatement("select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street  from hawker_info where point_name=? order by name");
+					stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
+					ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
 						Hawker hwkRow = new Hawker(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),
 								rs.getString(5), rs.getString(6).equalsIgnoreCase("Y"), rs.getDouble(7),
@@ -926,7 +936,7 @@ public class AHawkerInfoTabController implements Initializable {
 					insertHawker.setString(24, addHwkInitials.getText());
 					insertHawker.setString(25, addHwkEmployment.getSelectionModel().getSelectedItem());
 					insertHawker.setString(26, addHwkComments.getText());
-					insertHawker.setString(27, addHwkPointName.getSelectionModel().getSelectedItem());
+					insertHawker.setString(27, addPointName.getSelectionModel().getSelectedItem());
 					insertHawker.setString(28, addHwkBuildingStreet.getText());
 					insertHawker.setString(29, "password");
 
@@ -981,7 +991,7 @@ public class AHawkerInfoTabController implements Initializable {
 		addHwkInitials.clear();
 		addHwkEmployment.getSelectionModel().clearSelection();
 		addHwkComments.clear();
-		addHwkPointName.getSelectionModel().clearSelection();
+		addPointName.getSelectionModel().clearSelection();
 		addHwkBuildingStreet.clear();
 	}
 
@@ -1090,20 +1100,20 @@ public class AHawkerInfoTabController implements Initializable {
 		hawkerTable.getSelectionModel().clearSelection();
 		disableAllChild();
 	}
-
+//	@Override
 	public void reloadData() {
 		addHwkProf1.getItems().clear();
 		addHwkProf2.getItems().clear();
 		addHwkEmployment.getItems().clear();
-		addHwkPointName.getItems().clear();
+		addPointName.getItems().clear();
 		populateEmploymentValues();
 		populatePointNames();
 		populateProfileValues();
 		addHwkProf1.getItems().addAll(profileValues);
 		addHwkProf2.getItems().addAll(profileValues);
 		addHwkEmployment.getItems().addAll(employmentValues);
-		addHwkPointName.getItems().addAll(pointNameValues);
-		refreshHawkerTable();
+		addPointName.getItems().addAll(pointNameValues);
+//		refreshHawkerTable();
 	}
 
 	private boolean mobileNumExists(String mobileNum) {
@@ -1155,12 +1165,7 @@ public class AHawkerInfoTabController implements Initializable {
 				}
 
 			});
-			// saveButton.setOnAction(new EventHandler<ActionEvent>() {
-			//
-			// @Override
-			// public void handle(ActionEvent event) {
-			//
-			// });
+			
 			addHawkerDialog.getDialogPane().setContent(addHawkerGrid);
 			addHwkController.setupBindings();
 
@@ -1179,7 +1184,7 @@ public class AHawkerInfoTabController implements Initializable {
 				@Override
 				public void accept(String t) {
 
-					// addHawkerDialog.showAndWait();
+					addHwkController.releaseVariables();
 				}
 			});
 
@@ -1249,6 +1254,21 @@ public class AHawkerInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 
+	}
+//	@Override
+	public void releaseVariables(){
+		filteredData=null;
+		searchText=null;
+		hawkerMasterData = null;
+		hawkerBillingMasterData = null;
+		profileValues = null;
+		employmentValues = null;
+		pointNameValues = null;
+		hawkerMasterData = FXCollections.observableArrayList();
+		hawkerBillingMasterData = FXCollections.observableArrayList();
+		profileValues = FXCollections.observableArrayList();
+		employmentValues = FXCollections.observableArrayList();
+		pointNameValues = FXCollections.observableArrayList();
 	}
 
 }

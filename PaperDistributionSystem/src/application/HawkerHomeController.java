@@ -2,14 +2,18 @@ package application;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 import org.controlsfx.control.Notifications;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -33,29 +37,33 @@ public class HawkerHomeController implements Initializable {
 	@FXML private Label code;
 	@FXML private Label agencyName;
 	@FXML private Label mobileNum;
+	@FXML private Label billCategory;
 	Stage stage; 
     Parent root;
     @FXML private Tab customersTab;
     @FXML private Tab lineInfoTab;
     @FXML private Tab pausedCustTab;
     @FXML private Tab lineDistTab;
+    @FXML private Tab productsTab;
     @FXML private TabPane tabPane;
     
     private ACustomerInfoTabController customerTabController;
     private ALineDistributorTabController lineDistTabController;
     private ALineInfoTabController lineInfoTabController;
     private APausedCustomerTabController pausedCustTabController;
+    private AProductsTabController productsTabController;
     
 
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
+		
 		
 			hawkerName.setText(HawkerLoginController.loggedInHawker.getName());
 			code.setText(HawkerLoginController.loggedInHawker.getHawkerCode());
 			agencyName.setText(HawkerLoginController.loggedInHawker.getAgencyName());
 			mobileNum.setText(HawkerLoginController.loggedInHawker.getMobileNum());
+			populateBillCategory();
 			loadTabs();
 			if(!HawkerLoginController.loggedInHawker.getCustomerAccess().equals("Y"))
 				tabPane.getTabs().remove(customersTab);
@@ -66,8 +74,87 @@ public class HawkerHomeController implements Initializable {
 			if(!HawkerLoginController.loggedInHawker.getLineDistAccess().equals("Y"))
 				tabPane.getTabs().remove(lineDistTab);
 			
+			tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
+					if (oldValue != null) {
+						if (oldValue == customersTab) {
+							customerTabController.releaseVariables();
+						}
+						if (oldValue == lineInfoTab) {
+							lineInfoTabController.releaseVariables();
+						}
+						if (oldValue == pausedCustTab) {
+							pausedCustTabController.releaseVariables();
+						}
+//						if (oldValue == hawkerTab) {
+//							hawkerTabController.releaseVariables();
+//						}
+						if (oldValue == lineDistTab) {
+							lineDistTabController.releaseVariables();
+						}
+//						if (oldValue == additionalItemsTab) {
+//							additionalItemsTabController.releaseVariables();
+//						}
+						if (oldValue == productsTab) {
+							productsTabController.releaseVariables();
+						}
+						System.gc();
+					}
+
+					if (newValue != null) {
+						if (newValue == customersTab) {
+							customerTabController.reloadData();
+						}
+						if (newValue == lineInfoTab) {
+							lineInfoTabController.reloadData();
+						}
+						if (newValue == pausedCustTab) {
+							pausedCustTabController.reloadData();
+						}
+//						if (newValue == hawkerTab) {
+//							hawkerTabController.reloadData();
+//						}
+						if (newValue == lineDistTab) {
+							lineDistTabController.reloadData();
+						}
+//						if (newValue == additionalItemsTab) {
+//							additionalItemsTabController.reloadData();
+//						}
+						if (newValue == productsTab) {
+							productsTabController.reloadData();
+						}
+
+					}
+
+				}
+			});
+			tabPane.getSelectionModel().selectFirst();
+			
 	}
 	
+	private void populateBillCategory() {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String query = "select bill_category from point_name where name =?";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				billCategory.setText(rs.getString(1));
+			}
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		
+	}
+
 	@FXML
 	private void logoutClicked(ActionEvent event) throws IOException {
 		System.out.println("Logout clicked");
@@ -90,14 +177,14 @@ public class HawkerHomeController implements Initializable {
 			customersTab = new Tab();
 			customersTab.setText("Customers");
 			customersTab.setContent(custroot);
-			customersTab.setOnSelectionChanged(new EventHandler<Event>() {
+			/*customersTab.setOnSelectionChanged(new EventHandler<Event>() {
 				
 				@Override
 				public void handle(Event event) {
-					// TODO Auto-generated method stub
+					
 					customerTabController.reloadData();
 				}
-			});
+			});*/
 			
 			lineDistTab = new Tab();
 			FXMLLoader lineDistTabLoader = new FXMLLoader(getClass().getResource("A-LineDistributorTab.fxml"));
@@ -105,14 +192,14 @@ public class HawkerHomeController implements Initializable {
 			lineDistTabController = lineDistTabLoader.<ALineDistributorTabController>getController();
 			lineDistTab.setText("Line Distribution Boy");
 			lineDistTab.setContent(linedistroot);
-			lineDistTab.setOnSelectionChanged(new EventHandler<Event>() {
+			/*lineDistTab.setOnSelectionChanged(new EventHandler<Event>() {
 				
 				@Override
 				public void handle(Event event) {
-					// TODO Auto-generated method stub
+					
 					lineDistTabController.reloadData();
 				}
-			});
+			});*/
 			
 			lineInfoTab = new Tab();
 			FXMLLoader lineInfoTabLoader = new FXMLLoader(getClass().getResource("A-LineInfoTab.fxml"));
@@ -121,14 +208,14 @@ public class HawkerHomeController implements Initializable {
 			lineInfoTab.setText("Line Information");
 			lineInfoTab.setContent(lineinforoot);
 			
-			lineInfoTab.setOnSelectionChanged(new EventHandler<Event>() {
+			/*lineInfoTab.setOnSelectionChanged(new EventHandler<Event>() {
 				
 				@Override
 				public void handle(Event event) {
-					// TODO Auto-generated method stub
+					
 					lineInfoTabController.reloadData();
 				}
-			});
+			});*/
 			
 			pausedCustTab = new Tab();
 			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("A-PausedCustomersTab.fxml"));
@@ -136,29 +223,64 @@ public class HawkerHomeController implements Initializable {
 			pausedCustTabController = pausedCustTabLoader.<APausedCustomerTabController>getController();
 			pausedCustTab.setText("Paused Customers");
 			pausedCustTab.setContent(pausedcustroot);
-			pausedCustTab.setOnSelectionChanged(new EventHandler<Event>() {
+			/*pausedCustTab.setOnSelectionChanged(new EventHandler<Event>() {
 				
 				@Override
 				public void handle(Event event) {
-					// TODO Auto-generated method stub
+					
 					pausedCustTabController.reloadData();
 				}
-			});
+			});*/
+			productsTab = new Tab();
+			FXMLLoader productsTabLoader = new FXMLLoader(getClass().getResource("AProductsTab.fxml"));
+			Parent productsRoot = (Parent)productsTabLoader.load();
+			productsTabController = productsTabLoader.<AProductsTabController>getController();
+			productsTab.setText("Products");
+			productsTab.setContent(productsRoot);
+			/*productsTab.setOnSelectionChanged(new EventHandler<Event>() {
+				
+				@Override
+				public void handle(Event event) {
+					
+					productsTabController.reloadData();
+				}
+			});*/
 			
-			tabPane.getTabs().addAll(customersTab, lineInfoTab, lineDistTab,pausedCustTab );
+			
+			tabPane.getTabs().addAll(customersTab, lineInfoTab, lineDistTab,pausedCustTab ,productsTab);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		
 	}
 	
 	@FXML private void refreshClicked(ActionEvent event){
-//		ACustomerInfoTabController
-		customerTabController.reloadData();
-		lineDistTabController.reloadData();
-		lineInfoTabController.reloadData();
-//		pausedCustTabController.reloadData();
+		Tab t = tabPane.getSelectionModel().getSelectedItem();
+		if (t != null) {
+			if (t == customersTab) {
+				customerTabController.reloadData();
+			}
+			if (t == lineInfoTab) {
+				lineInfoTabController.reloadData();
+			}
+			if (t == pausedCustTab) {
+				pausedCustTabController.reloadData();
+			}
+//			if (t == hawkerTab) {
+//				hawkerTabController.reloadData();
+//			}
+			if (t == lineDistTab) {
+				lineDistTabController.reloadData();
+			}
+//			if (t == additionalItemsTab) {
+//				additionalItemsTabController.reloadData();
+//			}
+			if (t == productsTab) {
+				productsTabController.reloadData();
+			}
+
+		}
 	}
 	
 	@FXML private void changePasswordClicked(ActionEvent evt){

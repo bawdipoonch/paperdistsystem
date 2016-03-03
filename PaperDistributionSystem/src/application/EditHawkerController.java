@@ -262,4 +262,11 @@ public class EditHawkerController implements Initializable {
 		}
 		return false;
 	}
+	
+	public void releaseVariables(){
+
+		pointNameValues = null;
+		employmentData = null;
+		profileValues = null;
+	}
 }

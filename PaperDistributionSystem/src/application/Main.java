@@ -16,7 +16,7 @@ import javafx.util.StringConverter;
 
 public class Main extends Application {
 	public static Connection dbConnection = null;
-	public static String dateFormat = "dd-MM-yyyy";
+	public static String dateFormat = "dd/MM/yyyy";
 	public static StringConverter<LocalDate> dateConvertor = new StringConverter<LocalDate>() {
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(Main.dateFormat);
 

@@ -11,6 +11,8 @@ import java.util.ResourceBundle;
 
 import org.controlsfx.control.Notifications;
 
+import com.amazonaws.util.NumberUtils;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -24,62 +26,84 @@ import javafx.util.Duration;
 public class EditCustomerController implements Initializable {
 
 	private Customer custRow;
-	
-	//Edit Customer Fields FXML
-	@FXML private TextField editNameTF;
-	@FXML private TextField editCustomerCodeTF;
-	@FXML private TextField editMobileNumTF;
-	@FXML private TextField editHouseSeqTF;
-	@FXML private TextField editOldHouseNumTF;
-	@FXML private TextField editNewHouseNumTF;
-	@FXML private TextField editBldgStreetTF;
-	@FXML private TextField editAddrLine1;
-	@FXML private TextField editAddrLine2;
-	@FXML private TextField editLocalityTF;
-	@FXML private TextField editCityTF;
-	@FXML private ComboBox<String> editProfile1TF;
-	@FXML private ComboBox<String> editProfile2TF;
-	@FXML private TextField editProfile3TF;
-	@FXML private TextField editCommentsTF;
-	@FXML private TextField initialsTF;
-	@FXML private ComboBox<String> editHawkerCodeLOV;
-	@FXML private ComboBox<String> editLineNumLOV;
-	@FXML private ComboBox<String> editStateLOV;
-	@FXML private ComboBox<String> editEmploymentLOV;
+
+	// Edit Customer Fields FXML
+	@FXML
+	private TextField editNameTF;
+	@FXML
+	private TextField editCustomerCodeTF;
+	@FXML
+	private TextField editMobileNumTF;
+	@FXML
+	private TextField editHouseSeqTF;
+	@FXML
+	private TextField editOldHouseNumTF;
+	@FXML
+	private TextField editNewHouseNumTF;
+	@FXML
+	private TextField editBldgStreetTF;
+	@FXML
+	private TextField editAddrLine1;
+	@FXML
+	private TextField editAddrLine2;
+	@FXML
+	private TextField editLocalityTF;
+	@FXML
+	private TextField editCityTF;
+	@FXML
+	private ComboBox<String> editProfile1TF;
+	@FXML
+	private ComboBox<String> editProfile2TF;
+	@FXML
+	private TextField editProfile3TF;
+	@FXML
+	private TextField editCommentsTF;
+	@FXML
+	private TextField initialsTF;
+	@FXML
+	private ComboBox<String> editHawkerCodeLOV;
+	@FXML
+	private ComboBox<String> editLineNumLOV;
+	@FXML
+	private ComboBox<String> editStateLOV;
+	@FXML
+	private ComboBox<String> editEmploymentLOV;
 
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerLineNumData = FXCollections.observableArrayList();
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
-	
+	private int seq;
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
 
-//		setupBindings();
-		
+		// setupBindings();
+
 	}
-	
-	public void setCustomerToEdit(Customer customer){
+
+	public void setCustomerToEdit(Customer customer) {
 		this.custRow = customer;
 	}
-	
-	public void setupBindings(){
-		editStateLOV.getItems().addAll("Tamil Nadu","Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", 
-				"Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha",
-				"Punjab", "Rajasthan", "Sikkim",  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal");
+
+	public void setupBindings() {
+		editStateLOV.getItems().addAll("Tamil Nadu", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
+				"Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand",
+				"Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland",
+				"Odisha", "Punjab", "Rajasthan", "Sikkim", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
+				"West Bengal");
 		editStateLOV.getSelectionModel().select(custRow.getState());
 		populateHawkerCodes();
 		populateEmploymentValues();
 		populateProfileValues();
 		editHawkerCodeLOV.getItems().addAll(hawkerCodeData);
-		
+
 		editHawkerCodeLOV.getSelectionModel().select(custRow.getHawkerCode());
 		editLineNumLOV.getItems().clear();
 		populateLineNumbersForHawkerCode(custRow.getHawkerCode());
 		editLineNumLOV.getItems().addAll(hawkerLineNumData);
-		editLineNumLOV.getSelectionModel().select(""+custRow.getLineNum());
-		if(HawkerLoginController.loggedInHawker==null)
+		editLineNumLOV.getSelectionModel().select("" + custRow.getLineNum());
+		if (HawkerLoginController.loggedInHawker == null)
 			editHawkerCodeLOV.setDisable(false);
 		editHawkerCodeLOV.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
@@ -91,10 +115,19 @@ public class EditCustomerController implements Initializable {
 				editLineNumLOV.getSelectionModel().clearSelection();
 			}
 		});
+		seq = maxSeq();
+		editLineNumLOV.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+
+				seq = maxSeq();
+			}
+		});
 		editNameTF.setText(custRow.getName());
-		editCustomerCodeTF.setText(""+custRow.getCustomerCode());
+		editCustomerCodeTF.setText("" + custRow.getCustomerCode());
 		editMobileNumTF.setText(custRow.getMobileNum());
-		editHouseSeqTF.setText(""+custRow.getHouseSeq());
+		editHouseSeqTF.setText("" + custRow.getHouseSeq());
 		editOldHouseNumTF.setText(custRow.getOldHouseNum());
 		editNewHouseNumTF.setText(custRow.getNewHouseNum());
 		editAddrLine1.setText(custRow.getAddrLine1());
@@ -115,41 +148,42 @@ public class EditCustomerController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				
-				if(newValue.length()>3)
+
+				if (newValue.length() > 3)
 					initialsTF.setText(oldValue);
 			}
 		});
 		editNameTF.requestFocus();
 	}
-	
+
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {
-		
+
 		try {
-			
+
 			Connection con = Main.dbConnection;
-			while(!con.isValid(0)){
+			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerLineNumData.clear();
-			PreparedStatement stmt = con.prepareStatement("select li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num");
+			PreparedStatement stmt = con.prepareStatement(
+					"select li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num");
 			stmt.setLong(1, hawkerIdForCode(hawkerCode));
 			ResultSet rs = stmt.executeQuery();
-			while(rs.next()){
+			while (rs.next()) {
 				hawkerLineNumData.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 	}
-	
+
 	private long hawkerIdForCode(String hawkerCode) {
-		
-		long hawkerId=-1;
+
+		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			while(!con.isValid(0)){
+			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -157,91 +191,133 @@ public class EditCustomerController implements Initializable {
 			hawkerIdStatement = con.prepareStatement(hawkerIdQuery);
 			hawkerIdStatement.setString(1, hawkerCode);
 			ResultSet hawkerIdRs = hawkerIdStatement.executeQuery();
-			
-			if(hawkerIdRs.next()){
-				hawkerId=hawkerIdRs.getLong(1);
+
+			if (hawkerIdRs.next()) {
+				hawkerId = hawkerIdRs.getLong(1);
 			}
-		}catch (SQLException e) {
-			
+		} catch (SQLException e) {
+
 			e.printStackTrace();
 		}
 		return hawkerId;
 	}
-	
-	
+
 	private void populateHawkerCodes() {
-		
+
 		try {
-			
+
 			Connection con = Main.dbConnection;
-			while(!con.isValid(0)){
+			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery("select distinct hawker_code from hawker_info");
-			while(rs.next()){
+			while (rs.next()) {
 				hawkerCodeData.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 	}
-	
-	public Customer returnUpdatedCustomer(){
-		shuffleHouseSequences();
-		Customer edittedCustomer = new Customer(custRow);
-		edittedCustomer.setCustomerCode(Long.parseLong(editCustomerCodeTF.getText()));
-        edittedCustomer.setName(editNameTF.getText());
-        edittedCustomer.setMobileNum(editMobileNumTF.getText());
-        edittedCustomer.setHawkerCode(editHawkerCodeLOV.getSelectionModel().getSelectedItem());
-        edittedCustomer.setLineNum(Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0]));
-        edittedCustomer.setHouseSeq(Integer.parseInt(editHouseSeqTF.getText()));
-        edittedCustomer.setOldHouseNum(editOldHouseNumTF.getText());
-        edittedCustomer.setNewHouseNum(editNewHouseNumTF.getText());
-        edittedCustomer.setAddrLine1(editAddrLine1.getText());
-        edittedCustomer.setAddrLine2(editAddrLine2.getText());
-        edittedCustomer.setLocality(editLocalityTF.getText());
-        edittedCustomer.setCity(editCityTF.getText());
-        edittedCustomer.setState(editStateLOV.getSelectionModel().getSelectedItem());
-        edittedCustomer.setProfile1(editProfile1TF.getSelectionModel().getSelectedItem());
-        edittedCustomer.setProfile2(editProfile2TF.getSelectionModel().getSelectedItem());
-        edittedCustomer.setProfile3(editProfile3TF.getText());
-        edittedCustomer.setInitials(initialsTF.getText());
-        edittedCustomer.setBuildingStreet(editBldgStreetTF.getText());
-        edittedCustomer.setEmployment(editEmploymentLOV.getSelectionModel().getSelectedItem());
-        edittedCustomer.setComments(editCommentsTF.getText());
-        edittedCustomer.updateCustomerRecord();
-    	return edittedCustomer;
+
+	public boolean isValid() {
+		boolean validate = true;
+		if (editHawkerCodeLOV.getSelectionModel().getSelectedItem() == null) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
+					.text("Please select a hawker before adding the the customer").showError();
+		}
+		if (editLineNumLOV.getSelectionModel().getSelectedItem() == null) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Line number not selected")
+					.text("Please select a line number before adding the the customer").showError();
+		}
+		if (NumberUtils.tryParseInt(editHouseSeqTF.getText()) == null) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid house number")
+					.text("House sequence should not be empty and must be NUMBERS only").showError();
+		}
+		if (Integer.parseInt(editHouseSeqTF.getText()) > seq || Integer.parseInt(editHouseSeqTF.getText()) < 1) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid House Sequence")
+					.text("House Sequence must be between 1 and " + seq).showError();
+		}
+		return validate;
+	}
+
+	public Customer returnUpdatedCustomer() {
+		if (isValid()) {
+			shuffleHouseSequences();
+			Customer edittedCustomer = new Customer(custRow);
+			edittedCustomer.setCustomerCode(Long.parseLong(editCustomerCodeTF.getText()));
+			edittedCustomer.setName(editNameTF.getText());
+			edittedCustomer.setMobileNum(editMobileNumTF.getText());
+			edittedCustomer.setHawkerCode(editHawkerCodeLOV.getSelectionModel().getSelectedItem());
+			edittedCustomer
+					.setLineNum(Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0]));
+			edittedCustomer.setHouseSeq(Integer.parseInt(editHouseSeqTF.getText()));
+			edittedCustomer.setOldHouseNum(editOldHouseNumTF.getText());
+			edittedCustomer.setNewHouseNum(editNewHouseNumTF.getText());
+			edittedCustomer.setAddrLine1(editAddrLine1.getText());
+			edittedCustomer.setAddrLine2(editAddrLine2.getText());
+			edittedCustomer.setLocality(editLocalityTF.getText());
+			edittedCustomer.setCity(editCityTF.getText());
+			edittedCustomer.setState(editStateLOV.getSelectionModel().getSelectedItem());
+			edittedCustomer.setProfile1(editProfile1TF.getSelectionModel().getSelectedItem());
+			edittedCustomer.setProfile2(editProfile2TF.getSelectionModel().getSelectedItem());
+			edittedCustomer.setProfile3(editProfile3TF.getText());
+			edittedCustomer.setInitials(initialsTF.getText());
+			edittedCustomer.setBuildingStreet(editBldgStreetTF.getText());
+			edittedCustomer.setEmployment(editEmploymentLOV.getSelectionModel().getSelectedItem());
+			edittedCustomer.setComments(editCommentsTF.getText());
+			edittedCustomer.updateCustomerRecord();
+			return edittedCustomer;
+		} else
+			return null;
 	}
 
 	private void shuffleHouseSequences() {
-		if(this.custRow.getHawkerCode().equals(editHawkerCodeLOV.getSelectionModel().getSelectedItem())){
-			if(this.custRow.getLineNum()==Long.parseLong(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0])){
-				if(this.custRow.getHouseSeq()!=Integer.parseInt(editHouseSeqTF.getText())){
-					shiftHouseSeqFromToForCustId(getCustomerDataToShift(this.custRow.getHawkerCode(),this.custRow.getLineNum().intValue()), this.custRow.getHouseSeq(), Integer.parseInt(editHouseSeqTF.getText()), this.custRow.getCustomerId());
+		if (this.custRow.getHawkerCode().equals(editHawkerCodeLOV.getSelectionModel().getSelectedItem())) {
+			if (this.custRow.getLineNum() == Long
+					.parseLong(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0])) {
+				if (this.custRow.getHouseSeq() != Integer.parseInt(editHouseSeqTF.getText())) {
+					shiftHouseSeqFromToForCustId(
+							getCustomerDataToShift(this.custRow.getHawkerCode(), this.custRow.getLineNum().intValue()),
+							this.custRow.getHouseSeq(), Integer.parseInt(editHouseSeqTF.getText()),
+							this.custRow.getCustomerId());
 				}
 			} else {
-				shiftHouseSeqForDelete(getCustomerDataToShift(this.custRow.getHawkerCode(),this.custRow.getLineNum().intValue()), this.custRow.getHouseSeq());
-				shiftHouseSeqFrom(getCustomerDataToShift(this.custRow.getHawkerCode(),Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0])), Integer.parseInt(editHouseSeqTF.getText()));
+				shiftHouseSeqForDelete(
+						getCustomerDataToShift(this.custRow.getHawkerCode(), this.custRow.getLineNum().intValue()),
+						this.custRow.getHouseSeq());
+				shiftHouseSeqFrom(
+						getCustomerDataToShift(this.custRow.getHawkerCode(),
+								Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0])),
+						Integer.parseInt(editHouseSeqTF.getText()));
 			}
 		} else {
-			shiftHouseSeqForDelete(getCustomerDataToShift(this.custRow.getHawkerCode(),this.custRow.getLineNum().intValue()), this.custRow.getHouseSeq());
-			shiftHouseSeqFrom(getCustomerDataToShift(editHawkerCodeLOV.getSelectionModel().getSelectedItem(),Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0])), Integer.parseInt(editHouseSeqTF.getText()));
+			shiftHouseSeqForDelete(
+					getCustomerDataToShift(this.custRow.getHawkerCode(), this.custRow.getLineNum().intValue()),
+					this.custRow.getHouseSeq());
+			shiftHouseSeqFrom(
+					getCustomerDataToShift(editHawkerCodeLOV.getSelectionModel().getSelectedItem(),
+							Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0])),
+					Integer.parseInt(editHouseSeqTF.getText()));
 		}
-		
+
 	}
 
 	public boolean validateCustomer() {
-		if(mobileNumExists(editMobileNumTF.getText())){
+		if (mobileNumExists(editMobileNumTF.getText())) {
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Duplicate mobile number")
-			.text("A customer with same mobile number already exists").showError();
+					.text("A customer with same mobile number already exists").showError();
 			return false;
 		}
 		return true;
 	}
-	
+
 	private boolean mobileNumExists(String mobileNum) {
 		try {
 
@@ -258,13 +334,11 @@ public class EditCustomerController implements Initializable {
 				return true;
 			}
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 		return false;
 	}
-	
-
 
 	private void populateProfileValues() {
 		try {
@@ -275,16 +349,17 @@ public class EditCustomerController implements Initializable {
 			}
 			profileValues.clear();
 			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
+			ResultSet rs = stmt.executeQuery(
+					"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 			while (rs.next()) {
 				profileValues.add(rs.getString(1));
 			}
-			
+
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private void populateEmploymentValues() {
@@ -296,18 +371,19 @@ public class EditCustomerController implements Initializable {
 			}
 			employmentData.clear();
 			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
+			ResultSet rs = stmt.executeQuery(
+					"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 			while (rs.next()) {
 				employmentData.add(rs.getString(1));
 			}
-			
+
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public ArrayList<Customer> getCustomerDataToShift(String hawkerCode, int lineNum) {
 		ArrayList<Customer> custData = new ArrayList<Customer>();
 
@@ -336,7 +412,6 @@ public class EditCustomerController implements Initializable {
 
 		return custData;
 	}
-
 
 	private void shiftHouseSeqFrom(ArrayList<Customer> custData, int seq) {
 
@@ -394,7 +469,7 @@ public class EditCustomerController implements Initializable {
 
 		// reloadData();
 	}
-	
+
 	public boolean houseSequenceExistsInLine(String hawkerCode, int seq, Long lineNum) {
 		try {
 
@@ -416,5 +491,36 @@ public class EditCustomerController implements Initializable {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	private int maxSeq() {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			hawkerLineNumData.clear();
+			PreparedStatement stmt = con
+					.prepareStatement("select max(house_seq) seq from customer where hawker_code=? and line_num=?");
+			stmt.setString(1, editHawkerCodeLOV.getSelectionModel().getSelectedItem());
+			stmt.setString(2, editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0]);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return 1;
+	}
+
+	public void releaseVariables() {
+
+		hawkerCodeData = null;
+		hawkerLineNumData = null;
+		employmentData = null;
+		profileValues = null;
 	}
 }
