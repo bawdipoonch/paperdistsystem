@@ -244,6 +244,11 @@ public class EditCustomerController implements Initializable {
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid House Sequence")
 					.text("House Sequence must be between 1 and " + seq).showError();
 		}
+		if(!editProfile3TF.getText().isEmpty() && checkExistingProfileValue(editProfile3TF.getText())){
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
+					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.").showError();
+		}
 		return validate;
 	}
 
@@ -307,6 +312,27 @@ public class EditCustomerController implements Initializable {
 					Integer.parseInt(editHouseSeqTF.getText()));
 		}
 
+	}
+	
+	private boolean checkExistingProfileValue(String profileValue) {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement stmt = con
+					.prepareStatement("select value from lov_lookup where code = 'PROFILE_VALUES' AND lower(VALUE)=?");
+			stmt.setString(1, profileValue.toLowerCase());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public boolean validateCustomer() {

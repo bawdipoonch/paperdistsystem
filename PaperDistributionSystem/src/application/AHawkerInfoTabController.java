@@ -7,7 +7,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -49,7 +48,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
-public class AHawkerInfoTabController implements Initializable{
+public class AHawkerInfoTabController implements Initializable {
 
 	@FXML
 	private TableView<Hawker> hawkerTable;
@@ -99,6 +98,12 @@ public class AHawkerInfoTabController implements Initializable{
 	private ComboBox<String> addPointName;
 	@FXML
 	private TextField addHwkBuildingStreet;
+	@FXML
+	private TextField addBankAcNo;
+	@FXML
+	private TextField addBankName;
+	@FXML
+	private TextField addIfscCode;
 
 	// ScreenAccess Checkbox
 	@FXML
@@ -161,6 +166,12 @@ public class AHawkerInfoTabController implements Initializable{
 	private TableColumn<Hawker, String> pointNameColumn;
 	@FXML
 	private TableColumn<Hawker, String> buildingStreetColumn;
+	@FXML
+	private TableColumn<Hawker, String> bankAcNumColumn;
+	@FXML
+	private TableColumn<Hawker, String> bankNameColumn;
+	@FXML
+	private TableColumn<Hawker, String> ifscCodeColumn;
 
 	// Billing columns
 	@FXML
@@ -243,6 +254,9 @@ public class AHawkerInfoTabController implements Initializable{
 		commentsColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("comments"));
 		pointNameColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("pointName"));
 		buildingStreetColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("buildingStreet"));
+		bankAcNumColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("bankAcNo"));
+		bankNameColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("bankName"));
+		ifscCodeColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("ifscCode"));
 
 		hwkBillStartDateColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Date>("startDate"));
 		hwkBillEndDateColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Date>("endDate"));
@@ -258,7 +272,7 @@ public class AHawkerInfoTabController implements Initializable{
 		if (hawkerTable.getSelectionModel().getSelectedItem() == null) {
 			disableAllChild();
 		}
-		
+
 		addPointName.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -266,7 +280,7 @@ public class AHawkerInfoTabController implements Initializable{
 				refreshHawkerTable();
 			}
 		});
-		
+
 		hawkerTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Hawker>() {
 
 			@Override
@@ -701,7 +715,7 @@ public class AHawkerInfoTabController implements Initializable{
 			editHawkerController.setHawkerToEdit(hawkerRow);
 			editHawkerController.setupBindings();
 			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
-				if (!editHawkerController.isHawkerDataValid()) {
+				if (!editHawkerController.isValid()) {
 					Notifications.create().title("Mobile number exists")
 							.text("Another hawker with same mobile number already exists.")
 							.hideAfter(Duration.seconds(5)).showError();
@@ -750,7 +764,8 @@ public class AHawkerInfoTabController implements Initializable{
 						con = Main.reconnect();
 					}
 					hawkerMasterData.clear();
-					PreparedStatement stmt = con.prepareStatement("select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street  from hawker_info where point_name=? order by name");
+					PreparedStatement stmt = con.prepareStatement(
+							"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code   from hawker_info where point_name=? order by name");
 					stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 					ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
@@ -761,7 +776,8 @@ public class AHawkerInfoTabController implements Initializable{
 								rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20),
 								rs.getString(21), rs.getString(22), rs.getString(23), rs.getString(24),
 								rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
-								rs.getString(29), rs.getString(30));
+								rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32),
+								rs.getString(33));
 						hwkRow.calculateTotalDue();
 						hawkerMasterData.add(hwkRow);
 					}
@@ -861,100 +877,126 @@ public class AHawkerInfoTabController implements Initializable{
 		new Thread(task).start();
 	}
 
-	@FXML
-	private void addHawkerClicked(ActionEvent event) {
-		System.out.println("addCustomerClicked");
-		if (!validateHawkerCodeExists(addHwkCode.getText())) {
+	public boolean isValid() {
+		boolean validate = true;
+		if (validateHawkerCodeExists(addHwkCode.getText())) {
 			Notifications.create().title("Hawker already exists")
 					.text("Hawker with same Hawker Code alraedy exists. Please choose different hawker code.")
 					.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
 		} else if (mobileNumExists(addHwkMob.getText())) {
 			Notifications.create().title("Mobile already exists")
 					.text("Hawker with same Mobile Number alraedy exists. Please enter a different value.")
 					.hideAfter(Duration.seconds(5)).showError();
-		} else {
-
-			boolean validate = true;
-			if (addHwkName.getText() == null) {
+			validate = false;
+		} else if (addHwkName.getText() == null) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
+					.text("Please select a hawker before adding the the customer").showError();
+			try {
+				Double.parseDouble(addHwkFee.getText());
+			} catch (NumberFormatException e) {
 				validate = false;
-				Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
-						.text("Please select a hawker before adding the the customer").showError();
-				try {
-					Double.parseDouble(addHwkFee.getText());
-				} catch (NumberFormatException e) {
-					validate = false;
-					Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
-							.text("Fee per subscription should not be empty and must be numeric only").showError();
-					e.printStackTrace();
-				}
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
+						.text("Fee per subscription should not be empty and must be numeric only").showError();
+				e.printStackTrace();
 			}
-			// if(addCustLineNum.getSelectionModel().selectedIndexProperty().get()!=-1)
-			// validate=true;
-			// if (NumberUtils.tryParseInt(addHwkFee.getText()) == null) {
-			// validate = false;
-			// Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid
-			// fee")
-			// .text("Fee per subscription should not be empty and must be
-			// numeric only").showError();
-			// }
+		} 
+//		else if (addPwd.getText().length() < 5) {
+//			validate = false;
+//			Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid password")
+//					.text("Password cannot be left empty and must be more than 5 characters long").showError();
+//		} 
+		else if (!addHwkProf3.getText().isEmpty() && checkExistingProfileValue(addHwkProf3.getText())) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
+					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
+					.showError();
+		}
+		return validate;
+	}
 
-			if (validate) {
-				addHwkName.requestFocus();
-				PreparedStatement insertHawker = null;
-				String insertStatement = "INSERT INTO HAWKER_INFO(NAME,HAWKER_CODE, MOBILE_NUM, AGENCY_NAME,FEE,ACTIVE_FLAG, OLD_HOUSE_NUM, NEW_HOUSE_NUM,ADDR_LINE1,ADDR_LINE2,LOCALITY,CITY,STATE,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials, employment, comments, point_name, building_street,password ) "
-						+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-				Connection con = Main.dbConnection;
-				try {
-					while (!con.isValid(0)) {
-						con = Main.reconnect();
-					}
-					insertHawker = con.prepareStatement(insertStatement);
-					insertHawker.setString(1, addHwkName.getText());
-					insertHawker.setString(2, addHwkCode.getText());
-					insertHawker.setString(3, addHwkMob.getText());
-					insertHawker.setString(4, addHwkAgencyName.getText());
-					insertHawker.setDouble(5,
-							Double.parseDouble(addHwkFee.getText() != null ? addHwkFee.getText() : "0"));
-					insertHawker.setString(6, addHwkActive.isSelected() == true ? "Y" : "N");
-					insertHawker.setString(7, addHwkOldHNum.getText());
-					insertHawker.setString(8, addHwkNewHNum.getText());
-					insertHawker.setString(9, addHwkAddrLine1.getText());
-					insertHawker.setString(10, addHwkAddrLine2.getText());
-					insertHawker.setString(11, addHwkLocality.getText());
-					insertHawker.setString(12, addHwkCity.getText());
-					insertHawker.setString(13, addHwkState.getSelectionModel().getSelectedItem());
-					insertHawker.setString(14, "Y");
-					insertHawker.setString(15, "Y");
-					insertHawker.setString(16, "Y");
-					insertHawker.setString(17, "Y");
-					insertHawker.setString(18, "Y");
-					insertHawker.setString(19, "Y");
-					insertHawker.setString(20, "Y");
-					insertHawker.setString(21, addHwkProf1.getSelectionModel().getSelectedItem());
-					insertHawker.setString(22, addHwkProf2.getSelectionModel().getSelectedItem());
-					insertHawker.setString(23, addHwkProf3.getText());
-					insertHawker.setString(24, addHwkInitials.getText());
-					insertHawker.setString(25, addHwkEmployment.getSelectionModel().getSelectedItem());
-					insertHawker.setString(26, addHwkComments.getText());
-					insertHawker.setString(27, addPointName.getSelectionModel().getSelectedItem());
-					insertHawker.setString(28, addHwkBuildingStreet.getText());
-					insertHawker.setString(29, "password");
+	private boolean checkExistingProfileValue(String profileValue) {
+		try {
 
-					insertHawker.execute();
-
-					refreshHawkerTable();
-					con.commit();
-
-				} catch (SQLException e) {
-
-					e.printStackTrace();
-					Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
-							.text("There has been some error during hawker creation, please retry").showError();
-					Main.reconnect();
-				}
-				resetClicked(event);
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
 			}
+			PreparedStatement stmt = con
+					.prepareStatement("select value from lov_lookup where code = 'PROFILE_VALUES' AND lower(VALUE)=?");
+			stmt.setString(1, profileValue.toLowerCase());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
 
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@FXML
+	private void addHawkerClicked(ActionEvent event) {
+
+		if (isValid()) {
+			addHwkName.requestFocus();
+			PreparedStatement insertHawker = null;
+			String insertStatement = "INSERT INTO HAWKER_INFO(NAME,HAWKER_CODE, MOBILE_NUM, AGENCY_NAME,FEE,ACTIVE_FLAG, OLD_HOUSE_NUM, NEW_HOUSE_NUM,ADDR_LINE1,ADDR_LINE2,LOCALITY,CITY,STATE,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials, employment, comments, point_name, building_street,password,BANK_AC_NO, BANK_NAME, IFSC_CODE ) "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			Connection con = Main.dbConnection;
+			try {
+				while (!con.isValid(0)) {
+					con = Main.reconnect();
+				}
+				insertHawker = con.prepareStatement(insertStatement);
+				insertHawker.setString(1, addHwkName.getText());
+				insertHawker.setString(2, addHwkCode.getText().toLowerCase());
+				insertHawker.setString(3, addHwkMob.getText());
+				insertHawker.setString(4, addHwkAgencyName.getText());
+				insertHawker.setDouble(5, Double.parseDouble(addHwkFee.getText() != null ? addHwkFee.getText() : "0"));
+				insertHawker.setString(6, addHwkActive.isSelected() == true ? "Y" : "N");
+				insertHawker.setString(7, addHwkOldHNum.getText());
+				insertHawker.setString(8, addHwkNewHNum.getText());
+				insertHawker.setString(9, addHwkAddrLine1.getText());
+				insertHawker.setString(10, addHwkAddrLine2.getText());
+				insertHawker.setString(11, addHwkLocality.getText());
+				insertHawker.setString(12, addHwkCity.getText());
+				insertHawker.setString(13, addHwkState.getSelectionModel().getSelectedItem());
+				insertHawker.setString(14, "Y");
+				insertHawker.setString(15, "Y");
+				insertHawker.setString(16, "Y");
+				insertHawker.setString(17, "Y");
+				insertHawker.setString(18, "Y");
+				insertHawker.setString(19, "Y");
+				insertHawker.setString(20, "Y");
+				insertHawker.setString(21, addHwkProf1.getSelectionModel().getSelectedItem());
+				insertHawker.setString(22, addHwkProf2.getSelectionModel().getSelectedItem());
+				insertHawker.setString(23, addHwkProf3.getText());
+				insertHawker.setString(24, addHwkInitials.getText());
+				insertHawker.setString(25, addHwkEmployment.getSelectionModel().getSelectedItem());
+				insertHawker.setString(26, addHwkComments.getText());
+				insertHawker.setString(27, addPointName.getSelectionModel().getSelectedItem());
+				insertHawker.setString(28, addHwkBuildingStreet.getText());
+				insertHawker.setString(29, "password");
+				insertHawker.setString(30, addBankAcNo.getText());
+				insertHawker.setString(31, addBankName.getText());
+				insertHawker.setString(32, addIfscCode.getText());
+
+				insertHawker.execute();
+
+				refreshHawkerTable();
+				con.commit();
+
+			} catch (SQLException e) {
+
+				e.printStackTrace();
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
+						.text("There has been some error during hawker creation, please retry").showError();
+				Main.reconnect();
+			}
+			resetClicked(event);
 		}
 
 	}
@@ -962,7 +1004,7 @@ public class AHawkerInfoTabController implements Initializable{
 	private boolean validateHawkerCodeExists(String text) {
 
 		for (Hawker hwk : hawkerMasterData) {
-			if (hwk.getHawkerCode().equalsIgnoreCase(text)) {
+			if (hwk.getHawkerCode().equalsIgnoreCase(text.toLowerCase())) {
 				return false;
 			}
 		}
@@ -1100,7 +1142,8 @@ public class AHawkerInfoTabController implements Initializable{
 		hawkerTable.getSelectionModel().clearSelection();
 		disableAllChild();
 	}
-//	@Override
+
+	// @Override
 	public void reloadData() {
 		addHwkProf1.getItems().clear();
 		addHwkProf2.getItems().clear();
@@ -1113,7 +1156,7 @@ public class AHawkerInfoTabController implements Initializable{
 		addHwkProf2.getItems().addAll(profileValues);
 		addHwkEmployment.getItems().addAll(employmentValues);
 		addPointName.getItems().addAll(pointNameValues);
-//		refreshHawkerTable();
+		// refreshHawkerTable();
 	}
 
 	private boolean mobileNumExists(String mobileNum) {
@@ -1123,10 +1166,10 @@ public class AHawkerInfoTabController implements Initializable{
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select hawker_code,name from hawker_info where mobile_num=? and hawker_code <> ?";
+			String query = "select hawker_code,name from hawker_info where mobile_num=? and lower(hawker_code) <> ?";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, mobileNum);
-			stmt.setString(2, addHwkCode.getText());
+			stmt.setString(2, addHwkCode.getText().toLowerCase());
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
 				return true;
@@ -1165,7 +1208,7 @@ public class AHawkerInfoTabController implements Initializable{
 				}
 
 			});
-			
+
 			addHawkerDialog.getDialogPane().setContent(addHawkerGrid);
 			addHwkController.setupBindings();
 
@@ -1255,10 +1298,11 @@ public class AHawkerInfoTabController implements Initializable{
 		}
 
 	}
-//	@Override
-	public void releaseVariables(){
-		filteredData=null;
-		searchText=null;
+
+	// @Override
+	public void releaseVariables() {
+		filteredData = null;
+		searchText = null;
 		hawkerMasterData = null;
 		hawkerBillingMasterData = null;
 		profileValues = null;

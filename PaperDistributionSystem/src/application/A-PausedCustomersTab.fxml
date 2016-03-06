@@ -44,6 +44,7 @@
                               <TableColumn fx:id="subCostCol" prefWidth="156.0" text="Subscription Cost" />
                               <TableColumn fx:id="srvChargeCol" prefWidth="156.0" text="Service Charge" />
                               <TableColumn fx:id="pausedDateCol" prefWidth="156.0" text="Paused Date" />
+                              <TableColumn fx:id="resumeDateCol" prefWidth="156.0" text="Resume Date" />
                           </columns>
                         </TableView>
                      </children>

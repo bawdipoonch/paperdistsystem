@@ -142,17 +142,21 @@ public class ALineDistributorTabController implements Initializable {
 	@FXML
 	private Button addLineDistExtraButton;
 
-	@FXML private Button saveButton;
-	@FXML private Button clearButton;
-	@FXML private Button searchButton;
-	@FXML private Button resetButton;
+	@FXML
+	private Button saveButton;
+	@FXML
+	private Button clearButton;
+	@FXML
+	private Button searchButton;
+	@FXML
+	private Button resetButton;
 
 	private FilteredList<LineDistributor> filteredData;
 	private String searchText;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
+
 		System.out.println("Entered HLineDistributorTabController");
 		lineDistData.clear();
 		lineNumData.clear();
@@ -185,7 +189,7 @@ public class ALineDistributorTabController implements Initializable {
 				"West Bengal");
 		addLineNumField.getSelectionModel().clearSelection();
 		addLineNumField.setDisable(true);
-		
+
 		addPointName.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -195,7 +199,7 @@ public class ALineDistributorTabController implements Initializable {
 				addHwkCode.getItems().addAll(hawkerCodeData);
 			}
 		});
-		
+
 		addHwkCode.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -208,8 +212,7 @@ public class ALineDistributorTabController implements Initializable {
 			}
 
 		});
-		
-		
+
 		lineDistInfoTable.setRowFactory(new Callback<TableView<LineDistributor>, TableRow<LineDistributor>>() {
 
 			@Override
@@ -264,12 +267,12 @@ public class ALineDistributorTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				
+
 				if (newValue.length() > 3)
 					addInitialsField.setText(oldValue);
 			}
 		});
-		
+
 		saveButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -280,7 +283,7 @@ public class ALineDistributorTabController implements Initializable {
 
 			}
 		});
-		
+
 		resetButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -291,7 +294,7 @@ public class ALineDistributorTabController implements Initializable {
 
 			}
 		});
-		
+
 		clearButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -302,7 +305,7 @@ public class ALineDistributorTabController implements Initializable {
 
 			}
 		});
-		
+
 		searchButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -313,7 +316,7 @@ public class ALineDistributorTabController implements Initializable {
 
 			}
 		});
-		
+
 		addNameField.requestFocus();
 	}
 
@@ -339,7 +342,7 @@ public class ALineDistributorTabController implements Initializable {
 					addLineNumField.getItems().clear();
 					addLineNumField.getItems().addAll(lineNumData);
 				} catch (SQLException e) {
-					
+
 					e.printStackTrace();
 				}
 				return null;
@@ -368,7 +371,7 @@ public class ALineDistributorTabController implements Initializable {
 				hawkerId = hawkerIdRs.getLong(1);
 			}
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -400,7 +403,7 @@ public class ALineDistributorTabController implements Initializable {
 				lineDistInfoTable.refresh();
 
 			} catch (SQLException e) {
-				
+
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of line distributor has failed").showError();
@@ -430,8 +433,10 @@ public class ALineDistributorTabController implements Initializable {
 			editLineDistributorController.setLineDistToEdit(lineDistRow);
 			editLineDistributorController.setupBindings();
 			saveButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
-				if(!editLineDistributorController.isLineDistValid()){
-					Notifications.create().title("Invalid Line Distributor").text("Please provide appropriate values for line distributor").hideAfter(Duration.seconds(5)).showError();
+				if (!editLineDistributorController.isLineDistValid()) {
+					Notifications.create().title("Invalid Line Distributor")
+							.text("Please provide appropriate values for line distributor")
+							.hideAfter(Duration.seconds(5)).showError();
 					btnEvent.consume();
 				}
 			});
@@ -452,7 +457,7 @@ public class ALineDistributorTabController implements Initializable {
 
 				@Override
 				public void accept(LineDistributor t) {
-					
+
 					lineDistData.add(selectedIndex, t);
 					lineDistData.remove(lineDistRow);
 					lineDistInfoTable.getSelectionModel().select(t);
@@ -462,7 +467,7 @@ public class ALineDistributorTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
-			
+
 			e.printStackTrace();
 		}
 	}
@@ -482,18 +487,14 @@ public class ALineDistributorTabController implements Initializable {
 			Parent addLineDistGrid = (Parent) addLineDistLoader.load();
 			AddLineDistExtraScreenController addLineDistController = addLineDistLoader
 					.<AddLineDistExtraScreenController> getController();
-			saveButton.setOnAction(new EventHandler<ActionEvent>() {
-
-				@Override
-				public void handle(ActionEvent event) {
-					if(addLineDistController.isValid()){
-						addLineDistController.addLineDistributor();
-						Notifications.create().hideAfter(Duration.seconds(5)).title("Line Distributor created")
-								.text("Line Distributor created successfully.").showInformation();
-						refreshLineDistTable();
-					} else
-					event.consume();
-				}
+			saveButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+				if (addLineDistController.isValid()) {
+					addLineDistController.addLineDistributor();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Line Distributor created")
+							.text("Line Distributor created successfully.").showInformation();
+					refreshLineDistTable();
+				} else
+					btnEvent.consume();
 			});
 			addLineDistDialog.getDialogPane().setContent(addLineDistGrid);
 			addLineDistController.setupBindings();
@@ -512,13 +513,13 @@ public class ALineDistributorTabController implements Initializable {
 
 				@Override
 				public void accept(String t) {
-					
+
 					addLineDistController.releaseVariables();
 				}
 			});
 
 		} catch (IOException e) {
-			
+
 			e.printStackTrace();
 		}
 	}
@@ -526,66 +527,96 @@ public class ALineDistributorTabController implements Initializable {
 	@FXML
 	private void addButtonClicked(ActionEvent event) {
 
-		try {
-			if (addNameField.getText() != null && addMobileNumField.getText() != null
-					&& addLineNumField.getSelectionModel().selectedItemProperty().isNotNull().get()) {
-
-				if (!lineDistForLineExists(
-						addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim())) {
-					PreparedStatement insertLineNum = null;
-					String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID,old_house_num, new_house_num, address_line1, address_line2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street) "
-							+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-					Connection con = Main.dbConnection;
-					try {
-						while (!con.isValid(0)) {
-							con = Main.reconnect();
-						}
-						insertLineNum = con.prepareStatement(insertStatement);
-						long hawkerId = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem());
-						insertLineNum.setString(1, addNameField.getText());
-						insertLineNum.setString(2, addMobileNumField.getText());
-						insertLineNum.setString(3,
-								addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim());
-						insertLineNum.setLong(4, hawkerId);
-						insertLineNum.setString(5, addOldHNum.getText());
-						insertLineNum.setString(6, addNewHNum.getText());
-						insertLineNum.setString(7, addAddrLine1.getText());
-						insertLineNum.setString(8, addAddrLine2.getText());
-						insertLineNum.setString(9, addLocality.getText());
-						insertLineNum.setString(10, addCity.getText());
-						insertLineNum.setString(11, addState.getSelectionModel().getSelectedItem());
-						insertLineNum.setString(12, addProf1.getSelectionModel().getSelectedItem());
-						insertLineNum.setString(13, addProf2.getSelectionModel().getSelectedItem());
-						insertLineNum.setString(14, addProf3.getText());
-						insertLineNum.setString(15, addInitialsField.getText());
-						insertLineNum.setString(16, addEmployment.getSelectionModel().getSelectedItem());
-						insertLineNum.setString(17, addComments.getText());
-						insertLineNum.setString(18, addBuildingStreet.getText());
-						insertLineNum.execute();
-						resetClicked(event);
-						addNameField.requestFocus();
-						refreshLineDistTable();
-					} catch (SQLException e) {
-						
-						e.printStackTrace();
-					}
-				} else {
-					Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
-							.text("Line Distributor already exists for this line number").showError();
+		if (isValid()) {
+			PreparedStatement insertLineNum = null;
+			String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID,old_house_num, new_house_num, address_line1, address_line2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street) "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			Connection con = Main.dbConnection;
+			try {
+				while (!con.isValid(0)) {
+					con = Main.reconnect();
 				}
+				insertLineNum = con.prepareStatement(insertStatement);
+				long hawkerId = HawkerLoginController.loggedInHawker != null
+						? HawkerLoginController.loggedInHawker.getHawkerId()
+						: hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem());
+				insertLineNum.setString(1, addNameField.getText());
+				insertLineNum.setString(2, addMobileNumField.getText());
+				insertLineNum.setString(3, addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim());
+				insertLineNum.setLong(4, hawkerId);
+				insertLineNum.setString(5, addOldHNum.getText());
+				insertLineNum.setString(6, addNewHNum.getText());
+				insertLineNum.setString(7, addAddrLine1.getText());
+				insertLineNum.setString(8, addAddrLine2.getText());
+				insertLineNum.setString(9, addLocality.getText());
+				insertLineNum.setString(10, addCity.getText());
+				insertLineNum.setString(11, addState.getSelectionModel().getSelectedItem());
+				insertLineNum.setString(12, addProf1.getSelectionModel().getSelectedItem());
+				insertLineNum.setString(13, addProf2.getSelectionModel().getSelectedItem());
+				insertLineNum.setString(14, addProf3.getText());
+				insertLineNum.setString(15, addInitialsField.getText());
+				insertLineNum.setString(16, addEmployment.getSelectionModel().getSelectedItem());
+				insertLineNum.setString(17, addComments.getText());
+				insertLineNum.setString(18, addBuildingStreet.getText());
+				insertLineNum.execute();
+				resetClicked(event);
+				addNameField.requestFocus();
+				refreshLineDistTable();
+			} catch (SQLException e) {
 
-			} else {
-				Notifications.create().hideAfter(Duration.seconds(5)).title("Required fields")
-						.text("Please enter value in Name, Mobile Number and Line Number").showError();
+				e.printStackTrace();
 			}
-
-		} catch (NumberFormatException e) {
-			
-			e.printStackTrace();
-			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
-					.text("Please enter proper numeric value in Line Number field").showError();
 		}
 
+	}
+
+	public boolean isValid() {
+		boolean validate = true;
+		if (addNameField.getText() == null) {
+			Notifications.create().title("Empty Name").text("Name cannot be empty. Please enter value for name.")
+					.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+		} else if (addMobileNumField.getText() == null) {
+			Notifications.create().title("Empty Mobile").text("Mobile cannot be empty. Please enter value for mobile.")
+					.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+		} else if (addLineNumField.getSelectionModel().getSelectedItem() == null) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Empty Line Number")
+					.text("Line Number cannot be empty. Please enter value for Line Number.").showError();
+
+		} else if (lineDistForLineExists(addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim())) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Line Distributor exists")
+					.text("Line Distributor already exists for this line number").showError();
+		} else if (!addProf3.getText().isEmpty() && checkExistingProfileValue(addProf3.getText())) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
+					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
+					.showError();
+		}
+		return validate;
+	}
+
+	private boolean checkExistingProfileValue(String profileValue) {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement stmt = con
+					.prepareStatement("select value from lov_lookup where code = 'PROFILE_VALUES' AND lower(VALUE)=?");
+			stmt.setString(1, profileValue.toLowerCase());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	@FXML
@@ -611,7 +642,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		addCity.clear();
 
-//		addState.getSelectionModel().clearSelection();
+		// addState.getSelectionModel().clearSelection();
 
 		addProf1.getSelectionModel().clearSelection();
 
@@ -668,7 +699,7 @@ public class ALineDistributorTabController implements Initializable {
 						lineDistInfoTable.refresh();
 					}
 				} catch (SQLException e) {
-					
+
 					e.printStackTrace();
 				}
 
@@ -688,14 +719,16 @@ public class ALineDistributorTabController implements Initializable {
 			}
 			PreparedStatement stmt = con
 					.prepareStatement("select count(*) from line_distributor where hawker_id = ? and line_num=?");
-			stmt.setLong(1, HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem()));
+			stmt.setLong(1,
+					HawkerLoginController.loggedInHawker != null ? HawkerLoginController.loggedInHawker.getHawkerId()
+							: hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem()));
 			stmt.setString(2, line_num);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next() && rs.getInt(1) > 0) {
 				return true;
 			}
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 		return false;
@@ -715,7 +748,7 @@ public class ALineDistributorTabController implements Initializable {
 
 					@Override
 					public boolean test(LineDistributor lineDistributor) {
-						
+
 						if (searchText == null || searchText.isEmpty())
 							return true;
 						else if (lineDistributor.getAddrLine1() != null
@@ -778,7 +811,7 @@ public class ALineDistributorTabController implements Initializable {
 				lineDistInfoTable.refresh();
 
 			} catch (NumberFormatException e) {
-				
+
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -795,7 +828,8 @@ public class ALineDistributorTabController implements Initializable {
 		lineDistInfoTable.setItems(sortedData);
 		lineDistInfoTable.getSelectionModel().clearSelection();
 	}
-//	@Override
+
+	// @Override
 	public void reloadData() {
 		System.out.println("Line Distributor reloadData");
 		addProf1.getItems().clear();
@@ -803,7 +837,7 @@ public class ALineDistributorTabController implements Initializable {
 		addEmployment.getItems().clear();
 		addPointName.getItems().clear();
 		addHwkCode.getItems().clear();
-//		populateHawkerCodes();
+		// populateHawkerCodes();
 		populateProfileValues();
 		populateEmploymentValues();
 
@@ -811,7 +845,7 @@ public class ALineDistributorTabController implements Initializable {
 		addPointName.getItems().clear();
 		addPointName.getItems().addAll(pointNameValues);
 
-		if(HawkerLoginController.loggedInHawker!=null){
+		if (HawkerLoginController.loggedInHawker != null) {
 			addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
 			addPointName.setDisable(true);
 			addHwkCode.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
@@ -828,7 +862,8 @@ public class ALineDistributorTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct hawker_code from hawker_info where point_name=?");
+			PreparedStatement stmt = con
+					.prepareStatement("select distinct hawker_code from hawker_info where point_name=?");
 			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -840,7 +875,7 @@ public class ALineDistributorTabController implements Initializable {
 				addHwkCode.setDisable(true);
 			}
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 
@@ -859,14 +894,15 @@ public class ALineDistributorTabController implements Initializable {
 					}
 					profileValues.clear();
 					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
+					ResultSet rs = stmt.executeQuery(
+							"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 					while (rs.next()) {
 						profileValues.add(rs.getString(1));
 					}
 					addProf1.getItems().addAll(profileValues);
 					addProf2.getItems().addAll(profileValues);
 				} catch (SQLException e) {
-					
+
 					e.printStackTrace();
 				}
 				return null;
@@ -889,14 +925,15 @@ public class ALineDistributorTabController implements Initializable {
 					}
 					employmentData.clear();
 					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
+					ResultSet rs = stmt.executeQuery(
+							"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 					while (rs.next()) {
 						employmentData.add(rs.getString(1));
 					}
 
 					addEmployment.getItems().addAll(employmentData);
 				} catch (SQLException e) {
-					
+
 					e.printStackTrace();
 				}
 				return null;
@@ -905,7 +942,7 @@ public class ALineDistributorTabController implements Initializable {
 		};
 		new Thread(task).start();
 	}
-	
+
 	public void populatePointNames() {
 		try {
 
@@ -920,22 +957,22 @@ public class ALineDistributorTabController implements Initializable {
 				pointNameValues.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 
 	}
-	
-//	@Override
-	public void releaseVariables(){
-		filteredData=null;
-		searchText=null;
+
+	// @Override
+	public void releaseVariables() {
+		filteredData = null;
+		searchText = null;
 		hawkerCodeData = null;
 		employmentData = null;
 		profileValues = null;
 		lineDistData = null;
 		lineNumData = null;
-		pointNameValues=null;
+		pointNameValues = null;
 		hawkerCodeData = FXCollections.observableArrayList();
 		employmentData = FXCollections.observableArrayList();
 		profileValues = FXCollections.observableArrayList();

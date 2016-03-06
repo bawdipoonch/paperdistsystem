@@ -87,6 +87,8 @@ public class APausedCustomerTabController implements Initializable {
 
 	@FXML
 	private TableColumn<PausedSubscription, LocalDate> pausedDateCol;
+	@FXML
+	private TableColumn<PausedSubscription, LocalDate> resumeDateCol;
 
 	private ObservableList<PausedSubscription> pausedSubsValues = FXCollections.observableArrayList();
 	private ObservableList<LineInfo> lineNumData = FXCollections.observableArrayList();
@@ -116,7 +118,19 @@ public class APausedCustomerTabController implements Initializable {
 		subCostCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, Double>("subscriptionCost"));
 		srvChargeCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, Double>("serviceCharge"));
 		pausedDateCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, LocalDate>("pausedDate"));
+		resumeDateCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, LocalDate>("resumeDate"));
 		pausedDateCol.setCellFactory(
+				new Callback<TableColumn<PausedSubscription, LocalDate>, TableCell<PausedSubscription, LocalDate>>() {
+
+					@Override
+					public TableCell<PausedSubscription, LocalDate> call(
+							TableColumn<PausedSubscription, LocalDate> param) {
+						TextFieldTableCell<PausedSubscription, LocalDate> cell = new TextFieldTableCell<PausedSubscription, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
+		resumeDateCol.setCellFactory(
 				new Callback<TableColumn<PausedSubscription, LocalDate>, TableCell<PausedSubscription, LocalDate>>() {
 
 					@Override

@@ -64,6 +64,9 @@ public class ALineInfoTabController implements Initializable{
 	private ComboBox<String> hawkerComboBox;
 	@FXML
 	private ComboBox<String> addPointName;
+	@FXML private Label days14Count;
+	@FXML private Label weeklyCount;
+	@FXML private Label dailyCount;
 
 	@FXML
 	private Button addCustExtraButton;
@@ -135,6 +138,9 @@ public class ALineInfoTabController implements Initializable{
 					lineNumTable.refresh();
 					lineNumData.clear();
 				}
+				dailyCount.setText("");
+				weeklyCount.setText("");
+				days14Count.setText("");
 
 			}
 
@@ -146,6 +152,7 @@ public class ALineInfoTabController implements Initializable{
 			public void changed(ObservableValue<? extends LineInfo> observable, LineInfo oldValue, LineInfo newValue) {
 
 				populateCustomersForLine();
+				populateSubscriptionCount();
 			}
 
 		});
@@ -1185,6 +1192,43 @@ public class ALineInfoTabController implements Initializable{
 		}
 
 	}
+	
+	public void populateSubscriptionCount() {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+//			billCategoryValues.clear();
+			PreparedStatement stmt = con.prepareStatement("SELECT sub.frequency, count(*) cnt FROM subscription sub, customer cust WHERE sub.customer_id=cust.customer_id AND sub.frequency IN ('Daily','14 Days','Weekly') AND cust.hawker_code =? AND cust.line_num =? group by sub.frequency");
+			stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+			stmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
+			ResultSet rs = stmt.executeQuery();
+
+			dailyCount.setText("0");
+			weeklyCount.setText("0");
+			days14Count.setText("0");
+			while (rs.next()) {
+				switch(rs.getString(1)){
+				case "Daily":
+					dailyCount.setText(rs.getString(2));
+					break;
+				case "Weekly":
+					weeklyCount.setText(rs.getString(2));
+					break;
+				case "14 Days":
+					days14Count.setText(rs.getString(2));
+					break;
+					
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
 
 	
 //	@Override

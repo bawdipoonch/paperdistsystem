@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
 
+import org.controlsfx.control.Notifications;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -18,6 +20,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.util.Duration;
 
 public class EditHawkerController implements Initializable {
 
@@ -66,6 +69,12 @@ public class EditHawkerController implements Initializable {
 	private ComboBox<String> editPointNameLOV;
 	@FXML
 	private TextField editCommentsTF;
+	@FXML
+	private TextField editBankAcNo;
+	@FXML
+	private TextField editBankName;
+	@FXML
+	private TextField editIfscCode;
 
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
@@ -73,7 +82,6 @@ public class EditHawkerController implements Initializable {
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
 
 		// setupBindings();
 
@@ -112,7 +120,7 @@ public class EditHawkerController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				// TODO Auto-generated method stub
+
 				if (newValue.length() > 3)
 					initialsTF.setText(oldValue);
 			}
@@ -129,32 +137,119 @@ public class EditHawkerController implements Initializable {
 		editPointNameLOV.getItems().addAll(pointNameValues);
 		editPointNameLOV.getSelectionModel().select(hawkerRow.getPointName());
 		editNameTF.requestFocus();
+		editBankAcNo.setText(hawkerRow.getBankAcNo());
+		editBankName.setText(hawkerRow.getBankName());
+		editIfscCode.setText(hawkerRow.getIfscCode());
+	}
+
+	public boolean isValid() {
+		boolean validate = true;
+		if (hawkerCodeExists(editHawkerCodeTF.getText())) {
+			Notifications.create().title("Hawker already exists")
+					.text("Hawker with same Hawker Code alraedy exists. Please choose different hawker code.")
+					.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+		} else if (mobileNumExists(editMobileNumTF.getText())) {
+			Notifications.create().title("Mobile already exists")
+					.text("Hawker with same Mobile Number alraedy exists. Please enter a different value.")
+					.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+		} else if (editNameTF.getText() == null) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
+					.text("Please select a hawker before adding the the customer").showError();
+			try {
+				Double.parseDouble(editFeeTF.getText());
+			} catch (NumberFormatException e) {
+				validate = false;
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
+						.text("Fee per subscription should not be empty and must be numeric only").showError();
+				e.printStackTrace();
+			}
+		} else if (!editProfile3TF.getText().isEmpty() && checkExistingProfileValue(editProfile3TF.getText())) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
+					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
+					.showError();
+		}
+		return validate;
+	}
+
+	private boolean hawkerCodeExists(String hawkerCode) {
+
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String query = "select count(*) from hawker_info where lower(hawker_code) = ? and hawker_id<>?";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, hawkerCode.toLowerCase());
+			stmt.setLong(1, hawkerRow.getHawkerId());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				if (rs.getInt(1) > 0)
+					return true;
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	private boolean checkExistingProfileValue(String profileValue) {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement stmt = con
+					.prepareStatement("select value from lov_lookup where code = 'PROFILE_VALUES' AND lower(VALUE)=?");
+			stmt.setString(1, profileValue.toLowerCase());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public Hawker returnUpdatedHawker() {
-		Hawker edittedHawker = new Hawker(hawkerRow);
-		edittedHawker.setName(editNameTF.getText());
-		edittedHawker.setMobileNum(editMobileNumTF.getText());
-		edittedHawker.setHawkerCode(editHawkerCodeTF.getText());
-		edittedHawker.setOldHouseNum(editOldHouseNumTF.getText());
-		edittedHawker.setNewHouseNum(editNewHouseNumTF.getText());
-		edittedHawker.setAddrLine1(editAddrLine1.getText());
-		edittedHawker.setAddrLine2(editAddrLine2.getText());
-		edittedHawker.setLocality(editLocalityTF.getText());
-		edittedHawker.setCity(editCityTF.getText());
-		edittedHawker.setState(editStateLOV.getSelectionModel().getSelectedItem());
-		edittedHawker.setFee(Double.parseDouble(editFeeTF.getText()));
-		edittedHawker.setActiveFlag(editActiveCheck.isSelected());
-		edittedHawker.setAgencyName(editAgencyNameTF.getText());
-		edittedHawker.setProfile1(editProfile1TF.getSelectionModel().getSelectedItem());
-		edittedHawker.setProfile2(editProfile2TF.getSelectionModel().getSelectedItem());
-		edittedHawker.setProfile3(editProfile3TF.getText());
-		edittedHawker.setInitials(initialsTF.getText());
-		edittedHawker.setPointName(editPointNameLOV.getSelectionModel().getSelectedItem());
-		edittedHawker.setEmployment(editEmploymentLOV.getSelectionModel().getSelectedItem());
-		edittedHawker.setComments(editCommentsTF.getText());
-		edittedHawker.updateHawkerRecord();
-		return edittedHawker;
+		if (isValid()) {
+			Hawker edittedHawker = new Hawker(hawkerRow);
+			edittedHawker.setName(editNameTF.getText());
+			edittedHawker.setMobileNum(editMobileNumTF.getText());
+			edittedHawker.setHawkerCode(editHawkerCodeTF.getText());
+			edittedHawker.setOldHouseNum(editOldHouseNumTF.getText());
+			edittedHawker.setNewHouseNum(editNewHouseNumTF.getText());
+			edittedHawker.setAddrLine1(editAddrLine1.getText());
+			edittedHawker.setAddrLine2(editAddrLine2.getText());
+			edittedHawker.setLocality(editLocalityTF.getText());
+			edittedHawker.setCity(editCityTF.getText());
+			edittedHawker.setState(editStateLOV.getSelectionModel().getSelectedItem());
+			edittedHawker.setFee(Double.parseDouble(editFeeTF.getText()));
+			edittedHawker.setActiveFlag(editActiveCheck.isSelected());
+			edittedHawker.setAgencyName(editAgencyNameTF.getText());
+			edittedHawker.setProfile1(editProfile1TF.getSelectionModel().getSelectedItem());
+			edittedHawker.setProfile2(editProfile2TF.getSelectionModel().getSelectedItem());
+			edittedHawker.setProfile3(editProfile3TF.getText());
+			edittedHawker.setInitials(initialsTF.getText());
+			edittedHawker.setPointName(editPointNameLOV.getSelectionModel().getSelectedItem());
+			edittedHawker.setEmployment(editEmploymentLOV.getSelectionModel().getSelectedItem());
+			edittedHawker.setComments(editCommentsTF.getText());
+			edittedHawker.setBankAcNo(editBankAcNo.getText());
+			edittedHawker.setBankName(editBankName.getText());
+			edittedHawker.setIfscCode(editIfscCode.getText());
+			edittedHawker.updateHawkerRecord();
+			return edittedHawker;
+		} else
+			return null;
 	}
 
 	private void populateProfileValues() {
@@ -170,13 +265,14 @@ public class EditHawkerController implements Initializable {
 					}
 					profileValues.clear();
 					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
+					ResultSet rs = stmt.executeQuery(
+							"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 					while (rs.next()) {
 						profileValues.add(rs.getString(1));
 					}
 
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 				}
 				return null;
@@ -199,13 +295,14 @@ public class EditHawkerController implements Initializable {
 					}
 					employmentData.clear();
 					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery("select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
+					ResultSet rs = stmt.executeQuery(
+							"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 					while (rs.next()) {
 						employmentData.add(rs.getString(1));
 					}
 
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 				}
 				return null;
@@ -214,7 +311,7 @@ public class EditHawkerController implements Initializable {
 		};
 		new Thread(task).start();
 	}
-	
+
 	public void populatePointNames() {
 		try {
 
@@ -223,24 +320,19 @@ public class EditHawkerController implements Initializable {
 				con = Main.reconnect();
 			}
 			pointNameValues.clear();
-			PreparedStatement stmt = con
-					.prepareStatement("select distinct name from point_name order by name");
+			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name order by name");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				pointNameValues.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
 	}
-	
-	public boolean isHawkerDataValid(){
-		
-		return !mobileNumExists(editMobileNumTF.getText());
-	}
-	
+
+
 	private boolean mobileNumExists(String mobileNum) {
 		try {
 
@@ -257,13 +349,13 @@ public class EditHawkerController implements Initializable {
 				return true;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		return false;
 	}
-	
-	public void releaseVariables(){
+
+	public void releaseVariables() {
 
 		pointNameValues = null;
 		employmentData = null;
