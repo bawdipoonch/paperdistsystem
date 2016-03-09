@@ -166,7 +166,7 @@ public class EditHawkerController implements Initializable {
 						.text("Fee per subscription should not be empty and must be numeric only").showError();
 				e.printStackTrace();
 			}
-		} else if (!editProfile3TF.getText().isEmpty() && checkExistingProfileValue(editProfile3TF.getText())) {
+		} else if (editProfile3TF.getText()!=null && checkExistingProfileValue(editProfile3TF.getText())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")

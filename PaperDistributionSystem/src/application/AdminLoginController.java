@@ -21,7 +21,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class AdminLoginController implements Initializable {
@@ -35,17 +34,17 @@ public class AdminLoginController implements Initializable {
 	@FXML
 	private Button backButton;
 
-	Stage stage;
+//	Stage stage;
 	Parent root;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
+		
 		adminUsername.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
 			public void handle(KeyEvent event) {
-				// TODO Auto-generated method stub
+				
 				if (event.getCode() == KeyCode.ENTER) {
 					loginClicked(new ActionEvent());
 				}
@@ -56,7 +55,7 @@ public class AdminLoginController implements Initializable {
 
 			@Override
 			public void handle(KeyEvent event) {
-				// TODO Auto-generated method stub
+				
 				if (event.getCode() == KeyCode.ENTER) {
 					loginClicked(new ActionEvent());
 				}
@@ -66,12 +65,12 @@ public class AdminLoginController implements Initializable {
 
 			@Override
 			public void handle(KeyEvent event) {
-				// TODO Auto-generated method stub
+				
 				if (event.getCode() == KeyCode.ENTER) {
 					try {
 						backButtonClicked(new ActionEvent());
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 					}
 				}
@@ -95,23 +94,25 @@ public class AdminLoginController implements Initializable {
 			existsStmt.setString(1, adminUsername.getText());
 			existsStmt.setString(2, adminPassword.getText());
 			if (existsStmt.executeQuery().next()) {
-				stage = (Stage) adminLoginButton.getScene().getWindow();
+//				stage = (Stage) adminLoginButton.getScene().getWindow();
 				// load up OTHER FXML document
 				root = FXMLLoader.load(getClass().getResource("AdminHome.fxml"));
 
 				Scene scene = new Scene(root);
-				stage.setScene(scene);
-				stage.show();
+//				scene.set
+				Main.primaryStage.setScene(scene);
+				Main.primaryStage.setMaximized(true);
+				Main.primaryStage.show();
 			} else {
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid login details")
 						.text("Invalid Administrator username or password").showError();
 			}
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
@@ -120,13 +121,14 @@ public class AdminLoginController implements Initializable {
 	@FXML
 	private void backButtonClicked(ActionEvent event) throws IOException {
 
-		stage = (Stage) adminLoginButton.getScene().getWindow();
+//		stage = (Stage) adminLoginButton.getScene().getWindow();
 		// load up OTHER FXML document
 		root = FXMLLoader.load(getClass().getResource("HawkerLogin.fxml"));
 
 		Scene scene = new Scene(root);
-		stage.setScene(scene);
-		stage.show();
+		Main.primaryStage.setScene(scene);
+		Main.primaryStage.setMaximized(true);
+		Main.primaryStage.show();
 	}
 
 }

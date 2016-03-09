@@ -25,14 +25,15 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.Stage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
 
 public class AdminHomeController implements Initializable {
 
 	@FXML
 	private Button logoutButton;
-	Stage stage;
+	// Stage stage;
 	Parent root;
 	@FXML
 	private TabPane tabPane;
@@ -62,9 +63,12 @@ public class AdminHomeController implements Initializable {
 	private AdditionalItemsController additionalItemsTabController;
 	private AProductsTabController productsTabController;
 
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-
+		
+		
+		
 		loadTabs();
 		tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
@@ -123,18 +127,31 @@ public class AdminHomeController implements Initializable {
 			}
 		});
 		tabPane.getSelectionModel().selectFirst();
+
+		logoutButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					try {
+						logoutClicked(new ActionEvent());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
 	}
 
 	@FXML
 	private void logoutClicked(ActionEvent event) throws IOException {
 		System.out.println("Logout clicked");
-		stage = (Stage) logoutButton.getScene().getWindow();
-		// load up OTHER FXML document
 		root = FXMLLoader.load(getClass().getResource("HawkerLogin.fxml"));
 
 		Scene scene = new Scene(root);
-		stage.setScene(scene);
-		stage.show();
+		Main.primaryStage.setScene(scene);
+		Main.primaryStage.setMaximized(true);
+		Main.primaryStage.show();
 	}
 
 	private void loadTabs() {
@@ -146,14 +163,7 @@ public class AdminHomeController implements Initializable {
 			customersTab = new Tab();
 			customersTab.setText("Customers");
 			customersTab.setContent(custroot);
-			/*
-			 * customersTab.setOnSelectionChanged(new EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * customerTabController.reloadData(); } });
-			 */
-
+			
 			hawkerTab = new Tab();
 			FXMLLoader hawkerTabLoader = new FXMLLoader(getClass().getResource("A-HawkerInfoTab.fxml"));
 			Parent hawkerroot = (Parent) hawkerTabLoader.load();
@@ -177,71 +187,34 @@ public class AdminHomeController implements Initializable {
 			lineInfoTab.setText("Line Information");
 			lineInfoTab.setContent(lineinforoot);
 
-			/*
-			 * lineInfoTab.setOnSelectionChanged(new EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * lineInfoTabController.reloadData(); } });
-			 */
-
 			lineDistTab = new Tab();
 			FXMLLoader lineDistTabLoader = new FXMLLoader(getClass().getResource("A-LineDistributorTab.fxml"));
 			Parent linedistroot = (Parent) lineDistTabLoader.load();
 			lineDistTabController = lineDistTabLoader.<ALineDistributorTabController> getController();
 			lineDistTab.setText("Line Distribution Boy");
 			lineDistTab.setContent(linedistroot);
-			/*
-			 * lineDistTab.setOnSelectionChanged(new EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * lineDistTabController.reloadData(); } });
-			 */
-
+		
 			additionalItemsTab = new Tab();
 			FXMLLoader additionalItemsTabLoader = new FXMLLoader(getClass().getResource("AdditionalItems.fxml"));
 			Parent additionalItemsRoot = (Parent) additionalItemsTabLoader.load();
 			additionalItemsTabController = additionalItemsTabLoader.<AdditionalItemsController> getController();
 			additionalItemsTab.setText("Additional Items");
 			additionalItemsTab.setContent(additionalItemsRoot);
-			/*
-			 * additionalItemsTab.setOnSelectionChanged(new
-			 * EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * additionalItemsTabController.reloadData(); } });
-			 */
-
+		
 			productsTab = new Tab();
 			FXMLLoader productsTabLoader = new FXMLLoader(getClass().getResource("AProductsTab.fxml"));
 			Parent productsRoot = (Parent) productsTabLoader.load();
 			productsTabController = productsTabLoader.<AProductsTabController> getController();
 			productsTab.setText("Products");
 			productsTab.setContent(productsRoot);
-			/*
-			 * productsTab.setOnSelectionChanged(new EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * productsTabController.reloadData(); } });
-			 */
-
+			
 			pausedCustTab = new Tab();
 			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("A-PausedCustomersTab.fxml"));
 			Parent pausedcustroot = (Parent) pausedCustTabLoader.load();
 			pausedCustTabController = pausedCustTabLoader.<APausedCustomerTabController> getController();
-			pausedCustTab.setText("Paused Customers");
+			pausedCustTab.setText("Stopped Customers");
 			pausedCustTab.setContent(pausedcustroot);
-			/*
-			 * pausedCustTab.setOnSelectionChanged(new EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * pausedCustTabController.reloadData(); } });
-			 */
-
+			
 			tabPane.getTabs().addAll(hawkerTab, customersTab, lineInfoTab, lineDistTab, productsTab, additionalItemsTab,
 					pausedCustTab);
 		} catch (IOException e) {
@@ -253,6 +226,7 @@ public class AdminHomeController implements Initializable {
 
 	@FXML
 	private void refreshClicked(ActionEvent event) {
+		
 		Tab t = tabPane.getSelectionModel().getSelectedItem();
 		if (t != null) {
 			if (t == customersTab) {

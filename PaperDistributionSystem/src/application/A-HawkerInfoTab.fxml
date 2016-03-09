@@ -13,8 +13,19 @@
          <children>
             <HBox alignment="CENTER_LEFT" spacing="15.0">
                <children>
+                  <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="151.0" spacing="10.0">
+                     <children>
+                        <RadioButton fx:id="showAllRadioButton" mnemonicParsing="false" onAction="#reloadData" text="Show All" />
+                        <RadioButton fx:id="filterRadioButton" mnemonicParsing="false" onAction="#reloadData" selected="true" text="Filter -&gt; " />
+                     </children>
+                  </HBox>
                   <Label text="Point Name :" />
                   <ComboBox fx:id="addPointName" prefWidth="150.0" />
+                  <HBox alignment="CENTER_LEFT" spacing="15.0">
+                     <children>
+                        <Label fx:id="billCategoryLabel" />
+                     </children>
+                  </HBox>
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -46,9 +57,9 @@
                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                                        <children>
                                           <Label alignment="CENTER_RIGHT" text="Old HNum:" />
-                                          <TextField fx:id="addHwkOldHNum" prefHeight="25.0" prefWidth="86.0" promptText="Old House#" />
+                                          <TextField fx:id="addHwkOldHNum" prefHeight="25.0" prefWidth="56.0" promptText="Old H#" />
                                           <Label alignment="CENTER_RIGHT" text="New HNum:" />
-                                          <TextField fx:id="addHwkNewHNum" prefHeight="25.0" prefWidth="83.0" promptText="New House#" />
+                                          <TextField fx:id="addHwkNewHNum" prefHeight="25.0" prefWidth="59.0" promptText="New H#" />
                                           <Label alignment="CENTER_RIGHT" text="Flat/Street  Name:" />
                                           <TextField fx:id="addHwkBuildingStreet" prefHeight="25.0" prefWidth="132.0" promptText="Flat/Street Name" />
                                           <Label alignment="CENTER_RIGHT" text="Addr Line1:" />
@@ -121,16 +132,16 @@
             <TableView fx:id="hawkerTable" prefHeight="600.0" prefWidth="1280.0">
                <columns>
                   <TableColumn fx:id="hwkNameColumn" prefWidth="250.0" text="Hawker Name" />
-                  <TableColumn fx:id="hwkInitialsColumn" prefWidth="58.0" text="Initials" />
-                  <TableColumn fx:id="hwkCodeColumn" prefWidth="172.0" text="Hawker Code" />
-                  <TableColumn fx:id="hwkMobileColumn" prefWidth="172.0" text="Mobile Number" />
-                  <TableColumn fx:id="hwkAgencyColumn" prefWidth="190.0" text="Agency Name" />
-                  <TableColumn fx:id="hwkFeeColumn" prefWidth="85.0" text="Fee" />
-                  <TableColumn fx:id="pointNameColumn" prefWidth="192.0" text="Point Name" />
-                  <TableColumn fx:id="hwkActiveColumn" prefWidth="74.0" text="Active" />
-                  <TableColumn fx:id="hwkTotalDueColumn" prefWidth="87.0" text="Total Due" />
-                  <TableColumn fx:id="hwkOldHouseNumColumn" prefWidth="122.0" text="Old House#" />
-                  <TableColumn fx:id="hwkNewHouseNumColumn" prefWidth="113.0" text="New House#" />
+                  <TableColumn fx:id="hwkInitialsColumn" prefWidth="40.0" text="Initials" />
+                  <TableColumn fx:id="hwkCodeColumn" prefWidth="95.0" text="Hawker Code" />
+                  <TableColumn fx:id="hwkMobileColumn" prefWidth="173.0" text="Mobile Number" />
+                  <TableColumn fx:id="hwkAgencyColumn" prefWidth="100.0" text="Agency Name" />
+                  <TableColumn fx:id="hwkFeeColumn" prefWidth="60.0" text="Fee" />
+                  <TableColumn fx:id="pointNameColumn" prefWidth="150.0" text="Point Name" />
+                  <TableColumn fx:id="hwkActiveColumn" prefWidth="65.0" text="Active" />
+                  <TableColumn fx:id="hwkTotalDueColumn" prefWidth="75.0" text="Total Due" />
+                  <TableColumn fx:id="hwkOldHouseNumColumn" prefWidth="60.0" text="Old H#" />
+                  <TableColumn fx:id="hwkNewHouseNumColumn" prefWidth="60.0" text="New H#" />
                   <TableColumn fx:id="buildingStreetColumn" prefWidth="190.0" text="Flat/Street Name" />
                   <TableColumn fx:id="hwkAddrLine1Column" prefWidth="192.0" text="Address Line1" />
                   <TableColumn fx:id="hwkAddrLine2Column" prefWidth="192.0" text="Address Line2" />
@@ -218,7 +229,7 @@
                                     <CheckBox fx:id="customerCheckBox" mnemonicParsing="false" text="Customers" />
                                     <CheckBox fx:id="lineInfoCheckBox" mnemonicParsing="false" text="Line Information" GridPane.columnIndex="2" />
                                     <CheckBox fx:id="lineDistCheckBox" mnemonicParsing="false" text="Line Distributor" GridPane.rowIndex="1" />
-                                    <CheckBox fx:id="pausedCustCheckBox" mnemonicParsing="false" text="Paused Customers" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <CheckBox fx:id="pausedCustCheckBox" mnemonicParsing="false" text="Stopped Customers" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                     <CheckBox fx:id="prodCatalogCheckBox" mnemonicParsing="false" text="Product Catalog" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                                     <CheckBox fx:id="billingCheckBox" mnemonicParsing="false" text="Billing" GridPane.columnIndex="1" />
                                     <CheckBox fx:id="reportsCheckBox" mnemonicParsing="false" text="Reports" GridPane.rowIndex="2" />

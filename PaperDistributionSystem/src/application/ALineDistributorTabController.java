@@ -34,12 +34,15 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -150,6 +153,13 @@ public class ALineDistributorTabController implements Initializable {
 	private Button searchButton;
 	@FXML
 	private Button resetButton;
+	@FXML
+	public  RadioButton filterRadioButton;
+	@FXML
+	public  RadioButton showAllRadioButton;
+	@FXML private Label hawkerNameLabel;
+	@FXML private Label hawkerMobLabel;
+	
 
 	private FilteredList<LineDistributor> filteredData;
 	private String searchText;
@@ -157,7 +167,16 @@ public class ALineDistributorTabController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
-		System.out.println("Entered HLineDistributorTabController");
+		if(HawkerLoginController.loggedInHawker!=null){
+			filterRadioButton.setVisible(false);
+			showAllRadioButton.setVisible(false);
+		} else {
+			ToggleGroup tg = new ToggleGroup();
+			filterRadioButton.setToggleGroup(tg);
+			showAllRadioButton.setToggleGroup(tg);
+			filterRadioButton.setSelected(true);
+			
+		}
 		lineDistData.clear();
 		lineNumData.clear();
 		lineDistHawkerCodeColumn.setCellValueFactory(new PropertyValueFactory<LineDistributor, String>("hawkerCode"));
@@ -194,9 +213,9 @@ public class ALineDistributorTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				populateHawkerCodes();
-				addHwkCode.getItems().clear();
-				addHwkCode.getItems().addAll(hawkerCodeData);
+				
+					populateHawkerCodes();
+				
 			}
 		});
 
@@ -204,11 +223,14 @@ public class ALineDistributorTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				addLineNumField.setDisable(false);
-				addLineNumField.getItems().clear();
-				populateLineNumbersForHawkerCode(newValue);
-				addLineNumField.getItems().addAll(lineNumData);
-				refreshLineDistTable();
+				hawkerMobLabel.setText("");
+				hawkerNameLabel.setText("");
+				if (newValue!=null) {
+					hawkerNameMobCode(newValue);
+					addLineNumField.setDisable(false);
+					populateLineNumbersForHawkerCode(newValue);
+					refreshLineDistTable();
+				}
 			}
 
 		});
@@ -246,7 +268,11 @@ public class ALineDistributorTabController implements Initializable {
 				});
 
 				ContextMenu menu = new ContextMenu();
-				menu.getItems().addAll(mnuEdit, mnuDel);
+				if(HawkerLoginController.loggedInHawker!=null){
+					menu.getItems().addAll(mnuEdit);
+				}else{
+					menu.getItems().addAll(mnuEdit, mnuDel);
+				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
 				return row;
@@ -375,6 +401,28 @@ public class ALineDistributorTabController implements Initializable {
 			e.printStackTrace();
 		}
 		return hawkerId;
+	}
+	private void hawkerNameMobCode(String hawkerCode) {
+
+		Connection con = Main.dbConnection;
+		try {
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement hawkerStatement = null;
+			String hawkerQuery = "select name, mobile_num from hawker_info where hawker_code = ?";
+			hawkerStatement = con.prepareStatement(hawkerQuery);
+			hawkerStatement.setString(1, hawkerCode);
+			ResultSet hawkerRs = hawkerStatement.executeQuery();
+
+			if (hawkerRs.next()) {
+				hawkerNameLabel.setText(hawkerRs.getString(1));
+				hawkerMobLabel.setText(hawkerRs.getString(2));
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
 	}
 
 	private void deleteLineDist(LineDistributor lineDistRow) {
@@ -589,7 +637,7 @@ public class ALineDistributorTabController implements Initializable {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Line Distributor exists")
 					.text("Line Distributor already exists for this line number").showError();
-		} else if (!addProf3.getText().isEmpty() && checkExistingProfileValue(addProf3.getText())) {
+		} else if (addProf3.getText()!=null && checkExistingProfileValue(addProf3.getText())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
@@ -670,19 +718,30 @@ public class ALineDistributorTabController implements Initializable {
 					while (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
-					lineDistData.clear();
 					PreparedStatement stmt;
-					if (HawkerLoginController.loggedInHawker != null) {
+					
+					if(HawkerLoginController.loggedInHawker==null){
+						if(showAllRadioButton.isSelected()){
+							stmt = con.prepareStatement(
+									"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
+							
+						} else {
+							stmt = con.prepareStatement(
+									"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where hwk.hawker_code=? and ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
+							stmt.setString(1, addHwkCode.getSelectionModel().getSelectedItem());
+						}
+					} else {
 						stmt = con.prepareStatement(
 								"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk where ld.hawker_id=hwk.hawker_id and ld.hawker_id = ? order by hwk.hawker_code, ld.line_num, ld.name");
 						stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
-					} else {
-						stmt = con.prepareStatement(
-								"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where hwk.hawker_code=? and ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
-						stmt.setString(1, addHwkCode.getSelectionModel().getSelectedItem());
 					}
-
+					if(filterRadioButton.isSelected())
+					{
+						addPointName.setDisable(true);
+						addHwkCode.setDisable(true);
+					}
 					ResultSet rs = stmt.executeQuery();
+					lineDistData.clear();
 					while (rs.next()) {
 						lineDistData.add(new LineDistributor(rs.getLong(1), rs.getString(2), rs.getString(3),
 								rs.getLong(4), rs.getInt(5), rs.getString(6), rs.getString(7), rs.getString(8),
@@ -690,13 +749,18 @@ public class ALineDistributorTabController implements Initializable {
 								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
 								rs.getString(18), rs.getString(19), rs.getString(20)));
 					}
-					// lineDistInfoTable.getItems().clear();
+					 lineDistInfoTable.getItems().clear();
 					if (!lineDistData.isEmpty()) {
 						filteredData = new FilteredList<>(lineDistData, p -> true);
 						SortedList<LineDistributor> sortedData = new SortedList<>(filteredData);
 						sortedData.comparatorProperty().bind(lineDistInfoTable.comparatorProperty());
 						lineDistInfoTable.setItems(sortedData);
 						lineDistInfoTable.refresh();
+					}
+					if(filterRadioButton.isSelected())
+					{
+						addPointName.setDisable(false);
+						addHwkCode.setDisable(false);
 					}
 				} catch (SQLException e) {
 
@@ -829,29 +893,7 @@ public class ALineDistributorTabController implements Initializable {
 		lineDistInfoTable.getSelectionModel().clearSelection();
 	}
 
-	// @Override
-	public void reloadData() {
-		System.out.println("Line Distributor reloadData");
-		addProf1.getItems().clear();
-		addProf2.getItems().clear();
-		addEmployment.getItems().clear();
-		addPointName.getItems().clear();
-		addHwkCode.getItems().clear();
-		// populateHawkerCodes();
-		populateProfileValues();
-		populateEmploymentValues();
-
-		populatePointNames();
-		addPointName.getItems().clear();
-		addPointName.getItems().addAll(pointNameValues);
-
-		if (HawkerLoginController.loggedInHawker != null) {
-			addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
-			addPointName.setDisable(true);
-			addHwkCode.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
-			addHwkCode.setDisable(true);
-		}
-	}
+	
 
 	private void populateHawkerCodes() {
 
@@ -869,6 +911,7 @@ public class ALineDistributorTabController implements Initializable {
 			while (rs.next()) {
 				hawkerCodeData.add(rs.getString(1));
 			}
+			addHwkCode.getItems().clear();
 			addHwkCode.getItems().addAll(hawkerCodeData);
 			if (HawkerLoginController.loggedInHawker != null) {
 				addHwkCode.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
@@ -899,6 +942,8 @@ public class ALineDistributorTabController implements Initializable {
 					while (rs.next()) {
 						profileValues.add(rs.getString(1));
 					}
+					addProf1.getItems().clear();
+					addProf2.getItems().clear();
 					addProf1.getItems().addAll(profileValues);
 					addProf2.getItems().addAll(profileValues);
 				} catch (SQLException e) {
@@ -930,7 +975,7 @@ public class ALineDistributorTabController implements Initializable {
 					while (rs.next()) {
 						employmentData.add(rs.getString(1));
 					}
-
+					addEmployment.getItems().clear();
 					addEmployment.getItems().addAll(employmentData);
 				} catch (SQLException e) {
 
@@ -956,6 +1001,12 @@ public class ALineDistributorTabController implements Initializable {
 			while (rs.next()) {
 				pointNameValues.add(rs.getString(1));
 			}
+			addPointName.getItems().clear();
+			addPointName.getItems().addAll(pointNameValues);
+			if (HawkerLoginController.loggedInHawker != null) {
+				addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
+				addPointName.setDisable(true);
+			}
 		} catch (SQLException e) {
 
 			e.printStackTrace();
@@ -963,7 +1014,30 @@ public class ALineDistributorTabController implements Initializable {
 
 	}
 
-	// @Override
+
+	public void reloadData() {
+		if (HawkerLoginController.loggedInHawker == null) {
+			if (showAllRadioButton.isSelected()) {
+				addPointName.getSelectionModel().clearSelection();
+				addPointName.setDisable(true);
+				addHwkCode.getSelectionModel().clearSelection();
+				addHwkCode.setDisable(true);
+				refreshLineDistTable();
+			} else if(filterRadioButton.isSelected()) {
+				populatePointNames();
+				addPointName.setDisable(false);
+				addHwkCode.setDisable(false);
+				refreshLineDistTable();
+			}
+		} else {
+			populatePointNames();
+		}
+		populateProfileValues();
+		populateEmploymentValues();
+
+		
+	}
+	
 	public void releaseVariables() {
 		filteredData = null;
 		searchText = null;

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.text.*?>
@@ -7,18 +8,18 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.AdminHomeController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.AdminHomeController">
    <children>
       <VBox alignment="TOP_CENTER" layoutY="10.0" prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <HBox alignment="CENTER_RIGHT" maxHeight="-Infinity" prefHeight="50.0" spacing="25.0" VBox.vgrow="ALWAYS">
                <children>
-                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="800.0" text="Paper Distribution System - Admin Homepage" HBox.hgrow="ALWAYS">
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="500.0" text="Paper Distribution System - Admin Homepage" HBox.hgrow="ALWAYS">
                      <font>
                         <Font size="24.0" />
                      </font>
                   </Label>
-                  <ButtonBar maxHeight="-Infinity" prefHeight="40.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                  <ButtonBar maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="40.0" prefWidth="380.0" HBox.hgrow="ALWAYS">
                      <buttons>
                      	<Button fx:id="changePwdButton" mnemonicParsing="false" onAction="#changePasswordClicked" prefHeight="25.0" text="Change Password" />
                         <Button layoutX="1195.0" layoutY="10.0" mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
@@ -52,7 +53,7 @@
                               <fx:include source="A-LineInfoTab.fxml" />
                            </content>
                         </Tab>
-                        <Tab text="Paused Customers">
+                        <Tab text="Stopped Customers">
                            <content>
                               <fx:include source="A-PausedCustomersTab.fxml" />
                            </content>

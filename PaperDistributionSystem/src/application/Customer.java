@@ -40,7 +40,7 @@ public class Customer {
 		setCustomerCode(customerCode);
 		setCustomerId(customerId);
 		setName(name.toLowerCase());
-		setMobileNum(mobileNum.toLowerCase());
+		setMobileNum(mobileNum);
 		setHawkerCode(hawkerCode);
 		setLineNum(lineNum);
 		setHouseSeq(houseSeq);

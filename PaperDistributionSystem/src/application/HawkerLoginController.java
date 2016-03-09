@@ -40,7 +40,7 @@ public class HawkerLoginController implements Initializable {
 	@FXML
 	private TextField password;
 	@FXML Button registerButton;
-	Stage stage;
+//	Stage stage;
 	Parent root;
 
 	public static Hawker loggedInHawker;
@@ -148,12 +148,13 @@ public class HawkerLoginController implements Initializable {
 								rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32), rs.getString(33));
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Logged in")
 								.text("Login successful").showInformation();
-						stage = (Stage) loginButton.getScene().getWindow();
+//						stage = (Stage) loginButton.getScene().getWindow();
 						// load up OTHER FXML document
 						root = FXMLLoader.load(getClass().getResource("HawkerHome.fxml"));
 						Scene scene = new Scene(root);
-						stage.setScene(scene);
-						stage.show();
+						Main.primaryStage.setScene(scene);
+						Main.primaryStage.setMaximized(true);
+						Main.primaryStage.show();
 					} else {
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Inactive Hawker")
 								.text("Hawker with given mobile number is not activated yet. Please contact administrator.")
@@ -179,7 +180,7 @@ public class HawkerLoginController implements Initializable {
 	public void adminLoginClicked(ActionEvent event) {
 		try {
 			// get reference to the button's stage
-			stage = (Stage) adminLoginButton.getScene().getWindow();
+//			stage = (Stage) adminLoginButton.getScene().getWindow();
 			// load up OTHER FXML document
 			root = FXMLLoader.load(getClass().getResource("AdminLogin.fxml"));
 			/*
@@ -188,8 +189,9 @@ public class HawkerLoginController implements Initializable {
 			 */
 			// create a new scene with root and set the stage
 			Scene scene = new Scene(root);
-			stage.setScene(scene);
-			stage.show();
+			Main.primaryStage.setScene(scene);
+			Main.primaryStage.setMaximized(true);
+			Main.primaryStage.show();
 		} catch (Exception e) {
 			
 			e.printStackTrace();

@@ -13,10 +13,22 @@
          <children>
             <HBox alignment="CENTER_LEFT" spacing="15.0">
                <children>
+                  <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="151.0" spacing="10.0">
+                     <children>
+                        <RadioButton fx:id="showAllRadioButton" mnemonicParsing="false" onAction="#reloadData" text="Show All" />
+                        <RadioButton fx:id="filterRadioButton" mnemonicParsing="false" onAction="#reloadData" selected="true" text="Filter -&gt; " />
+                     </children>
+                  </HBox>
                   <Label text="Point Name :" />
                   <ComboBox fx:id="addPointName" prefWidth="150.0" />
                   <Label text="Hawker Code :" />
                   <ComboBox fx:id="addCustHwkCode" prefWidth="150.0" />
+                  <HBox alignment="CENTER_LEFT" spacing="15.0">
+                     <children>
+                        <Label fx:id="hawkerNameLabel" />
+                        <Label fx:id="hawkerMobLabel" />
+                     </children>
+                  </HBox>
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -28,7 +40,7 @@
                      <content>
                         <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="1280.0" spacing="15.0">
                            <children>
-                              <VBox alignment="CENTER_LEFT" spacing="10.0">
+                              <VBox alignment="CENTER_LEFT" spacing="10.0" HBox.hgrow="ALWAYS">
                                  <children>
                                     <Label prefHeight="17.0" prefWidth="894.0" text="   Line Number                  Customer Name                       Initials                Mobile Number                     House Sequence" />
                                     <HBox alignment="CENTER_LEFT" prefWidth="900.0" spacing="10.0">
@@ -37,7 +49,7 @@
                                           <TextField fx:id="addCustName" accessibleHelp="Customer Name" accessibleText="Customer Name" promptText="Customer Name" />
                                           <TextField fx:id="addCustInitials" layoutX="858.0" layoutY="10.0" prefHeight="25.0" prefWidth="73.0" promptText="Initials" />
                                           <TextField fx:id="addCustMobile" promptText="Mobile Number" />
-                                          <TextField fx:id="addCustHouseSeq" layoutX="532.0" layoutY="10.0" prefHeight="25.0" prefWidth="103.0" promptText="House Sequence" />
+                                          <TextField fx:id="addCustHouseSeq" layoutX="532.0" layoutY="10.0" prefHeight="25.0" prefWidth="74.0" promptText="House Seq" />
                                        </children>
                                        <VBox.margin>
                                           <Insets left="10.0" />
@@ -46,9 +58,9 @@
                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                                        <children>
                                           <Label alignment="CENTER_RIGHT" text="Old HNum:" />
-                                          <TextField fx:id="addCustOldHouseNum" prefHeight="25.0" prefWidth="89.0" promptText="Old House#" />
+                                          <TextField fx:id="addCustOldHouseNum" prefHeight="25.0" prefWidth="58.0" promptText="Old H#" />
                                           <Label alignment="CENTER_RIGHT" text="New HNum:" />
-                                          <TextField fx:id="addCustNewHouseNum" prefHeight="25.0" prefWidth="88.0" promptText="New House#" />
+                                          <TextField fx:id="addCustNewHouseNum" prefHeight="25.0" prefWidth="58.0" promptText="New H#" />
                                           <Label alignment="CENTER_RIGHT" text="Flat/Street  Name:" />
                                           <TextField fx:id="addCustBuildingStreet" prefHeight="25.0" prefWidth="132.0" promptText="Flat/Street Name" />
                                           <Label alignment="CENTER_RIGHT" text="Addr Line1:" />
@@ -115,16 +127,16 @@
                <children>
                   <TableView fx:id="ACustInfoTable" prefWidth="1280.0" VBox.vgrow="ALWAYS">
                      <columns>
+                        <TableColumn fx:id="hawkerCodeColumn" prefWidth="87.0" text="Hawker Code" />
+                        <TableColumn fx:id="lineNumColumn" prefWidth="67.0" text="Line#" />
+                        <TableColumn fx:id="houseSeqColumn" prefWidth="65.0" text="House Seq" />
                         <TableColumn fx:id="customerCodeColumn" prefWidth="126.0" text="Customer Code" />
                         <TableColumn fx:id="customerNameColumn" prefWidth="250.0" text="Customer Name" />
                         <TableColumn fx:id="customerInitialsColumn" prefWidth="35" text="Initials" />
                         <TableColumn fx:id="mobileNumColumn" prefWidth="125.0" text="Mobile Number" />
-                        <TableColumn fx:id="hawkerCodeColumn" prefWidth="87.0" text="Hawker Code" />
-                        <TableColumn fx:id="lineNumColumn" prefWidth="67.0" text="Line#" />
-                        <TableColumn fx:id="houseSeqColumn" prefWidth="110.0" text="House Sequence" />
-                        <TableColumn fx:id="oldHouseNumColumn" prefWidth="113.0" text="Old House#" />
-                        <TableColumn fx:id="newHouseNumColumn" prefWidth="113.0" text="New House#" />
-                        <TableColumn fx:id="buildingStreetColumn" prefWidth="113.0" text="Flat/Street Name" />
+                        <TableColumn fx:id="oldHouseNumColumn" prefWidth="48.0" text="Old H#" />
+                        <TableColumn fx:id="newHouseNumColumn" prefWidth="58.0" text="New H#" />
+                        <TableColumn fx:id="buildingStreetColumn" prefWidth="278.0" text="Flat/Street Name" />
                         <TableColumn fx:id="addrLine1Column" prefWidth="192.0" text="Address Line1" />
                         <TableColumn fx:id="addrLine2Column" prefWidth="192.0" text="Address Line2" />
                         <TableColumn fx:id="localityColumn" prefWidth="192.0" text="Locality" />
@@ -156,14 +168,14 @@
                                   <TableColumn fx:id="subsProdTypeColumn" prefWidth="114.0" text="Product Type" />
                                     <TableColumn fx:id="subsTypeColumn" prefWidth="114.0" text="Subscription Type" />
                                     <TableColumn fx:id="subsPaymentTypeColumn" prefWidth="95.0" text="Payment Type" />
-                                    <TableColumn fx:id="subPriceColumn" prefWidth="74.0" text="Price" />
-                                    <TableColumn fx:id="subsServiceChargeColumn" prefWidth="94.0" text="Service Charge" />
-                                    <TableColumn fx:id="subsFreqColumn" prefWidth="94.0" text="Frequency" />
+                                    <TableColumn fx:id="subPriceColumn" prefWidth="52.0" text="Price" />
+                                    <TableColumn fx:id="subsServiceChargeColumn" prefWidth="99.0" text="Tea Charges" />
+                                    <TableColumn fx:id="subsFreqColumn" prefWidth="111.0" text="Frequency" />
                                     <TableColumn fx:id="subsDOWColumn" prefWidth="94.0" text="Day Of Week" />
                                     <TableColumn fx:id="subsStatusColumn" prefWidth="70.0" text="Status" />
                                     <TableColumn fx:id="subsStartDateColumn" prefWidth="86.0" text="Start Date" />
-                                    <TableColumn fx:id="subsStopDateColumn" prefWidth="86.0" text="Stop Date" />
-                                    <TableColumn fx:id="subsPausedDateColumn" prefWidth="86.0" text="Paused Date" />
+                                    <TableColumn fx:id="subsStopDateColumn" prefWidth="86.0" text="End Date" />
+                                    <TableColumn fx:id="subsPausedDateColumn" prefWidth="86.0" text="Stop Date" />
                                     <TableColumn fx:id="subsResumeDateColumn" prefWidth="86.0" text="Resume Date" />
                                     <TableColumn fx:id="subsNumberColumn" prefWidth="86.0" text="Subscription Number" />
                                 </columns>

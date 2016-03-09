@@ -25,6 +25,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -89,6 +90,8 @@ public class APausedCustomerTabController implements Initializable {
 	private TableColumn<PausedSubscription, LocalDate> pausedDateCol;
 	@FXML
 	private TableColumn<PausedSubscription, LocalDate> resumeDateCol;
+	@FXML private Label hawkerNameLabel;
+	@FXML private Label hawkerMobLabel;
 
 	private ObservableList<PausedSubscription> pausedSubsValues = FXCollections.observableArrayList();
 	private ObservableList<LineInfo> lineNumData = FXCollections.observableArrayList();
@@ -192,7 +195,10 @@ public class APausedCustomerTabController implements Initializable {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 
+				hawkerMobLabel.setText("");
+				hawkerNameLabel.setText("");
 				if (newValue != null) {
+					hawkerNameMobCode(newValue);
 					lineNumTable.setDisable(false);
 					refreshLineNumTableForHawker(newValue);
 				}else {
@@ -219,7 +225,29 @@ public class APausedCustomerTabController implements Initializable {
 		});
 
 	}
-	
+
+	private void hawkerNameMobCode(String hawkerCode) {
+
+		Connection con = Main.dbConnection;
+		try {
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement hawkerStatement = null;
+			String hawkerQuery = "select name, mobile_num from hawker_info where hawker_code = ?";
+			hawkerStatement = con.prepareStatement(hawkerQuery);
+			hawkerStatement.setString(1, hawkerCode);
+			ResultSet hawkerRs = hawkerStatement.executeQuery();
+
+			if (hawkerRs.next()) {
+				hawkerNameLabel.setText(hawkerRs.getString(1));
+				hawkerMobLabel.setText(hawkerRs.getString(2));
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+	}
 	private void refreshLineNumTableForHawker(String hawkerCode) {
 
 		lineNumTable.getItems().clear();
@@ -310,7 +338,7 @@ public class APausedCustomerTabController implements Initializable {
 					}
 					pausedSubsValues.clear();
 					PreparedStatement stmt;
-					String queryString = "select cust.CUSTOMER_ID, sub.SUBSCRIPTION_ID, prod.PRODUCT_ID, cust.NAME Customer_Name, cust.CUSTOMER_CODE, cust.MOBILE_NUM,cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.NAME Product_Name, prod.TYPE product_type, sub.TYPE subscription_type, sub.FREQUENCY, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.PAUSED_DATE, sub.resume_date from customer cust, subscription sub, products prod where cust.customer_id=sub.customer_id and sub.product_id=prod.product_id and sub.STATUS='Paused' and hawker_code=? and cust.LINE_NUM=? order by sub.resume_date desc, cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.name";
+					String queryString = "select cust.CUSTOMER_ID, sub.SUBSCRIPTION_ID, prod.PRODUCT_ID, cust.NAME Customer_Name, cust.CUSTOMER_CODE, cust.MOBILE_NUM,cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.NAME Product_Name, prod.TYPE product_type, sub.TYPE subscription_type, sub.FREQUENCY, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.PAUSED_DATE, sub.resume_date from customer cust, subscription sub, products prod where cust.customer_id=sub.customer_id and sub.product_id=prod.product_id and sub.STATUS='Stopped' and hawker_code=? and cust.LINE_NUM=? order by sub.resume_date desc, cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.name";
 					
 					if (HawkerLoginController.loggedInHawker != null) {
 						stmt = con.prepareStatement(queryString);
@@ -383,10 +411,10 @@ public class APausedCustomerTabController implements Initializable {
 				hawkerCodeData.add(rs.getString(1));
 			}
 			hawkerComboBox.getItems().addAll(hawkerCodeData);
-			if (HawkerLoginController.loggedInHawker != null) {
-				hawkerComboBox.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
-				hawkerComboBox.setDisable(true);
-			}
+//			if (HawkerLoginController.loggedInHawker != null) {
+//				hawkerComboBox.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
+//				hawkerComboBox.setDisable(true);
+//			}
 		} catch (SQLException e) {
 			
 			e.printStackTrace();

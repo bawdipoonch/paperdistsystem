@@ -39,12 +39,14 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -52,7 +54,7 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
-public class ALineInfoTabController implements Initializable{
+public class ALineInfoTabController implements Initializable {
 
 	@FXML
 	private TableView<LineInfo> lineNumTable;
@@ -64,9 +66,12 @@ public class ALineInfoTabController implements Initializable{
 	private ComboBox<String> hawkerComboBox;
 	@FXML
 	private ComboBox<String> addPointName;
-	@FXML private Label days14Count;
-	@FXML private Label weeklyCount;
-	@FXML private Label dailyCount;
+	@FXML
+	private Label days14Count;
+	@FXML
+	private Label weeklyCount;
+	@FXML
+	private Label dailyCount;
 
 	@FXML
 	private Button addCustExtraButton;
@@ -90,10 +95,61 @@ public class ALineInfoTabController implements Initializable{
 	@FXML
 	private TableColumn<Customer, String> line2Column;
 
+	@FXML
+	private TableView<Subscription> subscriptionsTable;
+
+	@FXML
+	private TableColumn<Subscription, Long> subsIdColumn;
+	@FXML
+	private TableColumn<Subscription, String> subsProdNameColumn;
+
+	@FXML
+	private TableColumn<Subscription, String> subsProdTypeColumn;
+
+	@FXML
+	private TableColumn<Subscription, String> subsTypeColumn;
+
+	@FXML
+	private TableColumn<Subscription, String> subsPaymentTypeColumn;
+
+	@FXML
+	private TableColumn<Subscription, Double> subPriceColumn;
+
+	@FXML
+	private TableColumn<Subscription, Double> subsServiceChargeColumn;
+
+	@FXML
+	private TableColumn<Subscription, String> subsFreqColumn;
+
+	@FXML
+	private TableColumn<Subscription, String> subsDOWColumn;
+
+	@FXML
+	private TableColumn<Subscription, String> subsStatusColumn;
+
+	@FXML
+	private TableColumn<Subscription, LocalDate> subsStartDateColumn;
+	@FXML
+	private TableColumn<Subscription, LocalDate> subsStopDateColumn;
+
+	@FXML
+	private TableColumn<Subscription, LocalDate> subsPausedDateColumn;
+	@FXML
+	private TableColumn<Subscription, LocalDate> subsResumeDateColumn;
+	@FXML
+	private TableColumn<Subscription, String> subsNumberColumn;
+	@FXML
+	private Button addLineButton;
+	@FXML
+	private Button shuffleButton;
+	@FXML private Label hawkerNameLabel;
+	@FXML private Label hawkerMobLabel;
+
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
 	private ObservableList<LineInfo> lineNumData = FXCollections.observableArrayList();
 	private ObservableList<Customer> customerData = FXCollections.observableArrayList();
 	private ObservableList<String> pointNameValues = FXCollections.observableArrayList();
+	private ObservableList<Subscription> subscriptionMasterData = FXCollections.observableArrayList();
 	private ArrayList<TextField> newHouseSeqTFArray;
 
 	@Override
@@ -112,32 +168,94 @@ public class ALineInfoTabController implements Initializable{
 		line1Column.setCellValueFactory(new PropertyValueFactory<Customer, String>("addrLine1"));
 		line2Column.setCellValueFactory(new PropertyValueFactory<Customer, String>("addrLine2"));
 		houseSeqColumn.setCellValueFactory(new PropertyValueFactory<Customer, Integer>("houseSeq"));
-		
+
+		subsIdColumn.setCellValueFactory(new PropertyValueFactory<Subscription, Long>("subscriptionId"));
+		subsProdNameColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("productName"));
+		subsProdTypeColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("productType"));
+		subsPaymentTypeColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("paymentType"));
+		subsTypeColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("subscriptionType"));
+		subPriceColumn.setCellValueFactory(new PropertyValueFactory<Subscription, Double>("cost"));
+		subsServiceChargeColumn.setCellValueFactory(new PropertyValueFactory<Subscription, Double>("serviceCharge"));
+		subsFreqColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("frequency"));
+		subsDOWColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("dow"));
+		subsStatusColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("status"));
+		subsStatusColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("status"));
+		subsStartDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("startDate"));
+		subsPausedDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("pausedDate"));
+		subsResumeDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("resumeDate"));
+		subsNumberColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("subNumber"));
+		subsStopDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("stopDate"));
+		subsPausedDateColumn.setCellFactory(
+				new Callback<TableColumn<Subscription, LocalDate>, TableCell<Subscription, LocalDate>>() {
+
+					@Override
+					public TableCell<Subscription, LocalDate> call(TableColumn<Subscription, LocalDate> param) {
+						TextFieldTableCell<Subscription, LocalDate> cell = new TextFieldTableCell<Subscription, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
+		subsResumeDateColumn.setCellFactory(
+				new Callback<TableColumn<Subscription, LocalDate>, TableCell<Subscription, LocalDate>>() {
+
+					@Override
+					public TableCell<Subscription, LocalDate> call(TableColumn<Subscription, LocalDate> param) {
+						TextFieldTableCell<Subscription, LocalDate> cell = new TextFieldTableCell<Subscription, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
+		subsStartDateColumn.setCellFactory(
+				new Callback<TableColumn<Subscription, LocalDate>, TableCell<Subscription, LocalDate>>() {
+
+					@Override
+					public TableCell<Subscription, LocalDate> call(TableColumn<Subscription, LocalDate> param) {
+						TextFieldTableCell<Subscription, LocalDate> cell = new TextFieldTableCell<Subscription, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
+		subsStopDateColumn.setCellFactory(
+				new Callback<TableColumn<Subscription, LocalDate>, TableCell<Subscription, LocalDate>>() {
+
+					@Override
+					public TableCell<Subscription, LocalDate> call(TableColumn<Subscription, LocalDate> param) {
+						TextFieldTableCell<Subscription, LocalDate> cell = new TextFieldTableCell<Subscription, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
+
 		addPointName.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				populateHawkerCodes();
-				hawkerComboBox.getItems().clear();
-				hawkerComboBox.getItems().addAll(hawkerCodeData);
+				// hawkerComboBox.getItems().clear();
+				// hawkerComboBox.getItems().addAll(hawkerCodeData);
 			}
 		});
-
 
 		hawkerComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 
+				hawkerMobLabel.setText("");
+				hawkerNameLabel.setText("");
 				if (newValue != null) {
+					hawkerNameMobCode(newValue);
 					lineNumTable.setDisable(false);
 					addLineNumField.setDisable(false);
 					refreshLineNumTableForHawker(newValue);
-				}else {
+				} else {
 					lineNumTable.getItems().clear();
 					lineNumTable.refresh();
 					lineNumData.clear();
 				}
+				subscriptionMasterData.clear();
+				subscriptionsTable.getItems().clear();
+				subscriptionsTable.refresh();
 				dailyCount.setText("");
 				weeklyCount.setText("");
 				days14Count.setText("");
@@ -156,6 +274,7 @@ public class ALineInfoTabController implements Initializable{
 			}
 
 		});
+
 		addCustExtraButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -166,12 +285,32 @@ public class ALineInfoTabController implements Initializable{
 			}
 		});
 
+		addLineButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					addLineButtonClicked(new ActionEvent());
+				}
+			}
+		});
+
+		shuffleButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					shuffleHouseSeqClicked(new ActionEvent());
+				}
+			}
+		});
+
 		lineNumTable.setRowFactory(new Callback<TableView<LineInfo>, TableRow<LineInfo>>() {
 
 			@Override
 			public TableRow<LineInfo> call(TableView<LineInfo> param) {
 				final TableRow<LineInfo> row = new TableRow<>();
-				
+
 				MenuItem mnuDel = new MenuItem("Delete line");
 				mnuDel.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
@@ -198,7 +337,11 @@ public class ALineInfoTabController implements Initializable{
 				});
 
 				ContextMenu menu = new ContextMenu();
-				menu.getItems().addAll(mnuEdit, mnuDel);
+				if(HawkerLoginController.loggedInHawker!=null){
+					menu.getItems().addAll(mnuEdit);
+				}else{
+					menu.getItems().addAll(mnuEdit, mnuDel);
+				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
 				return row;
@@ -252,20 +395,20 @@ public class ALineInfoTabController implements Initializable{
 						Customer custRow = lineNumCustomersTable.getSelectionModel().getSelectedItem();
 						if (custRow != null) {
 							addCustSubscription(custRow);
-//							refreshSubscriptions();
+							refreshSubscriptions();
 						}
 					}
 
 				});
-				MenuItem mnuPause = new MenuItem("Pause Subscription");
+				MenuItem mnuPause = new MenuItem("Stop Subscription");
 				mnuPause.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent t) {
 						Customer custRow = lineNumCustomersTable.getSelectionModel().getSelectedItem();
 
 						Dialog<ButtonType> pauseWarning = new Dialog<ButtonType>();
-						pauseWarning.setTitle("Pause Subscription");
-						pauseWarning.setHeaderText("Please select the subscription you want to PAUSE");
+						pauseWarning.setTitle("Stop Subscription");
+						pauseWarning.setHeaderText("Please select the subscription you want to Stop");
 						pauseWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
 						GridPane grid = new GridPane();
 						grid.setHgap(10);
@@ -294,22 +437,22 @@ public class ALineInfoTabController implements Initializable{
 						subsBox.getItems().addAll(subsList);
 						subsBox.getSelectionModel().selectFirst();
 						grid.add(new Label("Subscription"), 0, 0);
-						grid.add(new Label("Pause Date"), 0, 1);
-						grid.add(new Label("Pause Date"), 0, 2);
+						grid.add(new Label("Stop Date"), 0, 1);
+						grid.add(new Label("Resume Date"), 0, 2);
 						DatePicker dp = new DatePicker(LocalDate.now());
 						dp.setConverter(Main.dateConvertor);
 
 						grid.add(dp, 1, 1);
 						grid.add(subsBox, 1, 0);
-						DatePicker resumeDP = new DatePicker(LocalDate.now().plusDays(7));
+						DatePicker resumeDP = new DatePicker();
 						resumeDP.setConverter(Main.dateConvertor);
 						grid.add(resumeDP, 1, 2);
 						pauseWarning.getDialogPane().setContent(grid);
 						Button yesButton = (Button) pauseWarning.getDialogPane().lookupButton(ButtonType.YES);
 						yesButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
 							if (dp.getValue().isBefore(subsBox.getSelectionModel().getSelectedItem().getStartDate())) {
-								Notifications.create().title("Invalid paused date")
-										.text("Paused date should not be before Start date for subscription")
+								Notifications.create().title("Invalid stop date")
+										.text("Stop date should not be before Start date for subscription")
 										.hideAfter(Duration.seconds(5)).showError();
 								btnEvent.consume();
 							}
@@ -320,14 +463,18 @@ public class ALineInfoTabController implements Initializable{
 							if (subsRow != null && subsRow.getStatus().equals("Active")) {
 
 							} else {
-								Notifications.create().title("Invalid operation").text("Subscription is already PAUSED")
-										.hideAfter(Duration.seconds(5)).showWarning();
+								Notifications.create().title("Invalid operation")
+										.text("Subscription is already STOPPED").hideAfter(Duration.seconds(5))
+										.showWarning();
 							}
-							subsRow.setStatus("Paused");
+							subsRow.setStatus("Stopped");
 							subsRow.setPausedDate(dp.getValue());
 							subsRow.setResumeDate(resumeDP.getValue());
 							subsRow.updateSubscriptionRecord();
-							Notifications.create().title("Pause successful").text("Pause subscription successful")
+
+							refreshSubscriptions();
+							populateSubscriptionCount();
+							Notifications.create().title("Stop successful").text("Stop subscription successful")
 									.hideAfter(Duration.seconds(5)).showInformation();
 
 						}
@@ -373,16 +520,42 @@ public class ALineInfoTabController implements Initializable{
 						grid.setHgap(10);
 						grid.setVgap(10);
 						grid.setPadding(new Insets(20, 150, 10, 10));
+						DatePicker dp = new DatePicker();
+						dp.setConverter(Main.dateConvertor);
+						dp.setDisable(true);
+						DatePicker resumeDP = new DatePicker(LocalDate.now());
+						resumeDP.setConverter(Main.dateConvertor);
+						resumeDP.setDisable(true);
+						subsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Subscription>() {
+
+							@Override
+							public void changed(ObservableValue<? extends Subscription> observable,
+									Subscription oldValue, Subscription newValue) {
+								if(newValue!=null){
+									dp.setValue(newValue.getPausedDate());
+								}
+								
+							}
+						});
 						subsBox.getSelectionModel().selectFirst();
 						grid.add(new Label("Subscription"), 0, 0);
-						grid.add(subsBox, 1, 0);
+						grid.add(new Label("Stop Date"), 0, 1);
+						grid.add(new Label("Resume Date"), 0, 2);
+						
 
+						grid.add(dp, 1, 1);
+						grid.add(subsBox, 1, 0);
+						
+						grid.add(resumeDP, 1, 2);
 						deleteWarning.getDialogPane().setContent(grid);
 						Optional<ButtonType> result = deleteWarning.showAndWait();
 						if (result.isPresent() && result.get() == ButtonType.YES) {
 							Subscription subsRow = subsBox.getSelectionModel().getSelectedItem();
-							if (subsRow != null && subsRow.getStatus().equals("Paused")) {
+							if (subsRow != null && subsRow.getStatus().equals("Stopped")) {
 								subsRow.resumeSubscription();
+
+								refreshSubscriptions();
+								populateSubscriptionCount();
 								Notifications.create().title("Resume successful").text("Resume subscription successful")
 										.hideAfter(Duration.seconds(5)).showInformation();
 							} else {
@@ -395,18 +568,303 @@ public class ALineInfoTabController implements Initializable{
 
 				});
 				ContextMenu menu = new ContextMenu();
-				/*
-				 * switch(param.getSelectionModel().getSelectedItem().getStatus(
-				 * )){ case "Active": menu.getItems().addAll(mnuEdit,
-				 * mnuDel,mnuPause,mnuResume); break; case "Paused":
-				 * menu.getItems().addAll(mnuEdit, mnuDel,mnuResume); break; }
-				 */
-				menu.getItems().addAll(mnuEdit,mnuDel,mnuSubs, mnuPause, mnuResume);
+
+				if(HawkerLoginController.loggedInHawker!=null){
+					menu.getItems().addAll(mnuEdit, mnuSubs, mnuPause, mnuResume);
+				}else{
+					menu.getItems().addAll(mnuEdit, mnuDel, mnuSubs, mnuPause, mnuResume);
+				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
 				return row;
 			}
 		});
+
+		lineNumCustomersTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Customer>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Customer> observable, Customer oldValue, Customer newValue) {
+
+				refreshSubscriptions();
+			}
+
+		});
+
+		subscriptionsTable.setRowFactory(new Callback<TableView<Subscription>, TableRow<Subscription>>() {
+
+			@Override
+			public TableRow<Subscription> call(TableView<Subscription> param) {
+				final TableRow<Subscription> row = new TableRow<Subscription>();
+				MenuItem mnuDel = new MenuItem("Delete Subscription");
+				mnuDel.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
+						if (subsRow != null) {
+							deleteSubscription(subsRow);
+
+						}
+					}
+
+				});
+
+				MenuItem mnuEdit = new MenuItem("Edit Subscription");
+				mnuEdit.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
+						if (subsRow != null) {
+							showEditSubscriptionDialog(subsRow);
+							// refreshSubscriptions();
+						}
+					}
+
+				});
+
+				MenuItem mnuPause = new MenuItem("Stop Subscription");
+				mnuPause.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
+						if (subsRow != null && subsRow.getStatus().equals("Active")) {
+							Dialog<ButtonType> pauseWarning = new Dialog<ButtonType>();
+							pauseWarning.setTitle("Warning");
+							pauseWarning.setHeaderText("Are you sure you want to STOP this subscription?");
+							pauseWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
+							GridPane grid = new GridPane();
+							grid.setHgap(10);
+							grid.setVgap(10);
+							grid.setPadding(new Insets(20, 150, 10, 10));
+
+							grid.add(new Label("Stop Date"), 0, 0);
+							DatePicker pauseDP = new DatePicker(LocalDate.now());
+							pauseDP.setConverter(Main.dateConvertor);
+
+							grid.add(pauseDP, 1, 0);
+							grid.add(new Label("Resume Date"), 0, 1);
+							DatePicker resumeDP = new DatePicker();
+							resumeDP.setConverter(Main.dateConvertor);
+							grid.add(resumeDP, 1, 1);
+							pauseWarning.getDialogPane().setContent(grid);
+							Button yesButton = (Button) pauseWarning.getDialogPane().lookupButton(ButtonType.YES);
+							yesButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+								if (pauseDP.getValue().isBefore(subsRow.getStartDate())) {
+									Notifications.create().title("Invalid stop date")
+											.text("Stop date should not be before Start date for subscription")
+											.hideAfter(Duration.seconds(5)).showError();
+									btnEvent.consume();
+								}
+								if (resumeDP.getValue()!=null && resumeDP.getValue().isBefore(pauseDP.getValue())) {
+									Notifications.create().title("Invalid Resume date")
+											.text("Resume date should not be before Stop date for subscription")
+											.hideAfter(Duration.seconds(5)).showError();
+									btnEvent.consume();
+								}
+							});
+							Optional<ButtonType> result = pauseWarning.showAndWait();
+							if (result.isPresent() && result.get() == ButtonType.YES) {
+								subsRow.setStatus("Stopped");
+								subsRow.setPausedDate(pauseDP.getValue());
+								subsRow.setResumeDate(resumeDP.getValue());
+								subsRow.updateSubscriptionRecord();
+								refreshSubscriptions();
+								populateSubscriptionCount();
+							}
+						} else {
+							Notifications.create().title("Invalid operation").text("Subscription is already STOPPED")
+									.hideAfter(Duration.seconds(5)).showWarning();
+						}
+
+					}
+
+				});
+
+				MenuItem mnuResume = new MenuItem("Resume Subscription");
+				mnuResume.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
+						if (subsRow != null && subsRow.getStatus().equals("Stopped")) {
+							Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
+							deleteWarning.setTitle("Warning");
+							deleteWarning.setHeaderText("Are you sure you want to RESUME this record?");
+							deleteWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
+							Optional<ButtonType> result = deleteWarning.showAndWait();
+							if (result.isPresent() && result.get() == ButtonType.YES) {
+								subsRow.resumeSubscription();
+								refreshSubscriptions();
+								populateSubscriptionCount();
+							}
+						} else {
+							Notifications.create().title("Invalid operation").text("Subscription is already ACTIVE")
+									.hideAfter(Duration.seconds(5)).showWarning();
+						}
+					}
+
+				});
+				ContextMenu menu = new ContextMenu();
+
+				if(HawkerLoginController.loggedInHawker!=null){
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit);
+				}else{
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuDel);
+				}
+
+				row.contextMenuProperty().bind(
+						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
+				return row;
+			}
+		});
+
+	}
+
+	private void hawkerNameMobCode(String hawkerCode) {
+
+		Connection con = Main.dbConnection;
+		try {
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement hawkerStatement = null;
+			String hawkerQuery = "select name, mobile_num from hawker_info where hawker_code = ?";
+			hawkerStatement = con.prepareStatement(hawkerQuery);
+			hawkerStatement.setString(1, hawkerCode);
+			ResultSet hawkerRs = hawkerStatement.executeQuery();
+
+			if (hawkerRs.next()) {
+				hawkerNameLabel.setText(hawkerRs.getString(1));
+				hawkerMobLabel.setText(hawkerRs.getString(2));
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+	}
+	private void deleteSubscription(Subscription subsRow) {
+		Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
+		deleteWarning.setTitle("Warning");
+		deleteWarning.setHeaderText("Are you sure you want to delete this record?");
+		deleteWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
+		Optional<ButtonType> result = deleteWarning.showAndWait();
+		if (result.isPresent() && result.get() == ButtonType.YES) {
+
+			try {
+
+				Connection con = Main.dbConnection;
+				while (!con.isValid(0)) {
+					con = Main.reconnect();
+				}
+				String deleteString = "delete from subscription where subscription_id=?";
+				PreparedStatement deleteStmt = con.prepareStatement(deleteString);
+				deleteStmt.setLong(1, subsRow.getSubscriptionId());
+
+				deleteStmt.executeUpdate();
+				con.commit();
+
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete Successful")
+						.text("Deletion of subscription was successful").showInformation();
+				refreshSubscriptions();
+				populateSubscriptionCount();
+			} catch (SQLException e) {
+
+				e.printStackTrace();
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
+						.text("Delete request of subscription has failed").showError();
+			}
+		}
+	}
+
+	private void showEditSubscriptionDialog(Subscription subsRow) {
+		try {
+
+			Dialog<Subscription> editSubscriptionDialog = new Dialog<Subscription>();
+			editSubscriptionDialog.setTitle("Edit subscription data");
+			editSubscriptionDialog.setHeaderText("Update the subscription data below");
+
+			// Set the button types.
+			ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+			editSubscriptionDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+			FXMLLoader editSubscriptionLoader = new FXMLLoader(getClass().getResource("EditSubscription.fxml"));
+			Parent editSubscriptionGrid = (Parent) editSubscriptionLoader.load();
+			EditSubscriptionController editSubsController = editSubscriptionLoader
+					.<EditSubscriptionController> getController();
+
+			editSubscriptionDialog.getDialogPane().setContent(editSubscriptionGrid);
+			editSubsController.setSubscriptionToEdit(subsRow);
+			editSubsController.setupBindings();
+			Button saveBtn = (Button) editSubscriptionDialog.getDialogPane().lookupButton(saveButtonType);
+			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+				if (editSubsController.isValid()) {
+					editSubsController.updateSubscriptionRecord();
+					refreshSubscriptions();
+
+					populateSubscriptionCount();
+				} else
+					btnEvent.consume();
+			});
+			editSubscriptionDialog.setResultConverter(dialogButton -> {
+
+				return null;
+			});
+
+			Optional<Subscription> updatedSubscription = editSubscriptionDialog.showAndWait();
+			// refreshCustomerTable();
+
+			updatedSubscription.ifPresent(new Consumer<Subscription>() {
+
+				@Override
+				public void accept(Subscription t) {
+					editSubsController.releaseVariables();
+					refreshSubscriptions();
+				}
+			});
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void refreshSubscriptions() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					while (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					subscriptionsTable.getItems().clear();
+					subscriptionMasterData.clear();
+					String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by prod.name";
+					PreparedStatement stmt = con.prepareStatement(query);
+					stmt.setLong(1, lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId());
+					ResultSet rs = stmt.executeQuery();
+					while (rs.next()) {
+						subscriptionMasterData.add(new Subscription(rs.getLong(1), rs.getLong(2), rs.getLong(3),
+								rs.getString(4), rs.getString(5), rs.getString(6), rs.getDouble(7), rs.getDouble(8),
+								rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
+								rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
+								rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
+								rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17),
+								rs.getInt(18), rs.getString(19),
+								rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate()));
+					}
+
+				} catch (SQLException e) {
+
+					e.printStackTrace();
+				}
+				subscriptionsTable.getItems().addAll(subscriptionMasterData);
+				subscriptionsTable.refresh();
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
 
 	}
 
@@ -430,7 +888,7 @@ public class ALineInfoTabController implements Initializable{
 						rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
-						rs.getString(19),rs.getDate(20)==null?null:rs.getDate(20).toLocalDate()));
+						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate()));
 			}
 
 		} catch (SQLException e) {
@@ -449,7 +907,7 @@ public class ALineInfoTabController implements Initializable{
 				con = Main.reconnect();
 			}
 			subsList.clear();
-			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Paused' order by sub.subscription_id";
+			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Stopped' order by sub.subscription_id";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, custRow.getCustomerId());
 			ResultSet rs = stmt.executeQuery();
@@ -460,7 +918,7 @@ public class ALineInfoTabController implements Initializable{
 						rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
-						rs.getString(19),rs.getDate(20)==null?null:rs.getDate(20).toLocalDate()));
+						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate()));
 			}
 
 		} catch (SQLException e) {
@@ -624,7 +1082,7 @@ public class ALineInfoTabController implements Initializable{
 		new Thread(task).start();
 
 	}
-	
+
 	private void populateHawkerCodes() {
 
 		try {
@@ -634,19 +1092,21 @@ public class ALineInfoTabController implements Initializable{
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct hawker_code from hawker_info where point_name=?");
+			PreparedStatement stmt = con
+					.prepareStatement("select distinct hawker_code from hawker_info where point_name=?");
 			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				hawkerCodeData.add(rs.getString(1));
 			}
+			hawkerComboBox.getItems().clear();
 			hawkerComboBox.getItems().addAll(hawkerCodeData);
 			if (HawkerLoginController.loggedInHawker != null) {
 				hawkerComboBox.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
 				hawkerComboBox.setDisable(true);
 			}
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 
@@ -654,46 +1114,38 @@ public class ALineInfoTabController implements Initializable{
 
 	private void refreshLineNumTableForHawker(String hawkerCode) {
 
-		lineNumTable.getItems().clear();
-		lineNumTable.refresh();
+//		lineNumTable.refresh();
 		System.out.println("refreshLineNumTableForHawker : " + hawkerCode);
 
-		lineNumData.clear();
-		
+
 		long hawkerId = hawkerIdForCode(hawkerCode);
 
 		if (hawkerId >= 1) {
-			Task<Void> task = new Task<Void>() {
 
-				@Override
-				protected Void call() throws Exception {
-					try {
+			try {
 
-						Connection con = Main.dbConnection;
-						while (!con.isValid(0)) {
-							con = Main.reconnect();
-						}
-						PreparedStatement lineNumStatement = null;
-						String lineNumQuery = "select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num";
-						lineNumStatement = con.prepareStatement(lineNumQuery);
-						lineNumStatement.setLong(1, hawkerId);
-						// Statement stmt = con.createStatement();
-						ResultSet rs = lineNumStatement.executeQuery();
-						while (rs.next()) {
-							lineNumData.add(new LineInfo(rs.getLong(1), rs.getInt(2), rs.getLong(3), rs.getString(4)));
-						}
-						System.out.println("LineNumData = " + lineNumData.toString());
-						lineNumTable.getItems().addAll(lineNumData);
-						lineNumTable.refresh();
-					} catch (SQLException e) {
-
-						e.printStackTrace();
-					}
-					return null;
+				lineNumData.clear();
+				Connection con = Main.dbConnection;
+				while (!con.isValid(0)) {
+					con = Main.reconnect();
 				}
+				PreparedStatement lineNumStatement = null;
+				String lineNumQuery = "select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num";
+				lineNumStatement = con.prepareStatement(lineNumQuery);
+				lineNumStatement.setLong(1, hawkerId);
+				// Statement stmt = con.createStatement();
+				ResultSet rs = lineNumStatement.executeQuery();
+				while (rs.next()) {
+					lineNumData.add(new LineInfo(rs.getLong(1), rs.getInt(2), rs.getLong(3), rs.getString(4)));
+				}
+				System.out.println("LineNumData = " + lineNumData.toString());
+				lineNumTable.getItems().clear();
+				lineNumTable.getItems().addAll(lineNumData);
+				lineNumTable.refresh();
+			} catch (SQLException e) {
 
-			};
-			new Thread(task).start();
+				e.printStackTrace();
+			}
 
 		} else {
 			lineNumData.clear();
@@ -866,26 +1318,6 @@ public class ALineInfoTabController implements Initializable{
 				grid.add(new Label("" + cust.getHouseSeq()), 6, i + 1);
 				TextField newHNumTF = new TextField();
 
-				/*
-				 * newHNumTF.focusedProperty().addListener(new
-				 * ChangeListener<Boolean>() {
-				 * 
-				 * @Override public void changed(ObservableValue<? extends
-				 * Boolean> observable, Boolean oldValue, Boolean newValue) { //
-				 * TODO Auto-generated method stub if (oldValue && !newValue) {
-				 * if (NumberUtils.tryParseInt(newHNumTF.getText()) != null) {
-				 * if (!newHouseSeq.contains(NumberUtils.tryParseInt(newHNumTF.
-				 * getText()))) {
-				 * newHouseSeq.add(newHouseSeqTFArray.indexOf(newHNumTF),
-				 * NumberUtils.tryParseInt(newHNumTF.getText())); } else
-				 * Notifications.create().hideAfter(Duration.seconds(5)).title(
-				 * "Invalid sequence").text(
-				 * "House sequence already entered before") .showError(); }
-				 * else{
-				 * newHouseSeq.remove(newHouseSeqTFArray.indexOf(newHNumTF));
-				 * 
-				 * } } } });
-				 */
 				newHouseSeqTFArray.add(i, newHNumTF);
 				grid.add(newHNumTF, 7, i + 1);
 			}
@@ -947,19 +1379,7 @@ public class ALineInfoTabController implements Initializable{
 			editCustomerDialog.setResultConverter(dialogButton -> {
 				if (dialogButton == saveButtonType) {
 					Customer edittedCustomer = editCustController.returnUpdatedCustomer();
-					/*
-					 * if
-					 * (houseSequenceExistsInLine(edittedCustomer.getHawkerCode(
-					 * ), edittedCustomer.getHouseSeq(),
-					 * edittedCustomer.getLineNum())) { ArrayList<Customer>
-					 * custData =
-					 * getCustomerDataToShift(custRow.getHawkerCode(),
-					 * custRow.getLineNum().intValue());
-					 * shiftHouseSeqFromToForCustId(custData, prevHouseSeq,
-					 * edittedCustomer.getHouseSeq(), custRow.getCustomerId());
-					 * 
-					 * }
-					 */
+
 					return edittedCustomer;
 				}
 				return null;
@@ -974,6 +1394,7 @@ public class ALineInfoTabController implements Initializable{
 				public void accept(Customer t) {
 
 					populateCustomersForLine();
+					populateSubscriptionCount();
 				}
 			});
 
@@ -986,7 +1407,8 @@ public class ALineInfoTabController implements Initializable{
 	public void addCustomerExtraScreenClicked(ActionEvent event) {
 		if (hawkerComboBox.getSelectionModel().getSelectedItem() == null
 				|| lineNumTable.getSelectionModel().getSelectedItem() == null) {
-			Notifications.create().title("Hawker and Line not selected").text("Please select hawker and line first").hideAfter(Duration.seconds(5)).showError();
+			Notifications.create().title("Hawker and Line not selected").text("Please select hawker and line first")
+					.hideAfter(Duration.seconds(5)).showError();
 		} else {
 			try {
 
@@ -1040,7 +1462,7 @@ public class ALineInfoTabController implements Initializable{
 			}
 		}
 	}
-	
+
 	private void deleteCustomer(Customer custRow) {
 		Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
 		deleteWarning.setTitle("Warning");
@@ -1067,6 +1489,7 @@ public class ALineInfoTabController implements Initializable{
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete Successful")
 						.text("Deletion of customer was successful").showInformation();
 				populateCustomersForLine();
+				populateSubscriptionCount();
 			} catch (SQLException e) {
 
 				e.printStackTrace();
@@ -1076,6 +1499,7 @@ public class ALineInfoTabController implements Initializable{
 		}
 
 	}
+
 	public ArrayList<Customer> getCustomerDataToShift(String hawkerCode, int lineNum) {
 		ArrayList<Customer> custData = new ArrayList<Customer>();
 
@@ -1104,7 +1528,6 @@ public class ALineInfoTabController implements Initializable{
 
 		return custData;
 	}
-	
 
 	private void shiftHouseSeqForDelete(ArrayList<Customer> custData, int seq) {
 
@@ -1117,7 +1540,7 @@ public class ALineInfoTabController implements Initializable{
 		}
 		// reloadData();
 	}
-	
+
 	private void addCustSubscription(Customer custRow) {
 
 		try {
@@ -1143,7 +1566,9 @@ public class ALineInfoTabController implements Initializable{
 			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
 				if (addSubsController.isValid()) {
 					addSubsController.addSubscription();
-					Notifications.create().title("New Subscription created").text("New subscription created successfully").hideAfter(Duration.seconds(5)).showInformation();
+					Notifications.create().title("New Subscription created")
+							.text("New subscription created successfully").hideAfter(Duration.seconds(5))
+							.showInformation();
 				} else
 					btnEvent.consume();
 			});
@@ -1151,6 +1576,8 @@ public class ALineInfoTabController implements Initializable{
 			addSubscriptionDialog.setResultConverter(dialogButton -> {
 				if (dialogButton == saveButtonType) {
 
+					// populateCustomersForLine();
+					populateSubscriptionCount();
 					return null;
 				}
 				return null;
@@ -1163,8 +1590,7 @@ public class ALineInfoTabController implements Initializable{
 
 				@Override
 				public void accept(String t) {
-
-//					refreshSubscriptions();
+					// refreshSubscriptions();
 				}
 			});
 
@@ -1172,7 +1598,7 @@ public class ALineInfoTabController implements Initializable{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void populatePointNames() {
 		try {
 
@@ -1186,13 +1612,19 @@ public class ALineInfoTabController implements Initializable{
 			while (rs.next()) {
 				pointNameValues.add(rs.getString(1));
 			}
+			addPointName.getItems().clear();
+			addPointName.getItems().addAll(pointNameValues);
+			if (HawkerLoginController.loggedInHawker != null) {
+				addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
+				addPointName.setDisable(true);
+			}
 		} catch (SQLException e) {
 
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	public void populateSubscriptionCount() {
 		try {
 
@@ -1200,8 +1632,9 @@ public class ALineInfoTabController implements Initializable{
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-//			billCategoryValues.clear();
-			PreparedStatement stmt = con.prepareStatement("SELECT sub.frequency, count(*) cnt FROM subscription sub, customer cust WHERE sub.customer_id=cust.customer_id AND sub.frequency IN ('Daily','14 Days','Weekly') AND cust.hawker_code =? AND cust.line_num =? group by sub.frequency");
+			// billCategoryValues.clear();
+			PreparedStatement stmt = con.prepareStatement(
+					"SELECT sub.frequency, count(*) cnt FROM subscription sub, customer cust WHERE sub.customer_id=cust.customer_id AND sub.frequency IN ('Daily','14 Days','Weekly') AND cust.hawker_code =? AND cust.line_num =? and sub.status='Active' group by sub.frequency");
 			stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
 			stmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
 			ResultSet rs = stmt.executeQuery();
@@ -1210,7 +1643,7 @@ public class ALineInfoTabController implements Initializable{
 			weeklyCount.setText("0");
 			days14Count.setText("0");
 			while (rs.next()) {
-				switch(rs.getString(1)){
+				switch (rs.getString(1)) {
 				case "Daily":
 					dailyCount.setText(rs.getString(2));
 					break;
@@ -1220,7 +1653,7 @@ public class ALineInfoTabController implements Initializable{
 				case "14 Days":
 					days14Count.setText(rs.getString(2));
 					break;
-					
+
 				}
 			}
 		} catch (SQLException e) {
@@ -1228,31 +1661,18 @@ public class ALineInfoTabController implements Initializable{
 		}
 
 	}
-	
 
-	
-//	@Override
+	// @Override
 	public void reloadData() {
-		System.out.println("Entered Line Info ReloadData");
+		lineNumData.clear();
+		lineNumTable.getItems().clear();
+		lineNumTable.getItems().addAll(lineNumData);
 		populatePointNames();
-		addPointName.getItems().clear();
-		addPointName.getItems().addAll(pointNameValues);
-		lineNumCustomersTable.getItems().clear();
-
-		if (HawkerLoginController.loggedInHawker != null) {
-			addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
-			addPointName.setDisable(true);
-			hawkerComboBox.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
-			hawkerComboBox.setDisable(true);
-			
-		}
-		else {
-			lineNumTable.getItems().clear();
-			lineNumTable.refresh();
-		}
+		
 	}
-//	@Override
-	public void releaseVariables(){
+
+	// @Override
+	public void releaseVariables() {
 		hawkerCodeData = null;
 		lineNumData = null;
 		customerData = null;
@@ -1260,6 +1680,6 @@ public class ALineInfoTabController implements Initializable{
 		lineNumData = FXCollections.observableArrayList();
 		customerData = FXCollections.observableArrayList();
 		pointNameValues = FXCollections.observableArrayList();
-		newHouseSeqTFArray=null;
+		newHouseSeqTFArray = null;
 	}
 }

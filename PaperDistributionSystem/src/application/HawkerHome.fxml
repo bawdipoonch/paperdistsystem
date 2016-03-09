@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.HawkerHomeController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.HawkerHomeController">
 	<children>
 		<VBox prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
@@ -30,12 +30,12 @@
       				</ButtonBar>
                </children>
             </HBox>
-				<HBox alignment="TOP_CENTER" prefHeight="20.0" VBox.vgrow="ALWAYS">
+				<HBox alignment="TOP_CENTER" maxHeight="-Infinity" prefHeight="20.0" VBox.vgrow="ALWAYS">
 					<VBox.margin>
 						<Insets bottom="10.0" left="10.0" right="10.0" />
 					</VBox.margin>
 					<children>
-						<VBox prefHeight="20.0" HBox.hgrow="ALWAYS">
+						<VBox maxHeight="-Infinity" prefHeight="20.0" HBox.hgrow="ALWAYS">
 							<children>
 								<HBox alignment="CENTER" prefHeight="20.0" prefWidth="705.0" spacing="10.0">
 									<children>
@@ -79,6 +79,16 @@
 												<Font size="14.0" />
 											</font>
 										</Label>
+										<Label text="Point Name : ">
+											<font>
+												<Font size="14.0" />
+											</font>
+										</Label>
+										<Label fx:id="pointName" text="&lt;Point Name&gt;">
+											<font>
+												<Font size="14.0" />
+											</font>
+										</Label>
 										<Label text="Bill Category : ">
 											<font>
 												<Font size="14.0" />
@@ -107,7 +117,7 @@
 								<fx:include source="A-LineInfoTab.fxml" />
 							</content>
 						</Tab>
-						<Tab fx:id="pausedCustTab" text="Paused Customers">
+						<Tab fx:id="pausedCustTab" text="Stopped Customers">
 							<content>
 								<fx:include source="A-PausedCustomersTab.fxml" />
 							</content>

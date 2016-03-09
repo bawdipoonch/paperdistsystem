@@ -224,6 +224,11 @@ public class EditCustomerController implements Initializable {
 
 	public boolean isValid() {
 		boolean validate = true;
+		if (editNameTF.getText() == null || editNameTF.getText().isEmpty()) {
+			validate = false;
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Customer Name not provided")
+					.text("Please provide a customer name before adding the the customer").showError();
+		}
 		if (editHawkerCodeLOV.getSelectionModel().getSelectedItem() == null) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
@@ -244,7 +249,7 @@ public class EditCustomerController implements Initializable {
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid House Sequence")
 					.text("House Sequence must be between 1 and " + seq).showError();
 		}
-		if(!editProfile3TF.getText().isEmpty() && checkExistingProfileValue(editProfile3TF.getText())){
+		if(editProfile3TF.getText() != null && checkExistingProfileValue(editProfile3TF.getText())){
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.").showError();

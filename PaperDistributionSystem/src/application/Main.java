@@ -4,8 +4,19 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 
 import org.controlsfx.control.Notifications;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.rds.AmazonRDSClient;
+import com.amazonaws.services.rds.model.DBInstance;
+import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
+import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
+import com.sun.xml.internal.bind.v2.runtime.reflect.ListIterator;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -38,18 +49,20 @@ public class Main extends Application {
 			}
 		}
 	};
-	final private static String ACCESS_KEY = "AKIAILIR5CDWQ2B4KORQ";
-	final private static String SECRET = "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";
+	final private static String ACCESS_KEY = "AKIAJHK6Z2KAU4WJSTGQ";
+	final private static String SECRET = "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";
 	final private static String dbConnectionString = "jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL";
-
+	public static Stage primaryStage;
 	@Override
 	public void start(Stage primaryStage) {
+		Main.primaryStage=primaryStage;
 		try {
 			Pane root = (Pane) FXMLLoader.load(getClass().getResource("HawkerLogin.fxml"));
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-			primaryStage.setScene(scene);
-			primaryStage.show();
+			Main.primaryStage.setScene(scene);
+			Main.primaryStage.setMaximized(true);
+			Main.primaryStage.show();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -60,9 +73,18 @@ public class Main extends Application {
 		try {
 			// step1 load the driver class
 			Class.forName("oracle.jdbc.driver.OracleDriver");
-
+			AWSCredentials credentials = null;
+			credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+			AmazonRDSClient client = new AmazonRDSClient(credentials);
+			client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
+			DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
+			req.setDBInstanceIdentifier("lateefahmedpds");
+			DescribeDBInstancesResult result = client.describeDBInstances();
+			DBInstance dbInstance = (DBInstance) result.getDBInstances().toArray()[0];
+			String address=dbInstance.getEndpoint().getAddress();
+			
 			// step2 create the connection object
-			dbConnection = DriverManager.getConnection(dbConnectionString, "admin", "LateefAhmedPDS");
+			dbConnection = DriverManager.getConnection("jdbc:oracle:thin:@"+dbInstance.getEndpoint().getAddress()+":"+dbInstance.getEndpoint().getPort()+":ORCL", "admin", "LateefAhmedPDS");
 
 			// step3 create the statement object
 			// Statement stmt = dbConnection.createStatement();

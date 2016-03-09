@@ -25,7 +25,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class HawkerHomeController implements Initializable {
@@ -38,7 +37,8 @@ public class HawkerHomeController implements Initializable {
 	@FXML private Label agencyName;
 	@FXML private Label mobileNum;
 	@FXML private Label billCategory;
-	Stage stage; 
+	@FXML private Label pointName;
+//	Stage stage; 
     Parent root;
     @FXML private Tab customersTab;
     @FXML private Tab lineInfoTab;
@@ -63,6 +63,7 @@ public class HawkerHomeController implements Initializable {
 			code.setText(HawkerLoginController.loggedInHawker.getHawkerCode());
 			agencyName.setText(HawkerLoginController.loggedInHawker.getAgencyName());
 			mobileNum.setText(HawkerLoginController.loggedInHawker.getMobileNum());
+			pointName.setText(HawkerLoginController.loggedInHawker.getPointName());
 			populateBillCategory();
 			loadTabs();
 			if(!HawkerLoginController.loggedInHawker.getCustomerAccess().equals("Y"))
@@ -73,6 +74,8 @@ public class HawkerHomeController implements Initializable {
 				tabPane.getTabs().remove(pausedCustTab);
 			if(!HawkerLoginController.loggedInHawker.getLineDistAccess().equals("Y"))
 				tabPane.getTabs().remove(lineDistTab);
+			if(!HawkerLoginController.loggedInHawker.getProductAccess().equals("Y"))
+				tabPane.getTabs().remove(productsTab);
 			
 			tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
@@ -131,6 +134,7 @@ public class HawkerHomeController implements Initializable {
 				}
 			});
 			tabPane.getSelectionModel().selectFirst();
+			customerTabController.reloadData();
 			
 	}
 	
@@ -159,13 +163,14 @@ public class HawkerHomeController implements Initializable {
 	private void logoutClicked(ActionEvent event) throws IOException {
 		System.out.println("Logout clicked");
 		HawkerLoginController.loggedInHawker = null;
-		stage=(Stage) logoutButton.getScene().getWindow();
+//		stage=(Stage) logoutButton.getScene().getWindow();
         //load up OTHER FXML document
 		root = FXMLLoader.load(getClass().getResource("HawkerLogin.fxml"));
 		
 		Scene scene = new Scene(root);
-	      stage.setScene(scene);
-	      stage.show();
+		Main.primaryStage.setScene(scene);
+		Main.primaryStage.setMaximized(true);
+		Main.primaryStage.show();
 	}
 	
 	private void loadTabs(){
@@ -221,16 +226,8 @@ public class HawkerHomeController implements Initializable {
 			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("A-PausedCustomersTab.fxml"));
 			Parent pausedcustroot = (Parent)pausedCustTabLoader.load();
 			pausedCustTabController = pausedCustTabLoader.<APausedCustomerTabController>getController();
-			pausedCustTab.setText("Paused Customers");
+			pausedCustTab.setText("Stopped Customers");
 			pausedCustTab.setContent(pausedcustroot);
-			/*pausedCustTab.setOnSelectionChanged(new EventHandler<Event>() {
-				
-				@Override
-				public void handle(Event event) {
-					
-					pausedCustTabController.reloadData();
-				}
-			});*/
 			productsTab = new Tab();
 			FXMLLoader productsTabLoader = new FXMLLoader(getClass().getResource("AProductsTab.fxml"));
 			Parent productsRoot = (Parent)productsTabLoader.load();
