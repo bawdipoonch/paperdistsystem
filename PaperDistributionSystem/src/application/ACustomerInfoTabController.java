@@ -3,6 +3,7 @@ package application;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -390,6 +391,19 @@ public class ACustomerInfoTabController implements Initializable {
 					}
 
 				});
+				MenuItem mnuView = new MenuItem("View customer");
+				mnuView.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Customer custRow = customerMasterData
+								.get(ACustInfoTable.getSelectionModel().getSelectedIndex());
+						if (custRow != null) {
+							showViewCustomerDialog(custRow);
+//							ACustInfoTable.refresh();
+						}
+					}
+
+				});
 				MenuItem mnuSubs = new MenuItem("Add subscription");
 				mnuSubs.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
@@ -406,10 +420,10 @@ public class ACustomerInfoTabController implements Initializable {
 				ContextMenu menu = new ContextMenu();
 				if(HawkerLoginController.loggedInHawker!=null){
 
-					menu.getItems().addAll(mnuSubs, mnuEdit);
+					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView);
 				}else{
 
-					menu.getItems().addAll(mnuSubs, mnuEdit, mnuDel);
+					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView, mnuDel);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -434,6 +448,31 @@ public class ACustomerInfoTabController implements Initializable {
 
 				if (newValue.length() > 3)
 					addCustInitials.setText(oldValue);
+			}
+		});
+		
+		addCustMobile.textProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+
+				if (newValue.length() > 10){
+					addCustMobile.setText(oldValue);
+
+					Notifications.create().title("Invalid mobile number")
+							.text("Mobile number should only contain 10 DIGITS")
+							.hideAfter(Duration.seconds(5)).showError();
+				}
+				try {
+					Integer.parseInt(newValue);
+				} catch (NumberFormatException e) {
+					addCustMobile.setText(oldValue);
+
+					Notifications.create().title("Invalid mobile number")
+							.text("Mobile number should only contain 10 DIGITS")
+							.hideAfter(Duration.seconds(5)).showError();
+					e.printStackTrace();
+				}
 			}
 		});
 
@@ -505,6 +544,19 @@ public class ACustomerInfoTabController implements Initializable {
 
 				});
 
+				MenuItem mnuView = new MenuItem("View Subscription");
+				mnuEdit.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
+						if (subsRow != null) {
+							showViewSubscriptionDialog(subsRow);
+							// refreshSubscriptions();
+						}
+					}
+
+				});
+
 				MenuItem mnuPause = new MenuItem("Stop Subscription");
 				mnuPause.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
@@ -544,6 +596,12 @@ public class ACustomerInfoTabController implements Initializable {
 											.hideAfter(Duration.seconds(5)).showError();
 									btnEvent.consume();
 								}
+								if(stopEntryExistsForStartDate(subsRow, pauseDP.getValue())){
+									Notifications.create().title("Stop Entry exists")
+									.text("A stop entry for this subscription on selected StopDate already exists.")
+									.hideAfter(Duration.seconds(5)).showError();
+									btnEvent.consume();
+								}
 							});
 							Optional<ButtonType> result = pauseWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
@@ -551,6 +609,7 @@ public class ACustomerInfoTabController implements Initializable {
 								subsRow.setPausedDate(pauseDP.getValue());
 								subsRow.setResumeDate(resumeDP.getValue());
 								subsRow.updateSubscriptionRecord();
+								createStopHistoryForSub(subsRow,pauseDP.getValue(),resumeDP.getValue());
 								refreshSubscriptions();
 							}
 						} else {
@@ -585,12 +644,13 @@ public class ACustomerInfoTabController implements Initializable {
 							grid.add(new Label("Resume Date"), 0, 1);
 							DatePicker resumeDP = new DatePicker(LocalDate.now());
 							resumeDP.setConverter(Main.dateConvertor);
-							resumeDP.setDisable(true);
+//							resumeDP.setDisable(true);
 							grid.add(resumeDP, 1, 1);
 							resumeWarning.getDialogPane().setContent(grid);
 							Optional<ButtonType> result = resumeWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
 								subsRow.resumeSubscription();
+								resumeStopHistoryForSub(subsRow,pauseDP.getValue(),resumeDP.getValue());
 								refreshSubscriptions();
 							}
 						} else {
@@ -603,10 +663,10 @@ public class ACustomerInfoTabController implements Initializable {
 				ContextMenu menu = new ContextMenu();
 				if(HawkerLoginController.loggedInHawker!=null){
 
-					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit);
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView);
 				}else{
 
-					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuDel);
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuDel);
 				}
 
 				row.contextMenuProperty().bind(
@@ -742,6 +802,37 @@ public class ACustomerInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 	}
+	
+	private void showViewCustomerDialog(Customer custRow) {
+		try {
+
+			Dialog<Customer> editCustomerDialog = new Dialog<Customer>();
+			editCustomerDialog.setTitle("View customer data");
+			editCustomerDialog.setHeaderText("View the customer data below");
+
+			editCustomerDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+
+			FXMLLoader editCustomerLoader = new FXMLLoader(getClass().getResource("EditCustomer.fxml"));
+			Parent editCustomerGrid = (Parent) editCustomerLoader.load();
+			EditCustomerController editCustController = editCustomerLoader.<EditCustomerController> getController();
+
+			editCustomerDialog.getDialogPane().setContent(editCustomerGrid);
+			editCustController.setCustomerToEdit(custRow);
+			editCustController.setupBindings();
+			editCustController.gridPane.setDisable(true);
+//			editCustController.gridPane.setStyle("-fx-opacity: 1.0;");
+			
+
+			Optional<Customer> updatedCustomer = editCustomerDialog.showAndWait();
+			// refreshCustomerTable();
+
+			
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+	}
 
 	private void deleteSubscription(Subscription subsRow) {
 		Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
@@ -825,6 +916,37 @@ public class ACustomerInfoTabController implements Initializable {
 					refreshSubscriptions();
 				}
 			});
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void showViewSubscriptionDialog(Subscription subsRow) {
+		try {
+
+			Dialog<Subscription> editSubscriptionDialog = new Dialog<Subscription>();
+			editSubscriptionDialog.setTitle("View subscription data");
+			editSubscriptionDialog.setHeaderText("View the subscription data below");
+
+			// Set the button types.
+			
+			editSubscriptionDialog.getDialogPane().getButtonTypes().addAll( ButtonType.CLOSE);
+
+			FXMLLoader editSubscriptionLoader = new FXMLLoader(getClass().getResource("EditSubscription.fxml"));
+			Parent editSubscriptionGrid = (Parent) editSubscriptionLoader.load();
+			EditSubscriptionController editSubsController = editSubscriptionLoader
+					.<EditSubscriptionController> getController();
+
+			editSubscriptionDialog.getDialogPane().setContent(editSubscriptionGrid);
+			editSubsController.setSubscriptionToEdit(subsRow);
+			editSubsController.setupBindings();
+			editSubsController.gridPane.setDisable(true);
+
+			Optional<Subscription> updatedSubscription = editSubscriptionDialog.showAndWait();
+			// refreshCustomerTable();
+
+			
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1133,6 +1255,21 @@ public class ACustomerInfoTabController implements Initializable {
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
 					.showError();
+		}
+		if (addCustMobile.getText().length()!=10) {
+			Notifications.create().title("Invalid mobile number")
+			.text("Mobile number should only contain 10 DIGITS")
+			.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+		}
+		try {
+			Integer.parseInt(addCustMobile.getText());
+		} catch (NumberFormatException e) {
+			Notifications.create().title("Invalid mobile number")
+			.text("Mobile number should only contain 10 DIGITS")
+			.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+			e.printStackTrace();
 		}
 		return validate;
 	}
@@ -1628,10 +1765,104 @@ public class ACustomerInfoTabController implements Initializable {
 		new Thread(task).start();
 
 	}
+	
+
+	private void resumeStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
+		
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			
+			if (!stopDate.isEqual(resumeDate)) {
+				String insertStmt = "update stop_history set resume_date=? where sub_id=? and stop_date=?";
+				PreparedStatement stmt = con.prepareStatement(insertStmt);
+				stmt.setLong(2, subsRow.getSubscriptionId());
+				stmt.setDate(3, Date.valueOf(stopDate));
+				stmt.setDate(1, resumeDate == null ? null : Date.valueOf(resumeDate));
+				if (stmt.executeUpdate() > 0) {
+
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Updated")
+							.text("Stop History record successfully closed").show();
+				} 
+			} else {
+				String insertStmt = "delete from stop_history where sub_id=? and stop_date=?";
+				PreparedStatement stmt = con.prepareStatement(insertStmt);
+				stmt.setLong(1, subsRow.getSubscriptionId());
+				stmt.setDate(2, Date.valueOf(stopDate));
+				if (stmt.executeUpdate() > 0) {
+
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Deleted")
+							.text("Stop Date is same as resume date. Stop History record successfully deleted.").showInformation();
+				} 
+			}
+			
+
+		} catch (SQLException e) {
+
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
+					.text("Error in creation of stop history record").showError();
+			e.printStackTrace();
+		}
+	}
+
+	private void createStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
+		
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String insertStmt = "insert into stop_history(SUB_ID,STOP_DATE,RESUME_DATE) values(?,?,?)";
+			PreparedStatement stmt = con.prepareStatement(insertStmt);
+			stmt.setLong(1, subsRow.getSubscriptionId());
+			stmt.setDate(2, Date.valueOf(stopDate));
+			stmt.setDate(3, resumeDate==null?null:Date.valueOf(stopDate));
+			stmt.executeUpdate();
+			
+
+		} catch (SQLException e) {
+
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
+					.text("Error in creation of stop history record").showError();
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean stopEntryExistsForStartDate(Subscription subsRow, LocalDate stopDate){
+		
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String countStmt = "select count(*) from stop_history where sub_id=? and ? between stop_date and resume_date";
+			PreparedStatement stmt = con.prepareStatement(countStmt);
+			stmt.setLong(1, subsRow.getSubscriptionId());
+			stmt.setDate(2, Date.valueOf(stopDate));
+			ResultSet rs = stmt.executeQuery();
+			if(rs.next()){
+				return rs.getInt(1)>0;
+			}
+			
+
+		} catch (SQLException e) {
+
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
+					.text("Error in creation of stop history record").showError();
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
 
 	// @Override
 	public void reloadData() {
-
+		
 		populatePointNames();
 		if (HawkerLoginController.loggedInHawker == null) {
 			if (showAllRadioButton.isSelected()) {

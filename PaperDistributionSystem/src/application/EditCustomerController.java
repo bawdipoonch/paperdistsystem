@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 
 public class EditCustomerController implements Initializable {
@@ -68,6 +69,7 @@ public class EditCustomerController implements Initializable {
 	private ComboBox<String> editStateLOV;
 	@FXML
 	private ComboBox<String> editEmploymentLOV;
+	@FXML public GridPane gridPane;
 
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerLineNumData = FXCollections.observableArrayList();
@@ -151,6 +153,31 @@ public class EditCustomerController implements Initializable {
 
 				if (newValue.length() > 3)
 					initialsTF.setText(oldValue);
+			}
+		});
+
+		editMobileNumTF.textProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+
+				if (newValue.length() > 10){
+					editMobileNumTF.setText(oldValue);
+
+					Notifications.create().title("Invalid mobile number")
+							.text("Mobile number should only contain 10 DIGITS")
+							.hideAfter(Duration.seconds(5)).showError();
+				}
+				try {
+					Integer.parseInt(newValue);
+				} catch (NumberFormatException e) {
+					editMobileNumTF.setText(oldValue);
+
+					Notifications.create().title("Invalid mobile number")
+							.text("Mobile number should only contain 10 DIGITS")
+							.hideAfter(Duration.seconds(5)).showError();
+					e.printStackTrace();
+				}
 			}
 		});
 		editNameTF.requestFocus();
@@ -253,6 +280,21 @@ public class EditCustomerController implements Initializable {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.").showError();
+		}
+		if (editMobileNumTF.getText().length()!=10) {
+			Notifications.create().title("Invalid mobile number")
+			.text("Mobile number should only contain 10 DIGITS")
+			.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+		}
+		try {
+			Integer.parseInt(editMobileNumTF.getText());
+		} catch (NumberFormatException e) {
+			Notifications.create().title("Invalid mobile number")
+			.text("Mobile number should only contain 10 DIGITS")
+			.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+			e.printStackTrace();
 		}
 		return validate;
 	}

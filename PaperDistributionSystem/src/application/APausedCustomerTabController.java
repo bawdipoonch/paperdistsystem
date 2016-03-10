@@ -2,6 +2,7 @@ package application;
 
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,9 +22,11 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -33,6 +36,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
@@ -155,13 +159,30 @@ public class APausedCustomerTabController implements Initializable {
 					public void handle(ActionEvent t) {
 						PausedSubscription pausedSubsRow = pausedCustTable.getSelectionModel().getSelectedItem();
 						if (pausedSubsRow != null) {
-							Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
-							deleteWarning.setTitle("Warning");
-							deleteWarning.setHeaderText("Are you sure you want to RESUME this record?");
-							deleteWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
-							Optional<ButtonType> result = deleteWarning.showAndWait();
+							Dialog<ButtonType> resumeWarning = new Dialog<ButtonType>();
+							resumeWarning.setTitle("Warning");
+							resumeWarning.setHeaderText("Are you sure you want to RESUME this record?");
+							resumeWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
+							GridPane grid = new GridPane();
+							grid.setHgap(10);
+							grid.setVgap(10);
+							grid.setPadding(new Insets(20, 150, 10, 10));
+
+							grid.add(new Label("Stop Date"), 0, 0);
+							DatePicker pauseDP = new DatePicker(pausedSubsRow.getPausedDate());
+							pauseDP.setConverter(Main.dateConvertor);
+							pauseDP.setDisable(true);
+							grid.add(pauseDP, 1, 0);
+							grid.add(new Label("Resume Date"), 0, 1);
+							DatePicker resumeDP = new DatePicker(LocalDate.now());
+							resumeDP.setConverter(Main.dateConvertor);
+//							resumeDP.setDisable(true);
+							grid.add(resumeDP, 1, 1);
+							resumeWarning.getDialogPane().setContent(grid);
+							Optional<ButtonType> result = resumeWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
 								pausedSubsRow.resumeSubscription();
+								resumeStopHistoryForSub(pausedSubsRow.getSubscriptionId(),pauseDP.getValue(),resumeDP.getValue());
 								refreshPausedCustTable();
 							}
 
@@ -421,6 +442,47 @@ public class APausedCustomerTabController implements Initializable {
 		}
 
 	}
+	
+	private void resumeStopHistoryForSub(long subsId, LocalDate stopDate, LocalDate resumeDate) {
+		
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			
+			if (!stopDate.isEqual(resumeDate)) {
+				String insertStmt = "update stop_history set resume_date=? where sub_id=? and stop_date=?";
+				PreparedStatement stmt = con.prepareStatement(insertStmt);
+				stmt.setLong(2, subsId);
+				stmt.setDate(3, Date.valueOf(stopDate));
+				stmt.setDate(1, resumeDate == null ? null : Date.valueOf(resumeDate));
+				if (stmt.executeUpdate() > 0) {
+
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Updated")
+							.text("Stop History record successfully closed").show();
+				} 
+			} else {
+				String insertStmt = "delete from stop_history where sub_id=? and stop_date=?";
+				PreparedStatement stmt = con.prepareStatement(insertStmt);
+				stmt.setLong(1, subsId);
+				stmt.setDate(2, Date.valueOf(stopDate));
+				if (stmt.executeUpdate() > 0) {
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Deleted")
+							.text("Stop Date is same as Resume Date. Stop History record successfully deleted.").showInformation();
+				} 
+			}
+			
+
+		} catch (SQLException e) {
+
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
+					.text("Error in creation of stop history record").showError();
+			e.printStackTrace();
+		}
+	}
+
 	
 //	@Override
 	public void reloadData() {

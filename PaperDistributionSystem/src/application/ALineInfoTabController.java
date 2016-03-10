@@ -3,6 +3,7 @@ package application;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -388,6 +389,20 @@ public class ALineInfoTabController implements Initializable {
 					}
 
 				});
+				
+
+				MenuItem mnuView = new MenuItem("View customer");
+				mnuView.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Customer custRow = lineNumCustomersTable.getSelectionModel().getSelectedItem();
+						if (custRow != null) {
+							showViewCustomerDialog(custRow);
+							// populateCustomersForLine();
+						}
+					}
+
+				});
 				MenuItem mnuSubs = new MenuItem("Add subscription");
 				mnuSubs.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
@@ -415,68 +430,82 @@ public class ALineInfoTabController implements Initializable {
 						grid.setVgap(10);
 						grid.setPadding(new Insets(20, 150, 10, 10));
 						ObservableList<Subscription> subsList = getActiveSubsListForCust(custRow);
-						ComboBox<Subscription> subsBox = new ComboBox<Subscription>();
-						subsBox.setConverter(new StringConverter<Subscription>() {
+						if (!subsList.isEmpty()) {
+							ComboBox<Subscription> subsBox = new ComboBox<Subscription>();
+							subsBox.setConverter(new StringConverter<Subscription>() {
 
-							@Override
-							public String toString(Subscription object) {
-								return object.getSubscriptionId() + "-" + object.getProductCode() + "-"
-										+ object.getProductName();
-							}
-
-							@Override
-							public Subscription fromString(String string) {
-								for (int i = 0; i < subsList.size(); i++) {
-									Subscription sub = subsList.get(i);
-									if (sub.getSubscriptionId() == (Long.parseLong(string.split("-")[0])))
-										return sub;
+								@Override
+								public String toString(Subscription object) {
+									return object.getSubscriptionId() + "-" + object.getProductCode() + "-"
+											+ object.getProductName();
 								}
-								return null;
-							}
-						});
-						subsBox.getItems().addAll(subsList);
-						subsBox.getSelectionModel().selectFirst();
-						grid.add(new Label("Subscription"), 0, 0);
-						grid.add(new Label("Stop Date"), 0, 1);
-						grid.add(new Label("Resume Date"), 0, 2);
-						DatePicker dp = new DatePicker(LocalDate.now());
-						dp.setConverter(Main.dateConvertor);
 
-						grid.add(dp, 1, 1);
-						grid.add(subsBox, 1, 0);
-						DatePicker resumeDP = new DatePicker();
-						resumeDP.setConverter(Main.dateConvertor);
-						grid.add(resumeDP, 1, 2);
-						pauseWarning.getDialogPane().setContent(grid);
-						Button yesButton = (Button) pauseWarning.getDialogPane().lookupButton(ButtonType.YES);
-						yesButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
-							if (dp.getValue().isBefore(subsBox.getSelectionModel().getSelectedItem().getStartDate())) {
-								Notifications.create().title("Invalid stop date")
-										.text("Stop date should not be before Start date for subscription")
-										.hideAfter(Duration.seconds(5)).showError();
-								btnEvent.consume();
-							}
-						});
-						Optional<ButtonType> result = pauseWarning.showAndWait();
-						if (result.isPresent() && result.get() == ButtonType.YES) {
-							Subscription subsRow = subsBox.getSelectionModel().getSelectedItem();
-							if (subsRow != null && subsRow.getStatus().equals("Active")) {
+								@Override
+								public Subscription fromString(String string) {
+									for (int i = 0; i < subsList.size(); i++) {
+										Subscription sub = subsList.get(i);
+										if (sub.getSubscriptionId() == (Long.parseLong(string.split("-")[0])))
+											return sub;
+									}
+									return null;
+								}
+							});
+							subsBox.getItems().addAll(subsList);
+							subsBox.getSelectionModel().selectFirst();
+							grid.add(new Label("Subscription"), 0, 0);
+							grid.add(new Label("Stop Date"), 0, 1);
+							grid.add(new Label("Resume Date"), 0, 2);
+							DatePicker dp = new DatePicker(LocalDate.now());
+							dp.setConverter(Main.dateConvertor);
+							grid.add(dp, 1, 1);
+							grid.add(subsBox, 1, 0);
+							DatePicker resumeDP = new DatePicker();
+							resumeDP.setConverter(Main.dateConvertor);
+							grid.add(resumeDP, 1, 2);
+							pauseWarning.getDialogPane().setContent(grid);
+							Button yesButton = (Button) pauseWarning.getDialogPane().lookupButton(ButtonType.YES);
+							yesButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+								if (dp.getValue()
+										.isBefore(subsBox.getSelectionModel().getSelectedItem().getStartDate())) {
+									Notifications.create().title("Invalid stop date")
+											.text("Stop date should not be before Start date for subscription")
+											.hideAfter(Duration.seconds(5)).showError();
+									btnEvent.consume();
+								}
+								if(stopEntryExistsForStartDate(subsBox.getSelectionModel().getSelectedItem(), dp.getValue())){
+									Notifications.create().title("Stop Entry exists")
+									.text("A stop entry for this subscription on selected StopDate already exists.")
+									.hideAfter(Duration.seconds(5)).showError();
+									btnEvent.consume();
+								}
+								
+							});
+							Optional<ButtonType> result = pauseWarning.showAndWait();
+							if (result.isPresent() && result.get() == ButtonType.YES) {
+								Subscription subsRow = subsBox.getSelectionModel().getSelectedItem();
+								if (subsRow != null && subsRow.getStatus().equals("Active")) {
 
-							} else {
-								Notifications.create().title("Invalid operation")
-										.text("Subscription is already STOPPED").hideAfter(Duration.seconds(5))
-										.showWarning();
-							}
-							subsRow.setStatus("Stopped");
-							subsRow.setPausedDate(dp.getValue());
-							subsRow.setResumeDate(resumeDP.getValue());
-							subsRow.updateSubscriptionRecord();
+								} else {
+									Notifications.create().title("Invalid operation")
+											.text("Subscription is already STOPPED").hideAfter(Duration.seconds(5))
+											.showWarning();
+								}
+								subsRow.setStatus("Stopped");
+								subsRow.setPausedDate(dp.getValue());
+								subsRow.setResumeDate(resumeDP.getValue());
+								subsRow.updateSubscriptionRecord();
 
-							refreshSubscriptions();
-							populateSubscriptionCount();
-							Notifications.create().title("Stop successful").text("Stop subscription successful")
-									.hideAfter(Duration.seconds(5)).showInformation();
+								createStopHistoryForSub(subsRow,dp.getValue(),resumeDP.getValue());
+								refreshSubscriptions();
+								populateSubscriptionCount();
+								Notifications.create().title("Stop successful").text("Stop subscription successful")
+										.hideAfter(Duration.seconds(5)).showInformation();
 
+							} 
+						} else {
+
+							Notifications.create().title("No Active subscriptions").text("No active subscriptions present for this customer.")
+									.hideAfter(Duration.seconds(5)).showError();
 						}
 
 					}
@@ -495,73 +524,80 @@ public class ALineInfoTabController implements Initializable {
 						deleteWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
 
 						ObservableList<Subscription> subsList = getPausedSubsListForCust(custRow);
-						ComboBox<Subscription> subsBox = new ComboBox<Subscription>();
-						subsBox.setConverter(new StringConverter<Subscription>() {
+						if (!subsList.isEmpty()) {
+							ComboBox<Subscription> subsBox = new ComboBox<Subscription>();
+							subsBox.setConverter(new StringConverter<Subscription>() {
 
-							@Override
-							public String toString(Subscription object) {
-								return object.getSubscriptionId() + "-" + object.getProductCode() + "-"
-										+ object.getProductName();
-							}
-
-							@Override
-							public Subscription fromString(String string) {
-								for (int i = 0; i < subsList.size(); i++) {
-									Subscription sub = subsList.get(i);
-									if (sub.getSubscriptionId() == (Long.parseLong(string.split("-")[0])))
-										return sub;
+								@Override
+								public String toString(Subscription object) {
+									return object.getSubscriptionId() + "-" + object.getProductCode() + "-"
+											+ object.getProductName();
 								}
-								return null;
-							}
-						});
-						subsBox.getItems().addAll(subsList);
 
-						GridPane grid = new GridPane();
-						grid.setHgap(10);
-						grid.setVgap(10);
-						grid.setPadding(new Insets(20, 150, 10, 10));
-						DatePicker dp = new DatePicker();
-						dp.setConverter(Main.dateConvertor);
-						dp.setDisable(true);
-						DatePicker resumeDP = new DatePicker(LocalDate.now());
-						resumeDP.setConverter(Main.dateConvertor);
-						resumeDP.setDisable(true);
-						subsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Subscription>() {
-
-							@Override
-							public void changed(ObservableValue<? extends Subscription> observable,
-									Subscription oldValue, Subscription newValue) {
-								if(newValue!=null){
-									dp.setValue(newValue.getPausedDate());
+								@Override
+								public Subscription fromString(String string) {
+									for (int i = 0; i < subsList.size(); i++) {
+										Subscription sub = subsList.get(i);
+										if (sub.getSubscriptionId() == (Long.parseLong(string.split("-")[0])))
+											return sub;
+									}
+									return null;
 								}
-								
-							}
-						});
-						subsBox.getSelectionModel().selectFirst();
-						grid.add(new Label("Subscription"), 0, 0);
-						grid.add(new Label("Stop Date"), 0, 1);
-						grid.add(new Label("Resume Date"), 0, 2);
-						
+							});
+							subsBox.getItems().addAll(subsList);
+							GridPane grid = new GridPane();
+							grid.setHgap(10);
+							grid.setVgap(10);
+							grid.setPadding(new Insets(20, 150, 10, 10));
+							DatePicker dp = new DatePicker();
+							dp.setConverter(Main.dateConvertor);
+							dp.setDisable(true);
+							DatePicker resumeDP = new DatePicker(LocalDate.now());
+							resumeDP.setConverter(Main.dateConvertor);
+//							resumeDP.setDisable(true);
+							subsBox.getSelectionModel().selectedItemProperty()
+									.addListener(new ChangeListener<Subscription>() {
 
-						grid.add(dp, 1, 1);
-						grid.add(subsBox, 1, 0);
-						
-						grid.add(resumeDP, 1, 2);
-						deleteWarning.getDialogPane().setContent(grid);
-						Optional<ButtonType> result = deleteWarning.showAndWait();
-						if (result.isPresent() && result.get() == ButtonType.YES) {
-							Subscription subsRow = subsBox.getSelectionModel().getSelectedItem();
-							if (subsRow != null && subsRow.getStatus().equals("Stopped")) {
-								subsRow.resumeSubscription();
+										@Override
+										public void changed(ObservableValue<? extends Subscription> observable,
+												Subscription oldValue, Subscription newValue) {
+											if (newValue != null) {
+												dp.setValue(newValue.getPausedDate());
+												resumeDP.setValue(newValue.getResumeDate()==null?LocalDate.now():newValue.getResumeDate());
+											}
 
-								refreshSubscriptions();
-								populateSubscriptionCount();
-								Notifications.create().title("Resume successful").text("Resume subscription successful")
-										.hideAfter(Duration.seconds(5)).showInformation();
-							} else {
-								Notifications.create().title("Invalid operation").text("Subscription is already ACTIVE")
-										.hideAfter(Duration.seconds(5)).showWarning();
-							}
+										}
+									});
+							subsBox.getSelectionModel().selectFirst();
+							grid.add(new Label("Subscription"), 0, 0);
+							grid.add(new Label("Stop Date"), 0, 1);
+							grid.add(new Label("Resume Date"), 0, 2);
+							grid.add(dp, 1, 1);
+							grid.add(subsBox, 1, 0);
+							grid.add(resumeDP, 1, 2);
+							deleteWarning.getDialogPane().setContent(grid);
+							Optional<ButtonType> result = deleteWarning.showAndWait();
+							if (result.isPresent() && result.get() == ButtonType.YES) {
+								Subscription subsRow = subsBox.getSelectionModel().getSelectedItem();
+								if (subsRow != null && subsRow.getStatus().equals("Stopped")) {
+									subsRow.resumeSubscription();
+
+									resumeStopHistoryForSub(subsRow,dp.getValue(),resumeDP.getValue());
+									refreshSubscriptions();
+									populateSubscriptionCount();
+									Notifications.create().title("Resume successful")
+											.text("Resume subscription successful").hideAfter(Duration.seconds(5))
+											.showInformation();
+								} else {
+									Notifications.create().title("Invalid operation")
+											.text("Subscription is already ACTIVE").hideAfter(Duration.seconds(5))
+											.showWarning();
+								}
+							} 
+						} else {
+
+							Notifications.create().title("No Stopped subscriptions").text("No Stopped subscriptions present for this customer.")
+									.hideAfter(Duration.seconds(5)).showError();
 						}
 
 					}
@@ -570,9 +606,9 @@ public class ALineInfoTabController implements Initializable {
 				ContextMenu menu = new ContextMenu();
 
 				if(HawkerLoginController.loggedInHawker!=null){
-					menu.getItems().addAll(mnuEdit, mnuSubs, mnuPause, mnuResume);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuSubs, mnuPause, mnuResume);
 				}else{
-					menu.getItems().addAll(mnuEdit, mnuDel, mnuSubs, mnuPause, mnuResume);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuSubs, mnuPause, mnuResume);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -660,6 +696,12 @@ public class ALineInfoTabController implements Initializable {
 											.hideAfter(Duration.seconds(5)).showError();
 									btnEvent.consume();
 								}
+								if(stopEntryExistsForStartDate(subsRow, pauseDP.getValue())){
+									Notifications.create().title("Stop Entry exists")
+									.text("A stop entry for this subscription on selected StopDate already exists.")
+									.hideAfter(Duration.seconds(5)).showError();
+									btnEvent.consume();
+								}
 							});
 							Optional<ButtonType> result = pauseWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
@@ -667,6 +709,7 @@ public class ALineInfoTabController implements Initializable {
 								subsRow.setPausedDate(pauseDP.getValue());
 								subsRow.setResumeDate(resumeDP.getValue());
 								subsRow.updateSubscriptionRecord();
+								createStopHistoryForSub(subsRow,pauseDP.getValue(),resumeDP.getValue());
 								refreshSubscriptions();
 								populateSubscriptionCount();
 							}
@@ -685,13 +728,30 @@ public class ALineInfoTabController implements Initializable {
 					public void handle(ActionEvent t) {
 						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
 						if (subsRow != null && subsRow.getStatus().equals("Stopped")) {
-							Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
-							deleteWarning.setTitle("Warning");
-							deleteWarning.setHeaderText("Are you sure you want to RESUME this record?");
-							deleteWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
-							Optional<ButtonType> result = deleteWarning.showAndWait();
+							Dialog<ButtonType> resumeWarning = new Dialog<ButtonType>();
+							resumeWarning.setTitle("Warning");
+							resumeWarning.setHeaderText("Are you sure you want to RESUME this record?");
+							resumeWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
+							GridPane grid = new GridPane();
+							grid.setHgap(10);
+							grid.setVgap(10);
+							grid.setPadding(new Insets(20, 150, 10, 10));
+
+							grid.add(new Label("Stop Date"), 0, 0);
+							DatePicker pauseDP = new DatePicker(subsRow.getPausedDate());
+							pauseDP.setConverter(Main.dateConvertor);
+							pauseDP.setDisable(true);
+							grid.add(pauseDP, 1, 0);
+							grid.add(new Label("Resume Date"), 0, 1);
+							DatePicker resumeDP = new DatePicker(LocalDate.now());
+							resumeDP.setConverter(Main.dateConvertor);
+//							resumeDP.setDisable(true);
+							grid.add(resumeDP, 1, 1);
+							resumeWarning.getDialogPane().setContent(grid);
+							Optional<ButtonType> result = resumeWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
 								subsRow.resumeSubscription();
+								resumeStopHistoryForSub(subsRow,pauseDP.getValue(),resumeDP.getValue());
 								refreshSubscriptions();
 								populateSubscriptionCount();
 							}
@@ -965,7 +1025,7 @@ public class ALineInfoTabController implements Initializable {
 		});
 		dialog.showAndWait();
 	}
-
+	
 	private void updateLineNumForDist(LineInfo lineRow) {
 		try {
 
@@ -1403,6 +1463,33 @@ public class ALineInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 	}
+	
+	private void showViewCustomerDialog(Customer custRow) {
+		try {
+
+			Dialog<Customer> editCustomerDialog = new Dialog<Customer>();
+			editCustomerDialog.setTitle("View customer data");
+			editCustomerDialog.setHeaderText("View the customer data below");
+
+			editCustomerDialog.getDialogPane().getButtonTypes().addAll( ButtonType.CLOSE);
+
+			FXMLLoader editCustomerLoader = new FXMLLoader(getClass().getResource("EditCustomer.fxml"));
+			Parent editCustomerGrid = (Parent) editCustomerLoader.load();
+			EditCustomerController editCustController = editCustomerLoader.<EditCustomerController> getController();
+
+			editCustomerDialog.getDialogPane().setContent(editCustomerGrid);
+			editCustController.setCustomerToEdit(custRow);
+			editCustController.setupBindings();
+			editCustController.gridPane.setDisable(true);
+		
+			Optional<Customer> updatedCustomer = editCustomerDialog.showAndWait();
+			
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+	}
 
 	public void addCustomerExtraScreenClicked(ActionEvent event) {
 		if (hawkerComboBox.getSelectionModel().getSelectedItem() == null
@@ -1661,12 +1748,111 @@ public class ALineInfoTabController implements Initializable {
 		}
 
 	}
+	private void resumeStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
+		
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			
+			if (!stopDate.isEqual(resumeDate)) {
+				String insertStmt = "update stop_history set resume_date=? where sub_id=? and stop_date=?";
+				PreparedStatement stmt = con.prepareStatement(insertStmt);
+				stmt.setLong(2, subsRow.getSubscriptionId());
+				stmt.setDate(3, Date.valueOf(stopDate));
+				stmt.setDate(1, resumeDate == null ? null : Date.valueOf(resumeDate));
+				if (stmt.executeUpdate() > 0) {
+
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Updated")
+							.text("Stop History record successfully closed").show();
+				} 
+			} else {
+				String insertStmt = "delete from stop_history where sub_id=? and stop_date=?";
+				PreparedStatement stmt = con.prepareStatement(insertStmt);
+				stmt.setLong(1, subsRow.getSubscriptionId());
+				stmt.setDate(2, Date.valueOf(stopDate));
+				if (stmt.executeUpdate() > 0) {
+
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Deleted")
+							.text("Stop Date is same as resume date. Stop History record successfully deleted.").showInformation();
+				} 
+			}
+			
+
+		} catch (SQLException e) {
+
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
+					.text("Error in creation of stop history record").showError();
+			e.printStackTrace();
+		}
+	}
+
+	private void createStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
+		
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			subscriptionsTable.getItems().clear();
+			subscriptionMasterData.clear();
+			String insertStmt = "insert into stop_history(SUB_ID,STOP_DATE,RESUME_DATE) values(?,?,?)";
+			PreparedStatement stmt = con.prepareStatement(insertStmt);
+			stmt.setLong(1, subsRow.getSubscriptionId());
+			stmt.setDate(2, Date.valueOf(stopDate));
+			stmt.setDate(3, resumeDate==null?null:Date.valueOf(stopDate));
+			stmt.executeUpdate();
+			
+
+		} catch (SQLException e) {
+
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
+					.text("Error in creation of stop history record").showError();
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean stopEntryExistsForStartDate(Subscription subsRow, LocalDate stopDate){
+		
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			subscriptionsTable.getItems().clear();
+			subscriptionMasterData.clear();
+			String countStmt = "select count(*) from stop_history where sub_id=? and ? between stop_date and resume_date";
+			PreparedStatement stmt = con.prepareStatement(countStmt);
+			stmt.setLong(1, subsRow.getSubscriptionId());
+			stmt.setDate(2, Date.valueOf(stopDate));
+			ResultSet rs = stmt.executeQuery();
+			if(rs.next()){
+				return rs.getInt(1)>0;
+			}
+			
+
+		} catch (SQLException e) {
+
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
+					.text("Error in creation of stop history record").showError();
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+
 
 	// @Override
 	public void reloadData() {
 		lineNumData.clear();
 		lineNumTable.getItems().clear();
 		lineNumTable.getItems().addAll(lineNumData);
+		lineNumCustomersTable.getItems().clear();
+		lineNumCustomersTable.refresh();
 		populatePointNames();
 		
 	}

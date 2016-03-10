@@ -154,12 +154,13 @@ public class ALineDistributorTabController implements Initializable {
 	@FXML
 	private Button resetButton;
 	@FXML
-	public  RadioButton filterRadioButton;
+	public RadioButton filterRadioButton;
 	@FXML
-	public  RadioButton showAllRadioButton;
-	@FXML private Label hawkerNameLabel;
-	@FXML private Label hawkerMobLabel;
-	
+	public RadioButton showAllRadioButton;
+	@FXML
+	private Label hawkerNameLabel;
+	@FXML
+	private Label hawkerMobLabel;
 
 	private FilteredList<LineDistributor> filteredData;
 	private String searchText;
@@ -167,7 +168,7 @@ public class ALineDistributorTabController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
-		if(HawkerLoginController.loggedInHawker!=null){
+		if (HawkerLoginController.loggedInHawker != null) {
 			filterRadioButton.setVisible(false);
 			showAllRadioButton.setVisible(false);
 		} else {
@@ -175,7 +176,7 @@ public class ALineDistributorTabController implements Initializable {
 			filterRadioButton.setToggleGroup(tg);
 			showAllRadioButton.setToggleGroup(tg);
 			filterRadioButton.setSelected(true);
-			
+
 		}
 		lineDistData.clear();
 		lineNumData.clear();
@@ -213,19 +214,43 @@ public class ALineDistributorTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				
-					populateHawkerCodes();
-				
+
+				populateHawkerCodes();
+
 			}
 		});
 
+		addMobileNumField.textProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+
+				if (newValue.length() > 10){
+					addMobileNumField.setText(oldValue);
+
+					Notifications.create().title("Invalid mobile number")
+							.text("Mobile number should only contain 10 DIGITS")
+							.hideAfter(Duration.seconds(5)).showError();
+				}
+				try {
+					Integer.parseInt(newValue);
+				} catch (NumberFormatException e) {
+					addMobileNumField.setText(oldValue);
+
+					Notifications.create().title("Invalid mobile number")
+							.text("Mobile number should only contain 10 DIGITS")
+							.hideAfter(Duration.seconds(5)).showError();
+					e.printStackTrace();
+				}
+			}
+		});
 		addHwkCode.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				hawkerMobLabel.setText("");
 				hawkerNameLabel.setText("");
-				if (newValue!=null) {
+				if (newValue != null) {
 					hawkerNameMobCode(newValue);
 					addLineNumField.setDisable(false);
 					populateLineNumbersForHawkerCode(newValue);
@@ -266,12 +291,25 @@ public class ALineDistributorTabController implements Initializable {
 					}
 
 				});
+				MenuItem mnuView = new MenuItem("View line distributor");
+				mnuView.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						LineDistributor lineDistRow = lineDistData
+								.get(lineDistInfoTable.getSelectionModel().getSelectedIndex());
+						if (lineDistRow != null) {
+							showViewLineDialog(lineDistRow);
+							// lineDistInfoTable.refresh();
+						}
+					}
+
+				});
 
 				ContextMenu menu = new ContextMenu();
-				if(HawkerLoginController.loggedInHawker!=null){
-					menu.getItems().addAll(mnuEdit);
-				}else{
-					menu.getItems().addAll(mnuEdit, mnuDel);
+				if (HawkerLoginController.loggedInHawker != null) {
+					menu.getItems().addAll(mnuEdit, mnuView);
+				} else {
+					menu.getItems().addAll(mnuEdit, mnuView, mnuDel);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -402,6 +440,7 @@ public class ALineDistributorTabController implements Initializable {
 		}
 		return hawkerId;
 	}
+
 	private void hawkerNameMobCode(String hawkerCode) {
 
 		Connection con = Main.dbConnection;
@@ -520,6 +559,33 @@ public class ALineDistributorTabController implements Initializable {
 		}
 	}
 
+	private void showViewLineDialog(LineDistributor lineDistRow) {
+		try {
+
+			Dialog<LineDistributor> editLineDistributorDialog = new Dialog<LineDistributor>();
+			editLineDistributorDialog.setTitle("View Line Distributor Boy data");
+			editLineDistributorDialog.setHeaderText("View the Line Distributor Boy data below");
+			editLineDistributorDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+
+			FXMLLoader editLineDistributorLoader = new FXMLLoader(getClass().getResource("EditLineDistributor.fxml"));
+			Parent editLineDistributorGrid = (Parent) editLineDistributorLoader.load();
+			EditLineDistributorController editLineDistributorController = editLineDistributorLoader
+					.<EditLineDistributorController> getController();
+
+			editLineDistributorDialog.getDialogPane().setContent(editLineDistributorGrid);
+			editLineDistributorController.setLineDistToEdit(lineDistRow);
+			editLineDistributorController.setupBindings();
+			editLineDistributorController.gridPane.setDisable(true);
+
+			Optional<LineDistributor> updatedLineDistributor = editLineDistributorDialog.showAndWait();
+
+			
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+	}
+
 	public void addLineDistExtraScreenClicked(ActionEvent event) {
 		try {
 
@@ -624,24 +690,43 @@ public class ALineDistributorTabController implements Initializable {
 			Notifications.create().title("Empty Name").text("Name cannot be empty. Please enter value for name.")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-		} else if (addMobileNumField.getText() == null) {
+		} 
+		if (addMobileNumField.getText() == null) {
 			Notifications.create().title("Empty Mobile").text("Mobile cannot be empty. Please enter value for mobile.")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-		} else if (addLineNumField.getSelectionModel().getSelectedItem() == null) {
+		} 
+		if (addLineNumField.getSelectionModel().getSelectedItem() == null) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Empty Line Number")
 					.text("Line Number cannot be empty. Please enter value for Line Number.").showError();
 
-		} else if (lineDistForLineExists(addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim())) {
+		} 
+		if (lineDistForLineExists(addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Line Distributor exists")
 					.text("Line Distributor already exists for this line number").showError();
-		} else if (addProf3.getText()!=null && checkExistingProfileValue(addProf3.getText())) {
+		} 
+		if (addProf3.getText() != null && checkExistingProfileValue(addProf3.getText())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
 					.showError();
+		}
+		if (addMobileNumField.getText().length()!=10) {
+			Notifications.create().title("Invalid mobile number")
+			.text("Mobile number should only contain 10 DIGITS")
+			.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+		}
+		try {
+			Integer.parseInt(addMobileNumField.getText());
+		} catch (NumberFormatException e) {
+			Notifications.create().title("Invalid mobile number")
+			.text("Mobile number should only contain 10 DIGITS")
+			.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+			e.printStackTrace();
 		}
 		return validate;
 	}
@@ -719,12 +804,12 @@ public class ALineDistributorTabController implements Initializable {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt;
-					
-					if(HawkerLoginController.loggedInHawker==null){
-						if(showAllRadioButton.isSelected()){
+
+					if (HawkerLoginController.loggedInHawker == null) {
+						if (showAllRadioButton.isSelected()) {
 							stmt = con.prepareStatement(
 									"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
-							
+
 						} else {
 							stmt = con.prepareStatement(
 									"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where hwk.hawker_code=? and ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
@@ -735,8 +820,7 @@ public class ALineDistributorTabController implements Initializable {
 								"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk where ld.hawker_id=hwk.hawker_id and ld.hawker_id = ? order by hwk.hawker_code, ld.line_num, ld.name");
 						stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
 					}
-					if(filterRadioButton.isSelected())
-					{
+					if (filterRadioButton.isSelected()) {
 						addPointName.setDisable(true);
 						addHwkCode.setDisable(true);
 					}
@@ -749,7 +833,7 @@ public class ALineDistributorTabController implements Initializable {
 								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
 								rs.getString(18), rs.getString(19), rs.getString(20)));
 					}
-					 lineDistInfoTable.getItems().clear();
+					lineDistInfoTable.getItems().clear();
 					if (!lineDistData.isEmpty()) {
 						filteredData = new FilteredList<>(lineDistData, p -> true);
 						SortedList<LineDistributor> sortedData = new SortedList<>(filteredData);
@@ -757,8 +841,7 @@ public class ALineDistributorTabController implements Initializable {
 						lineDistInfoTable.setItems(sortedData);
 						lineDistInfoTable.refresh();
 					}
-					if(filterRadioButton.isSelected())
-					{
+					if (filterRadioButton.isSelected()) {
 						addPointName.setDisable(false);
 						addHwkCode.setDisable(false);
 					}
@@ -893,8 +976,6 @@ public class ALineDistributorTabController implements Initializable {
 		lineDistInfoTable.getSelectionModel().clearSelection();
 	}
 
-	
-
 	private void populateHawkerCodes() {
 
 		try {
@@ -1014,7 +1095,6 @@ public class ALineDistributorTabController implements Initializable {
 
 	}
 
-
 	public void reloadData() {
 		if (HawkerLoginController.loggedInHawker == null) {
 			if (showAllRadioButton.isSelected()) {
@@ -1023,7 +1103,7 @@ public class ALineDistributorTabController implements Initializable {
 				addHwkCode.getSelectionModel().clearSelection();
 				addHwkCode.setDisable(true);
 				refreshLineDistTable();
-			} else if(filterRadioButton.isSelected()) {
+			} else if (filterRadioButton.isSelected()) {
 				populatePointNames();
 				addPointName.setDisable(false);
 				addHwkCode.setDisable(false);
@@ -1035,9 +1115,8 @@ public class ALineDistributorTabController implements Initializable {
 		populateProfileValues();
 		populateEmploymentValues();
 
-		
 	}
-	
+
 	public void releaseVariables() {
 		filteredData = null;
 		searchText = null;

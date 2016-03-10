@@ -295,6 +295,30 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		});
 
+		addHwkMob.textProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+
+				if (newValue.length() > 10){
+					addHwkMob.setText(oldValue);
+
+					Notifications.create().title("Invalid mobile number")
+							.text("Mobile number should only contain 10 DIGITS")
+							.hideAfter(Duration.seconds(5)).showError();
+				}
+				try {
+					Integer.parseInt(newValue);
+				} catch (NumberFormatException e) {
+					addHwkMob.setText(oldValue);
+
+					Notifications.create().title("Invalid mobile number")
+							.text("Mobile number should only contain 10 DIGITS")
+							.hideAfter(Duration.seconds(5)).showError();
+					e.printStackTrace();
+				}
+			}
+		});
 		hawkerTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Hawker>() {
 
 			@Override
@@ -421,6 +445,18 @@ public class AHawkerInfoTabController implements Initializable {
 					}
 
 				});
+				MenuItem mnuView = new MenuItem("View hawker");
+				mnuView.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Hawker hawkerRow = hawkerMasterData.get(hawkerTable.getSelectionModel().getSelectedIndex());
+						if (hawkerRow != null) {
+							showViewHawkerDialog(hawkerRow);
+//							hawkerTable.refresh();
+						}
+					}
+
+				});
 
 				MenuItem mnuPwd = new MenuItem("Change Password");
 				mnuPwd.setOnAction(new EventHandler<ActionEvent>() {
@@ -447,9 +483,9 @@ public class AHawkerInfoTabController implements Initializable {
 				 */
 				ContextMenu menu = new ContextMenu();
 				if(HawkerLoginController.loggedInHawker!=null){
-					menu.getItems().addAll(mnuEdit, mnuPwd);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuPwd);
 				}else{
-					menu.getItems().addAll(mnuEdit, mnuDel, mnuPwd);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuPwd);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -794,6 +830,35 @@ public class AHawkerInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 	}
+	
+	private void showViewHawkerDialog(Hawker hawkerRow) {
+		try {
+
+			Dialog<Hawker> editHawkerDialog = new Dialog<Hawker>();
+			editHawkerDialog.setTitle("View hawker data");
+			editHawkerDialog.setHeaderText("View the hawker data below");
+
+			editHawkerDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+			
+			FXMLLoader editHawkerLoader = new FXMLLoader(getClass().getResource("EditHawker.fxml"));
+			Parent editHawkerGrid = (Parent) editHawkerLoader.load();
+			EditHawkerController editHawkerController = editHawkerLoader.<EditHawkerController> getController();
+
+			editHawkerDialog.getDialogPane().setContent(editHawkerGrid);
+			editHawkerController.setHawkerToEdit(hawkerRow);
+			editHawkerController.setupBindings();
+			editHawkerController.gridPane.setDisable(true);
+			Optional<Hawker> updatedHawker = editHawkerDialog.showAndWait();
+			// refreshCustomerTable();
+
+			
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+	}
+
 
 	public void refreshHawkerTable() {
 		Task<Void> task = new Task<Void>() {
@@ -944,12 +1009,14 @@ public class AHawkerInfoTabController implements Initializable {
 					.text("Hawker with same Hawker Code alraedy exists. Please choose different hawker code.")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-		} else if (mobileNumExists(addHwkMob.getText())) {
+		} 
+		if (mobileNumExists(addHwkMob.getText())) {
 			Notifications.create().title("Mobile already exists")
 					.text("Hawker with same Mobile Number alraedy exists. Please enter a different value.")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-		} else if (addHwkName.getText() == null) {
+		} 
+		if (addHwkName.getText() == null) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
 					.text("Please select a hawker before adding the the customer").showError();
@@ -962,11 +1029,27 @@ public class AHawkerInfoTabController implements Initializable {
 				e.printStackTrace();
 			}
 		} 
-		else if (addHwkProf3.getText() !=null && checkExistingProfileValue(addHwkProf3.getText())) {
+
+		if (addHwkProf3.getText() !=null && checkExistingProfileValue(addHwkProf3.getText())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
 					.showError();
+		}
+		if (addHwkMob.getText().length()!=10) {
+			Notifications.create().title("Invalid mobile number")
+			.text("Mobile number should only contain 10 DIGITS")
+			.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+		}
+		try {
+			Integer.parseInt(addHwkMob.getText());
+		} catch (NumberFormatException e) {
+			Notifications.create().title("Invalid mobile number")
+			.text("Mobile number should only contain 10 DIGITS")
+			.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+			e.printStackTrace();
 		}
 		return validate;
 	}

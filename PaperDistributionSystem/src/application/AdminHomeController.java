@@ -54,6 +54,8 @@ public class AdminHomeController implements Initializable {
 	private Tab additionalItemsTab;
 	@FXML
 	private Tab productsTab;
+	@FXML
+	private Tab stopHistoryTab;
 
 	private ACustomerInfoTabController customerTabController;
 	private AHawkerInfoTabController hawkerTabController;
@@ -62,6 +64,7 @@ public class AdminHomeController implements Initializable {
 	private ALineDistributorTabController lineDistTabController;
 	private AdditionalItemsController additionalItemsTabController;
 	private AProductsTabController productsTabController;
+	private AStopHistoryTabController stopHistTabController;
 
 
 	@Override
@@ -96,6 +99,9 @@ public class AdminHomeController implements Initializable {
 					if (oldValue == productsTab) {
 						productsTabController.releaseVariables();
 					}
+					if (oldValue == stopHistoryTab) {
+						stopHistTabController.releaseVariables();
+					}
 					System.gc();
 				}
 
@@ -120,6 +126,9 @@ public class AdminHomeController implements Initializable {
 					}
 					if (newValue == productsTab) {
 						productsTabController.reloadData();
+					}
+					if (newValue == stopHistoryTab) {
+						stopHistTabController.reloadData();
 					}
 
 				}
@@ -214,9 +223,16 @@ public class AdminHomeController implements Initializable {
 			pausedCustTabController = pausedCustTabLoader.<APausedCustomerTabController> getController();
 			pausedCustTab.setText("Stopped Customers");
 			pausedCustTab.setContent(pausedcustroot);
+
+			stopHistoryTab = new Tab();
+			FXMLLoader stopHistTabLoader = new FXMLLoader(getClass().getResource("AStopHistoryTab.fxml"));
+			Parent stopHistRoot = (Parent) stopHistTabLoader.load();
+			stopHistTabController = stopHistTabLoader.<AStopHistoryTabController> getController();
+			stopHistoryTab.setText("Stop History");
+			stopHistoryTab.setContent(stopHistRoot);
 			
 			tabPane.getTabs().addAll(hawkerTab, customersTab, lineInfoTab, lineDistTab, productsTab, additionalItemsTab,
-					pausedCustTab);
+					pausedCustTab, stopHistoryTab);
 		} catch (IOException e) {
 
 			e.printStackTrace();
@@ -249,6 +265,9 @@ public class AdminHomeController implements Initializable {
 			}
 			if (t == productsTab) {
 				productsTabController.reloadData();
+			}
+			if (t == stopHistoryTab) {
+				stopHistTabController.reloadData();
 			}
 
 		}
