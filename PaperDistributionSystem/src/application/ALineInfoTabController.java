@@ -8,11 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
+import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.Notifications;
 
 import com.amazonaws.util.NumberUtils;
@@ -76,6 +78,8 @@ public class ALineInfoTabController implements Initializable {
 
 	@FXML
 	private Button addCustExtraButton;
+	@FXML
+	private Button showCounts;
 	// Columns
 	@FXML
 	private TableColumn<LineInfo, String> lineNumColumn;
@@ -143,8 +147,10 @@ public class ALineInfoTabController implements Initializable {
 	private Button addLineButton;
 	@FXML
 	private Button shuffleButton;
-	@FXML private Label hawkerNameLabel;
-	@FXML private Label hawkerMobLabel;
+	@FXML
+	private Label hawkerNameLabel;
+	@FXML
+	private Label hawkerMobLabel;
 
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
 	private ObservableList<LineInfo> lineNumData = FXCollections.observableArrayList();
@@ -330,17 +336,23 @@ public class ALineInfoTabController implements Initializable {
 					public void handle(ActionEvent t) {
 						LineInfo lineRow = lineNumData.get(lineNumTable.getSelectionModel().getSelectedIndex());
 						if (lineRow != null) {
-							showEditLineDialog(lineRow);
-							lineNumTable.refresh();
+							if (lineRow.getLineNum()>0) {
+								showEditLineDialog(lineRow);
+								lineNumTable.refresh();
+							}else {
+								Notifications.create().title("Cannot edit line number 0")
+								.text("Cannot edit line number 0")
+								.hideAfter(Duration.seconds(5)).showError();
+							}
 						}
 					}
 
 				});
 
 				ContextMenu menu = new ContextMenu();
-				if(HawkerLoginController.loggedInHawker!=null){
+				if (HawkerLoginController.loggedInHawker != null) {
 					menu.getItems().addAll(mnuEdit);
-				}else{
+				} else {
 					menu.getItems().addAll(mnuEdit, mnuDel);
 				}
 				row.contextMenuProperty().bind(
@@ -389,7 +401,6 @@ public class ALineInfoTabController implements Initializable {
 					}
 
 				});
-				
 
 				MenuItem mnuView = new MenuItem("View customer");
 				mnuView.setOnAction(new EventHandler<ActionEvent>() {
@@ -431,13 +442,15 @@ public class ALineInfoTabController implements Initializable {
 						grid.setPadding(new Insets(20, 150, 10, 10));
 						ObservableList<Subscription> subsList = getActiveSubsListForCust(custRow);
 						if (!subsList.isEmpty()) {
-							ComboBox<Subscription> subsBox = new ComboBox<Subscription>();
+							CheckComboBox<Subscription> subsBox = new CheckComboBox<Subscription>();
 							subsBox.setConverter(new StringConverter<Subscription>() {
 
 								@Override
 								public String toString(Subscription object) {
 									return object.getSubscriptionId() + "-" + object.getProductCode() + "-"
-											+ object.getProductName();
+											+ object.getProductName() + "-" + object.getFrequency() + "-"
+											+ object.getDow() + "-" + object.getStartDate()
+													.format(DateTimeFormatter.ofPattern("d/M/y")).toString();
 								}
 
 								@Override
@@ -451,7 +464,8 @@ public class ALineInfoTabController implements Initializable {
 								}
 							});
 							subsBox.getItems().addAll(subsList);
-							subsBox.getSelectionModel().selectFirst();
+							subsBox.setMaxWidth(250);
+							// subsBox.getSelectionModel().selectFirst();
 							grid.add(new Label("Subscription"), 0, 0);
 							grid.add(new Label("Stop Date"), 0, 1);
 							grid.add(new Label("Resume Date"), 0, 2);
@@ -465,49 +479,68 @@ public class ALineInfoTabController implements Initializable {
 							pauseWarning.getDialogPane().setContent(grid);
 							Button yesButton = (Button) pauseWarning.getDialogPane().lookupButton(ButtonType.YES);
 							yesButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
-								if (dp.getValue()
-										.isBefore(subsBox.getSelectionModel().getSelectedItem().getStartDate())) {
-									Notifications.create().title("Invalid stop date")
-											.text("Stop date should not be before Start date for subscription")
-											.hideAfter(Duration.seconds(5)).showError();
+								if (subsBox.getCheckModel().getCheckedIndices().isEmpty()) {
+									Notifications.create().title("No subscription selected")
+											.text("No subscription selected to stop.").hideAfter(Duration.seconds(5))
+											.showError();
 									btnEvent.consume();
 								}
-								if(stopEntryExistsForStartDate(subsBox.getSelectionModel().getSelectedItem(), dp.getValue())){
-									Notifications.create().title("Stop Entry exists")
-									.text("A stop entry for this subscription on selected StopDate already exists.")
-									.hideAfter(Duration.seconds(5)).showError();
-									btnEvent.consume();
+								for (int i = 0; i < subsBox.getCheckModel().getCheckedItems().size(); i++) {
+									Subscription sub = subsBox.getCheckModel().getCheckedItems().get(i);
+									if (checkStopSubDate(dp.getValue(), sub)) {
+										Notifications.create().title("Invalid stop date")
+												.text("Stop date should not be before Start date for stopped subscription")
+												.hideAfter(Duration.seconds(5)).showError();
+										btnEvent.consume();
+									}
 								}
-								
+								for (int i = 0; i < subsBox.getCheckModel().getCheckedItems().size(); i++) {
+									Subscription sub = subsBox.getCheckModel().getCheckedItems().get(i);
+									if (stopEntryExistsForStartDate(sub, dp.getValue())) {
+										Notifications.create().title("Stop Entry exists")
+												.text("A stop entry for this subscription on selected StopDate already exists.")
+												.hideAfter(Duration.seconds(5)).showError();
+										btnEvent.consume();
+									}
+								}
+
 							});
 							Optional<ButtonType> result = pauseWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
-								Subscription subsRow = subsBox.getSelectionModel().getSelectedItem();
-								if (subsRow != null && subsRow.getStatus().equals("Active")) {
+								for (Subscription subsRow : subsBox.getCheckModel().getCheckedItems()) {
+									if (subsRow != null && subsRow.getStatus().equals("Active")) {
 
-								} else {
-									Notifications.create().title("Invalid operation")
-											.text("Subscription is already STOPPED").hideAfter(Duration.seconds(5))
-											.showWarning();
+									} else {
+										Notifications.create().title("Invalid operation")
+												.text("Subscription is already STOPPED").hideAfter(Duration.seconds(5))
+												.showWarning();
+									}
+									subsRow.setStatus("Stopped");
+									subsRow.setPausedDate(dp.getValue());
+									subsRow.setResumeDate(resumeDP.getValue());
+									subsRow.updateSubscriptionRecord();
+									createStopHistoryForSub(subsRow, dp.getValue(), resumeDP.getValue());
+
+									Notifications.create().title("Stop successful").text("Stop subscription successful")
+											.hideAfter(Duration.seconds(5)).showInformation();
 								}
-								subsRow.setStatus("Stopped");
-								subsRow.setPausedDate(dp.getValue());
-								subsRow.setResumeDate(resumeDP.getValue());
-								subsRow.updateSubscriptionRecord();
-
-								createStopHistoryForSub(subsRow,dp.getValue(),resumeDP.getValue());
 								refreshSubscriptions();
 								populateSubscriptionCount();
-								Notifications.create().title("Stop successful").text("Stop subscription successful")
-										.hideAfter(Duration.seconds(5)).showInformation();
-
-							} 
+							}
 						} else {
 
-							Notifications.create().title("No Active subscriptions").text("No active subscriptions present for this customer.")
+							Notifications.create().title("No Active subscriptions")
+									.text("No active subscriptions present for this customer.")
 									.hideAfter(Duration.seconds(5)).showError();
 						}
 
+					}
+
+					private boolean checkStopSubDate(LocalDate value, Subscription checkedItems) {
+						if (value.isBefore(checkedItems.getStartDate()))
+							return true;
+
+						return false;
 					}
 
 				});
@@ -554,20 +587,21 @@ public class ALineInfoTabController implements Initializable {
 							dp.setDisable(true);
 							DatePicker resumeDP = new DatePicker(LocalDate.now());
 							resumeDP.setConverter(Main.dateConvertor);
-//							resumeDP.setDisable(true);
+							// resumeDP.setDisable(true);
 							subsBox.getSelectionModel().selectedItemProperty()
 									.addListener(new ChangeListener<Subscription>() {
 
-										@Override
-										public void changed(ObservableValue<? extends Subscription> observable,
-												Subscription oldValue, Subscription newValue) {
-											if (newValue != null) {
-												dp.setValue(newValue.getPausedDate());
-												resumeDP.setValue(newValue.getResumeDate()==null?LocalDate.now():newValue.getResumeDate());
-											}
+								@Override
+								public void changed(ObservableValue<? extends Subscription> observable,
+										Subscription oldValue, Subscription newValue) {
+									if (newValue != null) {
+										dp.setValue(newValue.getPausedDate());
+										resumeDP.setValue(newValue.getResumeDate() == null ? LocalDate.now()
+												: newValue.getResumeDate());
+									}
 
-										}
-									});
+								}
+							});
 							subsBox.getSelectionModel().selectFirst();
 							grid.add(new Label("Subscription"), 0, 0);
 							grid.add(new Label("Stop Date"), 0, 1);
@@ -581,8 +615,14 @@ public class ALineInfoTabController implements Initializable {
 								Subscription subsRow = subsBox.getSelectionModel().getSelectedItem();
 								if (subsRow != null && subsRow.getStatus().equals("Stopped")) {
 									subsRow.resumeSubscription();
-
-									resumeStopHistoryForSub(subsRow,dp.getValue(),resumeDP.getValue());
+									int count = subsPostCount(subsRow, "Stopped");
+									if (count > 0) {
+										Notifications.create().title("Product has more stopped subscriptions")
+												.text("This product has " + count
+														+ " more stopped subscriptions for this customer")
+												.hideAfter(Duration.seconds(5)).showWarning();
+									}
+									resumeStopHistoryForSub(subsRow, dp.getValue(), resumeDP.getValue());
 									refreshSubscriptions();
 									populateSubscriptionCount();
 									Notifications.create().title("Resume successful")
@@ -593,10 +633,11 @@ public class ALineInfoTabController implements Initializable {
 											.text("Subscription is already ACTIVE").hideAfter(Duration.seconds(5))
 											.showWarning();
 								}
-							} 
+							}
 						} else {
 
-							Notifications.create().title("No Stopped subscriptions").text("No Stopped subscriptions present for this customer.")
+							Notifications.create().title("No Stopped subscriptions")
+									.text("No Stopped subscriptions present for this customer.")
 									.hideAfter(Duration.seconds(5)).showError();
 						}
 
@@ -605,9 +646,9 @@ public class ALineInfoTabController implements Initializable {
 				});
 				ContextMenu menu = new ContextMenu();
 
-				if(HawkerLoginController.loggedInHawker!=null){
+				if (HawkerLoginController.loggedInHawker != null) {
 					menu.getItems().addAll(mnuEdit, mnuView, mnuSubs, mnuPause, mnuResume);
-				}else{
+				} else {
 					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuSubs, mnuPause, mnuResume);
 				}
 				row.contextMenuProperty().bind(
@@ -690,16 +731,16 @@ public class ALineInfoTabController implements Initializable {
 											.hideAfter(Duration.seconds(5)).showError();
 									btnEvent.consume();
 								}
-								if (resumeDP.getValue()!=null && resumeDP.getValue().isBefore(pauseDP.getValue())) {
+								if (resumeDP.getValue() != null && resumeDP.getValue().isBefore(pauseDP.getValue())) {
 									Notifications.create().title("Invalid Resume date")
 											.text("Resume date should not be before Stop date for subscription")
 											.hideAfter(Duration.seconds(5)).showError();
 									btnEvent.consume();
 								}
-								if(stopEntryExistsForStartDate(subsRow, pauseDP.getValue())){
+								if (stopEntryExistsForStartDate(subsRow, pauseDP.getValue())) {
 									Notifications.create().title("Stop Entry exists")
-									.text("A stop entry for this subscription on selected StopDate already exists.")
-									.hideAfter(Duration.seconds(5)).showError();
+											.text("A stop entry for this subscription on selected StopDate already exists.")
+											.hideAfter(Duration.seconds(5)).showError();
 									btnEvent.consume();
 								}
 							});
@@ -709,7 +750,14 @@ public class ALineInfoTabController implements Initializable {
 								subsRow.setPausedDate(pauseDP.getValue());
 								subsRow.setResumeDate(resumeDP.getValue());
 								subsRow.updateSubscriptionRecord();
-								createStopHistoryForSub(subsRow,pauseDP.getValue(),resumeDP.getValue());
+								int count = subsPostCount(subsRow, "Active");
+								if (count > 0) {
+									Notifications.create().title("Product has more active subscriptions")
+											.text("This product has " + count
+													+ " more active subscriptions for this customer")
+											.hideAfter(Duration.seconds(5)).showWarning();
+								}
+								createStopHistoryForSub(subsRow, pauseDP.getValue(), resumeDP.getValue());
 								refreshSubscriptions();
 								populateSubscriptionCount();
 							}
@@ -745,13 +793,20 @@ public class ALineInfoTabController implements Initializable {
 							grid.add(new Label("Resume Date"), 0, 1);
 							DatePicker resumeDP = new DatePicker(LocalDate.now());
 							resumeDP.setConverter(Main.dateConvertor);
-//							resumeDP.setDisable(true);
+							// resumeDP.setDisable(true);
 							grid.add(resumeDP, 1, 1);
 							resumeWarning.getDialogPane().setContent(grid);
 							Optional<ButtonType> result = resumeWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
 								subsRow.resumeSubscription();
-								resumeStopHistoryForSub(subsRow,pauseDP.getValue(),resumeDP.getValue());
+								resumeStopHistoryForSub(subsRow, pauseDP.getValue(), resumeDP.getValue());
+								int count = subsPostCount(subsRow, "Stopped");
+								if (count > 0) {
+									Notifications.create().title("Product has more stopped subscriptions")
+											.text("This product has " + count
+													+ " more stopped subscriptions for this customer")
+											.hideAfter(Duration.seconds(5)).showWarning();
+								}
 								refreshSubscriptions();
 								populateSubscriptionCount();
 							}
@@ -764,9 +819,9 @@ public class ALineInfoTabController implements Initializable {
 				});
 				ContextMenu menu = new ContextMenu();
 
-				if(HawkerLoginController.loggedInHawker!=null){
+				if (HawkerLoginController.loggedInHawker != null) {
 					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit);
-				}else{
+				} else {
 					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuDel);
 				}
 
@@ -800,6 +855,7 @@ public class ALineInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 	}
+
 	private void deleteSubscription(Subscription subsRow) {
 		Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
 		deleteWarning.setTitle("Warning");
@@ -917,8 +973,9 @@ public class ALineInfoTabController implements Initializable {
 
 					e.printStackTrace();
 				}
-				subscriptionsTable.getItems().addAll(subscriptionMasterData);
+				subscriptionsTable.setItems(subscriptionMasterData);
 				subscriptionsTable.refresh();
+				subscriptionsTable.getSelectionModel().selectFirst();
 				return null;
 			}
 
@@ -1025,7 +1082,7 @@ public class ALineInfoTabController implements Initializable {
 		});
 		dialog.showAndWait();
 	}
-	
+
 	private void updateLineNumForDist(LineInfo lineRow) {
 		try {
 
@@ -1060,44 +1117,49 @@ public class ALineInfoTabController implements Initializable {
 	}
 
 	private boolean deleteLine(LineInfo lineRow) {
-		Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
-		deleteWarning.setTitle("Warning");
-		deleteWarning.setHeaderText("Are you sure you want to delete this record?");
-		deleteWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
-		Optional<ButtonType> result = deleteWarning.showAndWait();
-		if (result.isPresent() && result.get() == ButtonType.YES) {
+		if (lineRow.getLineNum()>0) {
+			Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
+			deleteWarning.setTitle("Warning");
+			deleteWarning.setHeaderText("Are you sure you want to delete this record?");
+			deleteWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
+			Optional<ButtonType> result = deleteWarning.showAndWait();
+			if (result.isPresent() && result.get() == ButtonType.YES) {
 
-			try {
+				try {
 
-				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
-					con = Main.reconnect();
+					Connection con = Main.dbConnection;
+					while (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+
+					String findString = "select count(*) from customer where hawker_code=? and line_num=?";
+					PreparedStatement findStmt = con.prepareStatement(findString);
+					findStmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+					findStmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
+					ResultSet rs = findStmt.executeQuery();
+					if (rs.next() && rs.getInt(1) == 0) {
+						String deleteString = "delete from line_info where line_id=?";
+						PreparedStatement deleteStmt = con.prepareStatement(deleteString);
+						deleteStmt.setLong(1, lineRow.getLineId());
+						deleteStmt.executeUpdate();
+						con.commit();
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Delete Successful")
+								.text("Deletion of line was successful").showInformation();
+						refreshLineNumTableForHawker(hawkerComboBox.getSelectionModel().getSelectedItem());
+					} else {
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Delete not allowed")
+								.text("This line has customers associated to it, hence cannot be deleted").showError();
+					}
+				} catch (SQLException e) {
+
+					e.printStackTrace();
+					Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
+							.text("Delete request of line has failed").showError();
 				}
-
-				String findString = "select count(*) from customer where hawker_code=? and line_num=?";
-				PreparedStatement findStmt = con.prepareStatement(findString);
-				findStmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
-				findStmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
-				ResultSet rs = findStmt.executeQuery();
-				if (rs.next() && rs.getInt(1) == 0) {
-					String deleteString = "delete from line_info where line_id=?";
-					PreparedStatement deleteStmt = con.prepareStatement(deleteString);
-					deleteStmt.setLong(1, lineRow.getLineId());
-					deleteStmt.executeUpdate();
-					con.commit();
-					Notifications.create().hideAfter(Duration.seconds(5)).title("Delete Successful")
-							.text("Deletion of line was successful").showInformation();
-					refreshLineNumTableForHawker(hawkerComboBox.getSelectionModel().getSelectedItem());
-				} else {
-					Notifications.create().hideAfter(Duration.seconds(5)).title("Delete not allowed")
-							.text("This line has customers associated to it, hence cannot be deleted").showError();
-				}
-			} catch (SQLException e) {
-
-				e.printStackTrace();
-				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
-						.text("Delete request of line has failed").showError();
-			}
+			} 
+		} else {
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Line 0 cannot be deleted")
+			.text("You cannot delete line 0.").showError();
 		}
 		return false;
 	}
@@ -1152,8 +1214,8 @@ public class ALineInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
-			PreparedStatement stmt = con
-					.prepareStatement("select distinct hawker_code from hawker_info where point_name=?");
+			PreparedStatement stmt = con.prepareStatement(
+					"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
 			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -1174,9 +1236,8 @@ public class ALineInfoTabController implements Initializable {
 
 	private void refreshLineNumTableForHawker(String hawkerCode) {
 
-//		lineNumTable.refresh();
+		// lineNumTable.refresh();
 		System.out.println("refreshLineNumTableForHawker : " + hawkerCode);
-
 
 		long hawkerId = hawkerIdForCode(hawkerCode);
 
@@ -1193,15 +1254,15 @@ public class ALineInfoTabController implements Initializable {
 				String lineNumQuery = "select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num";
 				lineNumStatement = con.prepareStatement(lineNumQuery);
 				lineNumStatement.setLong(1, hawkerId);
-				// Statement stmt = con.createStatement();
 				ResultSet rs = lineNumStatement.executeQuery();
 				while (rs.next()) {
 					lineNumData.add(new LineInfo(rs.getLong(1), rs.getInt(2), rs.getLong(3), rs.getString(4)));
 				}
 				System.out.println("LineNumData = " + lineNumData.toString());
-				lineNumTable.getItems().clear();
-				lineNumTable.getItems().addAll(lineNumData);
+				lineNumTable.setItems(lineNumData);
 				lineNumTable.refresh();
+				// lineNumTable.getSelectionModel().selectFirst();
+				// populateSubscriptionCount();
 			} catch (SQLException e) {
 
 				e.printStackTrace();
@@ -1222,7 +1283,12 @@ public class ALineInfoTabController implements Initializable {
 		try {
 			if (hawkerComboBox.getSelectionModel().selectedIndexProperty().get() != -1) {
 				Integer addLineNumValue = Integer.parseInt(addLineNumField.getText().trim());
+				
 				if (checkExistingLineNum(addLineNumValue)) {
+					if(addLineNumValue==0){
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid line number value")
+						.text("Cannot add line number 0.").showError();
+					}
 					Task<Void> task = new Task<Void>() {
 
 						@Override
@@ -1463,7 +1529,7 @@ public class ALineInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void showViewCustomerDialog(Customer custRow) {
 		try {
 
@@ -1471,7 +1537,7 @@ public class ALineInfoTabController implements Initializable {
 			editCustomerDialog.setTitle("View customer data");
 			editCustomerDialog.setHeaderText("View the customer data below");
 
-			editCustomerDialog.getDialogPane().getButtonTypes().addAll( ButtonType.CLOSE);
+			editCustomerDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
 
 			FXMLLoader editCustomerLoader = new FXMLLoader(getClass().getResource("EditCustomer.fxml"));
 			Parent editCustomerGrid = (Parent) editCustomerLoader.load();
@@ -1481,9 +1547,8 @@ public class ALineInfoTabController implements Initializable {
 			editCustController.setCustomerToEdit(custRow);
 			editCustController.setupBindings();
 			editCustController.gridPane.setDisable(true);
-		
+
 			Optional<Customer> updatedCustomer = editCustomerDialog.showAndWait();
-			
 
 		} catch (IOException e) {
 
@@ -1712,6 +1777,38 @@ public class ALineInfoTabController implements Initializable {
 
 	}
 
+	public void showSubscriptionCounts() {
+		if (hawkerComboBox.getSelectionModel().getSelectedItem() == null
+				|| lineNumTable.getSelectionModel().getSelectedItem() == null) {
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker Code and Line Num values required.")
+					.text("Please select hawker code and line number.").showError();
+		} else {
+			try {
+
+				Dialog<String> showCountsDialog = new Dialog<String>();
+				showCountsDialog.setTitle("View Subscriptions count");
+				// editCustomerDialog.setHeaderText("View the customer data
+				// below");
+
+				showCountsDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+
+				FXMLLoader showCountsLoader = new FXMLLoader(getClass().getResource("LineSubscriptionCount.fxml"));
+				Parent showCountsGrid = (Parent) showCountsLoader.load();
+				LineSubscriptionCount showCountsController = showCountsLoader.<LineSubscriptionCount> getController();
+
+				showCountsDialog.getDialogPane().setContent(showCountsGrid);
+				showCountsController.setupBindings(hawkerComboBox.getSelectionModel().getSelectedItem(),
+						lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
+
+				Optional<String> updatedCustomer = showCountsDialog.showAndWait();
+
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public void populateSubscriptionCount() {
 		try {
 
@@ -1748,15 +1845,16 @@ public class ALineInfoTabController implements Initializable {
 		}
 
 	}
+
 	private void resumeStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
-		
+
 		try {
 
 			Connection con = Main.dbConnection;
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			
+
 			if (!stopDate.isEqual(resumeDate)) {
 				String insertStmt = "update stop_history set resume_date=? where sub_id=? and stop_date=?";
 				PreparedStatement stmt = con.prepareStatement(insertStmt);
@@ -1767,7 +1865,7 @@ public class ALineInfoTabController implements Initializable {
 
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Updated")
 							.text("Stop History record successfully closed").show();
-				} 
+				}
 			} else {
 				String insertStmt = "delete from stop_history where sub_id=? and stop_date=?";
 				PreparedStatement stmt = con.prepareStatement(insertStmt);
@@ -1776,10 +1874,10 @@ public class ALineInfoTabController implements Initializable {
 				if (stmt.executeUpdate() > 0) {
 
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Deleted")
-							.text("Stop Date is same as resume date. Stop History record successfully deleted.").showInformation();
-				} 
+							.text("Stop Date is same as resume date. Stop History record successfully deleted.")
+							.showInformation();
+				}
 			}
-			
 
 		} catch (SQLException e) {
 
@@ -1790,7 +1888,7 @@ public class ALineInfoTabController implements Initializable {
 	}
 
 	private void createStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
-		
+
 		try {
 
 			Connection con = Main.dbConnection;
@@ -1803,9 +1901,8 @@ public class ALineInfoTabController implements Initializable {
 			PreparedStatement stmt = con.prepareStatement(insertStmt);
 			stmt.setLong(1, subsRow.getSubscriptionId());
 			stmt.setDate(2, Date.valueOf(stopDate));
-			stmt.setDate(3, resumeDate==null?null:Date.valueOf(stopDate));
+			stmt.setDate(3, resumeDate == null ? null : Date.valueOf(stopDate));
 			stmt.executeUpdate();
-			
 
 		} catch (SQLException e) {
 
@@ -1814,9 +1911,9 @@ public class ALineInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 	}
-	
-	public boolean stopEntryExistsForStartDate(Subscription subsRow, LocalDate stopDate){
-		
+
+	public boolean stopEntryExistsForStartDate(Subscription subList, LocalDate stopDate) {
+
 		try {
 
 			Connection con = Main.dbConnection;
@@ -1827,13 +1924,12 @@ public class ALineInfoTabController implements Initializable {
 			subscriptionMasterData.clear();
 			String countStmt = "select count(*) from stop_history where sub_id=? and ? between stop_date and resume_date";
 			PreparedStatement stmt = con.prepareStatement(countStmt);
-			stmt.setLong(1, subsRow.getSubscriptionId());
+			stmt.setLong(1, subList.getSubscriptionId());
 			stmt.setDate(2, Date.valueOf(stopDate));
 			ResultSet rs = stmt.executeQuery();
-			if(rs.next()){
-				return rs.getInt(1)>0;
+			if (rs.next()) {
+				return rs.getInt(1) > 0;
 			}
-			
 
 		} catch (SQLException e) {
 
@@ -1841,10 +1937,32 @@ public class ALineInfoTabController implements Initializable {
 					.text("Error in creation of stop history record").showError();
 			e.printStackTrace();
 		}
-		
+
 		return false;
 	}
 
+	private int subsPostCount(Subscription subsRow, String status) {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement stmt = con.prepareStatement(
+					"select sub.count(*) seq from subscription sub where sub.customer_id=? and sub.subscription_id<>? and sub.status=?");
+			stmt.setLong(1, lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId());
+			stmt.setLong(2, subsRow.getSubscriptionId());
+			stmt.setString(2, status);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return 1;
+	}
 
 	// @Override
 	public void reloadData() {
@@ -1854,7 +1972,7 @@ public class ALineInfoTabController implements Initializable {
 		lineNumCustomersTable.getItems().clear();
 		lineNumCustomersTable.refresh();
 		populatePointNames();
-		
+
 	}
 
 	// @Override

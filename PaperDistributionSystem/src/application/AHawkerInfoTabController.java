@@ -123,6 +123,8 @@ public class AHawkerInfoTabController implements Initializable {
 	private CheckBox prodCatalogCheckBox;
 	@FXML
 	private CheckBox reportsCheckBox;
+	@FXML
+	private CheckBox stopHistoryCheckBox;
 
 	// Hawker Columns
 	@FXML
@@ -295,30 +297,30 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		});
 
-		addHwkMob.textProperty().addListener(new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-
-				if (newValue.length() > 10){
-					addHwkMob.setText(oldValue);
-
-					Notifications.create().title("Invalid mobile number")
-							.text("Mobile number should only contain 10 DIGITS")
-							.hideAfter(Duration.seconds(5)).showError();
-				}
-				try {
-					Integer.parseInt(newValue);
-				} catch (NumberFormatException e) {
-					addHwkMob.setText(oldValue);
-
-					Notifications.create().title("Invalid mobile number")
-							.text("Mobile number should only contain 10 DIGITS")
-							.hideAfter(Duration.seconds(5)).showError();
-					e.printStackTrace();
-				}
-			}
-		});
+//		addHwkMob.textProperty().addListener(new ChangeListener<String>() {
+//
+//			@Override
+//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//
+//				if (newValue.length() > 10){
+//					addHwkMob.setText(oldValue);
+//
+//					Notifications.create().title("Invalid mobile number")
+//							.text("Mobile number should only contain 10 DIGITS")
+//							.hideAfter(Duration.seconds(5)).showError();
+//				}
+//				try {
+//					Integer.parseInt(newValue);
+//				} catch (NumberFormatException e) {
+//					addHwkMob.setText(oldValue);
+//
+//					Notifications.create().title("Invalid mobile number")
+//							.text("Mobile number should only contain 10 DIGITS")
+//							.hideAfter(Duration.seconds(5)).showError();
+//					e.printStackTrace();
+//				}
+//			}
+//		});
 		hawkerTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Hawker>() {
 
 			@Override
@@ -337,6 +339,7 @@ public class AHawkerInfoTabController implements Initializable {
 					pausedCustCheckBox.setSelected(newValue.getPausedCustAccess().equals("Y") ? true : false);
 					prodCatalogCheckBox.setSelected(newValue.getProductAccess().equals("Y") ? true : false);
 					reportsCheckBox.setSelected(newValue.getReportsAccess().equals("Y") ? true : false);
+					stopHistoryCheckBox.setSelected(newValue.getStopHistoryAccess().equals("Y") ? true : false);
 				} else
 					disableAllChild();
 			}
@@ -410,6 +413,15 @@ public class AHawkerInfoTabController implements Initializable {
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 
 				hawkerTable.getSelectionModel().getSelectedItem().setReportsAccess(newValue ? "Y" : "N");
+				hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
+			}
+		});
+		stopHistoryCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+
+				hawkerTable.getSelectionModel().getSelectedItem().setStopHistoryAccess(newValue ? "Y" : "N");
 				hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
 			}
 		});
@@ -795,9 +807,7 @@ public class AHawkerInfoTabController implements Initializable {
 			editHawkerController.setupBindings();
 			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
 				if (!editHawkerController.isValid()) {
-					Notifications.create().title("Mobile number exists")
-							.text("Another hawker with same mobile number already exists.")
-							.hideAfter(Duration.seconds(5)).showError();
+					
 					btnEvent.consume();
 				}
 			});
@@ -874,16 +884,16 @@ public class AHawkerInfoTabController implements Initializable {
 					if(HawkerLoginController.loggedInHawker==null){
 						if(showAllRadioButton.isSelected()){
 							stmt = con.prepareStatement(
-									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code from hawker_info order by name");
+									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access from hawker_info order by name");
 //							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 						} else {
 							stmt = con.prepareStatement(
-									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code from hawker_info where point_name=? order by name");
+									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access from hawker_info where point_name=? order by name");
 							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 						}
 					} else {
 						stmt = con.prepareStatement(
-								"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code from hawker_info where point_name=? order by name");
+								"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access from hawker_info where point_name=? order by name");
 						stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 					}
 					if(filterRadioButton.isSelected())
@@ -900,7 +910,7 @@ public class AHawkerInfoTabController implements Initializable {
 								rs.getString(21), rs.getString(22), rs.getString(23), rs.getString(24),
 								rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
 								rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32),
-								rs.getString(33));
+								rs.getString(33), rs.getString(34));
 //						hwkRow.calculateTotalDue();
 						hawkerMasterData.add(hwkRow);
 					}
@@ -946,6 +956,7 @@ public class AHawkerInfoTabController implements Initializable {
 		pausedCustCheckBox.setDisable(true);
 		prodCatalogCheckBox.setDisable(true);
 		reportsCheckBox.setDisable(true);
+		stopHistoryCheckBox.setDisable(true);
 		enableAllButton.setDisable(true);
 		disableAllButton.setDisable(true);
 		hawkerBillingTable.setDisable(true);
@@ -961,6 +972,7 @@ public class AHawkerInfoTabController implements Initializable {
 		pausedCustCheckBox.setDisable(false);
 		prodCatalogCheckBox.setDisable(false);
 		reportsCheckBox.setDisable(false);
+		stopHistoryCheckBox.setDisable(false);
 		enableAllButton.setDisable(false);
 		disableAllButton.setDisable(false);
 		hawkerBillingTable.setDisable(false);
@@ -1043,7 +1055,7 @@ public class AHawkerInfoTabController implements Initializable {
 			validate = false;
 		}
 		try {
-			Integer.parseInt(addHwkMob.getText());
+			Long.parseLong(addHwkMob.getText());
 		} catch (NumberFormatException e) {
 			Notifications.create().title("Invalid mobile number")
 			.text("Mobile number should only contain 10 DIGITS")
@@ -1126,6 +1138,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 				refreshHawkerTable();
 				con.commit();
+				insertLineZero(addHwkCode.getText().toLowerCase());
 
 			} catch (SQLException e) {
 
@@ -1137,6 +1150,37 @@ public class AHawkerInfoTabController implements Initializable {
 			resetClicked(event);
 		}
 
+	}
+
+	private void insertLineZero(String hwkCode) {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				PreparedStatement insertLineNum = null;
+				String insertStatement = "INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + "VALUES (?,?)";
+				Connection con = Main.dbConnection;
+				try {
+					while (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					insertLineNum = con.prepareStatement(insertStatement);
+					long hawkerId = hawkerIdForCode(hwkCode);
+					if (hawkerId >= 1) {
+						insertLineNum.setInt(1, 0);
+						insertLineNum.setLong(2, hawkerId);
+						insertLineNum.execute();
+					}
+				} catch (SQLException e) {
+
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+		};
+		new Thread(task).start();
+		
 	}
 
 	private boolean validateHawkerCodeExists(String text) {
@@ -1171,7 +1215,7 @@ public class AHawkerInfoTabController implements Initializable {
 		addHwkInitials.clear();
 		addHwkEmployment.getSelectionModel().clearSelection();
 		addHwkComments.clear();
-		addPointName.getSelectionModel().clearSelection();
+//		addPointName.getSelectionModel().clearSelection();
 		addHwkBuildingStreet.clear();
 	}
 
@@ -1184,6 +1228,7 @@ public class AHawkerInfoTabController implements Initializable {
 		pausedCustCheckBox.setSelected(true);
 		prodCatalogCheckBox.setSelected(true);
 		reportsCheckBox.setSelected(true);
+		stopHistoryCheckBox.setSelected(true);
 	}
 
 	@FXML
@@ -1195,6 +1240,7 @@ public class AHawkerInfoTabController implements Initializable {
 		pausedCustCheckBox.setSelected(false);
 		prodCatalogCheckBox.setSelected(false);
 		reportsCheckBox.setSelected(false);
+		stopHistoryCheckBox.setSelected(false);
 	}
 
 	@FXML
@@ -1425,11 +1471,39 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 			addPointName.getItems().clear();
 			addPointName.getItems().addAll(pointNameValues);
+			if(HawkerLoginController.loggedInHawker!=null){
+
+				addPointName.setDisable(true);
+			}
 		} catch (SQLException e) {
 
 			e.printStackTrace();
 		}
 
+	}
+	
+	private long hawkerIdForCode(String hawkerCode) {
+
+		long hawkerId = -1;
+		Connection con = Main.dbConnection;
+		try {
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement hawkerIdStatement = null;
+			String hawkerIdQuery = "select hawker_id from hawker_info where hawker_code = ?";
+			hawkerIdStatement = con.prepareStatement(hawkerIdQuery);
+			hawkerIdStatement.setString(1, hawkerCode);
+			ResultSet hawkerIdRs = hawkerIdStatement.executeQuery();
+
+			if (hawkerIdRs.next()) {
+				hawkerId = hawkerIdRs.getLong(1);
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return hawkerId;
 	}
 	
 	public void reloadData() {
@@ -1446,7 +1520,6 @@ public class AHawkerInfoTabController implements Initializable {
 				refreshHawkerTable();
 			}
 		} else {
-
 			populatePointNames();
 		}
 		populateEmploymentValues();

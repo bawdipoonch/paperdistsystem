@@ -326,6 +326,7 @@ public class ACustomerInfoTabController implements Initializable {
 				addCustHouseSeq.setDisable(false);
 				seq = maxSeq();
 				seq = seq == 0 ? 1 : seq;
+				addCustHouseSeq.setText(seq+"");
 			}
 		});
 
@@ -451,30 +452,30 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		});
 		
-		addCustMobile.textProperty().addListener(new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-
-				if (newValue.length() > 10){
-					addCustMobile.setText(oldValue);
-
-					Notifications.create().title("Invalid mobile number")
-							.text("Mobile number should only contain 10 DIGITS")
-							.hideAfter(Duration.seconds(5)).showError();
-				}
-				try {
-					Integer.parseInt(newValue);
-				} catch (NumberFormatException e) {
-					addCustMobile.setText(oldValue);
-
-					Notifications.create().title("Invalid mobile number")
-							.text("Mobile number should only contain 10 DIGITS")
-							.hideAfter(Duration.seconds(5)).showError();
-					e.printStackTrace();
-				}
-			}
-		});
+//		addCustMobile.textProperty().addListener(new ChangeListener<String>() {
+//
+//			@Override
+//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//
+//				if (newValue.length() > 10){
+//					addCustMobile.setText(oldValue);
+//
+//					Notifications.create().title("Invalid mobile number")
+//							.text("Mobile number should only contain 10 DIGITS")
+//							.hideAfter(Duration.seconds(5)).showError();
+//				}
+//				try {
+//					Integer.parseInt(newValue);
+//				} catch (NumberFormatException e) {
+//					addCustMobile.setText(oldValue);
+//
+//					Notifications.create().title("Invalid mobile number")
+//							.text("Mobile number should only contain 10 DIGITS")
+//							.hideAfter(Duration.seconds(5)).showError();
+//					e.printStackTrace();
+//				}
+//			}
+//		});
 
 		saveCustomerButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
@@ -545,7 +546,7 @@ public class ACustomerInfoTabController implements Initializable {
 				});
 
 				MenuItem mnuView = new MenuItem("View Subscription");
-				mnuEdit.setOnAction(new EventHandler<ActionEvent>() {
+				mnuView.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent t) {
 						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
@@ -793,7 +794,7 @@ public class ACustomerInfoTabController implements Initializable {
 					customerMasterData.remove(custRow);
 					ACustInfoTable.getSelectionModel().select(t);
 					editCustController.releaseVariables();
-					reloadData();
+					refreshCustomerTable();
 				}
 			});
 
@@ -1016,7 +1017,7 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 			hawkerLineNumData.clear();
 			PreparedStatement stmt = con.prepareStatement(
-					"select li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num");
+					"select li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? and li.line_num<>0 order by li.line_num");
 			stmt.setLong(1, hawkerIdForCode(hawkerCode));
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -1097,17 +1098,15 @@ public class ACustomerInfoTabController implements Initializable {
 							queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer where hawker_code=? order by hawker_code,line_num,house_seq";
 							stmt = con.prepareStatement(queryString);
 							stmt.setString(1, addCustHwkCode.getSelectionModel().getSelectedItem());
+//							addPointName.setDisable(true);
+//							addCustHwkCode.setDisable(true);
 						}
 					} else {
 						queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer where hawker_code=? order by hawker_code,line_num,house_seq";
 						stmt = con.prepareStatement(queryString);
 						stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
 					}
-					if(filterRadioButton.isSelected())
-					{
-						addPointName.setDisable(true);
-						addCustHwkCode.setDisable(true);
-					}
+					
 					customerMasterData.clear();
 					ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
@@ -1132,11 +1131,21 @@ public class ACustomerInfoTabController implements Initializable {
 					ACustInfoTable.setItems(sortedData);
 					ACustInfoTable.setDisable(false);
 				}
-				if(filterRadioButton.isSelected())
-				{
-					addPointName.setDisable(false);
-					addCustHwkCode.setDisable(false);
-				}
+//				if (HawkerLoginController.loggedInHawker == null) {
+//					if (showAllRadioButton.isSelected()) {
+//
+//						addPointName.setDisable(true);
+//						addCustHwkCode.setDisable(true);
+//					} else {
+//						
+//						addPointName.setDisable(false);
+//						addCustHwkCode.setDisable(false);
+//					}
+//				} else {
+//
+//					addPointName.setDisable(true);
+//					addCustHwkCode.setDisable(true);
+//				}
 				ACustInfoTable.refresh();
 //				ACustInfoTable.requestFocus();
 				ACustInfoTable.getSelectionModel().selectFirst();
@@ -1159,7 +1168,7 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 			hawkerCodeData.clear();
 			PreparedStatement stmt = con
-					.prepareStatement("select distinct hawker_code from hawker_info where point_name=?");
+					.prepareStatement("select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
 			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -1256,21 +1265,21 @@ public class ACustomerInfoTabController implements Initializable {
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
 					.showError();
 		}
-		if (addCustMobile.getText().length()!=10) {
-			Notifications.create().title("Invalid mobile number")
-			.text("Mobile number should only contain 10 DIGITS")
-			.hideAfter(Duration.seconds(5)).showError();
-			validate = false;
-		}
-		try {
-			Integer.parseInt(addCustMobile.getText());
-		} catch (NumberFormatException e) {
-			Notifications.create().title("Invalid mobile number")
-			.text("Mobile number should only contain 10 DIGITS")
-			.hideAfter(Duration.seconds(5)).showError();
-			validate = false;
-			e.printStackTrace();
-		}
+//		if (addCustMobile.getText().length()!=10) {
+//			Notifications.create().title("Invalid mobile number")
+//			.text("Mobile number should only contain 10 DIGITS")
+//			.hideAfter(Duration.seconds(5)).showError();
+//			validate = false;
+//		}
+//		try {
+//			Integer.parseInt(addCustMobile.getText());
+//		} catch (NumberFormatException e) {
+//			Notifications.create().title("Invalid mobile number")
+//			.text("Mobile number should only contain 10 DIGITS")
+//			.hideAfter(Duration.seconds(5)).showError();
+//			validate = false;
+//			e.printStackTrace();
+//		}
 		return validate;
 	}
 
@@ -1330,7 +1339,13 @@ public class ACustomerInfoTabController implements Initializable {
 				con.commit();
 				resetClicked(event);
 				// con.close();
-				addCustName.requestFocus();
+
+				if(HawkerLoginController.loggedInHawker!=null){
+					addCustLineNum.requestFocus();
+				} else {
+					addCustName.requestFocus();					
+				}
+				
 			} catch (SQLException e) {
 
 				e.printStackTrace();
@@ -1863,14 +1878,14 @@ public class ACustomerInfoTabController implements Initializable {
 	// @Override
 	public void reloadData() {
 		
-		populatePointNames();
+//		populatePointNames();
 		if (HawkerLoginController.loggedInHawker == null) {
 			if (showAllRadioButton.isSelected()) {
-				refreshCustomerTable();
 				addPointName.getSelectionModel().clearSelection();
 				addPointName.setDisable(true);
 				addCustHwkCode.getSelectionModel().clearSelection();
 				addCustHwkCode.setDisable(true);
+				refreshCustomerTable();
 			} else if(filterRadioButton.isSelected()){
 				// ACustInfoTable.getItems().clear();
 				// ACustInfoTable.refresh();

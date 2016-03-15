@@ -48,6 +48,7 @@ public class Hawker {
 	private final SimpleStringProperty bankAcNo = new SimpleStringProperty("");
 	private final SimpleStringProperty bankName = new SimpleStringProperty("");
 	private final SimpleStringProperty ifscCode = new SimpleStringProperty("");
+	private SimpleStringProperty stopHistoryAccess = new SimpleStringProperty("");
 	
 	public Hawker(long hawkerId, String name, String hawkerCode,
 			String moblieNum, String agencyName, boolean activeFlag,
@@ -55,7 +56,7 @@ public class Hawker {
 			String locality, String city, String state, String customerAccess, String billingAccess, 
 			String lineInfoAccess, String lineDistAccess, String pausedCustAccess, String productAccess, String reportsAccess,
 			String profile1, String profile2, String profile3, String initials,String password, String employment, String comments,
-			String pointName, String buildingStreet, String bankAcNo, String bankName, String ifscCode) {
+			String pointName, String buildingStreet, String bankAcNo, String bankName, String ifscCode, String stopHistoryAccess) {
 		super();
 		setHawkerId(hawkerId);
 		setName(name);
@@ -90,6 +91,7 @@ public class Hawker {
 		setBankAcNo(bankAcNo);
 		setBankName(bankName);
 		setIfscCode(ifscCode);
+		setStopHistoryAccess(stopHistoryAccess);
 	}
 
 	public Hawker(Hawker hawkerRow) {
@@ -420,6 +422,14 @@ public class Hawker {
 		
 		return this.bankAcNo.get();
 	}
+
+	public String getStopHistoryAccess() {
+		return stopHistoryAccess.get();		
+	}
+
+	public void setStopHistoryAccess(String stopHistoryAccess) {
+		this.stopHistoryAccess.set(stopHistoryAccess);
+	}
 	
 	public void calculateTotalDue(){
 		try {
@@ -448,7 +458,7 @@ public class Hawker {
 			while(!con.isValid(0)){
 				con = Main.reconnect();
 			}
-			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=?, initials=?, employment=?, comments=?, point_name=?, building_street=?, bank_ac_no=?, bank_name=?, ifsc_code=? where hawker_id = ?";
+			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=?, initials=?, employment=?, comments=?, point_name=?, building_street=?, bank_ac_no=?, bank_name=?, ifsc_code=?, stop_history_access=? where hawker_id = ?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setString(1, getName());
 			updateStmt.setString(2, getHawkerCode());
@@ -483,7 +493,8 @@ public class Hawker {
 			updateStmt.setString(31, getBankAcNo());
 			updateStmt.setString(32, getBankName());
 			updateStmt.setString(33, getIfscCode());
-			updateStmt.setLong(34, getHawkerId()); 
+			updateStmt.setString(34, getStopHistoryAccess());
+			updateStmt.setLong(35, getHawkerId()); 
 			updateStmt.executeUpdate();
 			con.commit();
 			

@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane stylesheets="@application.css"  xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.ALineInfoTabController">
+<AnchorPane stylesheets="@application.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.ALineInfoTabController">
    <children>
       <HBox spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -35,8 +35,9 @@
                               </HBox>
                            </children>
                         </HBox>
-                        <HBox alignment="CENTER_RIGHT" prefHeight="43.0" prefWidth="26.0" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_RIGHT" prefHeight="43.0" spacing="15.0" HBox.hgrow="ALWAYS">
                            <children>
+                              <Button fx:id="showCounts" layoutX="10.0" layoutY="19.0" mnemonicParsing="false" onAction="#showSubscriptionCounts" prefWidth="130.0" text="Show Counts" />
                               <Button fx:id="addCustExtraButton" mnemonicParsing="false" onAction="#addCustomerExtraScreenClicked" prefWidth="130.0" text="Add Customer" />
                               <Button fx:id="shuffleButton" mnemonicParsing="false" onAction="#shuffleHouseSeqClicked" prefWidth="150.0" text="Shuffle House Sequences" />
                            </children>

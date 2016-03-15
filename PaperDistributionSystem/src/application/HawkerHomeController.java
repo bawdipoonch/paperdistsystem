@@ -45,6 +45,8 @@ public class HawkerHomeController implements Initializable {
     @FXML private Tab pausedCustTab;
     @FXML private Tab lineDistTab;
     @FXML private Tab productsTab;
+	@FXML
+	private Tab stopHistoryTab;
     @FXML private TabPane tabPane;
     
     private ACustomerInfoTabController customerTabController;
@@ -52,6 +54,7 @@ public class HawkerHomeController implements Initializable {
     private ALineInfoTabController lineInfoTabController;
     private APausedCustomerTabController pausedCustTabController;
     private AProductsTabController productsTabController;
+	private AStopHistoryTabController stopHistTabController;
     
 
 
@@ -76,6 +79,8 @@ public class HawkerHomeController implements Initializable {
 				tabPane.getTabs().remove(lineDistTab);
 			if(!HawkerLoginController.loggedInHawker.getProductAccess().equals("Y"))
 				tabPane.getTabs().remove(productsTab);
+			if(!HawkerLoginController.loggedInHawker.getStopHistoryAccess().equals("Y"))
+				tabPane.getTabs().remove(stopHistoryTab);
 			
 			tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
@@ -103,6 +108,9 @@ public class HawkerHomeController implements Initializable {
 						if (oldValue == productsTab) {
 							productsTabController.releaseVariables();
 						}
+						if (oldValue == stopHistoryTab) {
+							stopHistTabController.releaseVariables();
+						}
 						System.gc();
 					}
 
@@ -127,6 +135,9 @@ public class HawkerHomeController implements Initializable {
 //						}
 						if (newValue == productsTab) {
 							productsTabController.reloadData();
+						}
+						if (newValue == stopHistoryTab) {
+							stopHistTabController.reloadData();
 						}
 
 					}
@@ -242,9 +253,15 @@ public class HawkerHomeController implements Initializable {
 					productsTabController.reloadData();
 				}
 			});*/
+			stopHistoryTab = new Tab();
+			FXMLLoader stopHistTabLoader = new FXMLLoader(getClass().getResource("AStopHistoryTab.fxml"));
+			Parent stopHistRoot = (Parent) stopHistTabLoader.load();
+			stopHistTabController = stopHistTabLoader.<AStopHistoryTabController> getController();
+			stopHistoryTab.setText("Stop History");
+			stopHistoryTab.setContent(stopHistRoot);
 			
 			
-			tabPane.getTabs().addAll(customersTab, lineInfoTab, lineDistTab,pausedCustTab ,productsTab);
+			tabPane.getTabs().addAll(customersTab, lineInfoTab, lineDistTab,pausedCustTab ,stopHistoryTab,productsTab);
 		} catch (IOException e) {
 			
 			e.printStackTrace();

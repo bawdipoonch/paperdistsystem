@@ -142,30 +142,30 @@ public class EditHawkerController implements Initializable {
 		editBankAcNo.setText(hawkerRow.getBankAcNo());
 		editBankName.setText(hawkerRow.getBankName());
 		editIfscCode.setText(hawkerRow.getIfscCode());
-		editMobileNumTF.textProperty().addListener(new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-
-				if (newValue.length() > 10){
-					editMobileNumTF.setText(oldValue);
-
-					Notifications.create().title("Invalid mobile number")
-							.text("Mobile number should only contain 10 DIGITS")
-							.hideAfter(Duration.seconds(5)).showError();
-				}
-				try {
-					Integer.parseInt(newValue);
-				} catch (NumberFormatException e) {
-					editMobileNumTF.setText(oldValue);
-
-					Notifications.create().title("Invalid mobile number")
-							.text("Mobile number should only contain 10 DIGITS")
-							.hideAfter(Duration.seconds(5)).showError();
-					e.printStackTrace();
-				}
-			}
-		});
+//		editMobileNumTF.textProperty().addListener(new ChangeListener<String>() {
+//
+//			@Override
+//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//
+//				if (newValue.length() > 10){
+//					editMobileNumTF.setText(oldValue);
+//
+//					Notifications.create().title("Invalid mobile number")
+//							.text("Mobile number should only contain 10 DIGITS")
+//							.hideAfter(Duration.seconds(5)).showError();
+//				}
+//				try {
+//					Integer.parseInt(newValue);
+//				} catch (NumberFormatException e) {
+//					editMobileNumTF.setText(oldValue);
+//
+//					Notifications.create().title("Invalid mobile number")
+//							.text("Mobile number should only contain 10 DIGITS")
+//							.hideAfter(Duration.seconds(5)).showError();
+//					e.printStackTrace();
+//				}
+//			}
+//		});
 	}
 
 	public boolean isValid() {

@@ -156,30 +156,30 @@ public class EditCustomerController implements Initializable {
 			}
 		});
 
-		editMobileNumTF.textProperty().addListener(new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-
-				if (newValue.length() > 10){
-					editMobileNumTF.setText(oldValue);
-
-					Notifications.create().title("Invalid mobile number")
-							.text("Mobile number should only contain 10 DIGITS")
-							.hideAfter(Duration.seconds(5)).showError();
-				}
-				try {
-					Integer.parseInt(newValue);
-				} catch (NumberFormatException e) {
-					editMobileNumTF.setText(oldValue);
-
-					Notifications.create().title("Invalid mobile number")
-							.text("Mobile number should only contain 10 DIGITS")
-							.hideAfter(Duration.seconds(5)).showError();
-					e.printStackTrace();
-				}
-			}
-		});
+//		editMobileNumTF.textProperty().addListener(new ChangeListener<String>() {
+//
+//			@Override
+//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//
+//				if (newValue.length() > 10){
+//					editMobileNumTF.setText(oldValue);
+//
+//					Notifications.create().title("Invalid mobile number")
+//							.text("Mobile number should only contain 10 DIGITS")
+//							.hideAfter(Duration.seconds(5)).showError();
+//				}
+//				try {
+//					Integer.parseInt(newValue);
+//				} catch (NumberFormatException e) {
+//					editMobileNumTF.setText(oldValue);
+//
+//					Notifications.create().title("Invalid mobile number")
+//							.text("Mobile number should only contain 10 DIGITS")
+//							.hideAfter(Duration.seconds(5)).showError();
+//					e.printStackTrace();
+//				}
+//			}
+//		});
 		editNameTF.requestFocus();
 	}
 
@@ -193,7 +193,7 @@ public class EditCustomerController implements Initializable {
 			}
 			hawkerLineNumData.clear();
 			PreparedStatement stmt = con.prepareStatement(
-					"select li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num");
+					"select li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? and li.line_num<>0 order by li.line_num");
 			stmt.setLong(1, hawkerIdForCode(hawkerCode));
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -239,7 +239,7 @@ public class EditCustomerController implements Initializable {
 			}
 			hawkerCodeData.clear();
 			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select distinct hawker_code from hawker_info");
+			ResultSet rs = stmt.executeQuery("select distinct hawker_code from hawker_info order by hawker_code");
 			while (rs.next()) {
 				hawkerCodeData.add(rs.getString(1));
 			}
@@ -281,21 +281,21 @@ public class EditCustomerController implements Initializable {
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.").showError();
 		}
-		if (editMobileNumTF.getText().length()!=10) {
-			Notifications.create().title("Invalid mobile number")
-			.text("Mobile number should only contain 10 DIGITS")
-			.hideAfter(Duration.seconds(5)).showError();
-			validate = false;
-		}
-		try {
-			Integer.parseInt(editMobileNumTF.getText());
-		} catch (NumberFormatException e) {
-			Notifications.create().title("Invalid mobile number")
-			.text("Mobile number should only contain 10 DIGITS")
-			.hideAfter(Duration.seconds(5)).showError();
-			validate = false;
-			e.printStackTrace();
-		}
+//		if (editMobileNumTF.getText().length()!=10) {
+//			Notifications.create().title("Invalid mobile number")
+//			.text("Mobile number should only contain 10 DIGITS")
+//			.hideAfter(Duration.seconds(5)).showError();
+//			validate = false;
+//		}
+//		try {
+//			Integer.parseInt(editMobileNumTF.getText());
+//		} catch (NumberFormatException e) {
+//			Notifications.create().title("Invalid mobile number")
+//			.text("Mobile number should only contain 10 DIGITS")
+//			.hideAfter(Duration.seconds(5)).showError();
+//			validate = false;
+//			e.printStackTrace();
+//		}
 		return validate;
 	}
 

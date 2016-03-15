@@ -233,6 +233,7 @@
                                     <CheckBox fx:id="prodCatalogCheckBox" mnemonicParsing="false" text="Product Catalog" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                                     <CheckBox fx:id="billingCheckBox" mnemonicParsing="false" text="Billing" GridPane.columnIndex="1" />
                                     <CheckBox fx:id="reportsCheckBox" mnemonicParsing="false" text="Reports" GridPane.rowIndex="2" />
+                                    <CheckBox fx:id="stopHistoryCheckBox" mnemonicParsing="false" text="Stop History" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                  </children>
                                  <VBox.margin>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
