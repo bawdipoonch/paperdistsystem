@@ -588,6 +588,35 @@ public class EditCustomerController implements Initializable {
 		}
 		return 1;
 	}
+	
+	public void setPausedCust(long customerId){
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			// populateHawkerCodes();
+			String queryString;
+			PreparedStatement stmt;
+					queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer where customer_id=? ";
+					stmt = con.prepareStatement(queryString);
+					stmt.setLong(1, customerId);
+			
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				custRow = new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3),
+						rs.getString(4), rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8),
+						rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
+						rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
+						rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21));
+			}
+
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+	}
 
 	public void releaseVariables() {
 

@@ -1,5 +1,6 @@
 package application;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Date;
@@ -21,8 +22,10 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -190,8 +193,30 @@ public class APausedCustomerTabController implements Initializable {
 					}
 
 				});
+				MenuItem mnuView = new MenuItem("View customer");
+				mnuView.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						PausedSubscription pausedSubsRow = pausedCustTable.getSelectionModel().getSelectedItem();
+						if (pausedSubsRow != null) {
+							showViewCustomerDialog(pausedSubsRow.getCustomerId());
+						}
+					}
+
+				});
+				MenuItem mnuSubView = new MenuItem("View Subscription");
+				mnuSubView.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						PausedSubscription pausedSubsRow = pausedCustTable.getSelectionModel().getSelectedItem();
+						if (pausedSubsRow != null) {
+							showViewSubscriptionDialog(pausedSubsRow.getSubscriptionId());
+						}
+					}
+
+				});
 				ContextMenu menu = new ContextMenu();
-				menu.getItems().addAll(mnuRes);
+				menu.getItems().addAll(mnuRes,mnuView,mnuSubView);
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
 				return row;
@@ -483,7 +508,67 @@ public class APausedCustomerTabController implements Initializable {
 		}
 	}
 
-	
+	private void showViewCustomerDialog(long customerId) {
+		try {
+
+			Dialog<Customer> editCustomerDialog = new Dialog<Customer>();
+			editCustomerDialog.setTitle("View customer data");
+			editCustomerDialog.setHeaderText("View the customer data below");
+
+			editCustomerDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+
+			FXMLLoader editCustomerLoader = new FXMLLoader(getClass().getResource("EditCustomer.fxml"));
+			Parent editCustomerGrid = (Parent) editCustomerLoader.load();
+			EditCustomerController editCustController = editCustomerLoader.<EditCustomerController> getController();
+
+			editCustomerDialog.getDialogPane().setContent(editCustomerGrid);
+			editCustController.setPausedCust(customerId);
+			editCustController.setupBindings();
+			editCustController.gridPane.setDisable(true);
+//			editCustController.gridPane.setStyle("-fx-opacity: 1.0;");
+			
+
+			Optional<Customer> updatedCustomer = editCustomerDialog.showAndWait();
+			// refreshCustomerTable();
+
+			
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+	}
+
+	private void showViewSubscriptionDialog(long subsId) {
+		try {
+
+			Dialog<Subscription> editSubscriptionDialog = new Dialog<Subscription>();
+			editSubscriptionDialog.setTitle("View subscription data");
+			editSubscriptionDialog.setHeaderText("View the subscription data below");
+
+			// Set the button types.
+			
+			editSubscriptionDialog.getDialogPane().getButtonTypes().addAll( ButtonType.CLOSE);
+
+			FXMLLoader editSubscriptionLoader = new FXMLLoader(getClass().getResource("EditSubscription.fxml"));
+			Parent editSubscriptionGrid = (Parent) editSubscriptionLoader.load();
+			EditSubscriptionController editSubsController = editSubscriptionLoader
+					.<EditSubscriptionController> getController();
+
+			editSubscriptionDialog.getDialogPane().setContent(editSubscriptionGrid);
+			editSubsController.setPausedSubs(subsId);
+			editSubsController.setupBindings();
+			editSubsController.gridPane.setDisable(true);
+
+			Optional<Subscription> updatedSubscription = editSubscriptionDialog.showAndWait();
+			// refreshCustomerTable();
+
+			
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 //	@Override
 	public void reloadData() {
 		populatePointNames();
