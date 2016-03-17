@@ -165,6 +165,12 @@ public class ALineDistributorTabController implements Initializable {
 	private FilteredList<LineDistributor> filteredData;
 	private String searchText;
 
+
+	@FXML
+	private TextField addLineNumTF;
+	@FXML
+	private Button addLineButton;
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
@@ -260,6 +266,15 @@ public class ALineDistributorTabController implements Initializable {
 
 		});
 
+		addLineButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					addLineButtonClicked(new ActionEvent());
+				}
+			}
+		});
 		lineDistInfoTable.setRowFactory(new Callback<TableView<LineDistributor>, TableRow<LineDistributor>>() {
 
 			@Override
@@ -1096,6 +1111,87 @@ public class ALineDistributorTabController implements Initializable {
 			e.printStackTrace();
 		}
 
+	}
+	
+	@FXML
+	private void addLineButtonClicked(ActionEvent event) {
+		try {
+			if (addHwkCode.getSelectionModel().selectedIndexProperty().get() != -1) {
+				Integer addLineNumValue = Integer.parseInt(addLineNumTF.getText().trim());
+				
+				if (checkExistingLineNum(addLineNumValue)) {
+					if(addLineNumValue==0){
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid line number value")
+						.text("Cannot add line number 0.").showError();
+					}
+					Task<Void> task = new Task<Void>() {
+
+						@Override
+						protected Void call() throws Exception {
+							PreparedStatement insertLineNum = null;
+							String insertStatement = "INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + "VALUES (?,?)";
+							Connection con = Main.dbConnection;
+							try {
+								while (!con.isValid(0)) {
+									con = Main.reconnect();
+								}
+								insertLineNum = con.prepareStatement(insertStatement);
+								long hawkerId = hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem());
+								if (hawkerId >= 1) {
+									insertLineNum.setInt(1, Integer.parseInt(addLineNumTF.getText()));
+									insertLineNum.setLong(2, hawkerId);
+									insertLineNum.execute();
+									populateLineNumbersForHawkerCode(addHwkCode.getSelectionModel().getSelectedItem());
+									addLineNumTF.clear();
+
+									Notifications.create().hideAfter(Duration.seconds(5)).title("Line Number added.")
+											.text("Line number added successfully").showInformation();
+								}
+							} catch (SQLException e) {
+
+								e.printStackTrace();
+							}
+							return null;
+						}
+
+					};
+					new Thread(task).start();
+				}
+			} else
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
+						.text("Please select hawker before adding line number").showError();
+
+		} catch (NumberFormatException e) {
+
+			e.printStackTrace();
+			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
+					.text("Please enter proper numeric value in Line Number field").showError();
+		}
+
+	}	
+	private boolean checkExistingLineNum(Integer lineNum) {
+
+		Connection con = Main.dbConnection;
+		try {
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement lineNumExists = null;
+			String lineNumExistsQuery = "select line_num from line_info where line_num = ? and hawker_id = ?";
+			lineNumExists = con.prepareStatement(lineNumExistsQuery);
+			lineNumExists.setInt(1, lineNum);
+			lineNumExists.setLong(2, hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem()));
+			ResultSet lineNumExistsRs = lineNumExists.executeQuery();
+			if (lineNumExistsRs.next()) {
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Line number exists")
+						.text("This line number already exists in the hawker selected").showError();
+				return false;
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return true;
 	}
 
 	public void reloadData() {

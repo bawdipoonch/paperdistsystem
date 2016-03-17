@@ -13,15 +13,15 @@
          <children>
             <VBox HBox.hgrow="ALWAYS">
                <children>
-                  <HBox alignment="CENTER_LEFT" prefHeight="43.0" VBox.vgrow="NEVER">
+                  <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
                      <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="43.0" prefWidth="650.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" prefWidth="650.0" spacing="5.0" HBox.hgrow="ALWAYS">
                            <children>
                               <Label text="Point Name :" />
                               <ComboBox fx:id="addPointName" prefWidth="150.0" />
                               <Label text="Hawker : " />
                               <ComboBox fx:id="hawkerComboBox" prefWidth="150.0" promptText="Select Hawker" />
-                              <HBox alignment="CENTER_LEFT" prefHeight="43.0" prefWidth="200.0" spacing="15.0">
+                              <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="15.0">
                                  <children>
                                     <TextField fx:id="addLineNumField" prefHeight="25.0" prefWidth="104.0" promptText="Line Number" />
                                     <Button fx:id="addLineButton" mnemonicParsing="false" onAction="#addLineButtonClicked" text="Add Line" />
@@ -35,14 +35,17 @@
                               </HBox>
                            </children>
                         </HBox>
-                        <HBox alignment="CENTER_RIGHT" prefHeight="43.0" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
                            <children>
                               <Button fx:id="showCounts" layoutX="10.0" layoutY="19.0" mnemonicParsing="false" onAction="#showSubscriptionCounts" prefWidth="130.0" text="Show Counts" />
                               <Button fx:id="addCustExtraButton" mnemonicParsing="false" onAction="#addCustomerExtraScreenClicked" prefWidth="130.0" text="Add Customer" />
                               <Button fx:id="shuffleButton" mnemonicParsing="false" onAction="#shuffleHouseSeqClicked" prefWidth="150.0" text="Shuffle House Sequences" />
                            </children>
                         </HBox>
-                     </children></HBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin></HBox>
                   <HBox VBox.vgrow="ALWAYS">
                      <children>
                         <TableView fx:id="lineNumTable" prefHeight="575.0" prefWidth="130.0" HBox.hgrow="NEVER">

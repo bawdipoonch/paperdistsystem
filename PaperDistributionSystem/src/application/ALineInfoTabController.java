@@ -471,10 +471,26 @@ public class ALineInfoTabController implements Initializable {
 							grid.add(new Label("Resume Date"), 0, 2);
 							DatePicker dp = new DatePicker(LocalDate.now());
 							dp.setConverter(Main.dateConvertor);
+							dp.focusedProperty().addListener(new ChangeListener<Boolean>() {
+						        @Override
+						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+						            if (!newValue){
+						            	dp.setValue(dp.getConverter().fromString(dp.getEditor().getText()));
+						            }
+						        }
+						    });
 							grid.add(dp, 1, 1);
 							grid.add(subsBox, 1, 0);
 							DatePicker resumeDP = new DatePicker();
 							resumeDP.setConverter(Main.dateConvertor);
+							resumeDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
+						        @Override
+						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+						            if (!newValue){
+						            	resumeDP.setValue(resumeDP.getConverter().fromString(resumeDP.getEditor().getText()));
+						            }
+						        }
+						    });
 							grid.add(resumeDP, 1, 2);
 							pauseWarning.getDialogPane().setContent(grid);
 							Button yesButton = (Button) pauseWarning.getDialogPane().lookupButton(ButtonType.YES);
@@ -584,9 +600,25 @@ public class ALineInfoTabController implements Initializable {
 							grid.setPadding(new Insets(20, 150, 10, 10));
 							DatePicker dp = new DatePicker();
 							dp.setConverter(Main.dateConvertor);
+							dp.focusedProperty().addListener(new ChangeListener<Boolean>() {
+						        @Override
+						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+						            if (!newValue){
+						            	dp.setValue(dp.getConverter().fromString(dp.getEditor().getText()));
+						            }
+						        }
+						    });
 							dp.setDisable(true);
 							DatePicker resumeDP = new DatePicker(LocalDate.now());
 							resumeDP.setConverter(Main.dateConvertor);
+							resumeDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
+						        @Override
+						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+						            if (!newValue){
+						            	resumeDP.setValue(resumeDP.getConverter().fromString(resumeDP.getEditor().getText()));
+						            }
+						        }
+						    });
 							// resumeDP.setDisable(true);
 							subsBox.getSelectionModel().selectedItemProperty()
 									.addListener(new ChangeListener<Subscription>() {
@@ -717,10 +749,26 @@ public class ALineInfoTabController implements Initializable {
 							DatePicker pauseDP = new DatePicker(LocalDate.now());
 							pauseDP.setConverter(Main.dateConvertor);
 
+							pauseDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
+						        @Override
+						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+						            if (!newValue){
+						            	pauseDP.setValue(pauseDP.getConverter().fromString(pauseDP.getEditor().getText()));
+						            }
+						        }
+						    });
 							grid.add(pauseDP, 1, 0);
 							grid.add(new Label("Resume Date"), 0, 1);
 							DatePicker resumeDP = new DatePicker();
 							resumeDP.setConverter(Main.dateConvertor);
+							resumeDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
+						        @Override
+						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+						            if (!newValue){
+						            	resumeDP.setValue(resumeDP.getConverter().fromString(resumeDP.getEditor().getText()));
+						            }
+						        }
+						    });
 							grid.add(resumeDP, 1, 1);
 							pauseWarning.getDialogPane().setContent(grid);
 							Button yesButton = (Button) pauseWarning.getDialogPane().lookupButton(ButtonType.YES);
@@ -788,11 +836,27 @@ public class ALineInfoTabController implements Initializable {
 							grid.add(new Label("Stop Date"), 0, 0);
 							DatePicker pauseDP = new DatePicker(subsRow.getPausedDate());
 							pauseDP.setConverter(Main.dateConvertor);
+							pauseDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
+						        @Override
+						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+						            if (!newValue){
+						            	pauseDP.setValue(pauseDP.getConverter().fromString(pauseDP.getEditor().getText()));
+						            }
+						        }
+						    });
 							pauseDP.setDisable(true);
 							grid.add(pauseDP, 1, 0);
 							grid.add(new Label("Resume Date"), 0, 1);
 							DatePicker resumeDP = new DatePicker(LocalDate.now());
 							resumeDP.setConverter(Main.dateConvertor);
+							resumeDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
+						        @Override
+						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+						            if (!newValue){
+						            	resumeDP.setValue(resumeDP.getConverter().fromString(resumeDP.getEditor().getText()));
+						            }
+						        }
+						    });
 							// resumeDP.setDisable(true);
 							grid.add(resumeDP, 1, 1);
 							resumeWarning.getDialogPane().setContent(grid);
@@ -1308,6 +1372,8 @@ public class ALineInfoTabController implements Initializable {
 									insertLineNum.execute();
 									refreshLineNumTableForHawker(hawkerComboBox.getSelectionModel().getSelectedItem());
 									addLineNumField.clear();
+									Notifications.create().hideAfter(Duration.seconds(5)).title("Line Number added.")
+									.text("Line number added successfully").showInformation();
 								}
 							} catch (SQLException e) {
 

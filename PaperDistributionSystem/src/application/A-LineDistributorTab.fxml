@@ -32,6 +32,12 @@
                                     <Label fx:id="hawkerMobLabel" />
                                  </children>
                               </HBox>
+                              <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="15.0">
+                                 <children>
+                                    <TextField fx:id="addLineNumTF" prefHeight="25.0" prefWidth="104.0" promptText="Line Number" />
+                                    <Button fx:id="addLineButton" mnemonicParsing="false" onAction="#addLineButtonClicked" text="Add Line" />
+                                 </children>
+                              </HBox>
                            </children>
                            <VBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
