@@ -147,6 +147,8 @@ public class ACustomerInfoTabController implements Initializable {
 	private TableColumn<Customer, String> commentsColumn;
 	@FXML
 	private TableColumn<Customer, String> buildingStreetColumn;
+	@FXML
+	private TableColumn<Customer, Double> totalDueColumn;
 
 	@FXML
 	private TableView<Subscription> subscriptionsTable;
@@ -260,6 +262,7 @@ public class ACustomerInfoTabController implements Initializable {
 		employmentColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("employment"));
 		commentsColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("comments"));
 		buildingStreetColumn.setCellValueFactory(new PropertyValueFactory<Customer, String>("buildingStreet"));
+		totalDueColumn.setCellValueFactory(new PropertyValueFactory<Customer, Double>("totalDue"));
 
 		subsIdColumn.setCellValueFactory(new PropertyValueFactory<Subscription, Long>("subscriptionId"));
 		subsProdNameColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("productName"));
@@ -1133,7 +1136,7 @@ public class ACustomerInfoTabController implements Initializable {
 //							addCustHwkCode.setDisable(true);
 						}
 					} else {
-						queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer where hawker_code=? order by hawker_code,line_num,house_seq";
+						queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? order by hawker_code,line_num,house_seq";
 						stmt = con.prepareStatement(queryString);
 						stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
 					}
@@ -1145,7 +1148,7 @@ public class ACustomerInfoTabController implements Initializable {
 								rs.getString(4), rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8),
 								rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
 								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
-								rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21)));
+								rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getDouble(22)));
 					}
 
 				} catch (SQLException e) {
@@ -1398,7 +1401,7 @@ public class ACustomerInfoTabController implements Initializable {
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer where hawker_code=? and line_num=? order by house_seq";
+			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? and line_num=? order by house_seq";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, hawkerCode);
 			stmt.setInt(2, lineNum);
@@ -1408,7 +1411,7 @@ public class ACustomerInfoTabController implements Initializable {
 						rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9),
 						rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14),
 						rs.getString(15), rs.getString(16), rs.getString(17), rs.getString(18), rs.getString(19),
-						rs.getString(20), rs.getString(21)));
+						rs.getString(20), rs.getString(21), rs.getDouble(22)));
 			}
 		} catch (SQLException e) {
 
@@ -1886,7 +1889,7 @@ public class ACustomerInfoTabController implements Initializable {
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String countStmt = "select count(*) from stop_history where sub_id=? and ? between stop_date and resume_date";
+			String countStmt = "select count(*) from stop_history where sub_id=? and (resume_date is null or sysdate between stop_date and resume_date-1)";
 			PreparedStatement stmt = con.prepareStatement(countStmt);
 			stmt.setLong(1, subsRow.getSubscriptionId());
 			stmt.setDate(2, Date.valueOf(stopDate));

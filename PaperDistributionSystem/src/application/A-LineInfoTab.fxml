@@ -84,7 +84,7 @@
                                     <TableColumn fx:id="subsTypeColumn" prefWidth="114.0" text="Subscription Type" />
                                     <TableColumn fx:id="subsPaymentTypeColumn" prefWidth="95.0" text="Payment Type" />
                                     <TableColumn fx:id="subPriceColumn" prefWidth="74.0" text="Price" />
-                                    <TableColumn fx:id="subsServiceChargeColumn" prefWidth="94.0" text="Tea Charges" />
+                                    <TableColumn fx:id="subsServiceChargeColumn" prefWidth="94.0" text="Tea Expenses" />
                                     <TableColumn fx:id="subsFreqColumn" prefWidth="94.0" text="Frequency" />
                                     <TableColumn fx:id="subsDOWColumn" prefWidth="94.0" text="Day Of Week" />
                                     <TableColumn fx:id="subsStatusColumn" prefWidth="70.0" text="Status" />

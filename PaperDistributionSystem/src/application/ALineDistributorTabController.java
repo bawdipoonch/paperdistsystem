@@ -396,6 +396,17 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		});
 
+
+		addLineNumTF.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.ENTER) {
+					addLineButtonClicked(new ActionEvent());
+				}
+
+			}
+		});
 		addNameField.requestFocus();
 	}
 

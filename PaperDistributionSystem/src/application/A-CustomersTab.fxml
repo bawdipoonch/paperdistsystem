@@ -147,6 +147,7 @@
                         <TableColumn fx:id="profile3Column" prefWidth="192.0" text="Profile3" />
                         <TableColumn fx:id="employmentColumn" prefWidth="192.0" text="Employment" />
                         <TableColumn fx:id="commentsColumn" prefWidth="250.0" text="Comments" />
+                  		<TableColumn fx:id="totalDueColumn" prefWidth="87.0" text="Total Due" />
                      </columns>
                   </TableView>
                   <HBox minHeight="-Infinity" prefHeight="200.0" spacing="10.0">
@@ -169,7 +170,7 @@
                                     <TableColumn fx:id="subsTypeColumn" prefWidth="114.0" text="Subscription Type" />
                                     <TableColumn fx:id="subsPaymentTypeColumn" prefWidth="95.0" text="Payment Type" />
                                     <TableColumn fx:id="subPriceColumn" prefWidth="52.0" text="Price" />
-                                    <TableColumn fx:id="subsServiceChargeColumn" prefWidth="99.0" text="Tea Charges" />
+                                    <TableColumn fx:id="subsServiceChargeColumn" prefWidth="99.0" text="Tea Expenses" />
                                     <TableColumn fx:id="subsFreqColumn" prefWidth="111.0" text="Frequency" />
                                     <TableColumn fx:id="subsDOWColumn" prefWidth="94.0" text="Day Of Week" />
                                     <TableColumn fx:id="subsStatusColumn" prefWidth="70.0" text="Status" />

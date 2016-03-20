@@ -679,7 +679,7 @@ public class AHawkerInfoTabController implements Initializable {
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select bill_category from point_name where name =?";
+			String query = "select bill_category from point_name where name =? order by bill_category";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
