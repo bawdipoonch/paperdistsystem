@@ -15,6 +15,8 @@
                <children>
                   <HBox alignment="CENTER_LEFT" prefHeight="43.0" spacing="5.0">
                      <children>
+                              <Label layoutX="10.0" layoutY="14.0" text="City: " />
+                              <ComboBox fx:id="cityTF" layoutX="84.0" layoutY="10.0" prefWidth="120.0" promptText="Select City" />
                         <Label text="Point Name :" />
                         <ComboBox fx:id="addPointName" prefWidth="150.0" />
                         <Label text="Hawker : " />

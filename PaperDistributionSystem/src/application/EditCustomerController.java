@@ -202,6 +202,9 @@ public class EditCustomerController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 	}
 
@@ -225,6 +228,9 @@ public class EditCustomerController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		return hawkerId;
 	}
@@ -244,6 +250,9 @@ public class EditCustomerController implements Initializable {
 				hawkerCodeData.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -378,6 +387,9 @@ public class EditCustomerController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -409,6 +421,9 @@ public class EditCustomerController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -431,6 +446,9 @@ public class EditCustomerController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 
 	}
@@ -451,6 +469,9 @@ public class EditCustomerController implements Initializable {
 			}
 
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -479,6 +500,9 @@ public class EditCustomerController implements Initializable {
 						rs.getString(20), rs.getString(21), rs.getDouble(22)));
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -562,6 +586,9 @@ public class EditCustomerController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -583,6 +610,9 @@ public class EditCustomerController implements Initializable {
 				return rs.getInt(1);
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -613,6 +643,9 @@ public class EditCustomerController implements Initializable {
 			}
 
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}

@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -59,12 +60,15 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 
 public class ACustomerInfoTabController implements Initializable {
 
 	@FXML
 	private TableView<Customer> ACustInfoTable;
 
+	@FXML
+	ComboBox<String> cityTF;
 	@FXML
 	private TextField addCustName;
 	@FXML
@@ -208,6 +212,25 @@ public class ACustomerInfoTabController implements Initializable {
 	@FXML
 	private Button clearButton;
 
+	@FXML
+	private Label totalBillLabel;
+
+	@FXML
+	private Label totalDueLabel;
+
+	@FXML
+	private Label netBillLabel;
+
+	@FXML
+	ComboBox<Billing> invoiceDateLOV;
+
+	@FXML
+	private TableView<BillingLine> billingTable;
+	@FXML
+	private TableColumn<BillingLine, String> prodCol;
+	@FXML
+	private TableColumn<BillingLine, Double> amountCol;
+
 	private FilteredList<Customer> filteredData;
 	private String searchText;
 	private ObservableList<Customer> customerMasterData = FXCollections.observableArrayList();
@@ -217,20 +240,25 @@ public class ACustomerInfoTabController implements Initializable {
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
 	private ObservableList<String> pointNameValues = FXCollections.observableArrayList();
+	private ObservableList<Billing> invoiceDatesData = FXCollections.observableArrayList();
+	private ObservableList<BillingLine> billingLinesData = FXCollections.observableArrayList();
+	private ObservableList<String> cityValues = FXCollections.observableArrayList();
 
 	@FXML
-	public  RadioButton filterRadioButton;
+	public RadioButton filterRadioButton;
 	@FXML
-	public  RadioButton showAllRadioButton;
-	
-	@FXML private Label hawkerNameLabel;
-	@FXML private Label hawkerMobLabel;
+	public RadioButton showAllRadioButton;
+
+	@FXML
+	private Label hawkerNameLabel;
+	@FXML
+	private Label hawkerMobLabel;
 
 	private int seq = 0;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		if(HawkerLoginController.loggedInHawker!=null){
+		if (HawkerLoginController.loggedInHawker != null) {
 			filterRadioButton.setVisible(false);
 			showAllRadioButton.setVisible(false);
 		} else {
@@ -238,7 +266,7 @@ public class ACustomerInfoTabController implements Initializable {
 			filterRadioButton.setToggleGroup(tg);
 			showAllRadioButton.setToggleGroup(tg);
 			filterRadioButton.setSelected(true);
-			
+
 		}
 		System.out.println("Entered ACustomerInfoTabController");
 		// Set cell value factories
@@ -280,6 +308,8 @@ public class ACustomerInfoTabController implements Initializable {
 		subsResumeDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("resumeDate"));
 		subsNumberColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("subNumber"));
 		subsStopDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("stopDate"));
+		prodCol.setCellValueFactory(new PropertyValueFactory<BillingLine, String>("product"));
+		amountCol.setCellValueFactory(new PropertyValueFactory<BillingLine, Double>("amount"));
 		subsPausedDateColumn.setCellFactory(
 				new Callback<TableColumn<Subscription, LocalDate>, TableCell<Subscription, LocalDate>>() {
 
@@ -329,7 +359,7 @@ public class ACustomerInfoTabController implements Initializable {
 				addCustHouseSeq.setDisable(false);
 				seq = maxSeq();
 				seq = seq == 0 ? 1 : seq;
-				addCustHouseSeq.setText(seq+"");
+				addCustHouseSeq.setText(seq + "");
 			}
 		});
 
@@ -344,7 +374,7 @@ public class ACustomerInfoTabController implements Initializable {
 				subscriptionsTable.refresh();
 				hawkerMobLabel.setText("");
 				hawkerNameLabel.setText("");
-				if (newValue!=null) {
+				if (newValue != null) {
 					hawkerNameMobCode(newValue);
 					addCustLineNum.setDisable(false);
 					addCustLineNum.getItems().clear();
@@ -403,7 +433,7 @@ public class ACustomerInfoTabController implements Initializable {
 								.get(ACustInfoTable.getSelectionModel().getSelectedIndex());
 						if (custRow != null) {
 							showViewCustomerDialog(custRow);
-//							ACustInfoTable.refresh();
+							// ACustInfoTable.refresh();
 						}
 					}
 
@@ -421,20 +451,93 @@ public class ACustomerInfoTabController implements Initializable {
 					}
 
 				});
+
+				MenuItem mnuDue = new MenuItem("Change Due Amount");
+				mnuDue.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Customer custRow = customerMasterData
+								.get(ACustInfoTable.getSelectionModel().getSelectedIndex());
+						if (custRow != null) {
+							TextInputDialog dialog = new TextInputDialog();
+
+							dialog.setTitle("Change total due value");
+							dialog.setHeaderText("Change total due value below");
+
+							Button saveBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+							dialog.getEditor().setText(custRow.getTotalDue()+"");
+							saveBtn.addEventFilter(ActionEvent.ACTION, btnevent -> {
+
+								try {
+									Double d = Double.parseDouble(dialog.getEditor().getText());
+									custRow.setTotalDue(d);
+									custRow.updateCustomerRecord();
+									refreshCustomerTable();
+								} catch(NumberFormatException e) {
+									Notifications.create().title("Invalid value").text("Please enter only NUMERIC values in Total Due.").hideAfter(Duration.seconds(5)).showError();
+									
+									e.printStackTrace();
+									btnevent.consume();
+								}catch (Exception e) {
+									e.printStackTrace();
+								}
+
+							});
+							dialog.showAndWait();
+						}
+					}
+
+				});
+				MenuItem mnuAddDue = new MenuItem("Add Due");
+				mnuAddDue.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Customer custRow = customerMasterData
+								.get(ACustInfoTable.getSelectionModel().getSelectedIndex());
+						if (custRow != null) {
+							TextInputDialog dialog = new TextInputDialog();
+
+							dialog.setTitle("Add to total due value");
+							dialog.setHeaderText("Add to total due value below");
+
+							Button saveBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+//							dialog.getEditor().setText(custRow.getTotalDue()+"");
+							saveBtn.addEventFilter(ActionEvent.ACTION, btnevent -> {
+
+								try {
+									Double d = Double.parseDouble(dialog.getEditor().getText());
+									custRow.setTotalDue(d);
+									custRow.updateCustomerRecord();
+									refreshCustomerTable();
+								} catch(NumberFormatException e) {
+									Notifications.create().title("Invalid value").text("Please enter only NUMERIC values in Total Due.").hideAfter(Duration.seconds(5)).showError();
+									
+									e.printStackTrace();
+									btnevent.consume();
+								}catch (Exception e) {
+									e.printStackTrace();
+								}
+
+							});
+							dialog.showAndWait();
+						}
+					}
+
+				});
+				
 				ContextMenu menu = new ContextMenu();
-				if(HawkerLoginController.loggedInHawker!=null){
+				if (HawkerLoginController.loggedInHawker != null) {
 
-					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView);
-				}else{
+					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView,mnuAddDue,mnuDue);
+				} else {
 
-					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView, mnuDel);
+					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView, mnuDel,mnuAddDue,mnuDue);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
 				return row;
 			}
 		});
-
 		addCustExtraButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -454,32 +557,8 @@ public class ACustomerInfoTabController implements Initializable {
 					addCustInitials.setText(oldValue);
 			}
 		});
-		
-//		addCustMobile.textProperty().addListener(new ChangeListener<String>() {
-//
-//			@Override
-//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//
-//				if (newValue.length() > 10){
-//					addCustMobile.setText(oldValue);
-//
-//					Notifications.create().title("Invalid mobile number")
-//							.text("Mobile number should only contain 10 DIGITS")
-//							.hideAfter(Duration.seconds(5)).showError();
-//				}
-//				try {
-//					Integer.parseInt(newValue);
-//				} catch (NumberFormatException e) {
-//					addCustMobile.setText(oldValue);
-//
-//					Notifications.create().title("Invalid mobile number")
-//							.text("Mobile number should only contain 10 DIGITS")
-//							.hideAfter(Duration.seconds(5)).showError();
-//					e.printStackTrace();
-//				}
-//			}
-//		});
 
+		
 		saveCustomerButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -576,29 +655,33 @@ public class ACustomerInfoTabController implements Initializable {
 							grid.setVgap(10);
 							grid.setPadding(new Insets(20, 150, 10, 10));
 
-							grid.add(new Label("Stop Date"), 0, 0);
+							grid.add(new Label("Reminder Stop Date"), 0, 0);
 							DatePicker pauseDP = new DatePicker(LocalDate.now());
 							pauseDP.setConverter(Main.dateConvertor);
 							pauseDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
-						        @Override
-						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-						            if (!newValue){
-						            	pauseDP.setValue(pauseDP.getConverter().fromString(pauseDP.getEditor().getText()));
-						            }
-						        }
-						    });
+								@Override
+								public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+										Boolean newValue) {
+									if (!newValue) {
+										pauseDP.setValue(
+												pauseDP.getConverter().fromString(pauseDP.getEditor().getText()));
+									}
+								}
+							});
 							grid.add(pauseDP, 1, 0);
 							grid.add(new Label("Resume Date"), 0, 1);
 							DatePicker resumeDP = new DatePicker();
 							resumeDP.setConverter(Main.dateConvertor);
 							resumeDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
-						        @Override
-						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-						            if (!newValue){
-						            	resumeDP.setValue(resumeDP.getConverter().fromString(resumeDP.getEditor().getText()));
-						            }
-						        }
-						    });
+								@Override
+								public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+										Boolean newValue) {
+									if (!newValue) {
+										resumeDP.setValue(
+												resumeDP.getConverter().fromString(resumeDP.getEditor().getText()));
+									}
+								}
+							});
 							grid.add(resumeDP, 1, 1);
 							pauseWarning.getDialogPane().setContent(grid);
 							Button yesButton = (Button) pauseWarning.getDialogPane().lookupButton(ButtonType.YES);
@@ -609,16 +692,16 @@ public class ACustomerInfoTabController implements Initializable {
 											.hideAfter(Duration.seconds(5)).showError();
 									btnEvent.consume();
 								}
-								if (resumeDP.getValue()!=null && resumeDP.getValue().isBefore(pauseDP.getValue())) {
+								if (resumeDP.getValue() != null && resumeDP.getValue().isBefore(pauseDP.getValue())) {
 									Notifications.create().title("Invalid Resume date")
 											.text("Resume date should not be before Stop date for subscription")
 											.hideAfter(Duration.seconds(5)).showError();
 									btnEvent.consume();
 								}
-								if(stopEntryExistsForStartDate(subsRow, pauseDP.getValue())){
+								if (stopEntryExistsForStartDate(subsRow, pauseDP.getValue())) {
 									Notifications.create().title("Stop Entry exists")
-									.text("A stop entry for this subscription on selected StopDate already exists.")
-									.hideAfter(Duration.seconds(5)).showError();
+											.text("A stop entry for this subscription on selected StopDate already exists.")
+											.hideAfter(Duration.seconds(5)).showError();
 									btnEvent.consume();
 								}
 							});
@@ -628,7 +711,7 @@ public class ACustomerInfoTabController implements Initializable {
 								subsRow.setPausedDate(pauseDP.getValue());
 								subsRow.setResumeDate(resumeDP.getValue());
 								subsRow.updateSubscriptionRecord();
-								createStopHistoryForSub(subsRow,pauseDP.getValue(),resumeDP.getValue());
+								createStopHistoryForSub(subsRow, pauseDP.getValue(), resumeDP.getValue());
 								refreshSubscriptions();
 							}
 						} else {
@@ -659,33 +742,37 @@ public class ACustomerInfoTabController implements Initializable {
 							DatePicker pauseDP = new DatePicker(subsRow.getPausedDate());
 							pauseDP.setConverter(Main.dateConvertor);
 							pauseDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
-						        @Override
-						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-						            if (!newValue){
-						            	pauseDP.setValue(pauseDP.getConverter().fromString(pauseDP.getEditor().getText()));
-						            }
-						        }
-						    });
+								@Override
+								public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+										Boolean newValue) {
+									if (!newValue) {
+										pauseDP.setValue(
+												pauseDP.getConverter().fromString(pauseDP.getEditor().getText()));
+									}
+								}
+							});
 							pauseDP.setDisable(true);
 							grid.add(pauseDP, 1, 0);
 							grid.add(new Label("Resume Date"), 0, 1);
 							DatePicker resumeDP = new DatePicker(LocalDate.now());
 							resumeDP.setConverter(Main.dateConvertor);
 							pauseDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
-						        @Override
-						        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-						            if (!newValue){
-						            	resumeDP.setValue(resumeDP.getConverter().fromString(resumeDP.getEditor().getText()));
-						            }
-						        }
-						    });
-//							resumeDP.setDisable(true);
+								@Override
+								public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+										Boolean newValue) {
+									if (!newValue) {
+										resumeDP.setValue(
+												resumeDP.getConverter().fromString(resumeDP.getEditor().getText()));
+									}
+								}
+							});
+							// resumeDP.setDisable(true);
 							grid.add(resumeDP, 1, 1);
 							resumeWarning.getDialogPane().setContent(grid);
 							Optional<ButtonType> result = resumeWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
 								subsRow.resumeSubscription();
-								resumeStopHistoryForSub(subsRow,pauseDP.getValue(),resumeDP.getValue());
+								resumeStopHistoryForSub(subsRow, pauseDP.getValue(), resumeDP.getValue());
 								refreshSubscriptions();
 							}
 						} else {
@@ -696,10 +783,10 @@ public class ACustomerInfoTabController implements Initializable {
 
 				});
 				ContextMenu menu = new ContextMenu();
-				if(HawkerLoginController.loggedInHawker!=null){
+				if (HawkerLoginController.loggedInHawker != null) {
 
 					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView);
-				}else{
+				} else {
 
 					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuDel);
 				}
@@ -716,12 +803,20 @@ public class ACustomerInfoTabController implements Initializable {
 			public void changed(ObservableValue<? extends Customer> observable, Customer oldValue, Customer newValue) {
 				if (newValue != null) {
 					refreshSubscriptions();
+					populateInvoiceDates(newValue);
+				} else {
+					subscriptionMasterData.clear();
+					subscriptionsTable.setItems(subscriptionMasterData);
+					billingLinesData.clear();
+					billingTable.setItems(billingLinesData);
+					invoiceDatesData.clear();
+					invoiceDateLOV.setItems(invoiceDatesData);
 				}
 
 			}
 		});
 
-		billingVBOX.setVisible(false);
+		// billingVBOX.setVisible(false);
 
 		addPointName.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
@@ -733,14 +828,64 @@ public class ACustomerInfoTabController implements Initializable {
 				subscriptionMasterData.clear();
 				subscriptionsTable.getItems().addAll(subscriptionMasterData);
 				subscriptionsTable.refresh();
-				if (newValue!=null) {
+				if (newValue != null) {
 					populateHawkerCodes();
-				}else {
+				} else {
 					addCustHwkCode.getItems().clear();
 				}
 			}
 		});
 
+		invoiceDateLOV.setConverter(new StringConverter<Billing>() {
+
+			@Override
+			public String toString(Billing object) {
+
+				return invoiceDatesData.indexOf(object) + 1 + ") "
+						+ object.getInvoiceDate().format(DateTimeFormatter.ofPattern(Main.dateFormat));
+			}
+
+			@Override
+			public Billing fromString(String string) {
+				int i = Integer.parseInt(string.split(")")[0]);
+				return invoiceDatesData.get(i - 1);
+			}
+		});
+
+		invoiceDateLOV.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Billing>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Billing> observable, Billing oldValue, Billing newValue) {
+				if (newValue != null) {
+					populateBillingLines(newValue);
+					double d = BillingUtilityClass.calculateTotalBillAmount(newValue);
+					double net = d + newValue.getDue();
+
+					totalDueLabel.setText(newValue.getDue() + "");
+					totalBillLabel.setText(d + "");
+					netBillLabel.setText(net + "");
+				} else {
+					billingLinesData.clear();
+					billingTable.setItems(billingLinesData);
+					totalDueLabel.setText(null);
+					totalBillLabel.setText(null);
+					netBillLabel.setText(null);
+
+				}
+			}
+		});
+
+		cityTF.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if(newValue!=null){
+					populatePointNames();
+				}else {
+					
+				}
+			}
+		});
 	}
 
 	private void deleteCustomer(Customer custRow) {
@@ -774,6 +919,9 @@ public class ACustomerInfoTabController implements Initializable {
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of customer has failed").showError();
+			} catch (Exception e) {
+
+				e.printStackTrace();
 			}
 		}
 
@@ -837,7 +985,7 @@ public class ACustomerInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void showViewCustomerDialog(Customer custRow) {
 		try {
 
@@ -855,13 +1003,10 @@ public class ACustomerInfoTabController implements Initializable {
 			editCustController.setCustomerToEdit(custRow);
 			editCustController.setupBindings();
 			editCustController.gridPane.setDisable(true);
-//			editCustController.gridPane.setStyle("-fx-opacity: 1.0;");
-			
+			// editCustController.gridPane.setStyle("-fx-opacity: 1.0;");
 
 			Optional<Customer> updatedCustomer = editCustomerDialog.showAndWait();
 			// refreshCustomerTable();
-
-			
 
 		} catch (IOException e) {
 
@@ -898,6 +1043,9 @@ public class ACustomerInfoTabController implements Initializable {
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of subscription has failed").showError();
+			} catch (Exception e) {
+
+				e.printStackTrace();
 			}
 		}
 	}
@@ -956,7 +1104,7 @@ public class ACustomerInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void showViewSubscriptionDialog(Subscription subsRow) {
 		try {
 
@@ -965,8 +1113,8 @@ public class ACustomerInfoTabController implements Initializable {
 			editSubscriptionDialog.setHeaderText("View the subscription data below");
 
 			// Set the button types.
-			
-			editSubscriptionDialog.getDialogPane().getButtonTypes().addAll( ButtonType.CLOSE);
+
+			editSubscriptionDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
 
 			FXMLLoader editSubscriptionLoader = new FXMLLoader(getClass().getResource("EditSubscription.fxml"));
 			Parent editSubscriptionGrid = (Parent) editSubscriptionLoader.load();
@@ -980,8 +1128,6 @@ public class ACustomerInfoTabController implements Initializable {
 
 			Optional<Subscription> updatedSubscription = editSubscriptionDialog.showAndWait();
 			// refreshCustomerTable();
-
-			
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1060,6 +1206,9 @@ public class ACustomerInfoTabController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 
 	}
@@ -1084,9 +1233,13 @@ public class ACustomerInfoTabController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		return hawkerId;
 	}
+
 	private void hawkerNameMobCode(String hawkerCode) {
 
 		Connection con = Main.dbConnection;
@@ -1105,6 +1258,9 @@ public class ACustomerInfoTabController implements Initializable {
 				hawkerMobLabel.setText(hawkerRs.getString(2));
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -1126,21 +1282,21 @@ public class ACustomerInfoTabController implements Initializable {
 					PreparedStatement stmt;
 					if (HawkerLoginController.loggedInHawker == null) {
 						if (showAllRadioButton.isSelected()) {
-							queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer order by hawker_code,line_num,house_seq";
+							queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer order by hawker_code,line_num,house_seq";
 							stmt = con.prepareStatement(queryString);
 						} else {
-							queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street from customer where hawker_code=? order by hawker_code,line_num,house_seq";
+							queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? order by hawker_code,line_num,house_seq";
 							stmt = con.prepareStatement(queryString);
 							stmt.setString(1, addCustHwkCode.getSelectionModel().getSelectedItem());
-//							addPointName.setDisable(true);
-//							addCustHwkCode.setDisable(true);
+							// addPointName.setDisable(true);
+							// addCustHwkCode.setDisable(true);
 						}
 					} else {
 						queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? order by hawker_code,line_num,house_seq";
 						stmt = con.prepareStatement(queryString);
 						stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
 					}
-					
+
 					customerMasterData.clear();
 					ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
@@ -1148,14 +1304,21 @@ public class ACustomerInfoTabController implements Initializable {
 								rs.getString(4), rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8),
 								rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
 								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
-								rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getDouble(22)));
+								rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21),
+								rs.getDouble(22)));
 					}
 
 				} catch (SQLException e) {
 
 					e.printStackTrace();
+				} catch (Exception e) {
+
+					e.printStackTrace();
 				}
-//				ACustInfoTable.getItems().clear();
+				// ACustInfoTable.getItems().clear();
+//				ACustInfoTable.setItems(customerMasterData);
+				// TableFilter<Customer> filter = new
+				// TableFilter<Customer>(ACustInfoTable);
 				if (!customerMasterData.isEmpty()) {
 					filteredData = new FilteredList<>(customerMasterData, p -> true);
 					SortedList<Customer> sortedData = new SortedList<>(filteredData);
@@ -1164,25 +1327,28 @@ public class ACustomerInfoTabController implements Initializable {
 					ACustInfoTable.setDisable(true);
 					ACustInfoTable.setItems(sortedData);
 					ACustInfoTable.setDisable(false);
+					ACustInfoTable.refresh();
+
 				}
-//				if (HawkerLoginController.loggedInHawker == null) {
-//					if (showAllRadioButton.isSelected()) {
-//
-//						addPointName.setDisable(true);
-//						addCustHwkCode.setDisable(true);
-//					} else {
-//						
-//						addPointName.setDisable(false);
-//						addCustHwkCode.setDisable(false);
-//					}
-//				} else {
-//
-//					addPointName.setDisable(true);
-//					addCustHwkCode.setDisable(true);
-//				}
-				ACustInfoTable.refresh();
-//				ACustInfoTable.requestFocus();
-				ACustInfoTable.getSelectionModel().selectFirst();
+
+				// if (HawkerLoginController.loggedInHawker == null) {
+				// if (showAllRadioButton.isSelected()) {
+				//
+				// addPointName.setDisable(true);
+				// addCustHwkCode.setDisable(true);
+				// } else {
+				//
+				// addPointName.setDisable(false);
+				// addCustHwkCode.setDisable(false);
+				// }
+				// } else {
+				//
+				// addPointName.setDisable(true);
+				// addCustHwkCode.setDisable(true);
+				// }
+				// ACustInfoTable.refresh();
+				// ACustInfoTable.requestFocus();
+				// ACustInfoTable.getSelectionModel().selectFirst();
 				return null;
 			}
 
@@ -1201,8 +1367,8 @@ public class ACustomerInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
-			PreparedStatement stmt = con
-					.prepareStatement("select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
+			PreparedStatement stmt = con.prepareStatement(
+					"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
 			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -1215,6 +1381,9 @@ public class ACustomerInfoTabController implements Initializable {
 				addCustHwkCode.setDisable(true);
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -1238,6 +1407,9 @@ public class ACustomerInfoTabController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -1259,6 +1431,9 @@ public class ACustomerInfoTabController implements Initializable {
 				return rs.getInt(1);
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -1299,21 +1474,21 @@ public class ACustomerInfoTabController implements Initializable {
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
 					.showError();
 		}
-//		if (addCustMobile.getText().length()!=10) {
-//			Notifications.create().title("Invalid mobile number")
-//			.text("Mobile number should only contain 10 DIGITS")
-//			.hideAfter(Duration.seconds(5)).showError();
-//			validate = false;
-//		}
-//		try {
-//			Integer.parseInt(addCustMobile.getText());
-//		} catch (NumberFormatException e) {
-//			Notifications.create().title("Invalid mobile number")
-//			.text("Mobile number should only contain 10 DIGITS")
-//			.hideAfter(Duration.seconds(5)).showError();
-//			validate = false;
-//			e.printStackTrace();
-//		}
+		// if (addCustMobile.getText().length()!=10) {
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// validate = false;
+		// }
+		// try {
+		// Integer.parseInt(addCustMobile.getText());
+		// } catch (NumberFormatException e) {
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// validate = false;
+		// e.printStackTrace();
+		// }
 		return validate;
 	}
 
@@ -1374,18 +1549,21 @@ public class ACustomerInfoTabController implements Initializable {
 				resetClicked(event);
 				// con.close();
 
-				if(HawkerLoginController.loggedInHawker!=null){
+				if (HawkerLoginController.loggedInHawker != null) {
 					addCustLineNum.requestFocus();
 				} else {
-					addCustName.requestFocus();					
+					addCustName.requestFocus();
 				}
-				
+
 			} catch (SQLException e) {
 
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 						.text("There has been some error during customer creation, please retry").showError();
 				Main.reconnect();
+			} catch (Exception e) {
+
+				e.printStackTrace();
 			}
 
 		}
@@ -1414,6 +1592,9 @@ public class ACustomerInfoTabController implements Initializable {
 						rs.getString(20), rs.getString(21), rs.getDouble(22)));
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -1606,7 +1787,8 @@ public class ACustomerInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			pointNameValues.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name order by name");
+			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name where city =? order by name");
+			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				pointNameValues.add(rs.getString(1));
@@ -1619,6 +1801,9 @@ public class ACustomerInfoTabController implements Initializable {
 
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -1645,6 +1830,9 @@ public class ACustomerInfoTabController implements Initializable {
 					}
 
 				} catch (SQLException e) {
+
+					e.printStackTrace();
+				} catch (Exception e) {
 
 					e.printStackTrace();
 				}
@@ -1683,6 +1871,9 @@ public class ACustomerInfoTabController implements Initializable {
 				} catch (SQLException e) {
 
 					e.printStackTrace();
+				} catch (Exception e) {
+
+					e.printStackTrace();
 				}
 				addCustEmployment.getItems().clear();
 				addCustEmployment.getItems().addAll(employmentData);
@@ -1712,6 +1903,9 @@ public class ACustomerInfoTabController implements Initializable {
 				return true;
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -1803,6 +1997,9 @@ public class ACustomerInfoTabController implements Initializable {
 				} catch (SQLException e) {
 
 					e.printStackTrace();
+				} catch (Exception e) {
+
+					e.printStackTrace();
 				}
 				subscriptionsTable.getItems().addAll(subscriptionMasterData);
 				subscriptionsTable.refresh();
@@ -1814,17 +2011,16 @@ public class ACustomerInfoTabController implements Initializable {
 		new Thread(task).start();
 
 	}
-	
 
 	private void resumeStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
-		
+
 		try {
 
 			Connection con = Main.dbConnection;
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			
+
 			if (!stopDate.isEqual(resumeDate)) {
 				String insertStmt = "update stop_history set resume_date=? where sub_id=? and stop_date=?";
 				PreparedStatement stmt = con.prepareStatement(insertStmt);
@@ -1835,7 +2031,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Updated")
 							.text("Stop History record successfully closed").show();
-				} 
+				}
 			} else {
 				String insertStmt = "delete from stop_history where sub_id=? and stop_date=?";
 				PreparedStatement stmt = con.prepareStatement(insertStmt);
@@ -1844,21 +2040,40 @@ public class ACustomerInfoTabController implements Initializable {
 				if (stmt.executeUpdate() > 0) {
 
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Stop History Deleted")
-							.text("Stop Date is same as resume date. Stop History record successfully deleted.").showInformation();
-				} 
+							.text("Stop Date is same as resume date. Stop History record successfully deleted.")
+							.showInformation();
+				}
+//				ArrayList<StopHistory> stpHist = new ArrayList<StopHistory>();
+				String query = "SELECT STP.STOP_HISTORY_ID, CUST.NAME, CUST.CUSTOMER_CODE, CUST.MOBILE_NUM, CUST.HAWKER_CODE, CUST.LINE_NUM, SUB.SUBSCRIPTION_ID, CUST.HOUSE_SEQ, PROD.NAME, PROD.CODE, PROD.BILL_CATEGORY, STP.STOP_DATE, STP.RESUME_DATE, SUB.TYPE, SUB.FREQUENCY, SUB.DOW, STP.AMOUNT FROM STOP_HISTORY STP, CUSTOMER CUST, PRODUCTS PROD , SUBSCRIPTION SUB WHERE STP.sub_id=? and STP.stop_date=? AND STP.SUB_ID =SUB.SUBSCRIPTION_ID AND SUB.CUSTOMER_ID =CUST.CUSTOMER_ID AND SUB.PRODUCT_ID =PROD.PRODUCT_ID ORDER BY SUB.PAUSED_DATE DESC";
+				stmt = con.prepareStatement(query);
+				stmt.setLong(1, subsRow.getSubscriptionId());
+				stmt.setDate(2, Date.valueOf(stopDate));
+				ResultSet rs = stmt.executeQuery();
+				while (rs.next()) {
+					StopHistory stp = new StopHistory(rs.getLong(1), rs.getString(2),
+							rs.getLong(3), rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getInt(8),
+							rs.getString(9), rs.getString(10), rs.getString(11),
+							rs.getDate(12) == null ? null : rs.getDate(12).toLocalDate(),
+							rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(), rs.getString(14),
+							rs.getString(15), rs.getString(16), rs.getDouble(17));
+					stp.setAmount(BillingUtilityClass.calculateStopHistoryAmount(stp));
+					stp.updateStopHistoryRecord();
+				}
 			}
-			
 
 		} catch (SQLException e) {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 	}
 
 	private void createStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
-		
+
 		try {
 
 			Connection con = Main.dbConnection;
@@ -1869,20 +2084,22 @@ public class ACustomerInfoTabController implements Initializable {
 			PreparedStatement stmt = con.prepareStatement(insertStmt);
 			stmt.setLong(1, subsRow.getSubscriptionId());
 			stmt.setDate(2, Date.valueOf(stopDate));
-			stmt.setDate(3, resumeDate==null?null:Date.valueOf(stopDate));
+			stmt.setDate(3, resumeDate == null ? null : Date.valueOf(stopDate));
 			stmt.executeUpdate();
-			
 
 		} catch (SQLException e) {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 	}
-	
-	public boolean stopEntryExistsForStartDate(Subscription subsRow, LocalDate stopDate){
-		
+
+	public boolean stopEntryExistsForStartDate(Subscription subsRow, LocalDate stopDate) {
+
 		try {
 
 			Connection con = Main.dbConnection;
@@ -1894,66 +2111,185 @@ public class ACustomerInfoTabController implements Initializable {
 			stmt.setLong(1, subsRow.getSubscriptionId());
 			stmt.setDate(2, Date.valueOf(stopDate));
 			ResultSet rs = stmt.executeQuery();
-			if(rs.next()){
-				return rs.getInt(1)>0;
+			if (rs.next()) {
+				return rs.getInt(1) > 0;
 			}
-			
 
 		} catch (SQLException e) {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
-		
+
 		return false;
 	}
 
+	private void populateBillingLines(Billing bill) {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					while (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					billingLinesData.clear();
+					String insertStmt = "SELECT BILL_LINE_ID, BILL_INVOICE_NUM, LINE_NUM, PRODUCT, AMOUNT FROM BILLING_LINES WHERE BILL_INVOICE_NUM=?";
+					PreparedStatement stmt = con.prepareStatement(insertStmt);
+					stmt.setLong(1, bill.getBillInvoiceNum());
+					ResultSet rs = stmt.executeQuery();
+
+					while (rs.next()) {
+						billingLinesData.add(new BillingLine(rs.getLong(1), rs.getLong(2), rs.getInt(3),
+								rs.getString(4), rs.getDouble(5)));
+					}
+
+				} catch (SQLException e) {
+
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					e.printStackTrace();
+				}
+				// billingTable.getItems().clear();
+				billingTable.setItems(billingLinesData);
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+	}
+
+	private void populateInvoiceDates(Customer customer) {
+
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			invoiceDatesData.clear();
+			String insertStmt = "select BILL_INVOICE_NUM, CUSTOMER_ID , INVOICE_DATE, PDF_URL, DUE from BILLING where customer_id=? order by invoice_date desc";
+			PreparedStatement stmt = con.prepareStatement(insertStmt);
+			stmt.setLong(1, customer.getCustomerId());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				invoiceDatesData.add(new Billing(rs.getLong(1), rs.getLong(2), rs.getDate(3).toLocalDate(),
+						rs.getString(4), rs.getDouble(5)));
+			}
+
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+		invoiceDateLOV.getItems().clear();
+		invoiceDateLOV.getItems().addAll(invoiceDatesData);
+	}
+
+
+	public void populateCityValues() {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			cityValues.clear();
+			PreparedStatement stmt=null;
+			if (HawkerLoginController.loggedInHawker != null) {
+				stmt = con.prepareStatement("select distinct city from point_name where name=?");
+				stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+				ResultSet rs = stmt.executeQuery();
+				if (rs.next()) {
+					cityValues.add(rs.getString(1));
+				}
+
+				cityTF.getItems().clear();
+				cityTF.getItems().addAll(cityValues);
+				cityTF.getSelectionModel().selectFirst();
+				cityTF.setDisable(true);
+			} else {
+				stmt = con.prepareStatement("select distinct city from point_name order by city");
+				ResultSet rs = stmt.executeQuery();
+				while (rs.next()) {
+					cityValues.add(rs.getString(1));
+				}
+				cityTF.getItems().clear();
+				cityTF.getItems().addAll(cityValues);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+
+	}
 	// @Override
 	public void reloadData() {
-		
-//		populatePointNames();
+
+		// populatePointNames();
 		if (HawkerLoginController.loggedInHawker == null) {
 			if (showAllRadioButton.isSelected()) {
+				cityTF.setDisable(true);
 				addPointName.getSelectionModel().clearSelection();
 				addPointName.setDisable(true);
 				addCustHwkCode.getSelectionModel().clearSelection();
 				addCustHwkCode.setDisable(true);
 				refreshCustomerTable();
-			} else if(filterRadioButton.isSelected()){
-				// ACustInfoTable.getItems().clear();
-				// ACustInfoTable.refresh();
-				populatePointNames();
+			} else if (filterRadioButton.isSelected()) {
+				populateCityValues();
+				cityTF.setDisable(false);
 				addPointName.setDisable(false);
 				addCustHwkCode.setDisable(false);
+				if (addCustHwkCode.getSelectionModel().getSelectedItem() == null) {
+					customerMasterData.clear();
+					ACustInfoTable.setItems(customerMasterData);
+				}
 				// refreshCustomerTable();
 			}
 		} else {
 
-			populatePointNames();
+			populateCityValues();
 		}
-		subscriptionsTable.getItems().clear();
+
 		subscriptionMasterData.clear();
+		subscriptionsTable.setItems(subscriptionMasterData);
 		addCustLineNum.getSelectionModel().clearSelection();
+		invoiceDateLOV.getItems().clear();
+		billingLinesData.clear();
+		billingTable.setItems(billingLinesData);
 		populateProfileValues();
 		populateEmploymentValues();
 		addCustProf1.getItems().addAll(profileValues);
 		addCustProf2.getItems().addAll(profileValues);
 		addCustEmployment.getItems().addAll(employmentData);
 
-		// refreshCustomerTable();
 	}
 
 	// @Override
 	public void releaseVariables() {
-		filteredData = null;
-		searchText = null;
 		customerMasterData = null;
 		subscriptionMasterData = null;
 		hawkerCodeData = null;
 		hawkerLineNumData = null;
 		employmentData = null;
 		profileValues = null;
+		pointNameValues = null;
+		invoiceDatesData = null;
+		billingLinesData = null;
+		cityValues = null;
+
 		customerMasterData = FXCollections.observableArrayList();
 		subscriptionMasterData = FXCollections.observableArrayList();
 		hawkerCodeData = FXCollections.observableArrayList();
@@ -1961,6 +2297,9 @@ public class ACustomerInfoTabController implements Initializable {
 		employmentData = FXCollections.observableArrayList();
 		profileValues = FXCollections.observableArrayList();
 		pointNameValues = FXCollections.observableArrayList();
+		invoiceDatesData = FXCollections.observableArrayList();
+		billingLinesData = FXCollections.observableArrayList();
+		cityValues = FXCollections.observableArrayList();
 	}
 
 }

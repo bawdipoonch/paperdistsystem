@@ -77,6 +77,9 @@ public class LineInfo {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Notifications.create().title("Failed").text("Line number update failed").showError();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 	}
 

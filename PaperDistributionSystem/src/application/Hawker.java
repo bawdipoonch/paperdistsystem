@@ -448,6 +448,9 @@ public class Hawker {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 	}
 	
@@ -502,6 +505,9 @@ public class Hawker {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Notifications.create().title("Failed").text("Hawker update failed").showError();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 	}
 

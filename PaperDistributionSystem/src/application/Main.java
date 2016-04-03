@@ -76,7 +76,7 @@ public class Main extends Application {
 			AWSCredentials credentials = null;
 			credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
 			AmazonRDSClient client = new AmazonRDSClient(credentials);
-			client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
+			client.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
 			DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
 			req.setDBInstanceIdentifier("lateefahmedpds");
 			DescribeDBInstancesResult result = client.describeDBInstances();

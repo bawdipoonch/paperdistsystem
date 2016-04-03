@@ -313,6 +313,9 @@ public class Customer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Notifications.create().title("Update failed").text("Update request of customer has failed").showError();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 	}
 

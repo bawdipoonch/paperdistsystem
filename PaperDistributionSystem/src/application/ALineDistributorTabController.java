@@ -52,6 +52,8 @@ import javafx.util.Duration;
 public class ALineDistributorTabController implements Initializable {
 
 	@FXML
+	ComboBox<String> cityTF;
+	@FXML
 	private TableView<LineDistributor> lineDistInfoTable;
 
 	@FXML
@@ -134,13 +136,12 @@ public class ALineDistributorTabController implements Initializable {
 	private TableColumn<LineDistributor, String> buildingStreetColumn;
 
 	private ObservableList<LineDistributor> lineDistData = FXCollections.observableArrayList();
-
 	private ObservableList<String> lineNumData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
-
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
 	private ObservableList<String> pointNameValues = FXCollections.observableArrayList();
+	private ObservableList<String> cityValues = FXCollections.observableArrayList();
 
 	@FXML
 	private Button addLineDistExtraButton;
@@ -407,6 +408,19 @@ public class ALineDistributorTabController implements Initializable {
 
 			}
 		});
+
+		cityTF.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if(newValue!=null){
+					populatePointNames();
+				}else {
+					
+				}
+			}
+		});
+		
 		addNameField.requestFocus();
 	}
 
@@ -432,6 +446,9 @@ public class ALineDistributorTabController implements Initializable {
 					addLineNumField.getItems().clear();
 					addLineNumField.getItems().addAll(lineNumData);
 				} catch (SQLException e) {
+
+					e.printStackTrace();
+				} catch (Exception e) {
 
 					e.printStackTrace();
 				}
@@ -463,6 +480,9 @@ public class ALineDistributorTabController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		return hawkerId;
 	}
@@ -485,6 +505,9 @@ public class ALineDistributorTabController implements Initializable {
 				hawkerMobLabel.setText(hawkerRs.getString(2));
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -520,6 +543,9 @@ public class ALineDistributorTabController implements Initializable {
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of line distributor has failed").showError();
+			} catch (Exception e) {
+
+				e.printStackTrace();
 			}
 		}
 	}
@@ -710,6 +736,9 @@ public class ALineDistributorTabController implements Initializable {
 			} catch (SQLException e) {
 
 				e.printStackTrace();
+			} catch (Exception e) {
+
+				e.printStackTrace();
 			}
 		}
 
@@ -777,6 +806,9 @@ public class ALineDistributorTabController implements Initializable {
 				return true;
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -877,6 +909,9 @@ public class ALineDistributorTabController implements Initializable {
 				} catch (SQLException e) {
 
 					e.printStackTrace();
+				} catch (Exception e) {
+
+					e.printStackTrace();
 				}
 
 				return null;
@@ -904,6 +939,9 @@ public class ALineDistributorTabController implements Initializable {
 				return true;
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -1030,6 +1068,9 @@ public class ALineDistributorTabController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 
 	}
@@ -1057,6 +1098,9 @@ public class ALineDistributorTabController implements Initializable {
 					addProf1.getItems().addAll(profileValues);
 					addProf2.getItems().addAll(profileValues);
 				} catch (SQLException e) {
+
+					e.printStackTrace();
+				} catch (Exception e) {
 
 					e.printStackTrace();
 				}
@@ -1090,6 +1134,9 @@ public class ALineDistributorTabController implements Initializable {
 				} catch (SQLException e) {
 
 					e.printStackTrace();
+				} catch (Exception e) {
+
+					e.printStackTrace();
 				}
 				return null;
 			}
@@ -1106,7 +1153,8 @@ public class ALineDistributorTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			pointNameValues.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name order by name");
+			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name where city =? order by name");
+			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				pointNameValues.add(rs.getString(1));
@@ -1118,6 +1166,9 @@ public class ALineDistributorTabController implements Initializable {
 				addPointName.setDisable(true);
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -1161,6 +1212,9 @@ public class ALineDistributorTabController implements Initializable {
 							} catch (SQLException e) {
 
 								e.printStackTrace();
+							} catch (Exception e) {
+
+								e.printStackTrace();
 							}
 							return null;
 						}
@@ -1201,26 +1255,71 @@ public class ALineDistributorTabController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		return true;
 	}
 
+
+	public void populateCityValues() {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			cityValues.clear();
+			PreparedStatement stmt=null;
+			if (HawkerLoginController.loggedInHawker != null) {
+				stmt = con.prepareStatement("select distinct city from point_name where name=?");
+				stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+				ResultSet rs = stmt.executeQuery();
+				if (rs.next()) {
+					cityValues.add(rs.getString(1));
+				}
+
+				cityTF.getItems().clear();
+				cityTF.getItems().addAll(cityValues);
+				cityTF.getSelectionModel().selectFirst();
+				cityTF.setDisable(true);
+			} else {
+				stmt = con.prepareStatement("select distinct city from point_name order by city");
+				ResultSet rs = stmt.executeQuery();
+				while (rs.next()) {
+					cityValues.add(rs.getString(1));
+				}
+				cityTF.getItems().clear();
+				cityTF.getItems().addAll(cityValues);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+
+	}
+	
 	public void reloadData() {
 		if (HawkerLoginController.loggedInHawker == null) {
 			if (showAllRadioButton.isSelected()) {
+				cityTF.setDisable(false);
 				addPointName.getSelectionModel().clearSelection();
 				addPointName.setDisable(true);
 				addHwkCode.getSelectionModel().clearSelection();
 				addHwkCode.setDisable(true);
 				refreshLineDistTable();
 			} else if (filterRadioButton.isSelected()) {
-				populatePointNames();
+				populateCityValues();
+				cityTF.setDisable(false);
 				addPointName.setDisable(false);
 				addHwkCode.setDisable(false);
 				refreshLineDistTable();
 			}
 		} else {
-			populatePointNames();
+			populateCityValues();
 		}
 		populateProfileValues();
 		populateEmploymentValues();

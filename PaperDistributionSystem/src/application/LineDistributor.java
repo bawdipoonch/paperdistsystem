@@ -259,6 +259,9 @@ public class LineDistributor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Notifications.create().title("Failed").text("Line distributor update failed").showError();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 	}
 

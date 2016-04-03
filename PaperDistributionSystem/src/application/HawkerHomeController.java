@@ -166,6 +166,9 @@ public class HawkerHomeController implements Initializable {
 		} catch (SQLException e) {
 			
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		
 	}

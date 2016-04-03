@@ -208,6 +208,12 @@ public class EditHawkerController implements Initializable {
 			.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
 		}
+		if (editPointNameLOV.getSelectionModel().getSelectedItem()==null) {
+			Notifications.create().title("Invalid point name")
+			.text("Point Name must be selected to create hawker")
+			.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+		}
 		try {
 			Integer.parseInt(editMobileNumTF.getText());
 		} catch (NumberFormatException e) {
@@ -240,6 +246,9 @@ public class EditHawkerController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -259,6 +268,9 @@ public class EditHawkerController implements Initializable {
 				return true;
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -319,6 +331,9 @@ public class EditHawkerController implements Initializable {
 				} catch (SQLException e) {
 
 					e.printStackTrace();
+				} catch (Exception e) {
+
+					e.printStackTrace();
 				}
 				return null;
 			}
@@ -349,6 +364,9 @@ public class EditHawkerController implements Initializable {
 				} catch (SQLException e) {
 
 					e.printStackTrace();
+				} catch (Exception e) {
+
+					e.printStackTrace();
 				}
 				return null;
 			}
@@ -373,6 +391,9 @@ public class EditHawkerController implements Initializable {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
 
 	}
@@ -394,6 +415,9 @@ public class EditHawkerController implements Initializable {
 				return true;
 			}
 		} catch (SQLException e) {
+
+			e.printStackTrace();
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}

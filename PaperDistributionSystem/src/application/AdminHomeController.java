@@ -316,6 +316,9 @@ public class AdminHomeController implements Initializable {
 			} catch (IOException e) {
 
 				e.printStackTrace();
+			} catch (Exception e) {
+
+				e.printStackTrace();
 			}
 
 		}
