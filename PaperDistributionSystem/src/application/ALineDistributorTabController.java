@@ -166,12 +166,11 @@ public class ALineDistributorTabController implements Initializable {
 	private FilteredList<LineDistributor> filteredData;
 	private String searchText;
 
-
 	@FXML
 	private TextField addLineNumTF;
 	@FXML
 	private Button addLineButton;
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
@@ -227,30 +226,32 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		});
 
-//		addMobileNumField.textProperty().addListener(new ChangeListener<String>() {
-//
-//			@Override
-//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//
-//				if (newValue.length() > 10){
-//					addMobileNumField.setText(oldValue);
-//
-//					Notifications.create().title("Invalid mobile number")
-//							.text("Mobile number should only contain 10 DIGITS")
-//							.hideAfter(Duration.seconds(5)).showError();
-//				}
-//				try {
-//					Integer.parseInt(newValue);
-//				} catch (NumberFormatException e) {
-//					addMobileNumField.setText(oldValue);
-//
-//					Notifications.create().title("Invalid mobile number")
-//							.text("Mobile number should only contain 10 DIGITS")
-//							.hideAfter(Duration.seconds(5)).showError();
-//					e.printStackTrace();
-//				}
-//			}
-//		});
+		// addMobileNumField.textProperty().addListener(new
+		// ChangeListener<String>() {
+		//
+		// @Override
+		// public void changed(ObservableValue<? extends String> observable,
+		// String oldValue, String newValue) {
+		//
+		// if (newValue.length() > 10){
+		// addMobileNumField.setText(oldValue);
+		//
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// }
+		// try {
+		// Integer.parseInt(newValue);
+		// } catch (NumberFormatException e) {
+		// addMobileNumField.setText(oldValue);
+		//
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// }
+		// }
+		// });
 		addHwkCode.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -397,7 +398,6 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		});
 
-
 		addLineNumTF.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -413,14 +413,14 @@ public class ALineDistributorTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if(newValue!=null){
+				if (newValue != null) {
 					populatePointNames();
-				}else {
-					
+				} else {
+
 				}
 			}
 		});
-		
+
 		addNameField.requestFocus();
 	}
 
@@ -432,7 +432,7 @@ public class ALineDistributorTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					lineNumData.clear();
@@ -447,9 +447,11 @@ public class ALineDistributorTabController implements Initializable {
 					addLineNumField.getItems().addAll(lineNumData);
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				return null;
@@ -465,7 +467,7 @@ public class ALineDistributorTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -479,9 +481,11 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -491,7 +495,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerStatement = null;
@@ -506,9 +510,11 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -524,7 +530,7 @@ public class ALineDistributorTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 
@@ -540,11 +546,13 @@ public class ALineDistributorTabController implements Initializable {
 
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of line distributor has failed").showError();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -607,6 +615,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -631,9 +640,9 @@ public class ALineDistributorTabController implements Initializable {
 
 			Optional<LineDistributor> updatedLineDistributor = editLineDistributorDialog.showAndWait();
 
-			
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -686,6 +695,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -699,7 +709,7 @@ public class ALineDistributorTabController implements Initializable {
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				insertLineNum = con.prepareStatement(insertStatement);
@@ -726,18 +736,20 @@ public class ALineDistributorTabController implements Initializable {
 				insertLineNum.setString(18, addBuildingStreet.getText());
 				insertLineNum.execute();
 				resetClicked(event);
-				if(HawkerLoginController.loggedInHawker!=null){
+				if (HawkerLoginController.loggedInHawker != null) {
 					addLineNumField.requestFocus();
 				} else {
-					addNameField.requestFocus();					
+					addNameField.requestFocus();
 				}
-				
+
 				refreshLineDistTable();
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -750,44 +762,44 @@ public class ALineDistributorTabController implements Initializable {
 			Notifications.create().title("Empty Name").text("Name cannot be empty. Please enter value for name.")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-		} 
+		}
 		if (addMobileNumField.getText() == null) {
 			Notifications.create().title("Empty Mobile").text("Mobile cannot be empty. Please enter value for mobile.")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-		} 
+		}
 		if (addLineNumField.getSelectionModel().getSelectedItem() == null) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Empty Line Number")
 					.text("Line Number cannot be empty. Please enter value for Line Number.").showError();
 
-		} 
+		}
 		if (lineDistForLineExists(addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Line Distributor exists")
 					.text("Line Distributor already exists for this line number").showError();
-		} 
+		}
 		if (addProf3.getText() != null && checkExistingProfileValue(addProf3.getText())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
 					.showError();
 		}
-//		if (addMobileNumField.getText().length()!=10) {
-//			Notifications.create().title("Invalid mobile number")
-//			.text("Mobile number should only contain 10 DIGITS")
-//			.hideAfter(Duration.seconds(5)).showError();
-//			validate = false;
-//		}
-//		try {
-//			Integer.parseInt(addMobileNumField.getText());
-//		} catch (NumberFormatException e) {
-//			Notifications.create().title("Invalid mobile number")
-//			.text("Mobile number should only contain 10 DIGITS")
-//			.hideAfter(Duration.seconds(5)).showError();
-//			validate = false;
-//			e.printStackTrace();
-//		}
+		// if (addMobileNumField.getText().length()!=10) {
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// validate = false;
+		// }
+		// try {
+		// Integer.parseInt(addMobileNumField.getText());
+		// } catch (NumberFormatException e) {
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// validate = false;
+		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// }
 		return validate;
 	}
 
@@ -795,7 +807,7 @@ public class ALineDistributorTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -807,9 +819,11 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
@@ -863,7 +877,7 @@ public class ALineDistributorTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt;
@@ -877,8 +891,8 @@ public class ALineDistributorTabController implements Initializable {
 							stmt = con.prepareStatement(
 									"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where hwk.hawker_code=? and ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
 							stmt.setString(1, addHwkCode.getSelectionModel().getSelectedItem());
-//							addPointName.setDisable(true);
-//							addHwkCode.setDisable(true);
+							// addPointName.setDisable(true);
+							// addHwkCode.setDisable(true);
 						}
 					} else {
 						stmt = con.prepareStatement(
@@ -902,15 +916,18 @@ public class ALineDistributorTabController implements Initializable {
 						lineDistInfoTable.setItems(sortedData);
 						lineDistInfoTable.refresh();
 					}
-//					if (HawkerLoginController.loggedInHawker == null && filterRadioButton.isSelected()) {
-//						addPointName.setDisable(false);
-//						addHwkCode.setDisable(false);
-//					}
+					// if (HawkerLoginController.loggedInHawker == null &&
+					// filterRadioButton.isSelected()) {
+					// addPointName.setDisable(false);
+					// addHwkCode.setDisable(false);
+					// }
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 
@@ -925,7 +942,7 @@ public class ALineDistributorTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -940,9 +957,11 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
@@ -1026,6 +1045,7 @@ public class ALineDistributorTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -1048,12 +1068,12 @@ public class ALineDistributorTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
-			PreparedStatement stmt = con
-					.prepareStatement("select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
+			PreparedStatement stmt = con.prepareStatement(
+					"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
 			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -1067,9 +1087,11 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -1083,7 +1105,7 @@ public class ALineDistributorTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					profileValues.clear();
@@ -1099,9 +1121,11 @@ public class ALineDistributorTabController implements Initializable {
 					addProf2.getItems().addAll(profileValues);
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				return null;
@@ -1119,7 +1143,7 @@ public class ALineDistributorTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					employmentData.clear();
@@ -1133,9 +1157,11 @@ public class ALineDistributorTabController implements Initializable {
 					addEmployment.getItems().addAll(employmentData);
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				return null;
@@ -1149,11 +1175,12 @@ public class ALineDistributorTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			pointNameValues.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name where city =? order by name");
+			PreparedStatement stmt = con
+					.prepareStatement("select distinct name from point_name where city =? order by name");
 			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -1167,24 +1194,26 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	@FXML
 	private void addLineButtonClicked(ActionEvent event) {
 		try {
 			if (addHwkCode.getSelectionModel().selectedIndexProperty().get() != -1) {
 				Integer addLineNumValue = Integer.parseInt(addLineNumTF.getText().trim());
-				
+
 				if (checkExistingLineNum(addLineNumValue)) {
-					if(addLineNumValue==0){
+					if (addLineNumValue == 0) {
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid line number value")
-						.text("Cannot add line number 0.").showError();
+								.text("Cannot add line number 0.").showError();
 					}
 					Task<Void> task = new Task<Void>() {
 
@@ -1194,7 +1223,7 @@ public class ALineDistributorTabController implements Initializable {
 							String insertStatement = "INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + "VALUES (?,?)";
 							Connection con = Main.dbConnection;
 							try {
-								while (!con.isValid(0)) {
+								if (!con.isValid(0)) {
 									con = Main.reconnect();
 								}
 								insertLineNum = con.prepareStatement(insertStatement);
@@ -1211,9 +1240,11 @@ public class ALineDistributorTabController implements Initializable {
 								}
 							} catch (SQLException e) {
 
+								Main._logger.debug(e.getStackTrace());
 								e.printStackTrace();
 							} catch (Exception e) {
 
+								Main._logger.debug(e.getStackTrace());
 								e.printStackTrace();
 							}
 							return null;
@@ -1228,17 +1259,19 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (NumberFormatException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Please enter proper numeric value in Line Number field").showError();
 		}
 
-	}	
+	}
+
 	private boolean checkExistingLineNum(Integer lineNum) {
 
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement lineNumExists = null;
@@ -1254,24 +1287,25 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return true;
 	}
 
-
 	public void populateCityValues() {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			cityValues.clear();
-			PreparedStatement stmt=null;
+			PreparedStatement stmt = null;
 			if (HawkerLoginController.loggedInHawker != null) {
 				stmt = con.prepareStatement("select distinct city from point_name where name=?");
 				stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
@@ -1294,14 +1328,16 @@ public class ALineDistributorTabController implements Initializable {
 				cityTF.getItems().addAll(cityValues);
 			}
 		} catch (SQLException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	public void reloadData() {
 		if (HawkerLoginController.loggedInHawker == null) {
 			if (showAllRadioButton.isSelected()) {

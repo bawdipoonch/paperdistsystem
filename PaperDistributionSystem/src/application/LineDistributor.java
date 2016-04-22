@@ -1,4 +1,5 @@
 package application;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,13 +31,11 @@ public class LineDistributor {
 	private final SimpleStringProperty employment = new SimpleStringProperty("");
 	private final SimpleStringProperty comments = new SimpleStringProperty("");
 	private final SimpleStringProperty buildingStreet = new SimpleStringProperty("");
-	
-	
-	
-	public LineDistributor(long lineDistId, String name, String mobileNum, long hawkerId, int lineNum, String oldHouseNum, 
-			String newHouseNum, String addrLine1, String addrLine2,
-			String locality, String city, String state,
-			String profile1, String profile2, String profile3, String initials, String employment, String comments,String buildingStreet, String hawkerCode){
+
+	public LineDistributor(long lineDistId, String name, String mobileNum, long hawkerId, int lineNum,
+			String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2, String locality, String city,
+			String state, String profile1, String profile2, String profile3, String initials, String employment,
+			String comments, String buildingStreet, String hawkerCode) {
 		setLineDistId(lineDistId);
 		setName(name);
 		setMobileNum(mobileNum);
@@ -58,15 +57,15 @@ public class LineDistributor {
 		setBuildingStreet(buildingStreet);
 		setHawkerCode(hawkerCode);
 	}
-	
+
 	public Long getLineDistId() {
 		return lineDistId.get();
 	}
-	
+
 	public void setLineDistId(long lineDistId) {
 		this.lineDistId.set(lineDistId);
 	}
-	
+
 	public String getName() {
 		return name.get();
 	}
@@ -74,7 +73,7 @@ public class LineDistributor {
 	public void setName(String name) {
 		this.name.set(name);
 	}
-	
+
 	public String getMobileNum() {
 		return mobileNum.get();
 	}
@@ -82,29 +81,27 @@ public class LineDistributor {
 	public void setMobileNum(String mobileNum) {
 		this.mobileNum.set(mobileNum);
 	}
-	
+
 	public Long getHawkerId() {
 		return hawkerId.get();
 	}
-	
+
 	public void setHawkerId(long hawkerId) {
 		this.hawkerId.set(hawkerId);
 	}
-	
+
 	public int getLineNum() {
 		return lineNum.get();
 	}
-	
+
 	public void setLineNum(int lineNum) {
 		this.lineNum.set(lineNum);
 	}
-	
 
 	public String getOldHouseNum() {
 		return oldHouseNum.get();
 	}
-	
-	
+
 	public String getNewHouseNum() {
 		return newHouseNum.get();
 	}
@@ -113,11 +110,10 @@ public class LineDistributor {
 		return addrLine1.get();
 	}
 
-
 	public String getAddrLine2() {
 		return addrLine2.get();
 	}
-	
+
 	public String getLocality() {
 		return locality.get();
 	}
@@ -126,15 +122,14 @@ public class LineDistributor {
 		return city.get();
 	}
 
-
 	public String getState() {
 		return state.get();
 	}
 
-
 	public void setOldHouseNum(String oldHouseNum) {
 		this.oldHouseNum.set(oldHouseNum);
 	}
+
 	public void setNewHouseNum(String newHouseNum) {
 		this.newHouseNum.set(newHouseNum);
 	}
@@ -142,10 +137,11 @@ public class LineDistributor {
 	public void setAddrLine1(String addrLine1) {
 		this.addrLine1.set(addrLine1);
 	}
+
 	public void setAddrLine2(String addrLine2) {
 		this.addrLine2.set(addrLine2);
 	}
-	
+
 	public void setLocality(String locality) {
 		this.locality.set(locality);
 	}
@@ -153,6 +149,7 @@ public class LineDistributor {
 	public void setCity(String city) {
 		this.city.set(city);
 	}
+
 	public void setState(String state) {
 		this.state.set(state);
 	}
@@ -164,7 +161,7 @@ public class LineDistributor {
 	public void setProfile1(String profile1) {
 		this.profile1.set(profile1);
 	}
-	
+
 	public String getProfile2() {
 		return profile2.get();
 	}
@@ -172,7 +169,7 @@ public class LineDistributor {
 	public void setProfile2(String profile2) {
 		this.profile2.set(profile2);
 	}
-	
+
 	public String getProfile3() {
 		return profile3.get();
 	}
@@ -180,6 +177,7 @@ public class LineDistributor {
 	public void setProfile3(String profile3) {
 		this.profile3.set(profile3);
 	}
+
 	public String getInitials() {
 		return initials.get();
 	}
@@ -189,47 +187,44 @@ public class LineDistributor {
 	}
 
 	public void setBuildingStreet(String buildingStreet) {
-		this.buildingStreet.set(buildingStreet);		
+		this.buildingStreet.set(buildingStreet);
 	}
 
 	public void setComments(String comments) {
 		this.comments.set(comments);
-		
+
 	}
 
 	public String getEmployment() {
 		return this.employment.get();
 	}
-	
+
 	public String getBuildingStreet() {
-		return this.buildingStreet.get();		
+		return this.buildingStreet.get();
 	}
 
 	public String getComments() {
 		return this.comments.get();
-		
+
 	}
 
 	public void setEmployment(String employment) {
 		this.employment.set(employment);
 	}
-	
+
 	public void setHawkerCode(String hawkerCode) {
 		this.hawkerCode.set(hawkerCode);
 	}
-	
-	public String getHawkerCode(){
+
+	public String getHawkerCode() {
 		return hawkerCode.get();
 	}
-	
 
-
-	
-	public void updateLineDistRecord(){
+	public void updateLineDistRecord() {
 		try {
-			
+
 			Connection con = Main.dbConnection;
-			while(!con.isValid(0)){
+			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String updateString = "update line_distributor set name=?, mobile_num=?, line_num=?,  old_house_num=?,  new_house_num=?,  address_line1=?,  address_line2=?,  locality=?,  city=?, state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, building_street=?  where line_dist_id=?";
@@ -254,16 +249,17 @@ public class LineDistributor {
 			updateStmt.setLong(18, getLineDistId());
 			updateStmt.executeUpdate();
 			con.commit();
-			
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 			Notifications.create().title("Failed").text("Line distributor update failed").showError();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
-
 
 }

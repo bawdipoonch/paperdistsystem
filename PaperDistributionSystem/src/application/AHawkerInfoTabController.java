@@ -325,7 +325,7 @@ public class AHawkerInfoTabController implements Initializable {
 		// Notifications.create().title("Invalid mobile number")
 		// .text("Mobile number should only contain 10 DIGITS")
 		// .hideAfter(Duration.seconds(5)).showError();
-		// e.printStackTrace();
+		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
 		// }
 		// }
 		// });
@@ -546,7 +546,7 @@ public class AHawkerInfoTabController implements Initializable {
 				if (HawkerLoginController.loggedInHawker != null) {
 					menu.getItems().addAll(mnuEdit, mnuView, mnuPwd);
 				} else {
-					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuPwd, mnuNullDue,mnuBill);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuPwd, mnuNullDue, mnuBill);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -602,6 +602,7 @@ public class AHawkerInfoTabController implements Initializable {
 								hawkerTable.refresh();
 							} catch (NumberFormatException e) {
 
+								Main._logger.debug(e.getStackTrace());
 								e.printStackTrace();
 								Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 										.text("Please enter numeric value only").showError();
@@ -724,7 +725,8 @@ public class AHawkerInfoTabController implements Initializable {
 	 * hawkerRow.calculateTotalDue(); hawkerRow.updateHawkerRecord(); //
 	 * hawkerTable.refresh(); con.commit();
 	 * 
-	 * } catch (SQLException e) { e.printStackTrace();
+	 * } catch (SQLException e) { Main._logger.debug(e.getStackTrace());
+	 * e.printStackTrace();
 	 * Notifications.create().hideAfter(Duration.seconds(5)).title("Error!").
 	 * text(
 	 * "There has been some error during hawker bill creation, please retry"
@@ -737,7 +739,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select bill_category from point_name where name =? order by bill_category";
@@ -749,9 +751,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -769,7 +773,7 @@ public class AHawkerInfoTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from hawker_billing where hwk_bill_id=?";
@@ -785,11 +789,13 @@ public class AHawkerInfoTabController implements Initializable {
 				hawkerBillingTable.refresh();
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker bill has failed").showError();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -806,7 +812,7 @@ public class AHawkerInfoTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from hawker_info where hawker_id=?";
@@ -822,11 +828,13 @@ public class AHawkerInfoTabController implements Initializable {
 				hawkerTable.refresh();
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker has failed").showError();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -907,6 +915,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -933,6 +942,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -944,7 +954,7 @@ public class AHawkerInfoTabController implements Initializable {
 			protected Void call() throws Exception {
 				try {
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt;
@@ -998,9 +1008,11 @@ public class AHawkerInfoTabController implements Initializable {
 					// con.close();
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 
@@ -1053,7 +1065,7 @@ public class AHawkerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					String getHwkBillingInfo = "Select start_date,end_date,bill_amount,paid,due,hwk_bill_id, hawker_id from hawker_billing where hawker_id = ?";
@@ -1072,9 +1084,11 @@ public class AHawkerInfoTabController implements Initializable {
 
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				return null;
@@ -1108,6 +1122,7 @@ public class AHawkerInfoTabController implements Initializable {
 				validate = false;
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
 						.text("Fee per subscription should not be empty and must be numeric only").showError();
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -1134,6 +1149,7 @@ public class AHawkerInfoTabController implements Initializable {
 			Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return validate;
@@ -1143,7 +1159,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -1155,9 +1171,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
@@ -1173,7 +1191,7 @@ public class AHawkerInfoTabController implements Initializable {
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				insertHawker = con.prepareStatement(insertStatement);
@@ -1218,12 +1236,14 @@ public class AHawkerInfoTabController implements Initializable {
 
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 						.text("There has been some error during hawker creation, please retry").showError();
 				Main.reconnect();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 			resetClicked(event);
@@ -1240,7 +1260,7 @@ public class AHawkerInfoTabController implements Initializable {
 				String insertStatement = "INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + "VALUES (?,?)";
 				Connection con = Main.dbConnection;
 				try {
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					insertLineNum = con.prepareStatement(insertStatement);
@@ -1252,9 +1272,11 @@ public class AHawkerInfoTabController implements Initializable {
 					}
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				return null;
@@ -1391,6 +1413,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -1415,7 +1438,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select hawker_code,name from hawker_info where mobile_num=? and lower(hawker_code) <> ?";
@@ -1428,9 +1451,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
@@ -1488,6 +1513,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -1496,7 +1522,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			profileValues.clear();
@@ -1512,9 +1538,11 @@ public class AHawkerInfoTabController implements Initializable {
 			addHwkProf2.getItems().addAll(profileValues);
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -1524,7 +1552,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			employmentValues.clear();
@@ -1538,9 +1566,11 @@ public class AHawkerInfoTabController implements Initializable {
 			addHwkEmployment.getItems().addAll(employmentValues);
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -1550,11 +1580,12 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			pointNameValues.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name where city =? order by name");
+			PreparedStatement stmt = con
+					.prepareStatement("select distinct name from point_name where city =? order by name");
 			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -1568,9 +1599,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -1581,7 +1614,7 @@ public class AHawkerInfoTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -1595,9 +1628,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -1607,7 +1642,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con.prepareStatement("UPDATE CUSTOMER SET TOTAL_DUE=0.0 WHERE HAWKER_CODE=?");
@@ -1619,9 +1654,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -1631,11 +1668,11 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			cityValues.clear();
-			PreparedStatement stmt=null;
+			PreparedStatement stmt = null;
 			if (HawkerLoginController.loggedInHawker != null) {
 				stmt = con.prepareStatement("select distinct city from point_name where name=?");
 				stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
@@ -1658,9 +1695,11 @@ public class AHawkerInfoTabController implements Initializable {
 				cityTF.getItems().addAll(cityValues);
 			}
 		} catch (SQLException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 

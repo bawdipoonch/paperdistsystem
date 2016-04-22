@@ -39,15 +39,16 @@ public class HawkerLoginController implements Initializable {
 	private TextField mobileNum;
 	@FXML
 	private TextField password;
-	@FXML Button registerButton;
-//	Stage stage;
+	@FXML
+	Button registerButton;
+	// Stage stage;
 	Parent root;
 
 	public static Hawker loggedInHawker;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
+
 		/*
 		 * AmazonRDSClient rdsClient = new AmazonRDSClient(new
 		 * BasicAWSCredentials(ACCESS_KEY, SECRET)); DescribeDBInstancesResult
@@ -64,7 +65,7 @@ public class HawkerLoginController implements Initializable {
 
 			@Override
 			public void handle(KeyEvent event) {
-				
+
 				if (event.getCode() == KeyCode.ENTER) {
 					loginClicked(new ActionEvent());
 				}
@@ -75,7 +76,7 @@ public class HawkerLoginController implements Initializable {
 
 			@Override
 			public void handle(KeyEvent event) {
-				
+
 				if (event.getCode() == KeyCode.ENTER) {
 					loginClicked(new ActionEvent());
 				}
@@ -85,7 +86,7 @@ public class HawkerLoginController implements Initializable {
 
 			@Override
 			public void handle(KeyEvent event) {
-				
+
 				if (event.getCode() == KeyCode.ENTER) {
 					adminLoginClicked(new ActionEvent());
 				}
@@ -95,18 +96,18 @@ public class HawkerLoginController implements Initializable {
 
 			@Override
 			public void handle(KeyEvent event) {
-				
+
 				if (event.getCode() == KeyCode.ENTER) {
 					loginClicked(new ActionEvent());
 				}
 			}
 		});
-		
+
 		registerButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
 			public void handle(KeyEvent event) {
-				
+
 				if (event.getCode() == KeyCode.ENTER) {
 					addHawkerExtraClicked(new ActionEvent());
 				}
@@ -123,7 +124,7 @@ public class HawkerLoginController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 
@@ -145,10 +146,11 @@ public class HawkerLoginController implements Initializable {
 								rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20),
 								rs.getString(21), rs.getString(22), rs.getString(23), rs.getString(24),
 								rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
-								rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32), rs.getString(33), rs.getString(34));
+								rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32),
+								rs.getString(33), rs.getString(34));
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Logged in")
 								.text("Login successful").showInformation();
-//						stage = (Stage) loginButton.getScene().getWindow();
+						// stage = (Stage) loginButton.getScene().getWindow();
 						// load up OTHER FXML document
 						root = FXMLLoader.load(getClass().getResource("HawkerHome.fxml"));
 						Scene scene = new Scene(root);
@@ -167,13 +169,16 @@ public class HawkerLoginController implements Initializable {
 			}
 
 		} catch (SQLException e) {
-			
+
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (IOException e) {
-			
+
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -183,7 +188,7 @@ public class HawkerLoginController implements Initializable {
 	public void adminLoginClicked(ActionEvent event) {
 		try {
 			// get reference to the button's stage
-//			stage = (Stage) adminLoginButton.getScene().getWindow();
+			// stage = (Stage) adminLoginButton.getScene().getWindow();
 			// load up OTHER FXML document
 			root = FXMLLoader.load(getClass().getResource("AdminLogin.fxml"));
 			/*
@@ -196,11 +201,12 @@ public class HawkerLoginController implements Initializable {
 			Main.primaryStage.setMaximized(true);
 			Main.primaryStage.show();
 		} catch (Exception e) {
-			
+
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
-	
+
 	@FXML
 	private void addHawkerExtraClicked(ActionEvent event) {
 		try {
@@ -217,7 +223,7 @@ public class HawkerLoginController implements Initializable {
 			Parent addHawkerGrid = (Parent) addHawkerLoader.load();
 			AddHawkerExtraScreenController addHwkController = addHawkerLoader
 					.<AddHawkerExtraScreenController> getController();
-			
+
 			saveButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
 				if (addHwkController.isValid()) {
 					addHwkController.addHawker();
@@ -227,17 +233,17 @@ public class HawkerLoginController implements Initializable {
 					btnEvent.consume();
 				}
 			});
-			
-			/*saveButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
-				if (addHwkController.isValid()) {
-					addHwkController.addHawker();
-					Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker created")
-							.text("Hawker created successfully. You can now try to login").showInformation();
-				} else {
-					btnEvent.consume();
-				}
 
-			});*/
+			/*
+			 * saveButton.addEventFilter(ActionEvent.ACTION, btnEvent -> { if
+			 * (addHwkController.isValid()) { addHwkController.addHawker();
+			 * Notifications.create().hideAfter(Duration.seconds(5)).title(
+			 * "Hawker created") .text(
+			 * "Hawker created successfully. You can now try to login"
+			 * ).showInformation(); } else { btnEvent.consume(); }
+			 * 
+			 * });
+			 */
 			addHawkerDialog.getDialogPane().setContent(addHawkerGrid);
 			addHwkController.setupBindings();
 
@@ -262,6 +268,7 @@ public class HawkerLoginController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}

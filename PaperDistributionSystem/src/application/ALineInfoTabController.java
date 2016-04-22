@@ -19,6 +19,7 @@ import org.controlsfx.control.Notifications;
 
 import com.amazonaws.util.NumberUtils;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -31,6 +32,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -99,6 +101,8 @@ public class ALineInfoTabController implements Initializable {
 
 	@FXML
 	private TableColumn<Customer, String> line1Column;
+	@FXML
+	private TableColumn<Customer, Double> totalDueColumn;
 
 	@FXML
 	private TableColumn<Customer, String> line2Column;
@@ -175,6 +179,8 @@ public class ALineInfoTabController implements Initializable {
 	private TableColumn<BillingLine, String> prodCol;
 	@FXML
 	private TableColumn<BillingLine, Double> amountCol;
+	@FXML
+	private TableColumn<BillingLine, Double> teaExpensesCol;
 
 	@FXML
 	private TableView<StopHistory> stopHistoryTable;
@@ -199,7 +205,7 @@ public class ALineInfoTabController implements Initializable {
 
 	@FXML
 	private TableColumn<StopHistory, LocalDate> stpsubsResumeDateColumn;
-	
+
 	private ObservableList<Billing> invoiceDatesData = FXCollections.observableArrayList();
 	private ObservableList<BillingLine> billingLinesData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
@@ -209,7 +215,7 @@ public class ALineInfoTabController implements Initializable {
 	private ObservableList<Subscription> subscriptionMasterData = FXCollections.observableArrayList();
 	private ObservableList<StopHistory> stopHistoryMasterData = FXCollections.observableArrayList();
 	private ObservableList<String> cityValues = FXCollections.observableArrayList();
-	
+
 	private ArrayList<TextField> newHouseSeqTFArray;
 
 	@FXML
@@ -231,6 +237,7 @@ public class ALineInfoTabController implements Initializable {
 		line1Column.setCellValueFactory(new PropertyValueFactory<Customer, String>("addrLine1"));
 		line2Column.setCellValueFactory(new PropertyValueFactory<Customer, String>("addrLine2"));
 		houseSeqColumn.setCellValueFactory(new PropertyValueFactory<Customer, Integer>("houseSeq"));
+		totalDueColumn.setCellValueFactory(new PropertyValueFactory<Customer, Double>("totalDue"));
 
 		subsIdColumn.setCellValueFactory(new PropertyValueFactory<Subscription, Long>("subscriptionId"));
 		subsProdNameColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("productName"));
@@ -252,7 +259,7 @@ public class ALineInfoTabController implements Initializable {
 
 		prodCol.setCellValueFactory(new PropertyValueFactory<BillingLine, String>("product"));
 		amountCol.setCellValueFactory(new PropertyValueFactory<BillingLine, Double>("amount"));
-
+		teaExpensesCol.setCellValueFactory(new PropertyValueFactory<BillingLine, Double>("teaExpenses"));
 		subsPausedDateColumn.setCellFactory(
 				new Callback<TableColumn<Subscription, LocalDate>, TableCell<Subscription, LocalDate>>() {
 
@@ -303,7 +310,6 @@ public class ALineInfoTabController implements Initializable {
 				// hawkerComboBox.getItems().addAll(hawkerCodeData);
 			}
 		});
-		
 
 		stpstopHistoryIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, Long>("stopHistoryId"));
 		stpsubsIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, Long>("subscriptionId"));
@@ -335,7 +341,6 @@ public class ALineInfoTabController implements Initializable {
 					}
 				});
 
-
 		hawkerComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -356,12 +361,18 @@ public class ALineInfoTabController implements Initializable {
 				subscriptionMasterData.clear();
 				subscriptionsTable.getItems().clear();
 				subscriptionsTable.refresh();
+				customerData.clear();
+				lineNumCustomersTable.getItems().clear();
+				lineNumCustomersTable.refresh();
 				dailyCount.setText("");
 				weeklyCount.setText("");
 				days14Count.setText("");
 				invoiceDateLOV.getItems().clear();
 				billingLinesData.clear();
 				billingTable.setItems(billingLinesData);
+				billingTable.refresh();
+				stopHistoryTable.getItems().clear();
+				stopHistoryTable.refresh();
 
 			}
 
@@ -371,10 +382,19 @@ public class ALineInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends LineInfo> observable, LineInfo oldValue, LineInfo newValue) {
-
-				populateCustomersForLine();
-				populateSubscriptionCount();
-				refreshStopHistory();
+				if (newValue != null) {
+					customerData.clear();
+					lineNumCustomersTable.setItems(customerData);
+					stopHistoryMasterData.clear();
+					stopHistoryTable.setItems(stopHistoryMasterData);
+					invoiceDatesData.clear();
+					invoiceDateLOV.setItems(invoiceDatesData);
+					subscriptionMasterData.clear();
+					subscriptionsTable.setItems(subscriptionMasterData);
+					populateCustomersForLine();
+					populateSubscriptionCount();
+					// refreshStopHistory();
+				}
 			}
 
 		});
@@ -480,10 +500,48 @@ public class ALineInfoTabController implements Initializable {
 								billWarning.getDialogPane().setContent(grid);
 								Optional<ButtonType> result = billWarning.showAndWait();
 								if (result.isPresent() && result.get() == saveButtonType) {
-									BillingUtilityClass.createBillingInvoiceForHwkLine(
-											hawkerComboBox.getSelectionModel().getSelectedItem(), lineRow.getLineNum(),
-											pauseDP.getValue().withDayOfMonth(1),
-											pauseDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1), true);
+									Task<Void> task = new Task<Void>() {
+										Notifications n = null;
+
+										@Override
+										protected Void call() throws Exception {
+											Platform.runLater(new Runnable() {
+
+												@Override
+												public void run() {
+													n = Notifications.create().title("Please wait").text(
+															"Generating customer bills. Please wait for the process to finish.");
+													n.hideAfter(Duration.seconds(10)).position(Pos.CENTER)
+															.showInformation();
+												}
+											});
+											disableAll();
+											BillingUtilityClass.createBillingInvoiceForHwkLine(
+													hawkerComboBox.getSelectionModel().getSelectedItem(),
+													lineRow.getLineNum(), pauseDP.getValue().withDayOfMonth(1),
+													pauseDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1),
+													true);
+
+											populateCustomersForLine();
+											Platform.runLater(new Runnable() {
+
+												@Override
+												public void run() {
+
+													Notifications.create().title("Bill generated")
+															.text("Customer Bills for selected Line are generated")
+															.hideAfter(Duration.seconds(5)).position(Pos.CENTER)
+															.showInformation();
+													enableAll();
+												}
+											});
+
+											return null;
+										}
+
+									};
+
+									new Thread(task).start();
 								}
 							} else {
 								Notifications.create().title("Line Number 0")
@@ -566,7 +624,7 @@ public class ALineInfoTabController implements Initializable {
 						Customer custRow = lineNumCustomersTable.getSelectionModel().getSelectedItem();
 						if (custRow != null) {
 							addCustSubscription(custRow);
-							refreshSubscriptions();
+							// refreshSubscriptions();
 						}
 					}
 
@@ -674,21 +732,33 @@ public class ALineInfoTabController implements Initializable {
 							if (result.isPresent() && result.get() == saveButtonType) {
 								for (Subscription subsRow : subsBox.getCheckModel().getCheckedItems()) {
 									if (subsRow != null && subsRow.getStatus().equals("Active")) {
-										if (dp.getValue().isBefore(resumeDP.getValue())) {
+										if (resumeDP.getValue() != null) {
+											if ((dp.getValue().isBefore(resumeDP.getValue()))) {
+												subsRow.setStatus("Stopped");
+												subsRow.setPausedDate(dp.getValue());
+												subsRow.setResumeDate(resumeDP.getValue());
+												subsRow.updateSubscriptionRecord();
+												createStopHistoryForSub(subsRow, dp.getValue(), resumeDP.getValue());
+												Notifications.create().title("Stop successful")
+														.text("Stop subscription successful")
+														.hideAfter(Duration.seconds(5)).showInformation();
+											} else {
+
+												Notifications.create().title("Invalid Resume Date")
+														.text("Resume date must be after stop date")
+														.hideAfter(Duration.seconds(5)).showError();
+											}
+										} else {
 											subsRow.setStatus("Stopped");
 											subsRow.setPausedDate(dp.getValue());
-											subsRow.setResumeDate(resumeDP.getValue());
+											subsRow.setResumeDate(null);
 											subsRow.updateSubscriptionRecord();
-											createStopHistoryForSub(subsRow, dp.getValue(), resumeDP.getValue());
+											createStopHistoryForSub(subsRow, dp.getValue(), null);
 											Notifications.create().title("Stop successful")
 													.text("Stop subscription successful").hideAfter(Duration.seconds(5))
 													.showInformation();
-										} else {
-
-											Notifications.create().title("Invalid Resume Date")
-													.text("Resume date must be after stop date")
-													.hideAfter(Duration.seconds(5)).showError();
 										}
+
 									} else {
 										Notifications.create().title("Invalid operation")
 												.text("Subscription is already STOPPED").hideAfter(Duration.seconds(5))
@@ -846,27 +916,162 @@ public class ALineInfoTabController implements Initializable {
 					}
 
 				});
-				MenuItem mnuBill = new MenuItem("Generate Invoice");
+				MenuItem mnuBill = new MenuItem("Regenerate Invoice");
 				mnuBill.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent t) {
 						Customer custRow = lineNumCustomersTable.getSelectionModel().getSelectedItem();
 						if (custRow != null) {
-							Notifications.create().title("Generating invoice").text("Generating Invoice, please wait.")
-									.hideAfter(Duration.seconds(5)).showInformation();
-							Task<Void> task = new Task<Void>() {
+							Dialog<ButtonType> billWarning = new Dialog<ButtonType>();
+							billWarning.setTitle("Generate invoice");
+							billWarning.setHeaderText("Please select the Invoice Date");
+							ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+							billWarning.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+							GridPane grid = new GridPane();
+							grid.setHgap(10);
+							grid.setVgap(10);
+							grid.setPadding(new Insets(20, 150, 10, 10));
 
+							grid.add(new Label("Invoice Date"), 0, 0);
+							DatePicker invoiceDP = new DatePicker(LocalDate.now());
+							invoiceDP.setConverter(Main.dateConvertor);
+							invoiceDP.focusedProperty().addListener(new ChangeListener<Boolean>() {
 								@Override
-								protected Void call() throws Exception {
-									BillingUtilityClass.createBillingInvoice(custRow.getCustomerId(),
-											LocalDate.now().withDayOfMonth(1),
-											LocalDate.now().withDayOfMonth(1).plusMonths(1).minusDays(1), true);
-									return null;
+								public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+										Boolean newValue) {
+									if (!newValue) {
+										invoiceDP.setValue(
+												invoiceDP.getConverter().fromString(invoiceDP.getEditor().getText()));
+									}
+								}
+							});
+							// pauseDP.setDisable(true);
+							grid.add(invoiceDP, 1, 0);
+							billWarning.getDialogPane().setContent(grid);
+							Optional<ButtonType> result = billWarning.showAndWait();
+							if (result.isPresent() && result.get() == saveButtonType) {
+								Task<Void> task = new Task<Void>() {
+									Notifications n = Notifications.create().title("Please wait")
+											.text("Generating custome bill. Please wait for the process to finish.");
+
+									@Override
+									protected Void call() throws Exception {
+										Platform.runLater(new Runnable() {
+
+											@Override
+											public void run() {
+
+												n.hideAfter(Duration.seconds(10)).position(Pos.CENTER)
+														.showInformation();
+											}
+										});
+										disableAll();
+										BillingUtilityClass.createBillingInvoice(custRow.getCustomerId(),
+												invoiceDP.getValue().withDayOfMonth(1),
+												invoiceDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1),
+												true);
+										refreshSubscriptions();
+										refreshStopHistory();
+										populateInvoiceDates(custRow);
+										Platform.runLater(new Runnable() {
+
+											@Override
+											public void run() {
+												Notifications.create().title("Bill generated")
+														.text("Customer Bill generated").hideAfter(Duration.seconds(5))
+														.position(Pos.CENTER).showInformation();
+												enableAll();
+											}
+										});
+										return null;
+									}
+
+								};
+
+								new Thread(task).start();
+							}
+
+						}
+					}
+
+				});
+
+				MenuItem mnuDue = new MenuItem("Change Due Amount");
+				mnuDue.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Customer custRow = customerData
+								.get(lineNumCustomersTable.getSelectionModel().getSelectedIndex());
+						if (custRow != null) {
+							TextInputDialog dialog = new TextInputDialog();
+
+							dialog.setTitle("Change total due value");
+							dialog.setHeaderText("Change total due value below");
+
+							Button saveBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+							dialog.getEditor().setText(custRow.getTotalDue() + "");
+							saveBtn.addEventFilter(ActionEvent.ACTION, btnevent -> {
+
+								try {
+									Double d = Double.parseDouble(dialog.getEditor().getText());
+									custRow.setTotalDue(d);
+									custRow.updateCustomerRecord();
+									populateCustomersForLine();
+								} catch (NumberFormatException e) {
+									Notifications.create().title("Invalid value")
+											.text("Please enter only NUMERIC values in Total Due.")
+											.hideAfter(Duration.seconds(5)).showError();
+
+									Main._logger.debug(e.getStackTrace());
+									e.printStackTrace();
+									btnevent.consume();
+								} catch (Exception e) {
+									Main._logger.debug(e.getStackTrace());
+									e.printStackTrace();
 								}
 
-							};
+							});
+							dialog.showAndWait();
+						}
+					}
 
-							new Thread(task).start();
+				});
+				MenuItem mnuAddDue = new MenuItem("Add Due");
+				mnuAddDue.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Customer custRow = customerData
+								.get(lineNumCustomersTable.getSelectionModel().getSelectedIndex());
+						if (custRow != null) {
+							TextInputDialog dialog = new TextInputDialog();
+
+							dialog.setTitle("Add to total due value");
+							dialog.setHeaderText("Add to total due value below");
+
+							Button saveBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+							// dialog.getEditor().setText(custRow.getTotalDue()+"");
+							saveBtn.addEventFilter(ActionEvent.ACTION, btnevent -> {
+
+								try {
+									Double d = Double.parseDouble(dialog.getEditor().getText());
+									custRow.setTotalDue(d);
+									custRow.updateCustomerRecord();
+									populateCustomersForLine();
+								} catch (NumberFormatException e) {
+									Notifications.create().title("Invalid value")
+											.text("Please enter only NUMERIC values in Total Due.")
+											.hideAfter(Duration.seconds(5)).showError();
+
+									Main._logger.debug(e.getStackTrace());
+									e.printStackTrace();
+									btnevent.consume();
+								} catch (Exception e) {
+									Main._logger.debug(e.getStackTrace());
+									e.printStackTrace();
+								}
+
+							});
+							dialog.showAndWait();
 						}
 					}
 
@@ -874,9 +1079,10 @@ public class ALineInfoTabController implements Initializable {
 				ContextMenu menu = new ContextMenu();
 
 				if (HawkerLoginController.loggedInHawker != null) {
-					menu.getItems().addAll(mnuEdit, mnuView, mnuSubs, mnuPause, mnuResume, mnuBill);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuSubs, mnuPause, mnuResume, mnuBill, mnuAddDue, mnuDue);
 				} else {
-					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuSubs, mnuPause, mnuResume, mnuBill);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuSubs, mnuPause, mnuResume, mnuBill, mnuAddDue,
+							mnuDue);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -893,12 +1099,35 @@ public class ALineInfoTabController implements Initializable {
 					populateInvoiceDates(newValue);
 					refreshStopHistory();
 				} else {
-					subscriptionMasterData.clear();
-					subscriptionsTable.setItems(subscriptionMasterData);
-					billingLinesData.clear();
-					billingTable.setItems(billingLinesData);
-					invoiceDatesData.clear();
-					invoiceDateLOV.setItems(invoiceDatesData);
+					if (!Platform.isFxApplicationThread()) {
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								subscriptionMasterData.clear();
+								billingLinesData.clear();
+								invoiceDatesData.clear();
+								subscriptionsTable.setItems(subscriptionMasterData);
+								billingTable.setItems(billingLinesData);
+								invoiceDateLOV.setItems(invoiceDatesData);
+								totalDueLabel.setText(null);
+								totalBillLabel.setText(null);
+								netBillLabel.setText(null);
+							}
+						});
+					} else {
+
+						subscriptionMasterData.clear();
+						billingLinesData.clear();
+						invoiceDatesData.clear();
+						subscriptionsTable.setItems(subscriptionMasterData);
+						billingTable.setItems(billingLinesData);
+						invoiceDateLOV.setItems(invoiceDatesData);
+						totalDueLabel.setText(null);
+						totalBillLabel.setText(null);
+						netBillLabel.setText(null);
+					}
 				}
 			}
 
@@ -1096,12 +1325,38 @@ public class ALineInfoTabController implements Initializable {
 					}
 
 				});
+
+				MenuItem mnuView = new MenuItem("View Subscription");
+				mnuView.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
+						if (subsRow != null) {
+							showViewSubscriptionDialog(subsRow);
+							// refreshSubscriptions();
+						}
+					}
+
+				});
+
+				MenuItem mnuViewProd = new MenuItem("View Product");
+				mnuViewProd.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Product productRow = BillingUtilityClass
+								.productForSub(subscriptionsTable.getSelectionModel().getSelectedItem().getProductId());
+						if (productRow != null) {
+							showViewProductDialog(productRow);
+						}
+					}
+
+				});
 				ContextMenu menu = new ContextMenu();
 
 				if (HawkerLoginController.loggedInHawker != null) {
-					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit);
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd);
 				} else {
-					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuDel);
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd, mnuDel);
 				}
 
 				row.contextMenuProperty().bind(
@@ -1139,23 +1394,39 @@ public class ALineInfoTabController implements Initializable {
 					totalBillLabel.setText(d + "");
 					netBillLabel.setText(net + "");
 				} else {
-					billingLinesData.clear();
-					billingTable.setItems(billingLinesData);
-					totalDueLabel.setText(null);
-					totalBillLabel.setText(null);
-					netBillLabel.setText(null);
+					if (!Platform.isFxApplicationThread()) {
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								billingLinesData.clear();
+								billingTable.setItems(billingLinesData);
+								totalDueLabel.setText(null);
+								totalBillLabel.setText(null);
+								netBillLabel.setText(null);
+							}
+						});
+
+					} else {
+
+						billingLinesData.clear();
+						billingTable.setItems(billingLinesData);
+						totalDueLabel.setText(null);
+						totalBillLabel.setText(null);
+						netBillLabel.setText(null);
+					}
 
 				}
 			}
 		});
-		
 
 		stopHistoryTable.setRowFactory(new Callback<TableView<StopHistory>, TableRow<StopHistory>>() {
 
 			@Override
 			public TableRow<StopHistory> call(TableView<StopHistory> param) {
 				final TableRow<StopHistory> row = new TableRow<StopHistory>();
-				
+
 				MenuItem mnuView = new MenuItem("View Subscription");
 				mnuView.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
@@ -1171,22 +1442,22 @@ public class ALineInfoTabController implements Initializable {
 
 				ContextMenu menu = new ContextMenu();
 
-					menu.getItems().addAll(mnuView);
+				menu.getItems().addAll(mnuView);
 
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
 				return row;
 			}
 		});
-		
+
 		cityTF.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if(newValue!=null){
+				if (newValue != null) {
 					populatePointNames();
-				}else {
-					
+				} else {
+
 				}
 			}
 		});
@@ -1196,7 +1467,7 @@ public class ALineInfoTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerStatement = null;
@@ -1211,9 +1482,11 @@ public class ALineInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -1229,7 +1502,7 @@ public class ALineInfoTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from subscription where subscription_id=?";
@@ -1245,11 +1518,13 @@ public class ALineInfoTabController implements Initializable {
 				populateSubscriptionCount();
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of subscription has failed").showError();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -1302,6 +1577,67 @@ public class ALineInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
+			Main._logger.debug(e.getStackTrace());
+			e.printStackTrace();
+		}
+	}
+
+	private void showViewSubscriptionDialog(Subscription subsRow) {
+		try {
+
+			Dialog<Subscription> editSubscriptionDialog = new Dialog<Subscription>();
+			editSubscriptionDialog.setTitle("View subscription data");
+			editSubscriptionDialog.setHeaderText("View the subscription data below");
+
+			// Set the button types.
+
+			editSubscriptionDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+
+			FXMLLoader editSubscriptionLoader = new FXMLLoader(getClass().getResource("EditSubscription.fxml"));
+			Parent editSubscriptionGrid = (Parent) editSubscriptionLoader.load();
+			EditSubscriptionController editSubsController = editSubscriptionLoader
+					.<EditSubscriptionController> getController();
+
+			editSubscriptionDialog.getDialogPane().setContent(editSubscriptionGrid);
+			editSubsController.setSubscriptionToEdit(subsRow);
+			editSubsController.setupBindings();
+			editSubsController.gridPane.setDisable(true);
+
+			Optional<Subscription> updatedSubscription = editSubscriptionDialog.showAndWait();
+			// refreshCustomerTable();
+
+		} catch (IOException e) {
+			Main._logger.debug(e.getStackTrace());
+			e.printStackTrace();
+		}
+	}
+
+	private void showViewProductDialog(Product productRow) {
+		try {
+
+			Dialog<Product> editProductDialog = new Dialog<Product>();
+			editProductDialog.setTitle("View Product data");
+			editProductDialog.setHeaderText("View the Product data below");
+
+			editProductDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+
+			FXMLLoader editProductLoader = new FXMLLoader(getClass().getResource("EditProducts.fxml"));
+			Parent editProductsGrid = (Parent) editProductLoader.load();
+			EditProductsController editProductsController = editProductLoader.<EditProductsController> getController();
+
+			editProductDialog.getDialogPane().setContent(editProductsGrid);
+			editProductsController.setProduct(productRow);
+			editProductsController.setupBindings();
+			editProductsController.gridPane.setDisable(true);
+			Optional<Product> updatedProduct = editProductDialog.showAndWait();
+
+		} catch (IOException e) {
+
+			Main._logger.debug(e.getStackTrace());
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -1311,45 +1647,57 @@ public class ALineInfoTabController implements Initializable {
 
 			@Override
 			protected Void call() throws Exception {
-				try {
+				synchronized (this) {
+					try {
 
-					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
-						con = Main.reconnect();
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						disableAll();
+						subscriptionMasterData = FXCollections.observableArrayList();
+						String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by prod.name";
+						PreparedStatement stmt = con.prepareStatement(query);
+						Customer cust = lineNumCustomersTable.getSelectionModel().getSelectedItem();
+						stmt.setLong(1, cust != null ? cust.getCustomerId() : null);
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							subscriptionMasterData.add(new Subscription(rs.getLong(1), rs.getLong(2), rs.getLong(3),
+									rs.getString(4), rs.getString(5), rs.getString(6), rs.getDouble(7), rs.getDouble(8),
+									rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
+									rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
+									rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
+									rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17),
+									rs.getInt(18), rs.getString(19),
+									rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate()));
+						}
+
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								subscriptionsTable.setItems(subscriptionMasterData);
+								subscriptionsTable.refresh();
+								if (!subscriptionMasterData.isEmpty())
+									subscriptionsTable.getSelectionModel().selectFirst();
+							}
+						});
+						enableAll();
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
 					}
-					subscriptionsTable.getItems().clear();
-					subscriptionMasterData.clear();
-					String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by prod.name";
-					PreparedStatement stmt = con.prepareStatement(query);
-					stmt.setLong(1, lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId());
-					ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						subscriptionMasterData.add(new Subscription(rs.getLong(1), rs.getLong(2), rs.getLong(3),
-								rs.getString(4), rs.getString(5), rs.getString(6), rs.getDouble(7), rs.getDouble(8),
-								rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
-								rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
-								rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
-								rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17),
-								rs.getInt(18), rs.getString(19),
-								rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate()));
-					}
-
-				} catch (SQLException e) {
-
-					e.printStackTrace();
-				} catch (Exception e) {
-
-					e.printStackTrace();
 				}
-				subscriptionsTable.setItems(subscriptionMasterData);
-				subscriptionsTable.refresh();
-				if(!subscriptionMasterData.isEmpty())
-					subscriptionsTable.getSelectionModel().selectFirst();
 				return null;
 			}
 
 		};
-
 		new Thread(task).start();
 
 	}
@@ -1359,10 +1707,10 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			subsList.clear();
+			subsList = FXCollections.observableArrayList();
 			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Active' order by sub.subscription_id";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, custRow.getCustomerId());
@@ -1379,9 +1727,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return subsList;
@@ -1392,10 +1742,10 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			subsList.clear();
+			subsList = FXCollections.observableArrayList();
 			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Stopped' order by sub.subscription_id";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, custRow.getCustomerId());
@@ -1412,9 +1762,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return subsList;
@@ -1450,11 +1802,13 @@ public class ALineInfoTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid line num")
 						.text("Please enter numeric line number only").showError();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		});
@@ -1465,7 +1819,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String updateString = "update line_distributor set line_num=? where hawker_id=?, line_num=?";
@@ -1478,11 +1832,13 @@ public class ALineInfoTabController implements Initializable {
 					.text("Line number updation in line distribution boy successful").showInformation();
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Update failed")
 					.text("Line number updation in line distribution boy failed").showError();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -1509,7 +1865,7 @@ public class ALineInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 
@@ -1533,11 +1889,13 @@ public class ALineInfoTabController implements Initializable {
 					}
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 							.text("Delete request of line has failed").showError();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 			}
@@ -1553,37 +1911,50 @@ public class ALineInfoTabController implements Initializable {
 
 			@Override
 			protected Void call() throws Exception {
-				try {
+				synchronized (this) {
+					try {
 
-					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
-						con = Main.reconnect();
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						disableAll();
+						customerData = FXCollections.observableArrayList();
+						// lineNumCustomersTable.getItems().clear();
+						PreparedStatement stmt = con.prepareStatement(
+								"select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code = ? and line_num = ? ORDER BY HOUSE_SEQ");
+						stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+						stmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							customerData.add(new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3),
+									rs.getString(4), rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8),
+									rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
+									rs.getString(13), rs.getString(14), rs.getString(15), rs.getString(16),
+									rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20),
+									rs.getString(21), rs.getDouble(22)));
+						}
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								if (!customerData.isEmpty())
+									lineNumCustomersTable.setItems(customerData);
+								lineNumCustomersTable.refresh();
+							}
+						});
+						enableAll();
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
 					}
-					customerData.clear();
-					// lineNumCustomersTable.getItems().clear();
-					PreparedStatement stmt = con.prepareStatement(
-							"select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code = ? and line_num = ? ORDER BY HOUSE_SEQ");
-					stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
-					stmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
-					ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						customerData.add(new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4),
-								rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9),
-								rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
-								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
-								rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21),
-								rs.getDouble(22)));
-					}
-				} catch (SQLException e) {
-
-					e.printStackTrace();
-				} catch (Exception e) {
-
-					e.printStackTrace();
 				}
-				if (!customerData.isEmpty())
-					lineNumCustomersTable.setItems(customerData);
-				lineNumCustomersTable.refresh();
 				return null;
 			}
 
@@ -1594,35 +1965,57 @@ public class ALineInfoTabController implements Initializable {
 	}
 
 	private void populateHawkerCodes() {
+		Task<Void> task = new Task<Void>() {
 
-		try {
+			@Override
+			protected Void call() throws Exception {
 
-			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
-				con = Main.reconnect();
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						hawkerCodeData = FXCollections.observableArrayList();
+						PreparedStatement stmt = con.prepareStatement(
+								"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
+						stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							hawkerCodeData.add(rs.getString(1));
+						}
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								hawkerComboBox.getItems().clear();
+								hawkerComboBox.setItems(hawkerCodeData);
+								if (HawkerLoginController.loggedInHawker != null) {
+									hawkerComboBox.getSelectionModel()
+											.select(HawkerLoginController.loggedInHawker.getHawkerCode());
+									hawkerComboBox.setDisable(true);
+								}
+							}
+						});
+
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+				}
+				return null;
 			}
-			hawkerCodeData.clear();
-			PreparedStatement stmt = con.prepareStatement(
-					"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
-			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				hawkerCodeData.add(rs.getString(1));
-			}
-			hawkerComboBox.getItems().clear();
-			hawkerComboBox.getItems().addAll(hawkerCodeData);
-			if (HawkerLoginController.loggedInHawker != null) {
-				hawkerComboBox.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
-				hawkerComboBox.setDisable(true);
-			}
-		} catch (SQLException e) {
 
-			e.printStackTrace();
-		} catch (Exception e) {
+		};
 
-			e.printStackTrace();
-		}
-
+		new Thread(task).start();
 	}
 
 	private void refreshLineNumTableForHawker(String hawkerCode) {
@@ -1633,35 +2026,59 @@ public class ALineInfoTabController implements Initializable {
 		long hawkerId = hawkerIdForCode(hawkerCode);
 
 		if (hawkerId >= 1) {
+			Task<Void> task = new Task<Void>() {
 
-			try {
+				@Override
+				protected Void call() throws Exception {
 
-				lineNumData.clear();
-				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
-					con = Main.reconnect();
+					synchronized (this) {
+						try {
+
+							lineNumData = FXCollections.observableArrayList();
+							Connection con = Main.dbConnection;
+							if (!con.isValid(0)) {
+								con = Main.reconnect();
+							}
+							disableAll();
+							PreparedStatement lineNumStatement = null;
+							String lineNumQuery = "select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num";
+							lineNumStatement = con.prepareStatement(lineNumQuery);
+							lineNumStatement.setLong(1, hawkerId);
+							ResultSet rs = lineNumStatement.executeQuery();
+							while (rs.next()) {
+								LineInfo l = new LineInfo(rs.getLong(1), rs.getInt(2), rs.getLong(3), rs.getString(4));
+								if (!lineNumData.contains(l))
+									lineNumData.add(l);
+							}
+							// System.out.println("LineNumData = " +
+							// lineNumData.toString());
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									lineNumTable.setItems(lineNumData);
+									lineNumTable.refresh();
+								}
+							});
+							enableAll();
+							// lineNumTable.getSelectionModel().selectFirst();
+							// populateSubscriptionCount();
+						} catch (SQLException e) {
+
+							Main._logger.debug(e.getStackTrace());
+							e.printStackTrace();
+						} catch (Exception e) {
+
+							Main._logger.debug(e.getStackTrace());
+							e.printStackTrace();
+						}
+					}
+					return null;
 				}
-				PreparedStatement lineNumStatement = null;
-				String lineNumQuery = "select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num";
-				lineNumStatement = con.prepareStatement(lineNumQuery);
-				lineNumStatement.setLong(1, hawkerId);
-				ResultSet rs = lineNumStatement.executeQuery();
-				while (rs.next()) {
-					lineNumData.add(new LineInfo(rs.getLong(1), rs.getInt(2), rs.getLong(3), rs.getString(4)));
-				}
-				System.out.println("LineNumData = " + lineNumData.toString());
-				lineNumTable.setItems(lineNumData);
-				lineNumTable.refresh();
-				// lineNumTable.getSelectionModel().selectFirst();
-				// populateSubscriptionCount();
-			} catch (SQLException e) {
 
-				e.printStackTrace();
-			} catch (Exception e) {
+			};
 
-				e.printStackTrace();
-			}
-
+			new Thread(task).start();
 		} else {
 			lineNumData.clear();
 			lineNumTable.getItems().clear();
@@ -1690,27 +2107,34 @@ public class ALineInfoTabController implements Initializable {
 							PreparedStatement insertLineNum = null;
 							String insertStatement = "INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + "VALUES (?,?)";
 							Connection con = Main.dbConnection;
-							try {
-								while (!con.isValid(0)) {
-									con = Main.reconnect();
-								}
-								insertLineNum = con.prepareStatement(insertStatement);
-								long hawkerId = hawkerIdForCode(hawkerComboBox.getSelectionModel().getSelectedItem());
-								if (hawkerId >= 1) {
-									insertLineNum.setInt(1, Integer.parseInt(addLineNumField.getText()));
-									insertLineNum.setLong(2, hawkerId);
-									insertLineNum.execute();
-									refreshLineNumTableForHawker(hawkerComboBox.getSelectionModel().getSelectedItem());
-									addLineNumField.clear();
-									Notifications.create().hideAfter(Duration.seconds(5)).title("Line Number added.")
-											.text("Line number added successfully").showInformation();
-								}
-							} catch (SQLException e) {
+							synchronized (this) {
+								try {
+									if (!con.isValid(0)) {
+										con = Main.reconnect();
+									}
+									insertLineNum = con.prepareStatement(insertStatement);
+									long hawkerId = hawkerIdForCode(
+											hawkerComboBox.getSelectionModel().getSelectedItem());
+									if (hawkerId >= 1) {
+										insertLineNum.setInt(1, Integer.parseInt(addLineNumField.getText()));
+										insertLineNum.setLong(2, hawkerId);
+										insertLineNum.execute();
+										refreshLineNumTableForHawker(
+												hawkerComboBox.getSelectionModel().getSelectedItem());
+										addLineNumField.clear();
+										Notifications.create().hideAfter(Duration.seconds(5))
+												.title("Line Number added.").text("Line number added successfully")
+												.showInformation();
+									}
+								} catch (SQLException e) {
 
-								e.printStackTrace();
-							} catch (Exception e) {
+									Main._logger.debug(e.getStackTrace());
+									e.printStackTrace();
+								} catch (Exception e) {
 
-								e.printStackTrace();
+									Main._logger.debug(e.getStackTrace());
+									e.printStackTrace();
+								}
 							}
 							return null;
 						}
@@ -1724,6 +2148,7 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (NumberFormatException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Please enter proper numeric value in Line Number field").showError();
@@ -1736,7 +2161,7 @@ public class ALineInfoTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -1750,9 +2175,11 @@ public class ALineInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -1762,7 +2189,7 @@ public class ALineInfoTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement lineNumExists = null;
@@ -1778,9 +2205,11 @@ public class ALineInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return true;
@@ -1931,9 +2360,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -1960,9 +2391,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -2021,9 +2454,11 @@ public class ALineInfoTabController implements Initializable {
 
 			} catch (IOException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -2042,7 +2477,7 @@ public class ALineInfoTabController implements Initializable {
 						custRow.getLineNum().intValue());
 				shiftHouseSeqForDelete(custData, custRow.getHouseSeq());
 				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from customer where customer_id=?";
@@ -2058,11 +2493,13 @@ public class ALineInfoTabController implements Initializable {
 				populateSubscriptionCount();
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of customer has failed").showError();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -2075,7 +2512,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? and line_num=? order by house_seq";
@@ -2092,9 +2529,11 @@ public class ALineInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -2137,10 +2576,24 @@ public class ALineInfoTabController implements Initializable {
 
 			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
 				if (addSubsController.isValid()) {
-					addSubsController.addSubscription();
-					Notifications.create().title("New Subscription created")
-							.text("New subscription created successfully").hideAfter(Duration.seconds(5))
-							.showInformation();
+					long subId = addSubsController.addSubscription();
+					if (subId > 0) {
+						Notifications.create().title("New Subscription created")
+								.text("New subscription created successfully").hideAfter(Duration.seconds(5))
+								.showInformation();
+						if (subId > 0) {
+							Subscription subRow = BillingUtilityClass.subForSubId(subId);
+							if (subRow.getPaymentType().equalsIgnoreCase("Current Month")) {
+//								BillingUtilityClass.createCurrentMonthStartingDue(subRow, subRow.getStartDate(),
+//										subRow.getStartDate().withDayOfMonth(1).plusMonths(1).minusDays(1));
+								Notifications.create().title("Refreshing Customers")
+										.text("Customer due, refreshing customers").hideAfter(Duration.seconds(5))
+										.showInformation();
+							}
+							populateCustomersForLine();
+
+						}
+					}
 				} else
 					btnEvent.consume();
 			});
@@ -2167,37 +2620,61 @@ public class ALineInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	public void populatePointNames() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			pointNameValues.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name where city =? order by name");
-			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				pointNameValues.add(rs.getString(1));
-			}
-			addPointName.getItems().clear();
-			addPointName.getItems().addAll(pointNameValues);
-			if (HawkerLoginController.loggedInHawker != null) {
-				addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
-				addPointName.setDisable(true);
-			}
-		} catch (SQLException e) {
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
 
-			e.printStackTrace();
-		} catch (Exception e) {
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						pointNameValues = FXCollections.observableArrayList();
+						PreparedStatement stmt = con
+								.prepareStatement("select distinct name from point_name where city =? order by name");
+						stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							pointNameValues.add(rs.getString(1));
+						}
+						Platform.runLater(new Runnable() {
 
-			e.printStackTrace();
-		}
+							@Override
+							public void run() {
+								addPointName.getItems().clear();
+								addPointName.setItems(pointNameValues);
+								if (HawkerLoginController.loggedInHawker != null) {
+									addPointName.getSelectionModel()
+											.select(HawkerLoginController.loggedInHawker.getPointName());
+									addPointName.setDisable(true);
+								}
+							}
+						});
+
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
 
 	}
 
@@ -2228,9 +2705,11 @@ public class ALineInfoTabController implements Initializable {
 
 			} catch (IOException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -2240,7 +2719,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			// billCategoryValues.clear();
@@ -2268,9 +2747,11 @@ public class ALineInfoTabController implements Initializable {
 				}
 			}
 		} catch (SQLException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -2281,7 +2762,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 
@@ -2330,39 +2811,61 @@ public class ALineInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	private void createStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
+		Task<Void> task = new Task<Void>() {
 
-		try {
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
 
-			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
-				con = Main.reconnect();
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						subscriptionMasterData = FXCollections.observableArrayList();
+						String insertStmt = "insert into stop_history(SUB_ID,STOP_DATE,RESUME_DATE) values(?,?,?)";
+						PreparedStatement stmt = con.prepareStatement(insertStmt);
+						stmt.setLong(1, subsRow.getSubscriptionId());
+						stmt.setDate(2, Date.valueOf(stopDate));
+						stmt.setDate(3, resumeDate == null ? null : Date.valueOf(resumeDate));
+						stmt.executeUpdate();
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								Notifications.create().hideAfter(Duration.seconds(5)).title("Successful")
+										.text("Stop History record created").showInformation();
+							}
+						});
+
+					} catch (SQLException e) {
+
+						Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
+								.text("Error in creation of stop history record").showError();
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+				}
+				return null;
 			}
-			subscriptionsTable.getItems().clear();
-			subscriptionMasterData.clear();
-			String insertStmt = "insert into stop_history(SUB_ID,STOP_DATE,RESUME_DATE) values(?,?,?)";
-			PreparedStatement stmt = con.prepareStatement(insertStmt);
-			stmt.setLong(1, subsRow.getSubscriptionId());
-			stmt.setDate(2, Date.valueOf(stopDate));
-			stmt.setDate(3, resumeDate == null ? null : Date.valueOf(stopDate));
-			stmt.executeUpdate();
 
-		} catch (SQLException e) {
+		};
 
-			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
-					.text("Error in creation of stop history record").showError();
-			e.printStackTrace();
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		}
+		new Thread(task).start();
 	}
 
 	public boolean stopEntryExistsForStartDate(Subscription subList, LocalDate stopDate) {
@@ -2370,11 +2873,11 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			subscriptionsTable.getItems().clear();
-			subscriptionMasterData.clear();
+			// subscriptionsTable.getItems().clear();
+			subscriptionMasterData = FXCollections.observableArrayList();
 			String countStmt = "select count(*) from stop_history where sub_id=? and (resume_date is null or ? between stop_date and resume_date-1)";
 			PreparedStatement stmt = con.prepareStatement(countStmt);
 			stmt.setLong(1, subList.getSubscriptionId());
@@ -2388,9 +2891,11 @@ public class ALineInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -2401,7 +2906,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con.prepareStatement(
@@ -2416,9 +2921,11 @@ public class ALineInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return 1;
@@ -2429,32 +2936,43 @@ public class ALineInfoTabController implements Initializable {
 
 			@Override
 			protected Void call() throws Exception {
-				try {
+				synchronized (this) {
+					try {
 
-					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
-						con = Main.reconnect();
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						billingLinesData = FXCollections.observableArrayList();
+						String insertStmt = "SELECT BILL_LINE_ID, BILL_INVOICE_NUM, LINE_NUM, PRODUCT, AMOUNT, TEA_EXPENSES FROM BILLING_LINES WHERE BILL_INVOICE_NUM=?";
+						PreparedStatement stmt = con.prepareStatement(insertStmt);
+						stmt.setLong(1, bill.getBillInvoiceNum());
+						ResultSet rs = stmt.executeQuery();
+
+						while (rs.next()) {
+							billingLinesData.add(new BillingLine(rs.getLong(1), rs.getLong(2), rs.getInt(3),
+									rs.getString(4), rs.getDouble(5), rs.getDouble(6)));
+						}
+
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								billingTable.setItems(billingLinesData);
+								billingTable.refresh();
+							}
+						});
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
 					}
-					billingLinesData.clear();
-					String insertStmt = "SELECT BILL_LINE_ID, BILL_INVOICE_NUM, LINE_NUM, PRODUCT, AMOUNT FROM BILLING_LINES WHERE BILL_INVOICE_NUM=?";
-					PreparedStatement stmt = con.prepareStatement(insertStmt);
-					stmt.setLong(1, bill.getBillInvoiceNum());
-					ResultSet rs = stmt.executeQuery();
-
-					while (rs.next()) {
-						billingLinesData.add(new BillingLine(rs.getLong(1), rs.getLong(2), rs.getInt(3),
-								rs.getString(4), rs.getDouble(5)));
-					}
-
-				} catch (SQLException e) {
-
-					e.printStackTrace();
-				} catch (Exception e) {
-
-					e.printStackTrace();
 				}
 				// billingTable.getItems().clear();
-				billingTable.setItems(billingLinesData);
 				return null;
 			}
 
@@ -2464,70 +2982,100 @@ public class ALineInfoTabController implements Initializable {
 	}
 
 	private void populateInvoiceDates(Customer customer) {
+		Task<Void> task = new Task<Void>() {
 
-		try {
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
 
-			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
-				con = Main.reconnect();
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						invoiceDatesData = FXCollections.observableArrayList();
+						String insertStmt = "select BILL_INVOICE_NUM, CUSTOMER_ID , INVOICE_DATE, PDF_URL, DUE from BILLING where customer_id=? order by invoice_date desc";
+						PreparedStatement stmt = con.prepareStatement(insertStmt);
+						stmt.setLong(1, customer.getCustomerId());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							invoiceDatesData.add(new Billing(rs.getLong(1), rs.getLong(2), rs.getDate(3).toLocalDate(),
+									rs.getString(4), rs.getDouble(5)));
+						}
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								invoiceDateLOV.getItems().clear();
+								invoiceDateLOV.setItems(invoiceDatesData);
+							}
+						});
+
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+				}
+				return null;
 			}
-			invoiceDatesData.clear();
-			String insertStmt = "select BILL_INVOICE_NUM, CUSTOMER_ID , INVOICE_DATE, PDF_URL, DUE from BILLING where customer_id=? order by invoice_date desc";
-			PreparedStatement stmt = con.prepareStatement(insertStmt);
-			stmt.setLong(1, customer.getCustomerId());
-			ResultSet rs = stmt.executeQuery();
-			if (rs.next()) {
-				invoiceDatesData.add(new Billing(rs.getLong(1), rs.getLong(2), rs.getDate(3).toLocalDate(),
-						rs.getString(4), rs.getDouble(5)));
-			}
 
-		} catch (SQLException e) {
+		};
 
-			e.printStackTrace();
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		}
-		invoiceDateLOV.getItems().clear();
-		invoiceDateLOV.getItems().addAll(invoiceDatesData);
+		new Thread(task).start();
 	}
-	
 
 	private void refreshStopHistory() {
 		Task<Void> task = new Task<Void>() {
 
 			@Override
 			protected Void call() throws Exception {
-				try {
+				synchronized (this) {
+					try {
 
-					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
-						con = Main.reconnect();
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						// stopHistoryTable.getItems().clear();
+						stopHistoryMasterData = FXCollections.observableArrayList();
+						String query = "SELECT STP.STOP_HISTORY_ID, CUST.NAME, CUST.CUSTOMER_CODE, CUST.MOBILE_NUM, CUST.HAWKER_CODE, CUST.LINE_NUM, SUB.SUBSCRIPTION_ID, CUST.HOUSE_SEQ, PROD.NAME, PROD.CODE, PROD.BILL_CATEGORY, STP.STOP_DATE, STP.RESUME_DATE, SUB.TYPE, SUB.FREQUENCY, SUB.DOW, STP.AMOUNT FROM STOP_HISTORY STP, CUSTOMER CUST, PRODUCTS PROD , SUBSCRIPTION SUB WHERE CUST.CUSTOMER_ID=? AND STP.SUB_ID =SUB.SUBSCRIPTION_ID AND SUB.CUSTOMER_ID =CUST.CUSTOMER_ID AND SUB.PRODUCT_ID =PROD.PRODUCT_ID ORDER BY SUB.PAUSED_DATE DESC";
+						PreparedStatement stmt = con.prepareStatement(query);
+						stmt.setLong(1, lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							stopHistoryMasterData.add(new StopHistory(rs.getLong(1), rs.getString(2), rs.getLong(3),
+									rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getInt(8),
+									rs.getString(9), rs.getString(10), rs.getString(11),
+									rs.getDate(12) == null ? null : rs.getDate(12).toLocalDate(),
+									rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(), rs.getString(14),
+									rs.getString(15), rs.getString(16), rs.getDouble(17)));
+						}
+
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								stopHistoryTable.setItems(stopHistoryMasterData);
+								stopHistoryTable.refresh();
+							}
+						});
+
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
 					}
-					stopHistoryTable.getItems().clear();
-					stopHistoryMasterData.clear();
-					String query = "SELECT STP.STOP_HISTORY_ID, CUST.NAME, CUST.CUSTOMER_CODE, CUST.MOBILE_NUM, CUST.HAWKER_CODE, CUST.LINE_NUM, SUB.SUBSCRIPTION_ID, CUST.HOUSE_SEQ, PROD.NAME, PROD.CODE, PROD.BILL_CATEGORY, STP.STOP_DATE, STP.RESUME_DATE, SUB.TYPE, SUB.FREQUENCY, SUB.DOW, STP.AMOUNT FROM STOP_HISTORY STP, CUSTOMER CUST, PRODUCTS PROD , SUBSCRIPTION SUB WHERE CUST.CUSTOMER_ID=? AND STP.SUB_ID =SUB.SUBSCRIPTION_ID AND SUB.CUSTOMER_ID =CUST.CUSTOMER_ID AND SUB.PRODUCT_ID =PROD.PRODUCT_ID ORDER BY SUB.PAUSED_DATE DESC";
-					PreparedStatement stmt = con.prepareStatement(query);
-					stmt.setLong(1, lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId());
-					ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						stopHistoryMasterData.add(new StopHistory(rs.getLong(1), rs.getString(2), rs.getLong(3),
-								rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getInt(8),
-								rs.getString(9), rs.getString(10), rs.getString(11),
-								rs.getDate(12) == null ? null : rs.getDate(12).toLocalDate(),
-								rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(), rs.getString(14),
-								rs.getString(15), rs.getString(16), rs.getDouble(17)));
-					}
-
-				} catch (SQLException e) {
-
-					e.printStackTrace();
-				} catch (Exception e) {
-
-					e.printStackTrace();
 				}
-				stopHistoryTable.getItems().addAll(stopHistoryMasterData);
-				stopHistoryTable.refresh();
 				return null;
 			}
 
@@ -2536,7 +3084,7 @@ public class ALineInfoTabController implements Initializable {
 		new Thread(task).start();
 
 	}
-	
+
 	private void showViewSubscriptionDialog(long subsId) {
 		try {
 
@@ -2545,8 +3093,8 @@ public class ALineInfoTabController implements Initializable {
 			editSubscriptionDialog.setHeaderText("View the subscription data below");
 
 			// Set the button types.
-			
-			editSubscriptionDialog.getDialogPane().getButtonTypes().addAll( ButtonType.CLOSE);
+
+			editSubscriptionDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
 
 			FXMLLoader editSubscriptionLoader = new FXMLLoader(getClass().getResource("EditSubscription.fxml"));
 			Parent editSubscriptionGrid = (Parent) editSubscriptionLoader.load();
@@ -2561,59 +3109,137 @@ public class ALineInfoTabController implements Initializable {
 			Optional<Subscription> updatedSubscription = editSubscriptionDialog.showAndWait();
 			// refreshCustomerTable();
 
-			
-
 		} catch (IOException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
-	
 
 	public void populateCityValues() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			cityValues.clear();
-			PreparedStatement stmt=null;
-			if (HawkerLoginController.loggedInHawker != null) {
-				stmt = con.prepareStatement("select distinct city from point_name where name=?");
-				stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
-				ResultSet rs = stmt.executeQuery();
-				if (rs.next()) {
-					cityValues.add(rs.getString(1));
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						cityValues = FXCollections.observableArrayList();
+						PreparedStatement stmt = null;
+						if (HawkerLoginController.loggedInHawker != null) {
+							stmt = con.prepareStatement("select distinct city from point_name where name=?");
+							stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+							ResultSet rs = stmt.executeQuery();
+							if (rs.next()) {
+								cityValues.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.getItems().clear();
+									cityTF.setItems(cityValues);
+									cityTF.getSelectionModel().selectFirst();
+									cityTF.setDisable(true);
+								}
+							});
+						} else {
+							stmt = con.prepareStatement("select distinct city from point_name order by city");
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								cityValues.add(rs.getString(1));
+							}
+
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.getItems().clear();
+									cityTF.setItems(cityValues);
+								}
+							});
+						}
+					} catch (SQLException e) {
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
 				}
-
-				cityTF.getItems().clear();
-				cityTF.getItems().addAll(cityValues);
-				cityTF.getSelectionModel().selectFirst();
-				cityTF.setDisable(true);
-			} else {
-				stmt = con.prepareStatement("select distinct city from point_name order by city");
-				ResultSet rs = stmt.executeQuery();
-				while (rs.next()) {
-					cityValues.add(rs.getString(1));
-				}
-				cityTF.getItems().clear();
-				cityTF.getItems().addAll(cityValues);
+				return null;
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
 
-			e.printStackTrace();
-		}
+		};
+
+		new Thread(task).start();
 
 	}
 
+	private void disableAll() {
+		if (!Platform.isFxApplicationThread()) {
+			Platform.runLater(new Runnable() {
+
+				@Override
+				public void run() {
+					// Notifications.create().title("Please wait").text("Please
+					// wait till process
+					// finishes").hideAfter(Duration.seconds(5)).showInformation();
+					lineNumTable.setDisable(true);
+					lineNumCustomersTable.setDisable(true);
+					subscriptionsTable.setDisable(true);
+					invoiceDateLOV.setDisable(true);
+					billingTable.setDisable(true);
+					stopHistoryTable.setDisable(true);
+
+				}
+			});
+		} else {
+			lineNumTable.setDisable(true);
+			lineNumCustomersTable.setDisable(true);
+			subscriptionsTable.setDisable(true);
+			invoiceDateLOV.setDisable(true);
+			billingTable.setDisable(true);
+			stopHistoryTable.setDisable(true);
+		}
+	}
+
+	private void enableAll() {
+		if (!Platform.isFxApplicationThread()) {
+			Platform.runLater(new Runnable() {
+
+				@Override
+				public void run() {
+					// Notifications.create().title("Please wait").text("Please
+					// wait till process
+					// finishes").hideAfter(Duration.seconds(5)).showInformation();
+					lineNumTable.setDisable(false);
+					lineNumCustomersTable.setDisable(false);
+					subscriptionsTable.setDisable(false);
+					invoiceDateLOV.setDisable(false);
+					billingTable.setDisable(false);
+					stopHistoryTable.setDisable(false);
+				}
+			});
+		} else {
+			lineNumTable.setDisable(false);
+			lineNumCustomersTable.setDisable(false);
+			subscriptionsTable.setDisable(false);
+			invoiceDateLOV.setDisable(false);
+			billingTable.setDisable(false);
+			stopHistoryTable.setDisable(false);
+		}
+	}
 
 	// @Override
 	public void reloadData() {
 		lineNumData.clear();
 		lineNumTable.getItems().clear();
-		lineNumTable.getItems().addAll(lineNumData);
+		lineNumTable.setItems(lineNumData);
 		lineNumCustomersTable.getItems().clear();
 		lineNumCustomersTable.refresh();
 		invoiceDateLOV.getItems().clear();

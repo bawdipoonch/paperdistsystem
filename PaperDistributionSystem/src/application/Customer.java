@@ -1,4 +1,5 @@
 package application;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -10,9 +11,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-
 public class Customer {
-	
+
 	private final SimpleLongProperty customerId = new SimpleLongProperty();
 	private final SimpleStringProperty name = new SimpleStringProperty("");
 	private final SimpleLongProperty customerCode = new SimpleLongProperty();
@@ -35,10 +35,11 @@ public class Customer {
 	private final SimpleStringProperty comments = new SimpleStringProperty("");
 	private final SimpleStringProperty buildingStreet = new SimpleStringProperty("");
 	private final SimpleDoubleProperty totalDue = new SimpleDoubleProperty();
-	
-	public Customer(long customerId, long customerCode, String name, String mobileNum, String hawkerCode, long lineNum, int houseSeq, 
-			String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2, String locality, String city, String state,
-			String profile1, String profile2, String profile3, String initials, String employment, String comments, String buildingStreet, double totalDue){
+
+	public Customer(long customerId, long customerCode, String name, String mobileNum, String hawkerCode, long lineNum,
+			int houseSeq, String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2, String locality,
+			String city, String state, String profile1, String profile2, String profile3, String initials,
+			String employment, String comments, String buildingStreet, double totalDue) {
 		setCustomerCode(customerCode);
 		setCustomerId(customerId);
 		setName(name.toLowerCase());
@@ -62,7 +63,7 @@ public class Customer {
 		setBuildingStreet(buildingStreet);
 		setTotalDue(totalDue);
 	}
-	
+
 	public Customer(Customer custRow) {
 		// TODO Auto-generated constructor stub
 		setCustomerId(custRow.getCustomerId());
@@ -83,19 +84,19 @@ public class Customer {
 		setProfile2(custRow.getProfile2());
 		setProfile3(custRow.getProfile3());
 		setInitials(custRow.getInitials());
-		setEmployment(""+custRow.getEmployment());
-		setComments(""+custRow.getComments());
-		setBuildingStreet(""+custRow.getBuildingStreet());
+		setEmployment("" + custRow.getEmployment());
+		setComments("" + custRow.getComments());
+		setBuildingStreet("" + custRow.getBuildingStreet());
 	}
 
 	public Long getCustomerId() {
 		return customerId.get();
 	}
-	
+
 	public void setCustomerId(long customerId) {
 		this.customerId.set(customerId);
 	}
-	
+
 	public String getName() {
 		return name.get();
 	}
@@ -107,11 +108,11 @@ public class Customer {
 	public long getCustomerCode() {
 		return customerCode.get();
 	}
-	
+
 	public void setCustomerCode(long customerCode) {
 		this.customerCode.set(customerCode);
 	}
-	
+
 	public String getMobileNum() {
 		return mobileNum.get();
 	}
@@ -119,11 +120,11 @@ public class Customer {
 	public void setMobileNum(String mobileNum) {
 		this.mobileNum.set(mobileNum);
 	}
-	
+
 	public String getHawkerCode() {
 		return hawkerCode.get();
 	}
-	
+
 	public void setHawkerCode(String hawkerCode) {
 		this.hawkerCode.set(hawkerCode);
 	}
@@ -131,27 +132,27 @@ public class Customer {
 	public Long getLineNum() {
 		return lineNum.get();
 	}
-	
+
 	public void setLineNum(long lineNum) {
 		this.lineNum.set(lineNum);
 	}
-	
+
 	public int getHouseSeq() {
 		return houseSeq.get();
 	}
 
 	public void setHouseSeq(int houseSeq) {
 		this.houseSeq.set(houseSeq);
-	}	
-	
+	}
+
 	public String getOldHouseNum() {
 		return oldHouseNum.get();
 	}
-	
+
 	public void setOldHouseNum(String oldHouseNum) {
 		this.oldHouseNum.set(oldHouseNum);
 	}
-	
+
 	public String getNewHouseNum() {
 		return newHouseNum.get();
 	}
@@ -176,14 +177,13 @@ public class Customer {
 		this.addrLine2.set(addrLine2);
 	}
 
-	/*public String getAddrLine3() {
-		return addrLine3.get();
-	}
+	/*
+	 * public String getAddrLine3() { return addrLine3.get(); }
+	 * 
+	 * public void setAddrLine3(String addrLine3) {
+	 * this.addrLine3.set(addrLine3); }
+	 */
 
-	public void setAddrLine3(String addrLine3) {
-		this.addrLine3.set(addrLine3);
-	}*/
-	
 	public String getLocality() {
 		return locality.get();
 	}
@@ -207,7 +207,7 @@ public class Customer {
 	public void setState(String state) {
 		this.state.set(state);
 	}
-	
+
 	public String getProfile1() {
 		return profile1.get();
 	}
@@ -215,7 +215,7 @@ public class Customer {
 	public void setProfile1(String profile1) {
 		this.profile1.set(profile1);
 	}
-	
+
 	public String getProfile2() {
 		return profile2.get();
 	}
@@ -223,7 +223,7 @@ public class Customer {
 	public void setProfile2(String profile2) {
 		this.profile2.set(profile2);
 	}
-	
+
 	public String getProfile3() {
 		return profile3.get();
 	}
@@ -231,7 +231,7 @@ public class Customer {
 	public void setProfile3(String profile3) {
 		this.profile3.set(profile3);
 	}
-	
+
 	public String getInitials() {
 		return initials.get();
 	}
@@ -241,27 +241,25 @@ public class Customer {
 	}
 
 	public void setBuildingStreet(String buildingStreet) {
-		this.buildingStreet.set(buildingStreet);		
+		this.buildingStreet.set(buildingStreet);
 	}
-
 
 	public void setComments(String comments) {
 		this.comments.set(comments);
-		
+
 	}
 
 	public String getEmployment() {
 		return this.employment.get();
 	}
-	
-	public String getBuildingStreet() {
-		return this.buildingStreet.get();		
-	}
 
+	public String getBuildingStreet() {
+		return this.buildingStreet.get();
+	}
 
 	public String getComments() {
 		return this.comments.get();
-		
+
 	}
 
 	public void setEmployment(String employment) {
@@ -271,15 +269,17 @@ public class Customer {
 	public void setTotalDue(Double totalDue) {
 		this.totalDue.set(totalDue);
 	}
+
 	public double getTotalDue() {
 
 		return this.totalDue.get();
 	}
-	public void updateCustomerRecord(){
+
+	public void updateCustomerRecord() {
 		try {
-			
+
 			Connection con = Main.dbConnection;
-			while(!con.isValid(0)){
+			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, building_street=?, total_due=? where customer_id=?";
@@ -304,20 +304,21 @@ public class Customer {
 			updateStmt.setString(18, getEmployment());
 			updateStmt.setString(19, getComments());
 			updateStmt.setString(20, getBuildingStreet());
-			updateStmt.setDouble(21, getTotalDue()); 
-			updateStmt.setLong(22, getCustomerId()); 
+			updateStmt.setDouble(21, getTotalDue());
+			updateStmt.setLong(22, getCustomerId());
 			updateStmt.executeUpdate();
 			con.commit();
-			
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 			Notifications.create().title("Update failed").text("Update request of customer has failed").showError();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
-
 
 }

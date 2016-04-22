@@ -69,7 +69,8 @@ public class EditCustomerController implements Initializable {
 	private ComboBox<String> editStateLOV;
 	@FXML
 	private ComboBox<String> editEmploymentLOV;
-	@FXML public GridPane gridPane;
+	@FXML
+	public GridPane gridPane;
 
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerLineNumData = FXCollections.observableArrayList();
@@ -156,30 +157,32 @@ public class EditCustomerController implements Initializable {
 			}
 		});
 
-//		editMobileNumTF.textProperty().addListener(new ChangeListener<String>() {
-//
-//			@Override
-//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//
-//				if (newValue.length() > 10){
-//					editMobileNumTF.setText(oldValue);
-//
-//					Notifications.create().title("Invalid mobile number")
-//							.text("Mobile number should only contain 10 DIGITS")
-//							.hideAfter(Duration.seconds(5)).showError();
-//				}
-//				try {
-//					Integer.parseInt(newValue);
-//				} catch (NumberFormatException e) {
-//					editMobileNumTF.setText(oldValue);
-//
-//					Notifications.create().title("Invalid mobile number")
-//							.text("Mobile number should only contain 10 DIGITS")
-//							.hideAfter(Duration.seconds(5)).showError();
-//					e.printStackTrace();
-//				}
-//			}
-//		});
+		// editMobileNumTF.textProperty().addListener(new
+		// ChangeListener<String>() {
+		//
+		// @Override
+		// public void changed(ObservableValue<? extends String> observable,
+		// String oldValue, String newValue) {
+		//
+		// if (newValue.length() > 10){
+		// editMobileNumTF.setText(oldValue);
+		//
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// }
+		// try {
+		// Integer.parseInt(newValue);
+		// } catch (NumberFormatException e) {
+		// editMobileNumTF.setText(oldValue);
+		//
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// }
+		// }
+		// });
 		editNameTF.requestFocus();
 	}
 
@@ -188,7 +191,7 @@ public class EditCustomerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerLineNumData.clear();
@@ -201,9 +204,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -213,7 +218,7 @@ public class EditCustomerController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -227,9 +232,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -240,7 +247,7 @@ public class EditCustomerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
@@ -251,9 +258,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -285,26 +294,27 @@ public class EditCustomerController implements Initializable {
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid House Sequence")
 					.text("House Sequence must be between 1 and " + seq).showError();
 		}
-		if(editProfile3TF.getText() != null && checkExistingProfileValue(editProfile3TF.getText())){
+		if (editProfile3TF.getText() != null && checkExistingProfileValue(editProfile3TF.getText())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
-					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.").showError();
+					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
+					.showError();
 		}
-//		if (editMobileNumTF.getText().length()!=10) {
-//			Notifications.create().title("Invalid mobile number")
-//			.text("Mobile number should only contain 10 DIGITS")
-//			.hideAfter(Duration.seconds(5)).showError();
-//			validate = false;
-//		}
-//		try {
-//			Integer.parseInt(editMobileNumTF.getText());
-//		} catch (NumberFormatException e) {
-//			Notifications.create().title("Invalid mobile number")
-//			.text("Mobile number should only contain 10 DIGITS")
-//			.hideAfter(Duration.seconds(5)).showError();
-//			validate = false;
-//			e.printStackTrace();
-//		}
+		// if (editMobileNumTF.getText().length()!=10) {
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// validate = false;
+		// }
+		// try {
+		// Integer.parseInt(editMobileNumTF.getText());
+		// } catch (NumberFormatException e) {
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// validate = false;
+		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// }
 		return validate;
 	}
 
@@ -369,12 +379,12 @@ public class EditCustomerController implements Initializable {
 		}
 
 	}
-	
+
 	private boolean checkExistingProfileValue(String profileValue) {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -386,9 +396,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
@@ -407,7 +419,7 @@ public class EditCustomerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select customer_code,name from customer where mobile_num=? and customer_id <> ?";
@@ -420,9 +432,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
@@ -432,7 +446,7 @@ public class EditCustomerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			profileValues.clear();
@@ -445,9 +459,11 @@ public class EditCustomerController implements Initializable {
 
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -457,7 +473,7 @@ public class EditCustomerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			employmentData.clear();
@@ -470,9 +486,11 @@ public class EditCustomerController implements Initializable {
 
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -484,7 +502,7 @@ public class EditCustomerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? and line_num=? order by house_seq";
@@ -501,9 +519,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -571,7 +591,7 @@ public class EditCustomerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials from customer where house_seq=? and line_num=? and hawker_code=?";
@@ -585,9 +605,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
@@ -597,7 +619,7 @@ public class EditCustomerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerLineNumData.clear();
@@ -611,42 +633,46 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return 1;
 	}
-	
-	public void setPausedCust(long customerId){
+
+	public void setPausedCust(long customerId) {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			// populateHawkerCodes();
 			String queryString;
 			PreparedStatement stmt;
-					queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where customer_id=? ";
-					stmt = con.prepareStatement(queryString);
-					stmt.setLong(1, customerId);
-			
+			queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where customer_id=? ";
+			stmt = con.prepareStatement(queryString);
+			stmt.setLong(1, customerId);
+
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				custRow = new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3),
-						rs.getString(4), rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8),
-						rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
-						rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
-						rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getDouble(22));
+				custRow = new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4), rs.getString(5),
+						rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9), rs.getString(10),
+						rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15),
+						rs.getString(16), rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20),
+						rs.getString(21), rs.getDouble(22));
 			}
 
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}

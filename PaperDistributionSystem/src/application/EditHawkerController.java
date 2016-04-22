@@ -26,7 +26,8 @@ import javafx.util.Duration;
 public class EditHawkerController implements Initializable {
 
 	private Hawker hawkerRow;
-	@FXML public GridPane gridPane;
+	@FXML
+	public GridPane gridPane;
 
 	// Edit Customer Fields FXML
 	@FXML
@@ -142,30 +143,32 @@ public class EditHawkerController implements Initializable {
 		editBankAcNo.setText(hawkerRow.getBankAcNo());
 		editBankName.setText(hawkerRow.getBankName());
 		editIfscCode.setText(hawkerRow.getIfscCode());
-//		editMobileNumTF.textProperty().addListener(new ChangeListener<String>() {
-//
-//			@Override
-//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//
-//				if (newValue.length() > 10){
-//					editMobileNumTF.setText(oldValue);
-//
-//					Notifications.create().title("Invalid mobile number")
-//							.text("Mobile number should only contain 10 DIGITS")
-//							.hideAfter(Duration.seconds(5)).showError();
-//				}
-//				try {
-//					Integer.parseInt(newValue);
-//				} catch (NumberFormatException e) {
-//					editMobileNumTF.setText(oldValue);
-//
-//					Notifications.create().title("Invalid mobile number")
-//							.text("Mobile number should only contain 10 DIGITS")
-//							.hideAfter(Duration.seconds(5)).showError();
-//					e.printStackTrace();
-//				}
-//			}
-//		});
+		// editMobileNumTF.textProperty().addListener(new
+		// ChangeListener<String>() {
+		//
+		// @Override
+		// public void changed(ObservableValue<? extends String> observable,
+		// String oldValue, String newValue) {
+		//
+		// if (newValue.length() > 10){
+		// editMobileNumTF.setText(oldValue);
+		//
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// }
+		// try {
+		// Integer.parseInt(newValue);
+		// } catch (NumberFormatException e) {
+		// editMobileNumTF.setText(oldValue);
+		//
+		// Notifications.create().title("Invalid mobile number")
+		// .text("Mobile number should only contain 10 DIGITS")
+		// .hideAfter(Duration.seconds(5)).showError();
+		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// }
+		// }
+		// });
 	}
 
 	public boolean isValid() {
@@ -175,13 +178,13 @@ public class EditHawkerController implements Initializable {
 					.text("Hawker with same Hawker Code alraedy exists. Please choose different hawker code.")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-		} 
+		}
 		if (mobileNumExists(editMobileNumTF.getText())) {
 			Notifications.create().title("Mobile already exists")
 					.text("Hawker with same Mobile Number alraedy exists. Please enter a different value.")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-		} 
+		}
 		if (editNameTF.getText() == null) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Hawker not selected")
@@ -192,35 +195,34 @@ public class EditHawkerController implements Initializable {
 				validate = false;
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
 						.text("Fee per subscription should not be empty and must be numeric only").showError();
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
-		} 
-		if (editProfile3TF.getText()!=null && checkExistingProfileValue(editProfile3TF.getText())) {
+		}
+		if (editProfile3TF.getText() != null && checkExistingProfileValue(editProfile3TF.getText())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
 					.showError();
 		}
 
-		if (editMobileNumTF.getText().length()!=10) {
-			Notifications.create().title("Invalid mobile number")
-			.text("Mobile number should only contain 10 DIGITS")
-			.hideAfter(Duration.seconds(5)).showError();
+		if (editMobileNumTF.getText().length() != 10) {
+			Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
+					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
 		}
-		if (editPointNameLOV.getSelectionModel().getSelectedItem()==null) {
-			Notifications.create().title("Invalid point name")
-			.text("Point Name must be selected to create hawker")
-			.hideAfter(Duration.seconds(5)).showError();
+		if (editPointNameLOV.getSelectionModel().getSelectedItem() == null) {
+			Notifications.create().title("Invalid point name").text("Point Name must be selected to create hawker")
+					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
 		}
 		try {
 			Integer.parseInt(editMobileNumTF.getText());
 		} catch (NumberFormatException e) {
-			Notifications.create().title("Invalid mobile number")
-			.text("Mobile number should only contain 10 DIGITS")
-			.hideAfter(Duration.seconds(5)).showError();
+			Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
+					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return validate;
@@ -231,7 +233,7 @@ public class EditHawkerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select count(*) from hawker_info where lower(hawker_code) = ? and hawker_id<>?";
@@ -245,9 +247,11 @@ public class EditHawkerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
@@ -257,7 +261,7 @@ public class EditHawkerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -269,9 +273,11 @@ public class EditHawkerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
@@ -317,7 +323,7 @@ public class EditHawkerController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					profileValues.clear();
@@ -330,9 +336,11 @@ public class EditHawkerController implements Initializable {
 
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				return null;
@@ -350,7 +358,7 @@ public class EditHawkerController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					employmentData.clear();
@@ -363,9 +371,11 @@ public class EditHawkerController implements Initializable {
 
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				return null;
@@ -379,7 +389,7 @@ public class EditHawkerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			pointNameValues.clear();
@@ -390,20 +400,21 @@ public class EditHawkerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
 	}
 
-
 	private boolean mobileNumExists(String mobileNum) {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select hawker_code,name from hawker_info where mobile_num=? and hawker_code <> ?";
@@ -416,9 +427,11 @@ public class EditHawkerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;

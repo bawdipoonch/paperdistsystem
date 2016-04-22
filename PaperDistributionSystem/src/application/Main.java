@@ -4,8 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.Notifications;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -16,7 +17,6 @@ import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
-import com.sun.xml.internal.bind.v2.runtime.reflect.ListIterator;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -53,8 +53,12 @@ public class Main extends Application {
 	final private static String SECRET = "gV3+vIb/uiFVlrQQ3jS6SguaXz5l7SzCo/BMLrel";
 	final private static String dbConnectionString = "jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL";
 	public static Stage primaryStage;
+	
+	public static final Logger _logger = LogManager.getLogger(Main.class.getName());
+	
 	@Override
 	public void start(Stage primaryStage) {
+		Main._logger.debug("Start method ");
 		Main.primaryStage=primaryStage;
 		try {
 			Pane root = (Pane) FXMLLoader.load(getClass().getResource("HawkerLogin.fxml"));
@@ -64,12 +68,13 @@ public class Main extends Application {
 			Main.primaryStage.setMaximized(true);
 			Main.primaryStage.show();
 		} catch (Exception e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	public static void main(String[] args) {
-
+		Main._logger.debug("Entered Main method");
 		try {
 			// step1 load the driver class
 			Class.forName("oracle.jdbc.driver.OracleDriver");

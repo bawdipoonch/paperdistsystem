@@ -258,6 +258,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		Main._logger.debug("Entered initialize method");
 		if (HawkerLoginController.loggedInHawker != null) {
 			filterRadioButton.setVisible(false);
 			showAllRadioButton.setVisible(false);
@@ -465,7 +466,7 @@ public class ACustomerInfoTabController implements Initializable {
 							dialog.setHeaderText("Change total due value below");
 
 							Button saveBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-							dialog.getEditor().setText(custRow.getTotalDue()+"");
+							dialog.getEditor().setText(custRow.getTotalDue() + "");
 							saveBtn.addEventFilter(ActionEvent.ACTION, btnevent -> {
 
 								try {
@@ -473,12 +474,16 @@ public class ACustomerInfoTabController implements Initializable {
 									custRow.setTotalDue(d);
 									custRow.updateCustomerRecord();
 									refreshCustomerTable();
-								} catch(NumberFormatException e) {
-									Notifications.create().title("Invalid value").text("Please enter only NUMERIC values in Total Due.").hideAfter(Duration.seconds(5)).showError();
-									
+								} catch (NumberFormatException e) {
+									Notifications.create().title("Invalid value")
+											.text("Please enter only NUMERIC values in Total Due.")
+											.hideAfter(Duration.seconds(5)).showError();
+
+									Main._logger.debug(e.getStackTrace());
 									e.printStackTrace();
 									btnevent.consume();
-								}catch (Exception e) {
+								} catch (Exception e) {
+									Main._logger.debug(e.getStackTrace());
 									e.printStackTrace();
 								}
 
@@ -501,7 +506,7 @@ public class ACustomerInfoTabController implements Initializable {
 							dialog.setHeaderText("Add to total due value below");
 
 							Button saveBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-//							dialog.getEditor().setText(custRow.getTotalDue()+"");
+							// dialog.getEditor().setText(custRow.getTotalDue()+"");
 							saveBtn.addEventFilter(ActionEvent.ACTION, btnevent -> {
 
 								try {
@@ -509,12 +514,16 @@ public class ACustomerInfoTabController implements Initializable {
 									custRow.setTotalDue(d);
 									custRow.updateCustomerRecord();
 									refreshCustomerTable();
-								} catch(NumberFormatException e) {
-									Notifications.create().title("Invalid value").text("Please enter only NUMERIC values in Total Due.").hideAfter(Duration.seconds(5)).showError();
-									
+								} catch (NumberFormatException e) {
+									Notifications.create().title("Invalid value")
+											.text("Please enter only NUMERIC values in Total Due.")
+											.hideAfter(Duration.seconds(5)).showError();
+
+									Main._logger.debug(e.getStackTrace());
 									e.printStackTrace();
 									btnevent.consume();
-								}catch (Exception e) {
+								} catch (Exception e) {
+									Main._logger.debug(e.getStackTrace());
 									e.printStackTrace();
 								}
 
@@ -524,14 +533,14 @@ public class ACustomerInfoTabController implements Initializable {
 					}
 
 				});
-				
+
 				ContextMenu menu = new ContextMenu();
 				if (HawkerLoginController.loggedInHawker != null) {
 
-					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView,mnuAddDue,mnuDue);
+					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView, mnuAddDue, mnuDue);
 				} else {
 
-					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView, mnuDel,mnuAddDue,mnuDue);
+					menu.getItems().addAll(mnuSubs, mnuEdit, mnuView, mnuDel, mnuAddDue, mnuDue);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -558,7 +567,6 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		});
 
-		
 		saveCustomerButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -879,16 +887,17 @@ public class ACustomerInfoTabController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if(newValue!=null){
+				if (newValue != null) {
 					populatePointNames();
-				}else {
-					
+				} else {
+
 				}
 			}
 		});
 	}
 
 	private void deleteCustomer(Customer custRow) {
+		Main._logger.debug("Entered deleteCustomer method");
 		Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
 		deleteWarning.setTitle("Warning");
 		deleteWarning.setHeaderText("Are you sure you want to delete this record?");
@@ -901,7 +910,7 @@ public class ACustomerInfoTabController implements Initializable {
 						custRow.getLineNum().intValue());
 				shiftHouseSeqForDelete(custData, custRow.getHouseSeq());
 				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from customer where customer_id=?";
@@ -916,11 +925,13 @@ public class ACustomerInfoTabController implements Initializable {
 				refreshCustomerTable();
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of customer has failed").showError();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
@@ -928,6 +939,7 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	private void showEditCustomerDialog(Customer custRow) {
+		Main._logger.debug("Entered showEditCustomerDialog method");
 		int selectedIndex = ACustInfoTable.getSelectionModel().selectedIndexProperty().get();
 		int prevHouseSeq = custRow.getHouseSeq();
 		try {
@@ -982,11 +994,13 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	private void showViewCustomerDialog(Customer custRow) {
+		Main._logger.debug("Entered showViewCustomerDialog method");
 		try {
 
 			Dialog<Customer> editCustomerDialog = new Dialog<Customer>();
@@ -1010,11 +1024,13 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	private void deleteSubscription(Subscription subsRow) {
+		Main._logger.debug("Entered deleteSubscription method");
 		Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
 		deleteWarning.setTitle("Warning");
 		deleteWarning.setHeaderText("Are you sure you want to delete this record?");
@@ -1025,7 +1041,7 @@ public class ACustomerInfoTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from subscription where subscription_id=?";
@@ -1040,17 +1056,20 @@ public class ACustomerInfoTabController implements Initializable {
 				refreshSubscriptions();
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of subscription has failed").showError();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 		}
 	}
 
 	private void showEditSubscriptionDialog(Subscription subsRow) {
+		Main._logger.debug("Entered showEditSubscriptionDialog method");
 		try {
 
 			Dialog<Subscription> editSubscriptionDialog = new Dialog<Subscription>();
@@ -1101,11 +1120,13 @@ public class ACustomerInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	private void showViewSubscriptionDialog(Subscription subsRow) {
+		Main._logger.debug("Entered showViewSubscriptionDialog method");
 		try {
 
 			Dialog<Subscription> editSubscriptionDialog = new Dialog<Subscription>();
@@ -1130,11 +1151,13 @@ public class ACustomerInfoTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	public void addCustomerExtraScreenClicked(ActionEvent event) {
+		Main._logger.debug("Entered addCustomerExtraScreenClicked method");
 		try {
 
 			Dialog<String> addCustomerDialog = new Dialog<String>();
@@ -1183,16 +1206,18 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {
+		Main._logger.debug("Entered populateLineNumbersForHawkerCode method");
 
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerLineNumData.clear();
@@ -1205,20 +1230,23 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
 	}
 
 	private long hawkerIdForCode(String hawkerCode) {
+		Main._logger.debug("Entered hawkerIdForCode method");
 
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -1232,19 +1260,22 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return hawkerId;
 	}
 
 	private void hawkerNameMobCode(String hawkerCode) {
+		Main._logger.debug("Entered hawkerNameMobCode method");
 
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerStatement = null;
@@ -1259,14 +1290,17 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	public void refreshCustomerTable() {
+		Main._logger.debug("Entered refreshCustomerTable method");
 		Task<Void> task = new Task<Void>() {
 
 			@Override
@@ -1274,7 +1308,7 @@ public class ACustomerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					// populateHawkerCodes();
@@ -1310,13 +1344,15 @@ public class ACustomerInfoTabController implements Initializable {
 
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				// ACustInfoTable.getItems().clear();
-//				ACustInfoTable.setItems(customerMasterData);
+				// ACustInfoTable.setItems(customerMasterData);
 				// TableFilter<Customer> filter = new
 				// TableFilter<Customer>(ACustInfoTable);
 				if (!customerMasterData.isEmpty()) {
@@ -1359,11 +1395,12 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	private void populateHawkerCodes() {
+		Main._logger.debug("Entered populateHawkerCodes method");
 
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
@@ -1382,19 +1419,22 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
 	}
 
 	private boolean checkExistingProfileValue(String profileValue) {
+		Main._logger.debug("Entered checkExistingProfileValue method");
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -1406,19 +1446,22 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
 	}
 
 	private int maxSeq() {
+		Main._logger.debug("Entered maxSeq method");
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerLineNumData.clear();
@@ -1432,15 +1475,18 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return 1;
 	}
 
 	public boolean isValid() {
+		Main._logger.debug("Entered isValid method");
 		boolean validate = true;
 		if (addCustName.getText() == null || addCustName.getText().isEmpty()) {
 			validate = false;
@@ -1487,13 +1533,14 @@ public class ACustomerInfoTabController implements Initializable {
 		// .text("Mobile number should only contain 10 DIGITS")
 		// .hideAfter(Duration.seconds(5)).showError();
 		// validate = false;
-		// e.printStackTrace();
+		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
 		// }
 		return validate;
 	}
 
 	@FXML
 	private void addCustomerClicked(ActionEvent event) {
+		Main._logger.debug("Entered addCustomerClicked method");
 		System.out.println("addCustomerClicked");
 
 		if (isValid()) {
@@ -1511,10 +1558,10 @@ public class ACustomerInfoTabController implements Initializable {
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
-				insertCustomer = con.prepareStatement(insertStatement);
+				insertCustomer = con.prepareStatement(insertStatement, new String[] { "CUSTOMER_ID" });
 				insertCustomer.setString(1, addCustName.getText());
 				insertCustomer.setString(2, addCustMobile.getText());
 				insertCustomer.setString(3, addCustHwkCode.getSelectionModel().getSelectedItem());
@@ -1543,7 +1590,7 @@ public class ACustomerInfoTabController implements Initializable {
 				insertCustomer.setString(18, addCustComments.getText());
 				insertCustomer.setString(19, addCustBuildingStreet.getText());
 
-				insertCustomer.execute();
+				insertCustomer.executeUpdate();
 				refreshCustomerTable();
 				con.commit();
 				resetClicked(event);
@@ -1557,12 +1604,14 @@ public class ACustomerInfoTabController implements Initializable {
 
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 						.text("There has been some error during customer creation, please retry").showError();
 				Main.reconnect();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 
@@ -1571,12 +1620,13 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	public ArrayList<Customer> getCustomerDataToShift(String hawkerCode, int lineNum) {
+		Main._logger.debug("Entered getCustomerDataToShift method");
 		ArrayList<Customer> custData = new ArrayList<Customer>();
 
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? and line_num=? order by house_seq";
@@ -1593,9 +1643,11 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -1603,6 +1655,7 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	private void shiftHouseSeqFrom(ArrayList<Customer> custData, int seq) {
+		Main._logger.debug("Entered shiftHouseSeqFrom method");
 
 		for (int i = 0; i < custData.size(); i++) {
 			Customer cust = custData.get(i);
@@ -1624,6 +1677,7 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	private void shiftHouseSeqForDelete(ArrayList<Customer> custData, int seq) {
+		Main._logger.debug("Entered shiftHouseSeqForDelete method");
 
 		for (int i = 0; i < custData.size(); i++) {
 			Customer cust = custData.get(i);
@@ -1636,6 +1690,7 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	private void shiftHouseSeqFromToForCustId(ArrayList<Customer> custData, int fromSeq, int toSeq, long custId) {
+		Main._logger.debug("Entered shiftHouseSeqFromToForCustId method");
 		if (fromSeq < toSeq) {
 			for (int i = 0; i < custData.size(); i++) {
 				Customer cust = custData.get(i);
@@ -1661,6 +1716,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 	@FXML
 	private void resetClicked(ActionEvent event) {
+		Main._logger.debug("Entered resetClicked method");
 		System.out.println("resetClicked");
 		addCustName.clear();
 		addCustMobile.clear();
@@ -1687,6 +1743,7 @@ public class ACustomerInfoTabController implements Initializable {
 	@FXML
 	private void filterCustomersClicked(ActionEvent event) {
 
+		Main._logger.debug("Entered filterCustomersClicked method");
 		TextInputDialog customersFilterDialog = new TextInputDialog(searchText);
 		customersFilterDialog.setTitle("Filter Customers");
 		customersFilterDialog.setHeaderText("Enter the filter text");
@@ -1762,6 +1819,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -1772,6 +1830,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 	@FXML
 	private void clearClicked(ActionEvent event) {
+		Main._logger.debug("Entered clearClicked method");
 		filteredData = new FilteredList<>(customerMasterData, p -> true);
 		SortedList<Customer> sortedData = new SortedList<>(filteredData);
 		sortedData.comparatorProperty().bind(ACustInfoTable.comparatorProperty());
@@ -1780,14 +1839,16 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	public void populatePointNames() {
+		Main._logger.debug("Entered populatePointNames method");
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			pointNameValues.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name where city =? order by name");
+			PreparedStatement stmt = con
+					.prepareStatement("select distinct name from point_name where city =? order by name");
 			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -1802,15 +1863,18 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
 	}
 
 	private void populateProfileValues() {
+		Main._logger.debug("Entered populateProfileValues method");
 		Task<Void> task = new Task<Void>() {
 
 			@Override
@@ -1818,7 +1882,7 @@ public class ACustomerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					profileValues.clear();
@@ -1831,9 +1895,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				addCustProf1.getItems().clear();
@@ -1850,6 +1916,7 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	private void populateEmploymentValues() {
+		Main._logger.debug("Entered populateEmploymentValues method");
 		Task<Void> task = new Task<Void>() {
 
 			@Override
@@ -1857,7 +1924,7 @@ public class ACustomerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					employmentData.clear();
@@ -1870,9 +1937,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				addCustEmployment.getItems().clear();
@@ -1887,10 +1956,11 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	public boolean houseSequenceExistsInLine(String hawkerCode, int seq, Long lineNum) {
+		Main._logger.debug("Entered houseSequenceExistsInLine method");
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials from customer where house_seq=? and line_num=? and hawker_code=?";
@@ -1904,15 +1974,18 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return false;
 	}
 
 	private void addCustSubscription(Customer custRow) {
+		Main._logger.debug("Entered addCustomerSubscription method");
 
 		try {
 
@@ -1962,11 +2035,13 @@ public class ACustomerInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	private void refreshSubscriptions() {
+		Main._logger.debug("Entered refreshSubscriptions method");
 		Task<Void> task = new Task<Void>() {
 
 			@Override
@@ -1974,7 +2049,7 @@ public class ACustomerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					subscriptionsTable.getItems().clear();
@@ -1996,9 +2071,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				subscriptionsTable.getItems().addAll(subscriptionMasterData);
@@ -2013,11 +2090,12 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	private void resumeStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
+		Main._logger.debug("Entered resumeStopHistoryForSub method");
 
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 
@@ -2043,16 +2121,17 @@ public class ACustomerInfoTabController implements Initializable {
 							.text("Stop Date is same as resume date. Stop History record successfully deleted.")
 							.showInformation();
 				}
-//				ArrayList<StopHistory> stpHist = new ArrayList<StopHistory>();
+				// ArrayList<StopHistory> stpHist = new
+				// ArrayList<StopHistory>();
 				String query = "SELECT STP.STOP_HISTORY_ID, CUST.NAME, CUST.CUSTOMER_CODE, CUST.MOBILE_NUM, CUST.HAWKER_CODE, CUST.LINE_NUM, SUB.SUBSCRIPTION_ID, CUST.HOUSE_SEQ, PROD.NAME, PROD.CODE, PROD.BILL_CATEGORY, STP.STOP_DATE, STP.RESUME_DATE, SUB.TYPE, SUB.FREQUENCY, SUB.DOW, STP.AMOUNT FROM STOP_HISTORY STP, CUSTOMER CUST, PRODUCTS PROD , SUBSCRIPTION SUB WHERE STP.sub_id=? and STP.stop_date=? AND STP.SUB_ID =SUB.SUBSCRIPTION_ID AND SUB.CUSTOMER_ID =CUST.CUSTOMER_ID AND SUB.PRODUCT_ID =PROD.PRODUCT_ID ORDER BY SUB.PAUSED_DATE DESC";
 				stmt = con.prepareStatement(query);
 				stmt.setLong(1, subsRow.getSubscriptionId());
 				stmt.setDate(2, Date.valueOf(stopDate));
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()) {
-					StopHistory stp = new StopHistory(rs.getLong(1), rs.getString(2),
-							rs.getLong(3), rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getInt(8),
-							rs.getString(9), rs.getString(10), rs.getString(11),
+					StopHistory stp = new StopHistory(rs.getLong(1), rs.getString(2), rs.getLong(3), rs.getString(4),
+							rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getInt(8), rs.getString(9),
+							rs.getString(10), rs.getString(11),
 							rs.getDate(12) == null ? null : rs.getDate(12).toLocalDate(),
 							rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(), rs.getString(14),
 							rs.getString(15), rs.getString(16), rs.getDouble(17));
@@ -2065,19 +2144,22 @@ public class ACustomerInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	private void createStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
+		Main._logger.debug("Entered createStopHistoryForSub method");
 
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String insertStmt = "insert into stop_history(SUB_ID,STOP_DATE,RESUME_DATE) values(?,?,?)";
@@ -2091,19 +2173,22 @@ public class ACustomerInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
 
 	public boolean stopEntryExistsForStartDate(Subscription subsRow, LocalDate stopDate) {
+		Main._logger.debug("Entered stopEntryExistsForStartDate method");
 
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			String countStmt = "select count(*) from stop_history where sub_id=? and (resume_date is null or sysdate between stop_date and resume_date-1)";
@@ -2119,9 +2204,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -2129,6 +2216,7 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	private void populateBillingLines(Billing bill) {
+		Main._logger.debug("Entered populateBillingLines method");
 		Task<Void> task = new Task<Void>() {
 
 			@Override
@@ -2136,25 +2224,27 @@ public class ACustomerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					billingLinesData.clear();
-					String insertStmt = "SELECT BILL_LINE_ID, BILL_INVOICE_NUM, LINE_NUM, PRODUCT, AMOUNT FROM BILLING_LINES WHERE BILL_INVOICE_NUM=?";
+					String insertStmt = "SELECT BILL_LINE_ID, BILL_INVOICE_NUM, LINE_NUM, PRODUCT, AMOUNT,TEA_EXPENSES FROM BILLING_LINES WHERE BILL_INVOICE_NUM=?";
 					PreparedStatement stmt = con.prepareStatement(insertStmt);
 					stmt.setLong(1, bill.getBillInvoiceNum());
 					ResultSet rs = stmt.executeQuery();
 
 					while (rs.next()) {
 						billingLinesData.add(new BillingLine(rs.getLong(1), rs.getLong(2), rs.getInt(3),
-								rs.getString(4), rs.getDouble(5)));
+								rs.getString(4), rs.getDouble(5), rs.getDouble(6)));
 					}
 
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				// billingTable.getItems().clear();
@@ -2168,11 +2258,12 @@ public class ACustomerInfoTabController implements Initializable {
 	}
 
 	private void populateInvoiceDates(Customer customer) {
+		Main._logger.debug("Entered populateInvoiceDates method");
 
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			invoiceDatesData.clear();
@@ -2187,25 +2278,27 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		invoiceDateLOV.getItems().clear();
 		invoiceDateLOV.getItems().addAll(invoiceDatesData);
 	}
 
-
 	public void populateCityValues() {
+		Main._logger.debug("Entered populateCityValues method");
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			cityValues.clear();
-			PreparedStatement stmt=null;
+			PreparedStatement stmt = null;
 			if (HawkerLoginController.loggedInHawker != null) {
 				stmt = con.prepareStatement("select distinct city from point_name where name=?");
 				stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
@@ -2228,15 +2321,19 @@ public class ACustomerInfoTabController implements Initializable {
 				cityTF.getItems().addAll(cityValues);
 			}
 		} catch (SQLException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
 	}
+
 	// @Override
 	public void reloadData() {
+		Main._logger.debug("Entered reloadData method");
 
 		// populatePointNames();
 		if (HawkerLoginController.loggedInHawker == null) {
@@ -2279,6 +2376,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 	// @Override
 	public void releaseVariables() {
+		Main._logger.debug("Entered releaseVariables method");
 		customerMasterData = null;
 		subscriptionMasterData = null;
 		hawkerCodeData = null;

@@ -66,12 +66,9 @@ public class AdminHomeController implements Initializable {
 	private AProductsTabController productsTabController;
 	private AStopHistoryTabController stopHistTabController;
 
-
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
-		
-		
+
 		loadTabs();
 		tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
@@ -145,6 +142,7 @@ public class AdminHomeController implements Initializable {
 					try {
 						logoutClicked(new ActionEvent());
 					} catch (IOException e) {
+						Main._logger.debug(e.getStackTrace());
 						e.printStackTrace();
 					}
 				}
@@ -172,7 +170,7 @@ public class AdminHomeController implements Initializable {
 			customersTab = new Tab();
 			customersTab.setText("Customers");
 			customersTab.setContent(custroot);
-			
+
 			hawkerTab = new Tab();
 			FXMLLoader hawkerTabLoader = new FXMLLoader(getClass().getResource("A-HawkerInfoTab.fxml"));
 			Parent hawkerroot = (Parent) hawkerTabLoader.load();
@@ -202,21 +200,21 @@ public class AdminHomeController implements Initializable {
 			lineDistTabController = lineDistTabLoader.<ALineDistributorTabController> getController();
 			lineDistTab.setText("Line Distribution Boy");
 			lineDistTab.setContent(linedistroot);
-		
+
 			additionalItemsTab = new Tab();
 			FXMLLoader additionalItemsTabLoader = new FXMLLoader(getClass().getResource("AdditionalItems.fxml"));
 			Parent additionalItemsRoot = (Parent) additionalItemsTabLoader.load();
 			additionalItemsTabController = additionalItemsTabLoader.<AdditionalItemsController> getController();
 			additionalItemsTab.setText("Additional Items");
 			additionalItemsTab.setContent(additionalItemsRoot);
-		
+
 			productsTab = new Tab();
 			FXMLLoader productsTabLoader = new FXMLLoader(getClass().getResource("AProductsTab.fxml"));
 			Parent productsRoot = (Parent) productsTabLoader.load();
 			productsTabController = productsTabLoader.<AProductsTabController> getController();
 			productsTab.setText("Products");
 			productsTab.setContent(productsRoot);
-			
+
 			pausedCustTab = new Tab();
 			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("A-PausedCustomersTab.fxml"));
 			Parent pausedcustroot = (Parent) pausedCustTabLoader.load();
@@ -230,11 +228,12 @@ public class AdminHomeController implements Initializable {
 			stopHistTabController = stopHistTabLoader.<AStopHistoryTabController> getController();
 			stopHistoryTab.setText("Stop History");
 			stopHistoryTab.setContent(stopHistRoot);
-			
+
 			tabPane.getTabs().addAll(hawkerTab, customersTab, lineInfoTab, lineDistTab, productsTab, additionalItemsTab,
 					pausedCustTab, stopHistoryTab);
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -242,7 +241,7 @@ public class AdminHomeController implements Initializable {
 
 	@FXML
 	private void refreshClicked(ActionEvent event) {
-		
+
 		Tab t = tabPane.getSelectionModel().getSelectedItem();
 		if (t != null) {
 			if (t == customersTab) {
@@ -294,7 +293,7 @@ public class AdminHomeController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				while (!con.isValid(0)) {
+				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				String deleteString = "update admin_login set password =? where username='admin'";
@@ -310,14 +309,17 @@ public class AdminHomeController implements Initializable {
 				logoutClicked(new ActionEvent());
 			} catch (SQLException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker bill has failed").showError();
 			} catch (IOException e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			} catch (Exception e) {
 
+				Main._logger.debug(e.getStackTrace());
 				e.printStackTrace();
 			}
 

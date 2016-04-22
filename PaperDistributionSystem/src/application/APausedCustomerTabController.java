@@ -310,7 +310,7 @@ public class APausedCustomerTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerStatement = null;
@@ -325,9 +325,11 @@ public class APausedCustomerTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -350,7 +352,7 @@ public class APausedCustomerTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						while (!con.isValid(0)) {
+						if (!con.isValid(0)) {
 							con = Main.reconnect();
 						}
 						PreparedStatement lineNumStatement = null;
@@ -367,9 +369,11 @@ public class APausedCustomerTabController implements Initializable {
 						lineNumTable.refresh();
 					} catch (SQLException e) {
 
+						Main._logger.debug(e.getStackTrace());
 						e.printStackTrace();
 					} catch (Exception e) {
 
+						Main._logger.debug(e.getStackTrace());
 						e.printStackTrace();
 					}
 					return null;
@@ -393,7 +397,7 @@ public class APausedCustomerTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -407,9 +411,11 @@ public class APausedCustomerTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -423,7 +429,7 @@ public class APausedCustomerTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					while (!con.isValid(0)) {
+					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
 					pausedSubsValues.clear();
@@ -455,9 +461,11 @@ public class APausedCustomerTabController implements Initializable {
 
 				} catch (SQLException e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				} catch (Exception e) {
 
+					Main._logger.debug(e.getStackTrace());
 					e.printStackTrace();
 				}
 				return null;
@@ -471,11 +479,12 @@ public class APausedCustomerTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			pointNameValues.clear();
-			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name where city =? order by name");
+			PreparedStatement stmt = con
+					.prepareStatement("select distinct name from point_name where city =? order by name");
 			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -489,9 +498,11 @@ public class APausedCustomerTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -502,7 +513,7 @@ public class APausedCustomerTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();
@@ -520,9 +531,11 @@ public class APausedCustomerTabController implements Initializable {
 			// }
 		} catch (SQLException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -533,7 +546,7 @@ public class APausedCustomerTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 
@@ -580,9 +593,11 @@ public class APausedCustomerTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -611,6 +626,7 @@ public class APausedCustomerTabController implements Initializable {
 
 		} catch (IOException e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -640,6 +656,7 @@ public class APausedCustomerTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 	}
@@ -648,7 +665,7 @@ public class APausedCustomerTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
 			cityValues.clear();
@@ -675,9 +692,11 @@ public class APausedCustomerTabController implements Initializable {
 				cityTF.getItems().addAll(cityValues);
 			}
 		} catch (SQLException e) {
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
 
+			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
 		}
 
@@ -686,8 +705,8 @@ public class APausedCustomerTabController implements Initializable {
 	// @Override
 	public void reloadData() {
 		populateCityValues();
-//		addPointName.getItems().clear();
-//		addPointName.getItems().addAll(pointNameValues);
+		// addPointName.getItems().clear();
+		// addPointName.getItems().addAll(pointNameValues);
 		if (HawkerLoginController.loggedInHawker != null) {
 			addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
 			addPointName.setDisable(true);
