@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane stylesheets="@application.css" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.AdminHomeController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.AdminHomeController">
    <children>
       <VBox alignment="TOP_CENTER" layoutY="10.0" prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -19,8 +19,9 @@
                         <Font size="24.0" />
                      </font>
                   </Label>
-                  <ButtonBar maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="40.0" prefWidth="380.0" HBox.hgrow="ALWAYS">
+                  <ButtonBar maxHeight="-Infinity" prefHeight="40.0" prefWidth="500.0" HBox.hgrow="NEVER">
                      <buttons>
+                        <Button mnemonicParsing="false" onAction="#exportDataClicked" text="Export Data" />
                      	<Button fx:id="changePwdButton" mnemonicParsing="false" onAction="#changePasswordClicked" prefHeight="25.0" text="Change Password" />
                         <Button layoutX="1195.0" layoutY="10.0" mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
                         <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />

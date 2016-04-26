@@ -325,5 +325,13 @@ public class AdminHomeController implements Initializable {
 
 		}
 	}
+	
+
+    @FXML
+    void exportDataClicked(ActionEvent event) {
+//    	ExcelToPDF.excelToPDF();
+    	ExportToExcel.exportDataToExcel();
+    }
+	
 
 }
