@@ -11,11 +11,34 @@
    <children>
       <VBox prefHeight="800.0" spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <ButtonBar>
-               <buttons>
-                  <Button fx:id="duplicateProdCatButton" mnemonicParsing="false" onAction="#showDuplicateProductsFromToCategory" text="Copy Products from one category to another" />
-               </buttons>
-            </ButtonBar>
+            <HBox>
+               <children>
+                  <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="151.0" spacing="10.0">
+                     <children>
+                        <RadioButton fx:id="showAllRadioButton" mnemonicParsing="false" onAction="#reloadData" text="Show All" />
+                        <RadioButton fx:id="filterRadioButton" mnemonicParsing="false" onAction="#reloadData" selected="true" text="Filter -&gt; " />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Label text="Bill Category: " />
+                        <ComboBox fx:id="billCategoryTF" prefWidth="150.0" promptText="Bill Category" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                     <children>
+                        <ButtonBar>
+                           <buttons>
+                              <Button fx:id="duplicateProdCatButton" mnemonicParsing="false" onAction="#showDuplicateProductsFromToCategory" text="Copy Products from one category to another" />
+                           </buttons>
+                        </ButtonBar>
+                     </children>
+                  </HBox>
+               </children>
+               <VBox.margin>
+                  <Insets left="5.0" />
+               </VBox.margin>
+            </HBox>
             <Accordion>
               <panes>
                 <TitledPane animated="false" text="Input and Buttons Panel">
@@ -31,8 +54,6 @@
                                        <children>
                                           <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="25.0">
                                              <children>
-                                                <Label text="Bill Category: " />
-                                                <ComboBox fx:id="billCategoryTF" prefWidth="150.0" promptText="Bill Category" />
                                                 <Label text="Name: " />
                                                 <TextField fx:id="addProdName" promptText="Product Name" />
                                                 <Label text="Code: " />

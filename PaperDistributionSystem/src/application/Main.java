@@ -1,7 +1,9 @@
 package application;
 
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -53,6 +55,8 @@ public class Main extends Application {
 	final private static String SECRET = "gV3+vIb/uiFVlrQQ3jS6SguaXz5l7SzCo/BMLrel";
 	final private static String dbConnectionString = "jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL";
 	public static Stage primaryStage;
+	public static DecimalFormat df = new DecimalFormat("#.##");
+	
 	
 	public static final Logger _logger = LogManager.getLogger(Main.class.getName());
 	
@@ -75,6 +79,7 @@ public class Main extends Application {
 
 	public static void main(String[] args) {
 		Main._logger.debug("Entered Main method");
+		df.setRoundingMode(RoundingMode.CEILING);
 		try {
 			// step1 load the driver class
 			Class.forName("oracle.jdbc.driver.OracleDriver");

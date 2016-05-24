@@ -249,6 +249,9 @@ public class ACustomerInfoTabController implements Initializable {
 	private TableColumn<StopHistory, Long> stpstopHistoryIdColumn;
 	@FXML
 	private TableColumn<StopHistory, Long> stpsubsIdColumn;
+
+	@FXML
+	private TableColumn<StopHistory, String> stpsubsProdCodeColumn;
 	@FXML
 	private TableColumn<StopHistory, String> stpsubsProdNameColumn;
 	@FXML
@@ -331,10 +334,12 @@ public class ACustomerInfoTabController implements Initializable {
 
 		subsIdColumn.setCellValueFactory(new PropertyValueFactory<Subscription, Long>("subscriptionId"));
 		subsProdNameColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("productName"));
+		subsProdCodeColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("productCode"));
 		subsProdTypeColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("productType"));
 		subsPaymentTypeColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("paymentType"));
 		subsTypeColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("subscriptionType"));
 		subPriceColumn.setCellValueFactory(new PropertyValueFactory<Subscription, Double>("cost"));
+		subAddToBillColumn.setCellValueFactory(new PropertyValueFactory<Subscription, Double>("addToBill"));
 		subsServiceChargeColumn.setCellValueFactory(new PropertyValueFactory<Subscription, Double>("serviceCharge"));
 		subsFreqColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("frequency"));
 		subsDOWColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("dow"));
@@ -345,12 +350,15 @@ public class ACustomerInfoTabController implements Initializable {
 		subsResumeDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("resumeDate"));
 		subsNumberColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("subNumber"));
 		subsStopDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("stopDate"));
+
 		prodCol.setCellValueFactory(new PropertyValueFactory<BillingLine, String>("product"));
 		amountCol.setCellValueFactory(new PropertyValueFactory<BillingLine, Double>("amount"));
+		teaExpensesCol.setCellValueFactory(new PropertyValueFactory<BillingLine, Double>("teaExpenses"));
 		
 
 		stpstopHistoryIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, Long>("stopHistoryId"));
 		stpsubsIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, Long>("subscriptionId"));
+		stpsubsProdCodeColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, String>("productCode"));
 		stpsubsProdNameColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, String>("productName"));
 		stpsubsTypeColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, String>("subscriptionType"));
 		stpsubsFreqColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, String>("subscriptionFreq"));
@@ -887,6 +895,7 @@ public class ACustomerInfoTabController implements Initializable {
 					}
 
 				});
+				
 
 				MenuItem mnuDue = new MenuItem("Change Due Amount");
 				mnuDue.setOnAction(new EventHandler<ActionEvent>() {
@@ -900,7 +909,7 @@ public class ACustomerInfoTabController implements Initializable {
 							dialog.setHeaderText("Change total due value below");
 
 							Button saveBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-							dialog.getEditor().setText(custRow.getTotalDue() + "");
+							dialog.getEditor().setText(Double.toString(custRow.getTotalDue()));
 							saveBtn.addEventFilter(ActionEvent.ACTION, btnevent -> {
 
 								try {
@@ -944,10 +953,9 @@ public class ACustomerInfoTabController implements Initializable {
 
 								try {
 									Double d = Double.parseDouble(dialog.getEditor().getText());
-									custRow.setTotalDue(d);
+									custRow.setTotalDue(custRow.getTotalDue() + d);
 									custRow.updateCustomerRecord();
 									refreshCustomerTable();
-									
 								} catch (NumberFormatException e) {
 									Notifications.create().title("Invalid value")
 											.text("Please enter only NUMERIC values in Total Due.")
@@ -1977,12 +1985,6 @@ public class ACustomerInfoTabController implements Initializable {
 
 									addCustHwkCode.getItems().clear();
 									addCustHwkCode.setItems(hawkerCodeData);
-									// if (HawkerLoginController.loggedInHawker
-									// != null) {
-									// hawkerComboBox.getSelectionModel()
-									// .select(HawkerLoginController.loggedInHawker.getHawkerCode());
-									// hawkerComboBox.setDisable(true);
-									// }
 								}
 							});
 							rs.close();
@@ -2455,12 +2457,6 @@ public class ACustomerInfoTabController implements Initializable {
 								public void run() {
 									addPointName.getItems().clear();
 									addPointName.setItems(pointNameValues);
-									// if (HawkerLoginController.loggedInHawker
-									// != null) {
-									// addPointName.getSelectionModel()
-									// .select(HawkerLoginController.loggedInHawker.getPointName());
-									// addPointName.setDisable(true);
-									// }
 								}
 							});
 							rs.close();
@@ -3261,8 +3257,7 @@ public class ACustomerInfoTabController implements Initializable {
 		}
 		return 1;
 	}
-
-
+	
 	private void disableAll() {
 		if (!Platform.isFxApplicationThread()) {
 			Platform.runLater(new Runnable() {

@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 
 import org.controlsfx.control.Notifications;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -335,8 +336,8 @@ public class APausedCustomerTabController implements Initializable {
 	}
 
 	private void refreshLineNumTableForHawker(String hawkerCode) {
-
-		lineNumTable.getItems().clear();
+		lineNumData = FXCollections.observableArrayList();
+		lineNumTable.setItems(lineNumData);
 		lineNumTable.refresh();
 		System.out.println("refreshLineNumTableForHawker : " + hawkerCode);
 
@@ -349,32 +350,41 @@ public class APausedCustomerTabController implements Initializable {
 
 				@Override
 				protected Void call() throws Exception {
-					try {
+					synchronized (this) {
+						try {
 
-						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
-							con = Main.reconnect();
+							Connection con = Main.dbConnection;
+							if (!con.isValid(0)) {
+								con = Main.reconnect();
+							}
+							PreparedStatement lineNumStatement = null;
+							String lineNumQuery = "select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? and li.line_num<>0 order by li.line_num";
+							lineNumStatement = con.prepareStatement(lineNumQuery);
+							lineNumStatement.setLong(1, hawkerId);
+							// Statement stmt = con.createStatement();
+							ResultSet rs = lineNumStatement.executeQuery();
+							while (rs.next()) {
+								lineNumData
+										.add(new LineInfo(rs.getLong(1), rs.getInt(2), rs.getLong(3), rs.getString(4)));
+							}
+							System.out.println("LineNumData = " + lineNumData.toString());
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									lineNumTable.setItems(lineNumData);
+									lineNumTable.refresh();
+								}
+							});
+						} catch (SQLException e) {
+
+							Main._logger.debug(e.getStackTrace());
+							e.printStackTrace();
+						} catch (Exception e) {
+
+							Main._logger.debug(e.getStackTrace());
+							e.printStackTrace();
 						}
-						PreparedStatement lineNumStatement = null;
-						String lineNumQuery = "select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? and li.line_num<>0 order by li.line_num";
-						lineNumStatement = con.prepareStatement(lineNumQuery);
-						lineNumStatement.setLong(1, hawkerId);
-						// Statement stmt = con.createStatement();
-						ResultSet rs = lineNumStatement.executeQuery();
-						while (rs.next()) {
-							lineNumData.add(new LineInfo(rs.getLong(1), rs.getInt(2), rs.getLong(3), rs.getString(4)));
-						}
-						System.out.println("LineNumData = " + lineNumData.toString());
-						lineNumTable.getItems().addAll(lineNumData);
-						lineNumTable.refresh();
-					} catch (SQLException e) {
-
-						Main._logger.debug(e.getStackTrace());
-						e.printStackTrace();
-					} catch (Exception e) {
-
-						Main._logger.debug(e.getStackTrace());
-						e.printStackTrace();
 					}
 					return null;
 				}
@@ -426,47 +436,55 @@ public class APausedCustomerTabController implements Initializable {
 
 			@Override
 			protected Void call() throws Exception {
-				try {
+				synchronized (this) {
+					try {
 
-					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
-						con = Main.reconnect();
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						pausedSubsValues.clear();
+						PreparedStatement stmt;
+						String queryString = "select cust.CUSTOMER_ID, sub.SUBSCRIPTION_ID, prod.PRODUCT_ID, cust.NAME Customer_Name, cust.CUSTOMER_CODE, cust.MOBILE_NUM,cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.NAME Product_Name, prod.TYPE product_type, sub.TYPE subscription_type, sub.FREQUENCY, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.PAUSED_DATE, sub.resume_date from customer cust, subscription sub, products prod where cust.customer_id=sub.customer_id and sub.product_id=prod.product_id and sub.STATUS='Stopped' and hawker_code=? and cust.LINE_NUM=? order by sub.resume_date desc, cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.name";
+
+						if (HawkerLoginController.loggedInHawker != null) {
+							stmt = con.prepareStatement(queryString);
+							stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
+						} else {
+							stmt = con.prepareStatement(queryString);
+							stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+						}
+
+						stmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							pausedSubsValues.add(new PausedSubscription(rs.getLong(1), rs.getLong(2), rs.getLong(3),
+									rs.getString(4), rs.getLong(5), rs.getString(6), rs.getString(7), rs.getString(8),
+									rs.getInt(9), rs.getString(10), rs.getString(11), rs.getString(12),
+									rs.getString(13), rs.getString(14), rs.getDouble(15), rs.getDouble(16),
+									rs.getDate(17) == null ? null : rs.getDate(17).toLocalDate(),
+									rs.getDate(18) == null ? null : rs.getDate(18).toLocalDate()));
+						}
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								pausedCustTable.getItems().clear();
+								pausedCustTable.setItems(pausedSubsValues);
+								pausedCustTable.refresh();
+							}
+						});
+
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
 					}
-					pausedSubsValues.clear();
-					PreparedStatement stmt;
-					String queryString = "select cust.CUSTOMER_ID, sub.SUBSCRIPTION_ID, prod.PRODUCT_ID, cust.NAME Customer_Name, cust.CUSTOMER_CODE, cust.MOBILE_NUM,cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.NAME Product_Name, prod.TYPE product_type, sub.TYPE subscription_type, sub.FREQUENCY, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.PAUSED_DATE, sub.resume_date from customer cust, subscription sub, products prod where cust.customer_id=sub.customer_id and sub.product_id=prod.product_id and sub.STATUS='Stopped' and hawker_code=? and cust.LINE_NUM=? order by sub.resume_date desc, cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.name";
-
-					if (HawkerLoginController.loggedInHawker != null) {
-						stmt = con.prepareStatement(queryString);
-						stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
-					} else {
-						stmt = con.prepareStatement(queryString);
-						stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
-					}
-
-					stmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
-					ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						pausedSubsValues.add(new PausedSubscription(rs.getLong(1), rs.getLong(2), rs.getLong(3),
-								rs.getString(4), rs.getLong(5), rs.getString(6), rs.getString(7), rs.getString(8),
-								rs.getInt(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
-								rs.getString(14), rs.getDouble(15), rs.getDouble(16),
-								rs.getDate(17) == null ? null : rs.getDate(17).toLocalDate(),
-								rs.getDate(18) == null ? null : rs.getDate(18).toLocalDate()));
-					}
-
-					pausedCustTable.getItems().clear();
-					pausedCustTable.getItems().addAll(pausedSubsValues);
-					pausedCustTable.refresh();
-
-				} catch (SQLException e) {
-
-					Main._logger.debug(e.getStackTrace());
-					e.printStackTrace();
-				} catch (Exception e) {
-
-					Main._logger.debug(e.getStackTrace());
-					e.printStackTrace();
 				}
 				return null;
 			}
@@ -476,68 +494,131 @@ public class APausedCustomerTabController implements Initializable {
 	}
 
 	public void populatePointNames() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						if (HawkerLoginController.loggedInHawker != null) {
+							pointNameValues = FXCollections.observableArrayList();
+							pointNameValues.add(HawkerLoginController.loggedInHawker.getPointName());
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									addPointName.setItems(pointNameValues);
+									addPointName.getSelectionModel()
+											.select(HawkerLoginController.loggedInHawker.getPointName());
+									addPointName.setDisable(true);
+								}
+							});
+						} else {
+							pointNameValues = FXCollections.observableArrayList();
+							PreparedStatement stmt = con.prepareStatement(
+									"select distinct name from point_name where city =? order by name");
+							stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								pointNameValues.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									addPointName.getItems().clear();
+									addPointName.setItems(pointNameValues);
+								}
+							});
+							rs.close();
+							stmt.close();
+						}
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+				}
+				return null;
 			}
-			pointNameValues.clear();
-			PreparedStatement stmt = con
-					.prepareStatement("select distinct name from point_name where city =? order by name");
-			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				pointNameValues.add(rs.getString(1));
-			}
-			addPointName.getItems().clear();
-			addPointName.getItems().addAll(pointNameValues);
-			if (HawkerLoginController.loggedInHawker != null) {
-				addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
-				addPointName.setDisable(true);
-			}
-		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
+		};
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
-
+		new Thread(task).start();
 	}
 
 	private void populateHawkerCodes() {
 
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
+			@Override
+			protected Void call() throws Exception {
+
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						if (HawkerLoginController.loggedInHawker != null) {
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									hawkerCodeData = FXCollections.observableArrayList();
+									hawkerCodeData.add(HawkerLoginController.loggedInHawker.getHawkerCode());
+									hawkerComboBox.setItems(hawkerCodeData);
+									hawkerComboBox.getSelectionModel().selectFirst();
+									hawkerComboBox.setDisable(true);
+								}
+							});
+						} else {
+							hawkerCodeData = FXCollections.observableArrayList();
+							PreparedStatement stmt = con.prepareStatement(
+									"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
+							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								hawkerCodeData.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+
+									hawkerComboBox.getItems().clear();
+									hawkerComboBox.setItems(hawkerCodeData);
+								}
+							});
+							rs.close();
+							stmt.close();
+						}
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+				}
+				return null;
 			}
-			hawkerCodeData.clear();
-			PreparedStatement stmt = con.prepareStatement(
-					"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
-			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				hawkerCodeData.add(rs.getString(1));
-			}
-			hawkerComboBox.getItems().addAll(hawkerCodeData);
-			// if (HawkerLoginController.loggedInHawker != null) {
-			// hawkerComboBox.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
-			// hawkerComboBox.setDisable(true);
-			// }
-		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
+		};
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
+		new Thread(task).start();
 
 	}
 
@@ -662,51 +743,66 @@ public class APausedCustomerTabController implements Initializable {
 	}
 
 	public void populateCityValues() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			cityValues.clear();
-			PreparedStatement stmt = null;
-			if (HawkerLoginController.loggedInHawker != null) {
-				stmt = con.prepareStatement("select distinct city from point_name where name=?");
-				stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
-				ResultSet rs = stmt.executeQuery();
-				if (rs.next()) {
-					cityValues.add(rs.getString(1));
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						cityValues.clear();
+						PreparedStatement stmt = null;
+						if (HawkerLoginController.loggedInHawker != null) {
+							stmt = con.prepareStatement("select distinct city from point_name where name=?");
+							stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+							ResultSet rs = stmt.executeQuery();
+							if (rs.next()) {
+								cityValues.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.getItems().clear();
+									cityTF.getItems().addAll(cityValues);
+									cityTF.getSelectionModel().selectFirst();
+									cityTF.setDisable(true);
+								}
+							});
+
+						} else {
+							stmt = con.prepareStatement("select distinct city from point_name order by city");
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								cityValues.add(rs.getString(1));
+							}
+							cityTF.getItems().clear();
+							cityTF.getItems().addAll(cityValues);
+						}
+					} catch (SQLException e) {
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
 				}
-
-				cityTF.getItems().clear();
-				cityTF.getItems().addAll(cityValues);
-				cityTF.getSelectionModel().selectFirst();
-				cityTF.setDisable(true);
-			} else {
-				stmt = con.prepareStatement("select distinct city from point_name order by city");
-				ResultSet rs = stmt.executeQuery();
-				while (rs.next()) {
-					cityValues.add(rs.getString(1));
-				}
-				cityTF.getItems().clear();
-				cityTF.getItems().addAll(cityValues);
+				return null;
 			}
-		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
+		};
 
+		new Thread(task).start();
 	}
 
 	// @Override
 	public void reloadData() {
 		populateCityValues();
-		// addPointName.getItems().clear();
-		// addPointName.getItems().addAll(pointNameValues);
 		if (HawkerLoginController.loggedInHawker != null) {
 			addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
 			addPointName.setDisable(true);
@@ -729,7 +825,6 @@ public class APausedCustomerTabController implements Initializable {
 		pointNameValues = null;
 		hawkerCodeData = null;
 		cityValues = null;
-
 		pausedSubsValues = FXCollections.observableArrayList();
 		lineNumData = FXCollections.observableArrayList();
 		pointNameValues = FXCollections.observableArrayList();

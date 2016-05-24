@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 
 import org.controlsfx.control.Notifications;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -445,6 +446,8 @@ public class ALineDistributorTabController implements Initializable {
 					}
 					addLineNumField.getItems().clear();
 					addLineNumField.getItems().addAll(lineNumData);
+					rs.close();
+					stmt.close();
 				} catch (SQLException e) {
 
 					Main._logger.debug(e.getStackTrace());
@@ -479,6 +482,9 @@ public class ALineDistributorTabController implements Initializable {
 			if (hawkerIdRs.next()) {
 				hawkerId = hawkerIdRs.getLong(1);
 			}
+
+			hawkerIdRs.close();
+			hawkerIdStatement.close();
 		} catch (SQLException e) {
 
 			Main._logger.debug(e.getStackTrace());
@@ -508,6 +514,9 @@ public class ALineDistributorTabController implements Initializable {
 				hawkerNameLabel.setText(hawkerRs.getString(1));
 				hawkerMobLabel.setText(hawkerRs.getString(2));
 			}
+
+			hawkerRs.close();
+			hawkerStatement.close();
 		} catch (SQLException e) {
 
 			Main._logger.debug(e.getStackTrace());
@@ -544,6 +553,7 @@ public class ALineDistributorTabController implements Initializable {
 				lineDistData.remove(lineDistRow);
 				lineDistInfoTable.refresh();
 
+				deleteStmt.close();
 			} catch (SQLException e) {
 
 				Main._logger.debug(e.getStackTrace());
@@ -736,6 +746,7 @@ public class ALineDistributorTabController implements Initializable {
 				insertLineNum.setString(18, addBuildingStreet.getText());
 				insertLineNum.execute();
 				resetClicked(event);
+				insertLineNum.close();
 				if (HawkerLoginController.loggedInHawker != null) {
 					addLineNumField.requestFocus();
 				} else {
@@ -817,6 +828,8 @@ public class ALineDistributorTabController implements Initializable {
 			if (rs.next()) {
 				return true;
 			}
+			rs.close();
+			stmt.close();
 		} catch (SQLException e) {
 
 			Main._logger.debug(e.getStackTrace());
@@ -1065,35 +1078,67 @@ public class ALineDistributorTabController implements Initializable {
 
 	private void populateHawkerCodes() {
 
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			hawkerCodeData.clear();
-			PreparedStatement stmt = con.prepareStatement(
-					"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
-			stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				hawkerCodeData.add(rs.getString(1));
-			}
-			addHwkCode.getItems().clear();
-			addHwkCode.getItems().addAll(hawkerCodeData);
-			if (HawkerLoginController.loggedInHawker != null) {
-				addHwkCode.getSelectionModel().select(HawkerLoginController.loggedInHawker.getHawkerCode());
-				addHwkCode.setDisable(true);
-			}
-		} catch (SQLException e) {
+			@Override
+			protected Void call() throws Exception {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
+				synchronized (this) {
+					try {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						if (HawkerLoginController.loggedInHawker != null) {
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									hawkerCodeData = FXCollections.observableArrayList();
+									hawkerCodeData.add(HawkerLoginController.loggedInHawker.getHawkerCode());
+									addHwkCode.setItems(hawkerCodeData);
+									addHwkCode.getSelectionModel().selectFirst();
+									addHwkCode.setDisable(true);
+								}
+							});
+						} else {
+							hawkerCodeData = FXCollections.observableArrayList();
+							PreparedStatement stmt = con.prepareStatement(
+									"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
+							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								hawkerCodeData.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+
+									addHwkCode.getItems().clear();
+									addHwkCode.setItems(hawkerCodeData);
+								}
+							});
+							rs.close();
+							stmt.close();
+						}
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
 
 	}
 
@@ -1172,35 +1217,67 @@ public class ALineDistributorTabController implements Initializable {
 	}
 
 	public void populatePointNames() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			pointNameValues.clear();
-			PreparedStatement stmt = con
-					.prepareStatement("select distinct name from point_name where city =? order by name");
-			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				pointNameValues.add(rs.getString(1));
-			}
-			addPointName.getItems().clear();
-			addPointName.getItems().addAll(pointNameValues);
-			if (HawkerLoginController.loggedInHawker != null) {
-				addPointName.getSelectionModel().select(HawkerLoginController.loggedInHawker.getPointName());
-				addPointName.setDisable(true);
-			}
-		} catch (SQLException e) {
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						if (HawkerLoginController.loggedInHawker != null) {
+							pointNameValues = FXCollections.observableArrayList();
+							pointNameValues.add(HawkerLoginController.loggedInHawker.getPointName());
+							Platform.runLater(new Runnable() {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
+								@Override
+								public void run() {
+									addPointName.setItems(pointNameValues);
+									addPointName.getSelectionModel()
+											.select(HawkerLoginController.loggedInHawker.getPointName());
+									addPointName.setDisable(true);
+								}
+							});
+						} else {
+							pointNameValues = FXCollections.observableArrayList();
+							PreparedStatement stmt = con.prepareStatement(
+									"select distinct name from point_name where city =? order by name");
+							stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								pointNameValues.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									addPointName.getItems().clear();
+									addPointName.setItems(pointNameValues);
+								}
+							});
+							rs.close();
+							stmt.close();
+						}
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
 
 	}
 
@@ -1298,43 +1375,70 @@ public class ALineDistributorTabController implements Initializable {
 	}
 
 	public void populateCityValues() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			cityValues.clear();
-			PreparedStatement stmt = null;
-			if (HawkerLoginController.loggedInHawker != null) {
-				stmt = con.prepareStatement("select distinct city from point_name where name=?");
-				stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
-				ResultSet rs = stmt.executeQuery();
-				if (rs.next()) {
-					cityValues.add(rs.getString(1));
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						cityValues = FXCollections.observableArrayList();
+						PreparedStatement stmt = null;
+						if (HawkerLoginController.loggedInHawker != null) {
+							stmt = con.prepareStatement("select distinct city from point_name where name=?");
+							stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+							ResultSet rs = stmt.executeQuery();
+							if (rs.next()) {
+								cityValues.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.getItems().clear();
+									cityTF.setItems(cityValues);
+									cityTF.getSelectionModel().selectFirst();
+									cityTF.setDisable(true);
+								}
+							});
+							rs.close();
+						} else {
+							stmt = con.prepareStatement("select distinct city from point_name order by city");
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								cityValues.add(rs.getString(1));
+							}
+
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.getItems().clear();
+									cityTF.setItems(cityValues);
+								}
+							});
+							rs.close();
+						}
+						stmt.close();
+					} catch (SQLException e) {
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
 				}
-
-				cityTF.getItems().clear();
-				cityTF.getItems().addAll(cityValues);
-				cityTF.getSelectionModel().selectFirst();
-				cityTF.setDisable(true);
-			} else {
-				stmt = con.prepareStatement("select distinct city from point_name order by city");
-				ResultSet rs = stmt.executeQuery();
-				while (rs.next()) {
-					cityValues.add(rs.getString(1));
-				}
-				cityTF.getItems().clear();
-				cityTF.getItems().addAll(cityValues);
+				return null;
 			}
-		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
+		};
+
+		new Thread(task).start();
 
 	}
 

@@ -226,6 +226,7 @@
                                        <columns>
                                           <TableColumn fx:id="stpstopHistoryIdColumn" prefWidth="60.0" text="StopHist ID" />
                                           <TableColumn fx:id="stpsubsIdColumn" prefWidth="60.0" text="Sub ID" />
+                                          <TableColumn fx:id="stpsubsProdCodeColumn" prefWidth="60.0" text="Code" />
                                           <TableColumn fx:id="stpsubsProdNameColumn" prefWidth="120.0" text="Product Name" />
                                           <TableColumn fx:id="stpsubsTypeColumn" prefWidth="120.0" text="Subscription Type" />
                                           <TableColumn fx:id="stpsubsFreqColumn" prefWidth="120.0" text="Subscription Freq" />

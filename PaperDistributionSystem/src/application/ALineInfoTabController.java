@@ -72,12 +72,6 @@ public class ALineInfoTabController implements Initializable {
 	private ComboBox<String> hawkerComboBox;
 	@FXML
 	private ComboBox<String> addPointName;
-	@FXML
-	private Label days14Count;
-	@FXML
-	private Label weeklyCount;
-	@FXML
-	private Label dailyCount;
 
 	@FXML
 	ComboBox<String> cityTF;
@@ -171,8 +165,9 @@ public class ALineInfoTabController implements Initializable {
 
 	@FXML
 	private Label netBillLabel;
-	
-	@FXML private Label monthLabel;
+
+	@FXML
+	private Label monthLabel;
 
 	@FXML
 	ComboBox<Billing> invoiceDateLOV;
@@ -193,6 +188,8 @@ public class ALineInfoTabController implements Initializable {
 	private TableColumn<StopHistory, Long> stpstopHistoryIdColumn;
 	@FXML
 	private TableColumn<StopHistory, Long> stpsubsIdColumn;
+	@FXML
+	private TableColumn<StopHistory, String> stpsubsProdCodeColumn;
 	@FXML
 	private TableColumn<StopHistory, String> stpsubsProdNameColumn;
 	@FXML
@@ -318,6 +315,7 @@ public class ALineInfoTabController implements Initializable {
 
 		stpstopHistoryIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, Long>("stopHistoryId"));
 		stpsubsIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, Long>("subscriptionId"));
+		stpsubsProdCodeColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, String>("productCode"));
 		stpsubsProdNameColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, String>("productName"));
 		stpsubsTypeColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, String>("subscriptionType"));
 		stpsubsFreqColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, String>("subscriptionFreq"));
@@ -369,9 +367,6 @@ public class ALineInfoTabController implements Initializable {
 				customerData.clear();
 				lineNumCustomersTable.getItems().clear();
 				lineNumCustomersTable.refresh();
-				dailyCount.setText("");
-				weeklyCount.setText("");
-				days14Count.setText("");
 				invoiceDateLOV.getItems().clear();
 				billingLinesData.clear();
 				billingTable.setItems(billingLinesData);
@@ -397,7 +392,6 @@ public class ALineInfoTabController implements Initializable {
 					subscriptionMasterData.clear();
 					subscriptionsTable.setItems(subscriptionMasterData);
 					populateCustomersForLine();
-					populateSubscriptionCount();
 					// refreshStopHistory();
 				}
 			}
@@ -470,6 +464,51 @@ public class ALineInfoTabController implements Initializable {
 
 				});
 
+				MenuItem mnuPDF = new MenuItem("Download Invoice PDF");
+				mnuPDF.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						LineInfo lineRow = lineNumTable.getSelectionModel().getSelectedItem();
+						if (lineRow != null) {
+							if (lineRow.getLineNum() > 0) {
+								Dialog<ButtonType> dateListDialog = new Dialog<ButtonType>();
+								dateListDialog.setTitle("Stop Subscription");
+								dateListDialog.setHeaderText("Please select the subscription you want to Stop");
+								ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+								dateListDialog.getDialogPane().getButtonTypes().addAll(saveButtonType,
+										ButtonType.CANCEL);
+								GridPane grid = new GridPane();
+								grid.setHgap(10);
+								grid.setVgap(10);
+								grid.setPadding(new Insets(20, 150, 10, 10));
+								ObservableList<LocalDate> dateList = getInvoiceDateListForLine(lineRow);
+								Label dateLabel = new Label("Invoice Date: ");
+								ComboBox<LocalDate> dateBox = new ComboBox<>(dateList);
+								dateBox.setConverter(Main.dateConvertor);
+								dateBox.getSelectionModel().selectFirst();
+								grid.add(dateLabel, 0, 0);
+								grid.add(dateBox, 1, 0);
+								dateListDialog.getDialogPane().setContent(grid);
+								Button yesButton = (Button) dateListDialog.getDialogPane().lookupButton(saveButtonType);
+								yesButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+									
+								});
+								Optional<ButtonType> result = dateListDialog.showAndWait();
+								if (result.isPresent() && result.get() == saveButtonType) {
+									BillingUtilityClass.generateInvoicePDF(
+											hawkerComboBox.getSelectionModel().getSelectedItem(), lineRow.getLineNum(),
+											dateBox.getSelectionModel().getSelectedItem()
+													.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
+								}
+
+							} else {
+								Notifications.create().title("Cannot edit line number 0")
+										.text("Cannot edit line number 0").hideAfter(Duration.seconds(5)).showError();
+							}
+						}
+					}
+
+				});
 				MenuItem mnuBill = new MenuItem("Regenerate Invoices");
 				mnuBill.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
@@ -559,9 +598,9 @@ public class ALineInfoTabController implements Initializable {
 				});
 				ContextMenu menu = new ContextMenu();
 				if (HawkerLoginController.loggedInHawker != null) {
-					menu.getItems().addAll(mnuEdit, mnuBill);
+					menu.getItems().addAll(mnuEdit, mnuBill, mnuPDF);
 				} else {
-					menu.getItems().addAll(mnuEdit, mnuDel, mnuBill);
+					menu.getItems().addAll(mnuEdit, mnuDel, mnuBill, mnuPDF);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -772,7 +811,6 @@ public class ALineInfoTabController implements Initializable {
 
 								}
 								refreshSubscriptions();
-								populateSubscriptionCount();
 								refreshStopHistory();
 							}
 						} else {
@@ -894,7 +932,6 @@ public class ALineInfoTabController implements Initializable {
 										}
 										resumeStopHistoryForSub(subsRow, dp.getValue(), resumeDP.getValue());
 										refreshSubscriptions();
-										populateSubscriptionCount();
 										refreshStopHistory();
 										Notifications.create().title("Resume successful")
 												.text("Resume subscription successful").hideAfter(Duration.seconds(5))
@@ -1057,7 +1094,7 @@ public class ALineInfoTabController implements Initializable {
 
 								try {
 									Double d = Double.parseDouble(dialog.getEditor().getText());
-									custRow.setTotalDue(d);
+									custRow.setTotalDue(custRow.getTotalDue() + d);
 									custRow.updateCustomerRecord();
 									populateCustomersForLine();
 								} catch (NumberFormatException e) {
@@ -1255,7 +1292,6 @@ public class ALineInfoTabController implements Initializable {
 								}
 								createStopHistoryForSub(subsRow, pauseDP.getValue(), null);
 								refreshSubscriptions();
-								populateSubscriptionCount();
 								refreshStopHistory();
 							}
 						} else {
@@ -1316,22 +1352,28 @@ public class ALineInfoTabController implements Initializable {
 							Optional<ButtonType> result = resumeWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
 								if (pauseDP.getValue().isBefore(resumeDP.getValue())) {
-									subsRow.resumeSubscription();
+									if (resumeDP.getValue()
+											.isBefore(pauseDP.getValue().plusMonths(1).withDayOfMonth(2))) {
+										subsRow.resumeSubscription();
+										int count = subsPostCount(subsRow, "Stopped");
+										if (count > 0) {
+											Notifications.create().title("Product has more stopped subscriptions")
+													.text("This product has " + count
+															+ " more stopped subscriptions for this customer")
+													.hideAfter(Duration.seconds(5)).showWarning();
+										}
+										resumeStopHistoryForSub(subsRow, pauseDP.getValue(), resumeDP.getValue());
+										refreshSubscriptions();
+										refreshStopHistory();
+										Notifications.create().title("Resume successful")
+												.text("Resume subscription successful").hideAfter(Duration.seconds(5))
+												.showInformation();
+									} else {
 
-									int count = subsPostCount(subsRow, "Stopped");
-									if (count > 0) {
-										Notifications.create().title("Product has more stopped subscriptions")
-												.text("This product has " + count
-														+ " more stopped subscriptions for this customer")
-												.hideAfter(Duration.seconds(5)).showWarning();
+										Notifications.create().title("Invalid Resume Date")
+												.text("Resume date must be in the same month as stop date.")
+												.hideAfter(Duration.seconds(5)).showError();
 									}
-									resumeStopHistoryForSub(subsRow, pauseDP.getValue(), resumeDP.getValue());
-									refreshSubscriptions();
-									populateSubscriptionCount();
-									refreshStopHistory();
-									Notifications.create().title("Resume successful")
-											.text("Resume subscription successful").hideAfter(Duration.seconds(5))
-											.showInformation();
 								} else {
 
 									Notifications.create().title("Invalid Resume Date")
@@ -1413,7 +1455,7 @@ public class ALineInfoTabController implements Initializable {
 					String month = newValue.getMonth();
 
 					totalDueLabel.setText(newValue.getDue() + "");
-					totalBillLabel.setText(Double.toHexString(d));
+					totalBillLabel.setText(Double.toString(d));
 					netBillLabel.setText(Double.toString(net));
 					monthLabel.setText(month);
 				} else {
@@ -1540,7 +1582,6 @@ public class ALineInfoTabController implements Initializable {
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete Successful")
 						.text("Deletion of subscription was successful").showInformation();
 				refreshSubscriptions();
-				populateSubscriptionCount();
 			} catch (SQLException e) {
 
 				Main._logger.debug(e.getStackTrace());
@@ -1580,7 +1621,6 @@ public class ALineInfoTabController implements Initializable {
 					editSubsController.updateSubscriptionRecord();
 					refreshSubscriptions();
 
-					populateSubscriptionCount();
 				} else
 					btnEvent.consume();
 			});
@@ -2417,7 +2457,6 @@ public class ALineInfoTabController implements Initializable {
 				public void accept(Customer t) {
 
 					populateCustomersForLine();
-					populateSubscriptionCount();
 				}
 			});
 
@@ -2554,7 +2593,6 @@ public class ALineInfoTabController implements Initializable {
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete Successful")
 						.text("Deletion of customer was successful").showInformation();
 				populateCustomersForLine();
-				populateSubscriptionCount();
 			} catch (SQLException e) {
 
 				Main._logger.debug(e.getStackTrace());
@@ -2650,8 +2688,8 @@ public class ALineInfoTabController implements Initializable {
 							Subscription subRow = BillingUtilityClass.subForSubId(subId);
 							if (subRow.getPaymentType().equalsIgnoreCase("Current Month")) {
 								Notifications.create().title("Refreshing Customers")
-										.text("Customer due updated, refreshing customers").hideAfter(Duration.seconds(5))
-										.showInformation();
+										.text("Customer due updated, refreshing customers")
+										.hideAfter(Duration.seconds(5)).showInformation();
 							}
 							populateCustomersForLine();
 
@@ -2665,7 +2703,6 @@ public class ALineInfoTabController implements Initializable {
 				if (dialogButton == saveButtonType) {
 
 					// populateCustomersForLine();
-					populateSubscriptionCount();
 					return null;
 				}
 				return null;
@@ -2793,50 +2830,6 @@ public class ALineInfoTabController implements Initializable {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	public void populateSubscriptionCount() {
-		try {
-
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			// billCategoryValues.clear();
-			PreparedStatement stmt = con.prepareStatement(
-					"SELECT sub.frequency, count(*) cnt FROM subscription sub, customer cust WHERE sub.customer_id=cust.customer_id AND sub.frequency IN ('Daily','14 Days','Weekly') AND cust.hawker_code =? AND cust.line_num =? and sub.status='Active' group by sub.frequency");
-			stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
-			stmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
-			ResultSet rs = stmt.executeQuery();
-
-			dailyCount.setText("0");
-			weeklyCount.setText("0");
-			days14Count.setText("0");
-			while (rs.next()) {
-				switch (rs.getString(1)) {
-				case "Daily":
-					dailyCount.setText(rs.getString(2));
-					break;
-				case "Weekly":
-					weeklyCount.setText(rs.getString(2));
-					break;
-				case "14 Days":
-					days14Count.setText(rs.getString(2));
-					break;
-
-				}
-			}
-			rs.close();
-			stmt.close();
-		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
-
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
-
 	}
 
 	private void resumeStopHistoryForSub(Subscription subsRow, LocalDate stopDate, LocalDate resumeDate) {
@@ -3277,6 +3270,38 @@ public class ALineInfoTabController implements Initializable {
 
 		new Thread(task).start();
 
+	}
+
+	private ObservableList<LocalDate> getInvoiceDateListForLine(LineInfo lineRow) {
+		try {
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			ObservableList<LocalDate> dateList = FXCollections.observableArrayList();
+			PreparedStatement stmt = null;
+			stmt = con.prepareStatement(
+					"select distinct invoice_date from billing where customer_id in (select distinct customer_id from customer where hawker_code=? and line_num=?) order by invoice_date desc");
+			stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+			stmt.setString(2, Integer.toString(lineRow.getLineNum()));
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				dateList.add(rs.getDate(1).toLocalDate());
+			}
+
+			rs.close();
+			stmt.close();
+			return dateList;
+		} catch (SQLException e) {
+			Main._logger.debug(e.getStackTrace());
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug(e.getStackTrace());
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private void disableAll() {

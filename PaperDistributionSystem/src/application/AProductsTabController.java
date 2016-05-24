@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.Notifications;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -40,6 +41,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -48,6 +50,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
@@ -66,8 +69,8 @@ public class AProductsTabController implements Initializable {
 	@FXML
 	private TextField addProdName;
 
-    @FXML
-    private TitledPane prodAccordian;
+	@FXML
+	private TitledPane prodAccordian;
 	@FXML
 	private ComboBox<String> addProdType;
 	@FXML
@@ -190,9 +193,22 @@ public class AProductsTabController implements Initializable {
 
 	private FilteredList<Product> filteredData;
 	private String searchText;
-
+	@FXML
+	public RadioButton filterRadioButton;
+	@FXML
+	public RadioButton showAllRadioButton;
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		if (HawkerLoginController.loggedInHawker != null) {
+			filterRadioButton.setVisible(false);
+			showAllRadioButton.setVisible(false);
+		} else {
+			ToggleGroup tg = new ToggleGroup();
+			filterRadioButton.setToggleGroup(tg);
+			showAllRadioButton.setToggleGroup(tg);
+			filterRadioButton.setSelected(true);
+
+		}
 		prodNameColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("name"));
 		prodTypeColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("type"));
 		supportingFreqColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("supportingFreq"));
@@ -503,6 +519,15 @@ public class AProductsTabController implements Initializable {
 				}
 			}
 		});
+		billCategoryTF.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if(newValue!=null)
+					refreshProductsTable();
+				
+			}
+		});
 	}
 
 	@FXML
@@ -739,6 +764,8 @@ public class AProductsTabController implements Initializable {
 				if (rs.getInt(1) > 0)
 					return true;
 			}
+			rs.close();
+			stmt.close();
 		} catch (SQLException e) {
 
 			Main._logger.debug(e.getStackTrace());
@@ -846,9 +873,16 @@ public class AProductsTabController implements Initializable {
 					productValues.clear();
 					PreparedStatement stmt;
 					if (HawkerLoginController.loggedInHawker == null) {
-						stmt = con.prepareStatement(
-								"select PRODUCT_ID, NAME, TYPE, SUPPORTED_FREQ, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY, PRICE, CODE, DOW, FIRST_DELIVERY_DATE, ISSUE_DATE, bill_Category from products order by name");
-
+						if (showAllRadioButton.isSelected()) {
+							stmt = con.prepareStatement(
+									"select PRODUCT_ID, NAME, TYPE, SUPPORTED_FREQ, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY, PRICE, CODE, DOW, FIRST_DELIVERY_DATE, ISSUE_DATE, bill_Category from products order by name");
+							
+						} else {
+							stmt = con.prepareStatement(
+									"select PRODUCT_ID, NAME, TYPE, SUPPORTED_FREQ, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY, PRICE, CODE, DOW, FIRST_DELIVERY_DATE, ISSUE_DATE, bill_Category from products where bill_category=? order by name");
+							stmt.setString(1, billCategoryTF.getSelectionModel().getSelectedItem());
+						}
+						
 					} else {
 						stmt = con.prepareStatement(
 								"SELECT prod.PRODUCT_ID, prod.NAME, prod.TYPE, prod.SUPPORTED_FREQ, prod.MONDAY, prod.TUESDAY, prod.WEDNESDAY, prod.THURSDAY, prod.FRIDAY, prod.SATURDAY, prod.SUNDAY, prod.PRICE, prod.CODE, prod.DOW, prod.FIRST_DELIVERY_DATE, prod.ISSUE_DATE, prod.bill_Category FROM products prod, point_name pn, hawker_info hwk where hwk.HAWKER_CODE = ? and hwk.POINT_NAME = pn.name and pn.BILL_CATEGORY = prod.BILL_CATEGORY ORDER BY name");
@@ -862,12 +896,20 @@ public class AProductsTabController implements Initializable {
 								rs.getString(14), rs.getDate(15) == null ? null : rs.getDate(15).toLocalDate(),
 								rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17)));
 					}
+					rs.close();
+					stmt.close();
 					if (!productValues.isEmpty()) {
 						filteredData = new FilteredList<>(productValues, p -> true);
 						SortedList<Product> sortedData = new SortedList<>(filteredData);
 						sortedData.comparatorProperty().bind(productsTable.comparatorProperty());
-						productsTable.setItems(sortedData);
-						productsTable.refresh();
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								productsTable.setItems(sortedData);
+								productsTable.refresh();
+							}
+						});
 					}
 				} catch (SQLException e) {
 
@@ -886,59 +928,95 @@ public class AProductsTabController implements Initializable {
 	}
 
 	public void populateProdFreqValues() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
+			@Override
+			protected Void call() throws Exception {
+
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						freqValues.clear();
+						PreparedStatement stmt = con.prepareStatement(
+								"select value, code, seq, lov_lookup_id from lov_lookup where code='PRODUCT_FREQ' order by seq");
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							freqValues.add(rs.getString(1));
+						}
+						addProdFreq.getItems().clear();
+						addProdFreq.getItems().addAll(freqValues);
+						rs.close();
+						stmt.close();
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+
+					return null;
+				}
 			}
-			freqValues.clear();
-			PreparedStatement stmt = con.prepareStatement(
-					"select value, code, seq, lov_lookup_id from lov_lookup where code='PRODUCT_FREQ' order by seq");
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				freqValues.add(rs.getString(1));
-			}
-			addProdFreq.getItems().clear();
-			addProdFreq.getItems().addAll(freqValues);
-		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
-
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
-
+		};
+		new Thread(task).start();
 	}
 
 	public void populateProdTypeValues() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
+			@Override
+			protected Void call() throws Exception {
+
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						productTypeValues.clear();
+						PreparedStatement stmt = con.prepareStatement(
+								"select value, code, seq, lov_lookup_id from lov_lookup where code='PRODUCT_TYPE' order by seq");
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							productTypeValues.add(rs.getString(1));
+						}
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								addProdType.getItems().clear();
+								addProdType.getItems().addAll(productTypeValues);
+							}
+						});
+						rs.close();
+						stmt.close();
+					} catch (SQLException e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+
+				}
+				return null;
 			}
-			productTypeValues.clear();
-			PreparedStatement stmt = con.prepareStatement(
-					"select value, code, seq, lov_lookup_id from lov_lookup where code='PRODUCT_TYPE' order by seq");
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				productTypeValues.add(rs.getString(1));
-			}
-			addProdType.getItems().clear();
-			addProdType.getItems().addAll(productTypeValues);
-		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
+		};
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
-
+		new Thread(task).start();
 	}
 
 	private void deleteProduct(Product productRow) {
@@ -1097,6 +1175,8 @@ public class AProductsTabController implements Initializable {
 					spclPriceTable.getItems().clear();
 					spclPriceTable.getItems().addAll(prodSpclPriceValues);
 					spclPriceTable.refresh();
+					rs.close();
+					stmt.close();
 				} catch (SQLException e) {
 
 					Main._logger.debug(e.getStackTrace());
@@ -1211,6 +1291,8 @@ public class AProductsTabController implements Initializable {
 			if (rs.next()) {
 				return true;
 			}
+			rs.close();
+			stmt.close();
 		} catch (SQLException e) {
 
 			Main._logger.debug(e.getStackTrace());
@@ -1263,29 +1345,75 @@ public class AProductsTabController implements Initializable {
 	}
 
 	public void populateBillCategoryValues() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			billCategoryValues.clear();
-			PreparedStatement stmt = con
-					.prepareStatement("select distinct bill_Category from point_name order by bill_category");
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				billCategoryValues.add(rs.getString(1));
-			}
-			billCategoryTF.getItems().clear();
-			billCategoryTF.getItems().addAll(billCategoryValues);
-		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		} catch (Exception e) {
+			@Override
+			protected Void call() throws Exception {
 
-			Main._logger.debug(e.getStackTrace());
-			e.printStackTrace();
-		}
+				synchronized (this) {
+
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						billCategoryValues.clear();
+						PreparedStatement stmt = null;
+						ResultSet rs = null;
+						if(HawkerLoginController.loggedInHawker!=null){
+							stmt = con.prepareStatement("select distinct bill_Category from point_name where name =?");
+							stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+							rs = stmt.executeQuery();
+							if (rs.next()) {
+								billCategoryValues.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									billCategoryTF.getItems().clear();
+									billCategoryTF.setItems(billCategoryValues);
+									billCategoryTF.getSelectionModel().selectFirst();
+									billCategoryTF.setDisable(true);
+									
+								}
+							});
+						}
+						else {
+							stmt = con.prepareStatement(
+									"select distinct bill_Category from point_name order by bill_category");
+							rs = stmt.executeQuery();
+							while (rs.next()) {
+								billCategoryValues.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									billCategoryTF.getItems().clear();
+									billCategoryTF.setItems(billCategoryValues);
+								}
+							});
+						}
+						
+						rs.close();
+						stmt.close();
+					} catch (SQLException e) {
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug(e.getStackTrace());
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
 
 	}
 
@@ -1320,6 +1448,8 @@ public class AProductsTabController implements Initializable {
 			while (rs.next()) {
 				emptyBillCategoryValues.add(rs.getString(1));
 			}
+			rs.close();
+			stmt.close();
 			emptyBillCategoryValues.removeAll(fullBillCategoryValues);
 
 			Dialog<ButtonType> duplicateWarning = new Dialog<ButtonType>();
@@ -1409,6 +1539,8 @@ public class AProductsTabController implements Initializable {
 								rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17)));
 
 					}
+					rs.close();
+					stmt.close();
 					Product p = null;
 					for (int i = 0; i < sourceProductValues.size(); i++) {
 						p = sourceProductValues.get(i);
@@ -1474,12 +1606,30 @@ public class AProductsTabController implements Initializable {
 
 	// @Override
 	public void reloadData() {
+		if (HawkerLoginController.loggedInHawker == null) {
+			if (showAllRadioButton.isSelected()) {
+				billCategoryTF.getSelectionModel().clearSelection();
+				billCategoryTF.setDisable(true);
+				refreshProductsTable();
+			} else if (filterRadioButton.isSelected()) {
+				populateBillCategoryValues();
+				billCategoryTF.setDisable(false);
+				if (billCategoryTF.getSelectionModel().getSelectedItem() == null) {
+					productValues = FXCollections.observableArrayList();
+					productsTable.setItems(productValues);
+				}
+				// refreshCustomerTable();
+			}
+		} else {
+
+			populateBillCategoryValues();
+		}
+
 		freqValues.clear();
-		billCategoryValues.clear();
-		populateBillCategoryValues();
+//		billCategoryValues.clear();
 		populateProdFreqValues();
 		populateProdTypeValues();
-		refreshProductsTable();
+//		refreshProductsTable();
 		if (HawkerLoginController.loggedInHawker != null) {
 			inputVBOX.setDisable(true);
 		}

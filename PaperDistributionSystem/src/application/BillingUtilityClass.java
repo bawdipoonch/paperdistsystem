@@ -1,10 +1,12 @@
 package application;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Period;
@@ -12,6 +14,24 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+
+import org.controlsfx.control.Notifications;
+
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.util.Duration;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.export.ExporterInput;
+import net.sf.jasperreports.export.OutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 
 public class BillingUtilityClass {
 
@@ -102,9 +122,8 @@ public class BillingUtilityClass {
 
 			Main._logger.debug(e.getStackTrace());
 			e.printStackTrace();
-		}
-		finally{
-			
+		} finally {
+
 		}
 	}
 
@@ -140,7 +159,9 @@ public class BillingUtilityClass {
 					startDate.plusMonths(1).plusMonths(1).minusDays(1));
 			double stpBill = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment") ? 0.0
 					: calculateStopHistoryAmounts(stopHistoryList, startDate, endDate, regenerate));
-			double prodDiff = calculateProdDiff(subRow, sDate, endDate);
+			boolean fail = (subRow.getSubscriptionType().equals("Free Copy")
+					|| subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment"));
+			double prodDiff = !fail ? calculateProdDiff(subRow, sDate, endDate) : 0.0;
 			val = prodDiff - stpBill + subBill + subRow.getAddToBill();
 			// }
 			return val;
@@ -164,7 +185,8 @@ public class BillingUtilityClass {
 
 		Billing bill = findBillingInvoice(customerId, startDate.withDayOfMonth(1).plusMonths(1).minusDays(1));
 		boolean eom = isEOM(customerId);
-		String month=eom?startDate.getMonth().toString():startDate.withDayOfMonth(1).plusMonths(1).getMonth().toString();
+		String month = eom ? startDate.getMonth().toString()
+				: startDate.withDayOfMonth(1).plusMonths(1).getMonth().toString();
 		if (bill != null) {
 			deleteBillingLines(bill);
 		} else {
@@ -184,7 +206,7 @@ public class BillingUtilityClass {
 					// created").text("Billing invoice for created")
 					// .hideAfter(Duration.seconds(5)).showInformation();
 				}
-				
+
 				bill = findBillingInvoice(customerId, startDate.withDayOfMonth(1).plusMonths(1).minusDays(1));
 				stmt.close();
 			} catch (SQLException e) {
@@ -211,12 +233,12 @@ public class BillingUtilityClass {
 				con = Main.reconnect();
 			}
 			// lineNumCustomersTable.getItems().clear();
-			PreparedStatement stmt = con.prepareStatement(
-					"select distinct payment_type from subscription where customer_id=?");
+			PreparedStatement stmt = con
+					.prepareStatement("select distinct payment_type from subscription where customer_id=?");
 			stmt.setLong(1, customerId);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
-				if("Month End".equals(rs.getString(1)))
+				if ("Month End".equals(rs.getString(1)))
 					return true;
 
 			}
@@ -377,7 +399,8 @@ public class BillingUtilityClass {
 						rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
-						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(), rs.getDouble(21)));
+						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
+						rs.getDouble(21)));
 			}
 			rs.close();
 			stmt.close();
@@ -553,11 +576,17 @@ public class BillingUtilityClass {
 	public static double calculateStopHistoryAmount(StopHistory stpRow) {
 		Subscription subRow = subForSubId(stpRow.getSubscriptionId());
 		Product prod = productForSub(subRow.getProductId());
+		ArrayList<ProductSpecialPrice> prodSpclPriceList = prodSpclPriceList(prod.getProductId(), stpRow.getStopDate(),
+				stpRow.getResumeDate().minusDays(1));
+		HashMap<LocalDate, Double> spclMap = new HashMap<LocalDate, Double>();
+		for (ProductSpecialPrice psp : prodSpclPriceList) {
+			spclMap.put(psp.getFullDate(), psp.getPrice());
+		}
 		double bill = 0.0;
 		if (subRow.getFrequency().equals("Daily")) {
 			for (LocalDate date = stpRow.getStopDate(); date
 					.isBefore(stpRow.getResumeDate()); date = date.plusDays(1)) {
-				bill += amountForDate(subRow, prod, date);
+				bill += amountForDateSpcl(subRow, prod, spclMap, date);
 
 			}
 		} else if (subRow.getFrequency().equals("Weekly")) {
@@ -590,7 +619,7 @@ public class BillingUtilityClass {
 				// bill +=
 				// prod.getPrice();
 				// confirm whether to get price from DOW of SUB PRICE
-				bill += amountForDate(subRow, prod, date);
+				bill += amountForDateSpcl(subRow, prod, spclMap, date);
 
 			}
 		} else if (subRow.getFrequency().equals("14 Days")) {
@@ -601,60 +630,64 @@ public class BillingUtilityClass {
 			LocalDate thirdDate = secondDate == null ? null
 					: secondDate.plusDays(14).isBefore(stpRow.getResumeDate()) ? secondDate.plusDays(14) : null;
 			if (!(firstDate.isBefore(stpRow.getStopDate())) && (firstDate.isBefore(stpRow.getResumeDate()))) {
-				bill += amountForDate(subRow, prod, firstDate);
+				bill += amountForDateSpcl(subRow, prod, spclMap, firstDate);
 
 			}
 			if (secondDate != null) {
 				if (!(secondDate.isBefore(stpRow.getStopDate())) && (secondDate.isBefore(stpRow.getResumeDate()))) {
-					bill += amountForDate(subRow, prod, secondDate);
+					bill += amountForDateSpcl(subRow, prod, spclMap, secondDate);
 
 				}
 			}
 			if (thirdDate != null) {
 				if (!(thirdDate.isBefore(stpRow.getStopDate())) && (thirdDate.isBefore(stpRow.getResumeDate()))) {
-					bill += amountForDate(subRow, prod, thirdDate);
+					bill += amountForDateSpcl(subRow, prod, spclMap, thirdDate);
 
 				}
 			}
 		} else if (subRow.getFrequency().equals("15 Days")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate())
+					.getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 			LocalDate secondDate = firstDate.plusDays(15);
 			if (!(firstDate.isBefore(stpRow.getStopDate())) && (firstDate.isBefore(stpRow.getResumeDate()))) {
-				bill += amountForDate(subRow, prod, firstDate);
+				bill += amountForDateSpcl(subRow, prod, spclMap, firstDate);
 
 			}
 			if (secondDate != null) {
 				if (!(secondDate.isBefore(stpRow.getStopDate())) && (secondDate.isBefore(stpRow.getResumeDate()))) {
-					bill += amountForDate(subRow, prod, secondDate);
+					bill += amountForDateSpcl(subRow, prod, spclMap, secondDate);
 
 				}
 			}
 		} else if (subRow.getFrequency().equals("Monthly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate())
+					.getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (!(firstDate.isBefore(stpRow.getStopDate())) && (firstDate.isBefore(stpRow.getResumeDate()))) {
-				bill += amountForDate(subRow, prod, firstDate);
+				bill += amountForDateSpcl(subRow, prod, spclMap, firstDate);
 
 			}
 		} else if (subRow.getFrequency().equals("Quarterly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate())
+					.getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 3 == 0) {
 				if (!(firstDate.isBefore(stpRow.getStopDate())) && (firstDate.isBefore(stpRow.getResumeDate()))) {
-					bill += amountForDate(subRow, prod, firstDate);
+					bill += amountForDateSpcl(subRow, prod, spclMap, firstDate);
 
 				}
 			}
 		} else if (subRow.getFrequency().equals("Half Yearly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate())
+					.getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 6 == 0) {
 				if (!(firstDate.isBefore(stpRow.getStopDate())) && (firstDate.isBefore(stpRow.getResumeDate()))) {
-					bill += amountForDate(subRow, prod, firstDate);
+					bill += amountForDateSpcl(subRow, prod, spclMap, firstDate);
 
 				}
 			}
@@ -664,7 +697,7 @@ public class BillingUtilityClass {
 
 			if (months % 12 == 0) {
 				if (!(firstDate.isBefore(stpRow.getStopDate())) && (firstDate.isBefore(stpRow.getResumeDate()))) {
-					bill += amountForDate(subRow, prod, firstDate);
+					bill += amountForDateSpcl(subRow, prod, spclMap, firstDate);
 
 				}
 			}
@@ -854,7 +887,8 @@ public class BillingUtilityClass {
 						rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
-						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(), rs.getDouble(21));
+						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
+						rs.getDouble(21));
 			}
 			rs.close();
 			stmt.close();
@@ -873,7 +907,7 @@ public class BillingUtilityClass {
 			Connection con = Main.dbConnection;
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
-			} 
+			}
 			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where customer_id = ? ";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, custId);
@@ -1185,5 +1219,77 @@ public class BillingUtilityClass {
 		return diff;
 	}
 
+	public static void generateInvoicePDF(String hawkerCode, int lineNum, String invoiceDate) {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+					
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+
+							Notifications.create().title("Generating Invoice PDF").text("Generating Invoice PDF for selected line. Please wait...")
+									.hideAfter(Duration.seconds(10)).showInformation();
+						}
+					});
+					
+					String reportSrcFile = "src/application/MasterInvoice.jrxml";
+
+					// First, compile jrxml file.
+					JasperReport jasperReport = JasperCompileManager.compileReport(reportSrcFile);
+
+					// Connection conn = ConnectionUtils.getConnection();
+
+					// Parameters for report
+					Map<String, Object> parameters = new HashMap<String, Object>();
+					parameters.put("HWK_CODE", hawkerCode);
+					parameters.put("LINE_NUM", lineNum);
+					parameters.put("INVOICE_DATE", invoiceDate);
+					JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+					// Make sure the output directory exists.
+					File outDir = new File("C:/pds");
+					outDir.mkdirs();
+
+					// PDF Exportor.
+					JRPdfExporter exporter = new JRPdfExporter();
+
+					ExporterInput exporterInput = new SimpleExporterInput(print);
+					// ExporterInput
+					exporter.setExporterInput(exporterInput);
+
+					// ExporterOutput
+					String filename = "C:/pds/" + hawkerCode + "-" + Integer.toString(lineNum) + "-"
+							+ invoiceDate.replace('/', '-') + ".pdf";
+					OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+					// Output
+					exporter.setExporterOutput(exporterOutput);
+
+					//
+					SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+					exporter.setConfiguration(configuration);
+					exporter.exportReport();
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+
+							Notifications.create().title("Invocie PDF Created").text("Invoice PDF created at : " + filename)
+									.hideAfter(Duration.seconds(15)).showInformation();
+						}
+					});
+				} catch (JRException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+		};
+		new Thread(task).start();
+	}
 
 }

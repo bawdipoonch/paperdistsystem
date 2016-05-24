@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-05-11T22:32:06 -->
+<!-- 2016-05-21T00:02:30 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BillSubreport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="435ca022-c2cc-41c8-9032-2d400a444245">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -62,7 +62,8 @@ WHERE "BILLING_LINES"."BILL_INVOICE_NUM"=$P{BILL_INVOICE_NUM}]]>
 	NVL("BILLING_LINES"."AMOUNT",0.0) AS "AMOUNT",
 	NVL("BILLING_LINES"."TEA_EXPENSES",0.0) AS "TEA_EXPENSES"
 FROM "BILLING_LINES"
-WHERE "BILLING_LINES"."BILL_INVOICE_NUM"=$P{BILL_INVOICE_NUM}]]>
+WHERE "BILLING_LINES"."BILL_INVOICE_NUM"=$P{BILL_INVOICE_NUM}
+AND  (SELECT NVL("BILLING_LINES"."AMOUNT",0.0) + NVL("BILLING_LINES"."TEA_EXPENSES",0.0) FROM DUAL)>0.0]]>
 	</queryString>
 	<field name="BILL_LINE_ID" class="java.math.BigDecimal"/>
 	<field name="BILL_INVOICE_NUM" class="java.math.BigDecimal"/>
@@ -119,7 +120,7 @@ WHERE "BILLING_LINES"."BILL_INVOICE_NUM"=$P{BILL_INVOICE_NUM}]]>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="8" isBold="true" isUnderline="false"/>
 								</textElement>
-								<text><![CDATA[Prod]]></text>
+								<text><![CDATA[Pub]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="20">

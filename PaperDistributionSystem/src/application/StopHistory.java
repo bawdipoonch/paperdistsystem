@@ -217,6 +217,10 @@ public class StopHistory {
 			stp.updateStopHistoryRecord();
 			stp.setAmount(BillingUtilityClass.calculateStopHistoryAmount(stp));
 			stp.updateStopHistoryRecord();
+			//Set subscription stop date to new stop history record's stop date
+			Subscription sub = BillingUtilityClass.subForSubId(stp.getSubscriptionId());
+			sub.setPausedDate(date.plusDays(1));
+			sub.updateSubscriptionRecord();
 		} catch (SQLException e) {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")

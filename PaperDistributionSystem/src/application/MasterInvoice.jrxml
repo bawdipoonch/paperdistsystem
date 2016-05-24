@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-05-24T22:28:55 -->
+<!-- 2016-05-24T23:07:29 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoice" pageWidth="595" pageHeight="842" columnWidth="560" leftMargin="25" rightMargin="10" topMargin="10" bottomMargin="10" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -34,54 +34,64 @@
 	<subDataset name="TableDS" uuid="5275c0b7-30fe-488b-ab0e-af7f89b122c8">
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<parameter name="HWK_CODE" class="java.lang.String"/>
+		<parameter name="LINE_NUM" class="java.lang.Integer"/>
+		<parameter name="INVOICE_DATE" class="java.lang.String"/>
 		<queryString>
-			<![CDATA[SELECT "CUSTOMER"."CUSTOMER_ID",
-	"CUSTOMER"."NAME",
-	"CUSTOMER"."MOBILE_NUM",
-	"CUSTOMER"."CUSTOMER_CODE",
-	"CUSTOMER"."LINE_NUM",
-	"CUSTOMER"."HOUSE_SEQ",
-	"CUSTOMER"."OLD_HOUSE_NUM",
-	"CUSTOMER"."NEW_HOUSE_NUM",
-	"CUSTOMER"."ADDRESS_LINE1",
-	"CUSTOMER"."ADDRESS_LINE2",
-	"CUSTOMER"."ADDRESS_LINE3",
-	"CUSTOMER"."LANDMARK",
-	"CUSTOMER"."LOCALITY",
-	"CUSTOMER"."CITY",
-	"CUSTOMER"."STATE",
-	"CUSTOMER"."HAWKER_CODE",
-	"CUSTOMER"."INITIALS",
-	"CUSTOMER"."TOTAL_DUE",
-	"HAWKER_INFO"."HAWKER_ID",
-	"HAWKER_INFO"."NAME" as "HAWKER_NAME",
-	"HAWKER_INFO"."AGENCY_NAME",
-	"HAWKER_INFO"."MOBILE_NUM"AS "HWK_MOB",
-	"HAWKER_INFO"."HAWKER_CODE" AS "HWK_CODE",
-	"HAWKER_INFO"."ADDR_LINE1",
-	"HAWKER_INFO"."ADDR_LINE2",
-	"HAWKER_INFO"."LOCALITY" AS "HWK_LOCALITY",
-	"HAWKER_INFO"."CITY" AS "HWK_CITY",
-	"HAWKER_INFO"."STATE" AS "HWK_STATE",
-	"HAWKER_INFO"."OLD_HOUSE_NUM" AS "HWK_OLD",
-	"HAWKER_INFO"."NEW_HOUSE_NUM" AS "HWK_NEW",
-	"HAWKER_INFO"."TOTAL_DUE" AS "HWK_TOTAL_DUE",
-	"HAWKER_INFO"."INITIALS" AS "HWK_INITIALS",
-	"HAWKER_INFO"."BANK_AC_NO",
-	"HAWKER_INFO"."BUILDING_STREET",
-	"HAWKER_INFO"."BANK_NAME",
-	"HAWKER_INFO"."IFSC_CODE",
-	"CUSTOMER"."BUILDING_STREET" AS "CUST_BLDG",
-	"BILLING"."BILL_INVOICE_NUM",
-	"BILLING"."INVOICE_DATE",
-	"BILLING"."CUSTOMER_ID" AS "BILL_CUST_ID",
-	"BILLING"."DUE"
-FROM "CUSTOMER",
-	"HAWKER_INFO",
-	"BILLING"
-WHERE 
-	 "CUSTOMER"."CUSTOMER_ID" = "BILLING"."CUSTOMER_ID" 
-	 AND "CUSTOMER"."HAWKER_CODE" = "HAWKER_INFO"."HAWKER_CODE"]]>
+			<![CDATA[SELECT "INVOICE_QUERY"."CUSTOMER_ID",
+	"INVOICE_QUERY"."NAME",
+	"INVOICE_QUERY"."MOBILE_NUM",
+	"INVOICE_QUERY"."CUSTOMER_CODE",
+	"INVOICE_QUERY"."LINE_NUM",
+	"INVOICE_QUERY"."HOUSE_SEQ",
+	"INVOICE_QUERY"."OLD_HOUSE_NUM",
+	"INVOICE_QUERY"."NEW_HOUSE_NUM",
+	"INVOICE_QUERY"."ADDRESS_LINE1",
+	"INVOICE_QUERY"."ADDRESS_LINE2",
+	"INVOICE_QUERY"."ADDRESS_LINE3",
+	"INVOICE_QUERY"."LANDMARK",
+	"INVOICE_QUERY"."LOCALITY",
+	"INVOICE_QUERY"."CITY",
+	"INVOICE_QUERY"."STATE",
+	"INVOICE_QUERY"."HAWKER_CODE",
+	"INVOICE_QUERY"."INITIALS",
+	"INVOICE_QUERY"."TOTAL_DUE",
+	"INVOICE_QUERY"."HAWKER_ID",
+	"INVOICE_QUERY"."HAWKER_NAME",
+	"INVOICE_QUERY"."AGENCY_NAME",
+	"INVOICE_QUERY"."HWK_MOB",
+	"INVOICE_QUERY"."HWK_CODE",
+	"INVOICE_QUERY"."ADDR_LINE1",
+	"INVOICE_QUERY"."ADDR_LINE2",
+	"INVOICE_QUERY"."HWK_LOCALITY",
+	"INVOICE_QUERY"."HWK_CITY",
+	"INVOICE_QUERY"."HWK_STATE",
+	"INVOICE_QUERY"."HWK_OLD",
+	"INVOICE_QUERY"."HWK_NEW",
+	"INVOICE_QUERY"."HWK_TOTAL_DUE",
+	"INVOICE_QUERY"."HWK_INITIALS",
+	"INVOICE_QUERY"."BANK_AC_NO",
+	"INVOICE_QUERY"."BUILDING_STREET",
+	"INVOICE_QUERY"."BANK_NAME",
+	"INVOICE_QUERY"."IFSC_CODE",
+	"INVOICE_QUERY"."CUST_BLDG",
+	"INVOICE_QUERY"."BILL_INVOICE_NUM",
+	"INVOICE_QUERY"."INVOICE_DATE",
+	"INVOICE_QUERY"."BILL_CUST_ID",
+	"INVOICE_QUERY"."DUE",
+	"INVOICE_QUERY"."LINE_DIST_ID",
+	"INVOICE_QUERY"."DIST_NAME",
+	"INVOICE_QUERY"."DIST_MOB",
+	"INVOICE_QUERY"."DIST_HWK_ID",
+	"INVOICE_QUERY"."DIST_LINE_NUM",
+	"INVOICE_QUERY"."MONTH",
+	"INVOICE_QUERY"."TOTAL",
+	"INVOICE_QUERY"."GTOTAL"
+FROM "INVOICE_QUERY"
+WHERE "INVOICE_QUERY"."GTOTAL">0.0
+AND "INVOICE_QUERY"."HAWKER_CODE"=$P{HWK_CODE}
+AND "INVOICE_QUERY"."LINE_NUM"=$P{LINE_NUM}
+AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 		</queryString>
 		<field name="CUSTOMER_ID" class="java.math.BigDecimal"/>
 		<field name="NAME" class="java.lang.String"/>
@@ -121,9 +131,17 @@ WHERE
 		<field name="IFSC_CODE" class="java.lang.String"/>
 		<field name="CUST_BLDG" class="java.lang.String"/>
 		<field name="BILL_INVOICE_NUM" class="java.math.BigDecimal"/>
-		<field name="INVOICE_DATE" class="java.sql.Timestamp"/>
+		<field name="INVOICE_DATE" class="java.lang.String"/>
 		<field name="BILL_CUST_ID" class="java.math.BigDecimal"/>
 		<field name="DUE" class="java.math.BigDecimal"/>
+		<field name="LINE_DIST_ID" class="java.math.BigDecimal"/>
+		<field name="DIST_NAME" class="java.lang.String"/>
+		<field name="DIST_MOB" class="java.lang.String"/>
+		<field name="DIST_HWK_ID" class="java.math.BigDecimal"/>
+		<field name="DIST_LINE_NUM" class="java.math.BigDecimal"/>
+		<field name="MONTH" class="java.lang.String"/>
+		<field name="TOTAL" class="java.math.BigDecimal"/>
+		<field name="GTOTAL" class="java.math.BigDecimal"/>
 		<sortField name="HAWKER_CODE"/>
 		<sortField name="LINE_NUM"/>
 		<sortField name="HOUSE_SEQ"/>
@@ -135,7 +153,7 @@ WHERE
 		<parameterDescription><![CDATA[Line num]]></parameterDescription>
 		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
 	</parameter>
-	<parameter name="INVOICE_DATE" class="java.sql.Date"/>
+	<parameter name="INVOICE_DATE" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT "INVOICE_QUERY"."CUSTOMER_ID",
 	"INVOICE_QUERY"."NAME",
@@ -230,7 +248,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	<field name="IFSC_CODE" class="java.lang.String"/>
 	<field name="CUST_BLDG" class="java.lang.String"/>
 	<field name="BILL_INVOICE_NUM" class="java.math.BigDecimal"/>
-	<field name="INVOICE_DATE" class="java.sql.Timestamp"/>
+	<field name="INVOICE_DATE" class="java.lang.String"/>
 	<field name="BILL_CUST_ID" class="java.math.BigDecimal"/>
 	<field name="DUE" class="java.math.BigDecimal"/>
 	<field name="LINE_DIST_ID" class="java.math.BigDecimal"/>
@@ -630,7 +648,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 						<textElement textAlignment="Left" verticalAlignment="Middle">
 							<font size="8"/>
 						</textElement>
-						<textFieldExpression><![CDATA[DATEFORMAT($F{INVOICE_DATE},"dd/MM/YYYY")]]></textFieldExpression>
+						<textFieldExpression><![CDATA[$F{INVOICE_DATE}]]></textFieldExpression>
 					</textField>
 				</frame>
 				<frame>
@@ -810,7 +828,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 						<textElement textAlignment="Center" verticalAlignment="Middle">
 							<font size="8"/>
 						</textElement>
-						<textFieldExpression><![CDATA[DATEFORMAT($F{INVOICE_DATE},"dd/MM/YYYY")]]></textFieldExpression>
+						<textFieldExpression><![CDATA[$F{INVOICE_DATE}]]></textFieldExpression>
 					</textField>
 					<staticText>
 						<reportElement x="0" y="96" width="110" height="19" uuid="3f25efb6-41d2-4676-b4fb-87f5ea732a06"/>
@@ -1063,6 +1081,12 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 					</staticText>
 					<textField>
 						<reportElement x="275" y="0" width="95" height="26" uuid="181d5c23-181b-4500-b753-737eb07b7ec9"/>
+						<box>
+							<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
 						<textElement textAlignment="Center" verticalAlignment="Middle">
 							<font size="8"/>
 						</textElement>

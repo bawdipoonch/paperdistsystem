@@ -37,10 +37,10 @@
 										</HBox>
 									</children>
 								</HBox>
-								<HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
+								<HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="NEVER">
 									<children>
-										<Button fx:id="showCounts" layoutX="10.0" layoutY="19.0" mnemonicParsing="false" onAction="#showSubscriptionCounts" prefWidth="130.0" text="Show Counts" />
-										<Button fx:id="addCustExtraButton" mnemonicParsing="false" onAction="#addCustomerExtraScreenClicked" prefWidth="130.0" text="Add Customer" />
+										<Button fx:id="showCounts" layoutX="10.0" layoutY="19.0" mnemonicParsing="false" onAction="#showSubscriptionCounts" prefWidth="90.0" text="Show Counts" />
+										<Button fx:id="addCustExtraButton" mnemonicParsing="false" onAction="#addCustomerExtraScreenClicked" prefWidth="100.0" text="Add Customer" />
 										<Button fx:id="shuffleButton" mnemonicParsing="false" onAction="#shuffleHouseSeqClicked" prefWidth="150.0" text="Shuffle House Sequences" />
 									</children>
 								</HBox>
@@ -152,6 +152,7 @@
 																	<columns>
 																		<TableColumn fx:id="stpstopHistoryIdColumn" prefWidth="60.0" text="StopHist ID" />
 																		<TableColumn fx:id="stpsubsIdColumn" prefWidth="60.0" text="Sub ID" />
+                                          								<TableColumn fx:id="stpsubsProdCodeColumn" prefWidth="60.0" text="Code" />
 																		<TableColumn fx:id="stpsubsProdNameColumn" prefWidth="120.0" text="Product Name" />
 																		<TableColumn fx:id="stpsubsTypeColumn" prefWidth="120.0" text="Subscription Type" />
 																		<TableColumn fx:id="stpsubsFreqColumn" prefWidth="120.0" text="Subscription Freq" />
@@ -170,40 +171,6 @@
 												</Tab>
 											</tabs>
 										</TabPane>
-										<HBox alignment="CENTER" prefHeight="23.0" prefWidth="1039.0" spacing="25.0">
-											<children>
-												<Label text="Daily Count : ">
-													<font>
-														<Font size="14.0" />
-													</font>
-												</Label>
-												<Label fx:id="dailyCount">
-													<font>
-														<Font size="14.0" />
-													</font>
-												</Label>
-												<Label text="Weekly Count:">
-													<font>
-														<Font size="14.0" />
-													</font>
-												</Label>
-												<Label fx:id="weeklyCount">
-													<font>
-														<Font size="14.0" />
-													</font>
-												</Label>
-												<Label text="14 Days Count:">
-													<font>
-														<Font size="14.0" />
-													</font>
-												</Label>
-												<Label fx:id="days14Count">
-													<font>
-														<Font size="14.0" />
-													</font>
-												</Label>
-											</children>
-										</HBox>
 									</children>
 								</VBox>
 							</children>
