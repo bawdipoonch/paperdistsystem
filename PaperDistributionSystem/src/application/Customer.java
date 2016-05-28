@@ -311,12 +311,12 @@ public class Customer {
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().title("Update failed").text("Update request of customer has failed").showError();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}

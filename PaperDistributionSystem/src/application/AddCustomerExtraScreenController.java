@@ -141,7 +141,7 @@ public class AddCustomerExtraScreenController implements Initializable {
 		// Notifications.create().title("Invalid mobile number")
 		// .text("Mobile number should only contain 10 DIGITS")
 		// .hideAfter(Duration.seconds(5)).showError();
-		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// Main._logger.debug("Error :",e); e.printStackTrace();
 		// }
 		// }
 		// });
@@ -200,11 +200,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return 1;
@@ -229,11 +229,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -258,11 +258,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -285,11 +285,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -312,11 +312,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -340,11 +340,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -397,7 +397,7 @@ public class AddCustomerExtraScreenController implements Initializable {
 		// .text("Mobile number should only contain 10 DIGITS")
 		// .hideAfter(Duration.seconds(5)).showError();
 		// validate = false;
-		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// Main._logger.debug("Error :",e); e.printStackTrace();
 		// }
 		return validate;
 	}
@@ -480,14 +480,14 @@ public class AddCustomerExtraScreenController implements Initializable {
 
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 						.text("There has been some error during customer creation, please retry").showError();
 				Main.reconnect();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 
@@ -514,11 +514,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -548,11 +548,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -597,11 +597,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;

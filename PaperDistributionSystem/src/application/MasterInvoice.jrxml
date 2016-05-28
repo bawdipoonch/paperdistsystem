@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-05-24T23:07:29 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoice" pageWidth="595" pageHeight="842" columnWidth="560" leftMargin="25" rightMargin="10" topMargin="10" bottomMargin="10" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
+<!-- 2016-05-27T10:11:47 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoice" pageWidth="595" pageHeight="842" columnWidth="560" leftMargin="25" rightMargin="10" topMargin="10" bottomMargin="10" whenResourceMissingType="Empty" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -37,6 +37,7 @@
 		<parameter name="HWK_CODE" class="java.lang.String"/>
 		<parameter name="LINE_NUM" class="java.lang.Integer"/>
 		<parameter name="INVOICE_DATE" class="java.lang.String"/>
+		<parameter name="SubReportParam" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
 		<queryString>
 			<![CDATA[SELECT "INVOICE_QUERY"."CUSTOMER_ID",
 	"INVOICE_QUERY"."NAME",
@@ -93,12 +94,12 @@ AND "INVOICE_QUERY"."HAWKER_CODE"=$P{HWK_CODE}
 AND "INVOICE_QUERY"."LINE_NUM"=$P{LINE_NUM}
 AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 		</queryString>
-		<field name="CUSTOMER_ID" class="java.math.BigDecimal"/>
+		<field name="CUSTOMER_ID" class="java.lang.Long"/>
 		<field name="NAME" class="java.lang.String"/>
 		<field name="MOBILE_NUM" class="java.lang.String"/>
-		<field name="CUSTOMER_CODE" class="java.math.BigDecimal"/>
-		<field name="LINE_NUM" class="java.math.BigDecimal"/>
-		<field name="HOUSE_SEQ" class="java.math.BigDecimal"/>
+		<field name="CUSTOMER_CODE" class="java.lang.Long"/>
+		<field name="LINE_NUM" class="java.lang.Integer"/>
+		<field name="HOUSE_SEQ" class="java.lang.Integer"/>
 		<field name="OLD_HOUSE_NUM" class="java.lang.String"/>
 		<field name="NEW_HOUSE_NUM" class="java.lang.String"/>
 		<field name="ADDRESS_LINE1" class="java.lang.String"/>
@@ -110,8 +111,8 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 		<field name="STATE" class="java.lang.String"/>
 		<field name="HAWKER_CODE" class="java.lang.String"/>
 		<field name="INITIALS" class="java.lang.String"/>
-		<field name="TOTAL_DUE" class="java.math.BigDecimal"/>
-		<field name="HAWKER_ID" class="java.math.BigDecimal"/>
+		<field name="TOTAL_DUE" class="java.lang.Double"/>
+		<field name="HAWKER_ID" class="java.lang.Long"/>
 		<field name="HAWKER_NAME" class="java.lang.String"/>
 		<field name="AGENCY_NAME" class="java.lang.String"/>
 		<field name="HWK_MOB" class="java.lang.String"/>
@@ -123,25 +124,25 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 		<field name="HWK_STATE" class="java.lang.String"/>
 		<field name="HWK_OLD" class="java.lang.String"/>
 		<field name="HWK_NEW" class="java.lang.String"/>
-		<field name="HWK_TOTAL_DUE" class="java.math.BigDecimal"/>
+		<field name="HWK_TOTAL_DUE" class="java.lang.Double"/>
 		<field name="HWK_INITIALS" class="java.lang.String"/>
 		<field name="BANK_AC_NO" class="java.lang.String"/>
 		<field name="BUILDING_STREET" class="java.lang.String"/>
 		<field name="BANK_NAME" class="java.lang.String"/>
 		<field name="IFSC_CODE" class="java.lang.String"/>
 		<field name="CUST_BLDG" class="java.lang.String"/>
-		<field name="BILL_INVOICE_NUM" class="java.math.BigDecimal"/>
+		<field name="BILL_INVOICE_NUM" class="java.lang.Long"/>
 		<field name="INVOICE_DATE" class="java.lang.String"/>
-		<field name="BILL_CUST_ID" class="java.math.BigDecimal"/>
-		<field name="DUE" class="java.math.BigDecimal"/>
-		<field name="LINE_DIST_ID" class="java.math.BigDecimal"/>
+		<field name="BILL_CUST_ID" class="java.lang.Long"/>
+		<field name="DUE" class="java.lang.Double"/>
+		<field name="LINE_DIST_ID" class="java.lang.Long"/>
 		<field name="DIST_NAME" class="java.lang.String"/>
 		<field name="DIST_MOB" class="java.lang.String"/>
-		<field name="DIST_HWK_ID" class="java.math.BigDecimal"/>
-		<field name="DIST_LINE_NUM" class="java.math.BigDecimal"/>
+		<field name="DIST_HWK_ID" class="java.lang.Long"/>
+		<field name="DIST_LINE_NUM" class="java.lang.Integer"/>
 		<field name="MONTH" class="java.lang.String"/>
-		<field name="TOTAL" class="java.math.BigDecimal"/>
-		<field name="GTOTAL" class="java.math.BigDecimal"/>
+		<field name="TOTAL" class="java.lang.Double"/>
+		<field name="GTOTAL" class="java.lang.Double"/>
 		<sortField name="HAWKER_CODE"/>
 		<sortField name="LINE_NUM"/>
 		<sortField name="HOUSE_SEQ"/>
@@ -151,9 +152,9 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	</parameter>
 	<parameter name="LINE_NUM" class="java.lang.Integer">
 		<parameterDescription><![CDATA[Line num]]></parameterDescription>
-		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
 	</parameter>
 	<parameter name="INVOICE_DATE" class="java.lang.String"/>
+	<parameter name="SubReportParam" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
 	<queryString>
 		<![CDATA[SELECT "INVOICE_QUERY"."CUSTOMER_ID",
 	"INVOICE_QUERY"."NAME",
@@ -210,12 +211,12 @@ AND "INVOICE_QUERY"."HAWKER_CODE"=$P{HWK_CODE}
 AND "INVOICE_QUERY"."LINE_NUM"=$P{LINE_NUM}
 AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	</queryString>
-	<field name="CUSTOMER_ID" class="java.math.BigDecimal"/>
+	<field name="CUSTOMER_ID" class="java.lang.Long"/>
 	<field name="NAME" class="java.lang.String"/>
 	<field name="MOBILE_NUM" class="java.lang.String"/>
-	<field name="CUSTOMER_CODE" class="java.math.BigDecimal"/>
-	<field name="LINE_NUM" class="java.math.BigDecimal"/>
-	<field name="HOUSE_SEQ" class="java.math.BigDecimal"/>
+	<field name="CUSTOMER_CODE" class="java.lang.Long"/>
+	<field name="LINE_NUM" class="java.lang.Integer"/>
+	<field name="HOUSE_SEQ" class="java.lang.Integer"/>
 	<field name="OLD_HOUSE_NUM" class="java.lang.String"/>
 	<field name="NEW_HOUSE_NUM" class="java.lang.String"/>
 	<field name="ADDRESS_LINE1" class="java.lang.String"/>
@@ -227,8 +228,8 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	<field name="STATE" class="java.lang.String"/>
 	<field name="HAWKER_CODE" class="java.lang.String"/>
 	<field name="INITIALS" class="java.lang.String"/>
-	<field name="TOTAL_DUE" class="java.math.BigDecimal"/>
-	<field name="HAWKER_ID" class="java.math.BigDecimal"/>
+	<field name="TOTAL_DUE" class="java.lang.Double"/>
+	<field name="HAWKER_ID" class="java.lang.Double"/>
 	<field name="HAWKER_NAME" class="java.lang.String"/>
 	<field name="AGENCY_NAME" class="java.lang.String"/>
 	<field name="HWK_MOB" class="java.lang.String"/>
@@ -240,25 +241,25 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	<field name="HWK_STATE" class="java.lang.String"/>
 	<field name="HWK_OLD" class="java.lang.String"/>
 	<field name="HWK_NEW" class="java.lang.String"/>
-	<field name="HWK_TOTAL_DUE" class="java.math.BigDecimal"/>
+	<field name="HWK_TOTAL_DUE" class="java.lang.Double"/>
 	<field name="HWK_INITIALS" class="java.lang.String"/>
 	<field name="BANK_AC_NO" class="java.lang.String"/>
 	<field name="BUILDING_STREET" class="java.lang.String"/>
 	<field name="BANK_NAME" class="java.lang.String"/>
 	<field name="IFSC_CODE" class="java.lang.String"/>
 	<field name="CUST_BLDG" class="java.lang.String"/>
-	<field name="BILL_INVOICE_NUM" class="java.math.BigDecimal"/>
+	<field name="BILL_INVOICE_NUM" class="java.lang.Long"/>
 	<field name="INVOICE_DATE" class="java.lang.String"/>
-	<field name="BILL_CUST_ID" class="java.math.BigDecimal"/>
-	<field name="DUE" class="java.math.BigDecimal"/>
-	<field name="LINE_DIST_ID" class="java.math.BigDecimal"/>
+	<field name="BILL_CUST_ID" class="java.lang.Long"/>
+	<field name="DUE" class="java.lang.Double"/>
+	<field name="LINE_DIST_ID" class="java.lang.Long"/>
 	<field name="DIST_NAME" class="java.lang.String"/>
 	<field name="DIST_MOB" class="java.lang.String"/>
-	<field name="DIST_HWK_ID" class="java.math.BigDecimal"/>
-	<field name="DIST_LINE_NUM" class="java.math.BigDecimal"/>
+	<field name="DIST_HWK_ID" class="java.lang.Long"/>
+	<field name="DIST_LINE_NUM" class="java.lang.Integer"/>
 	<field name="MONTH" class="java.lang.String"/>
-	<field name="TOTAL" class="java.math.BigDecimal"/>
-	<field name="GTOTAL" class="java.math.BigDecimal"/>
+	<field name="TOTAL" class="java.lang.Double"/>
+	<field name="GTOTAL" class="java.lang.Double"/>
 	<sortField name="HAWKER_CODE"/>
 	<sortField name="LINE_NUM"/>
 	<sortField name="HOUSE_SEQ"/>
@@ -1047,13 +1048,13 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 						</textElement>
 						<textFieldExpression><![CDATA[$F{DUE}]]></textFieldExpression>
 					</textField>
-					<subreport overflowType="Stretch">
+					<subreport isUsingCache="true" overflowType="Stretch">
 						<reportElement x="120" y="115" width="153" height="111" uuid="4f586e0b-ef1e-4ac0-aaf7-83821b1c95d8"/>
 						<subreportParameter name="BILL_INVOICE_NUM">
 							<subreportParameterExpression><![CDATA[$F{BILL_INVOICE_NUM}]]></subreportParameterExpression>
 						</subreportParameter>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-						<subreportExpression><![CDATA["src/application/BillSubreport.jasper"]]></subreportExpression>
+						<subreportExpression><![CDATA[$P{SubReportParam}]]></subreportExpression>
 					</subreport>
 					<textField isBlankWhenNull="true">
 						<reportElement x="40" y="133" width="80" height="92" uuid="2ac6c712-8a50-4825-a9d2-6a5a3bc169a5"/>

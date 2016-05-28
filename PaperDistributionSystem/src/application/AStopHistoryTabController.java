@@ -295,11 +295,11 @@ public class AStopHistoryTabController implements Initializable {
 			hawkerStatement.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -344,11 +344,11 @@ public class AStopHistoryTabController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 
@@ -403,11 +403,11 @@ public class AStopHistoryTabController implements Initializable {
 					}
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				return null;
@@ -470,11 +470,11 @@ public class AStopHistoryTabController implements Initializable {
 
 					SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 
 					}
@@ -526,11 +526,11 @@ public class AStopHistoryTabController implements Initializable {
 							lineNumStatement.close();
 						} catch (SQLException e) {
 
-							Main._logger.debug(e.getStackTrace());
+							Main._logger.debug("Error :",e);
 							e.printStackTrace();
 						} catch (Exception e) {
 
-							Main._logger.debug(e.getStackTrace());
+							Main._logger.debug("Error :",e);
 							e.printStackTrace();
 						}
 					}
@@ -570,11 +570,11 @@ public class AStopHistoryTabController implements Initializable {
 			hawkerIdStatement.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -629,11 +629,11 @@ public class AStopHistoryTabController implements Initializable {
 
 					SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 
 					}
@@ -671,7 +671,7 @@ public class AStopHistoryTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -701,7 +701,7 @@ public class AStopHistoryTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -750,11 +750,11 @@ public class AStopHistoryTabController implements Initializable {
 							stmt.close();
 						}
 					} catch (SQLException e) {
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}

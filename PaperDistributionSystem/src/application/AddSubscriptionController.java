@@ -372,11 +372,11 @@ public class AddSubscriptionController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				subscriptionTypeLOV.getItems().clear();
@@ -411,11 +411,11 @@ public class AddSubscriptionController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				paymentTypeLOV.getItems().clear();
@@ -441,7 +441,7 @@ public class AddSubscriptionController implements Initializable {
 
 									paymentTypeLOV.setDisable(true);
 								} catch (SQLException e) {
-									Main._logger.debug(e.getStackTrace());
+									Main._logger.debug("Error :",e);
 									e.printStackTrace();
 								}
 							}
@@ -451,11 +451,11 @@ public class AddSubscriptionController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				return null;
@@ -488,11 +488,11 @@ public class AddSubscriptionController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				durationLOV.getItems().clear();
@@ -538,11 +538,11 @@ public class AddSubscriptionController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -661,13 +661,13 @@ public class AddSubscriptionController implements Initializable {
 					return subId;
 
 				} catch (NumberFormatException e) {
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 							.text("Only numeric values should be entered in Price and Tea Expenses fields").showError();
 					Main.reconnect();
 				} catch (SQLException e) {
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 							.text("There has been some error during subscription creation, please check all the values and retry")
@@ -675,7 +675,7 @@ public class AddSubscriptionController implements Initializable {
 					Main.reconnect();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 			}
@@ -735,13 +735,13 @@ public class AddSubscriptionController implements Initializable {
 					}
 
 				} catch (NumberFormatException e) {
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 							.text("Only numeric values should be entered in Price and Tea Expenses fields").showError();
 					Main.reconnect();
 				} catch (SQLException e) {
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 							.text("There has been some error during subscription creation, please check all the values and retry")
@@ -749,7 +749,7 @@ public class AddSubscriptionController implements Initializable {
 					Main.reconnect();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 			}

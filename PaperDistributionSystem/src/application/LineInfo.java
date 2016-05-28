@@ -75,12 +75,12 @@ public class LineInfo {
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().title("Failed").text("Line number update failed").showError();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}

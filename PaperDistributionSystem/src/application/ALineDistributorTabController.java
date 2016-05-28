@@ -249,7 +249,7 @@ public class ALineDistributorTabController implements Initializable {
 		// Notifications.create().title("Invalid mobile number")
 		// .text("Mobile number should only contain 10 DIGITS")
 		// .hideAfter(Duration.seconds(5)).showError();
-		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// Main._logger.debug("Error :",e); e.printStackTrace();
 		// }
 		// }
 		// });
@@ -450,11 +450,11 @@ public class ALineDistributorTabController implements Initializable {
 					stmt.close();
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				return null;
@@ -487,11 +487,11 @@ public class ALineDistributorTabController implements Initializable {
 			hawkerIdStatement.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -519,11 +519,11 @@ public class ALineDistributorTabController implements Initializable {
 			hawkerStatement.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -556,13 +556,13 @@ public class ALineDistributorTabController implements Initializable {
 				deleteStmt.close();
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of line distributor has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -625,7 +625,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -652,7 +652,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -705,7 +705,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -756,11 +756,11 @@ public class ALineDistributorTabController implements Initializable {
 				refreshLineDistTable();
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -809,7 +809,7 @@ public class ALineDistributorTabController implements Initializable {
 		// .text("Mobile number should only contain 10 DIGITS")
 		// .hideAfter(Duration.seconds(5)).showError();
 		// validate = false;
-		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// Main._logger.debug("Error :",e); e.printStackTrace();
 		// }
 		return validate;
 	}
@@ -832,11 +832,11 @@ public class ALineDistributorTabController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -936,11 +936,11 @@ public class ALineDistributorTabController implements Initializable {
 					// }
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 
@@ -970,11 +970,11 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -1058,7 +1058,7 @@ public class ALineDistributorTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -1125,11 +1125,11 @@ public class ALineDistributorTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -1166,11 +1166,11 @@ public class ALineDistributorTabController implements Initializable {
 					addProf2.getItems().addAll(profileValues);
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				return null;
@@ -1202,11 +1202,11 @@ public class ALineDistributorTabController implements Initializable {
 					addEmployment.getItems().addAll(employmentData);
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				return null;
@@ -1263,11 +1263,11 @@ public class ALineDistributorTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -1317,11 +1317,11 @@ public class ALineDistributorTabController implements Initializable {
 								}
 							} catch (SQLException e) {
 
-								Main._logger.debug(e.getStackTrace());
+								Main._logger.debug("Error :",e);
 								e.printStackTrace();
 							} catch (Exception e) {
 
-								Main._logger.debug(e.getStackTrace());
+								Main._logger.debug("Error :",e);
 								e.printStackTrace();
 							}
 							return null;
@@ -1336,7 +1336,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (NumberFormatException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Please enter proper numeric value in Line Number field").showError();
@@ -1364,11 +1364,11 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return true;
@@ -1425,11 +1425,11 @@ public class ALineDistributorTabController implements Initializable {
 						}
 						stmt.close();
 					} catch (SQLException e) {
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}

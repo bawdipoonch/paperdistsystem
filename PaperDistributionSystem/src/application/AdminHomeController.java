@@ -142,7 +142,7 @@ public class AdminHomeController implements Initializable {
 					try {
 						logoutClicked(new ActionEvent());
 					} catch (IOException e) {
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -233,7 +233,7 @@ public class AdminHomeController implements Initializable {
 					pausedCustTab, stopHistoryTab);
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -309,17 +309,17 @@ public class AdminHomeController implements Initializable {
 				logoutClicked(new ActionEvent());
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker bill has failed").showError();
 			} catch (IOException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 

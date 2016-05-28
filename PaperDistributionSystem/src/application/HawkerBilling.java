@@ -113,11 +113,11 @@ public class HawkerBilling {
 			setDue(getBillAmount() - getPaid());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}

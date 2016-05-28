@@ -135,7 +135,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		// Notifications.create().title("Invalid mobile number")
 		// .text("Mobile number should only contain 10 DIGITS")
 		// .hideAfter(Duration.seconds(5)).showError();
-		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// Main._logger.debug("Error :",e); e.printStackTrace();
 		// }
 		// }
 		// });
@@ -162,11 +162,11 @@ public class AddLineDistExtraScreenController implements Initializable {
 			addLineNumField.setItems(lineNumData);
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -191,11 +191,11 @@ public class AddLineDistExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -243,7 +243,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		// .text("Mobile number should only contain 10 DIGITS")
 		// .hideAfter(Duration.seconds(5)).showError();
 		// validate = false;
-		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// Main._logger.debug("Error :",e); e.printStackTrace();
 		// }
 		return validate;
 	}
@@ -264,11 +264,11 @@ public class AddLineDistExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -313,18 +313,18 @@ public class AddLineDistExtraScreenController implements Initializable {
 					insertLineNum.execute();
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 			}
 
 		} catch (NumberFormatException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Please enter proper numeric value in Line Number field").showError();
@@ -349,11 +349,11 @@ public class AddLineDistExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -376,11 +376,11 @@ public class AddLineDistExtraScreenController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -403,11 +403,11 @@ public class AddLineDistExtraScreenController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -430,11 +430,11 @@ public class AddLineDistExtraScreenController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 

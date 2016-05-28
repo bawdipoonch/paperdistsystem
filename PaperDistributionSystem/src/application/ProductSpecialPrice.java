@@ -76,12 +76,12 @@ public class ProductSpecialPrice {
 			con.commit();
 
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().title("Failed").text("Product Special Price record update failed").showError();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}

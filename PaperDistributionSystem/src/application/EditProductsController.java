@@ -204,11 +204,11 @@ public class EditProductsController implements Initializable {
 			prodFreq.getItems().addAll(freqValues);
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -231,11 +231,11 @@ public class EditProductsController implements Initializable {
 			typeTF.getItems().addAll(productTypeValues);
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -301,11 +301,11 @@ public class EditProductsController implements Initializable {
 				Notifications.create().title("Invalid value")
 						.text("Please enter numbers for Price and Monday - Sunday fields")
 						.hideAfter(Duration.seconds(5)).showError();
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -329,11 +329,11 @@ public class EditProductsController implements Initializable {
 			billCategoryTF.getItems().addAll(billCategoryValues);
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -358,11 +358,11 @@ public class EditProductsController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;

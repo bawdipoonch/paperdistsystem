@@ -72,7 +72,7 @@ public class Main extends Application {
 			Main.primaryStage.setMaximized(true);
 			Main.primaryStage.show();
 		} catch (Exception e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}

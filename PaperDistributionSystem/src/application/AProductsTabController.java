@@ -581,7 +581,7 @@ public class AProductsTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -638,7 +638,7 @@ public class AProductsTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -692,7 +692,7 @@ public class AProductsTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -768,11 +768,11 @@ public class AProductsTabController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -819,17 +819,17 @@ public class AProductsTabController implements Initializable {
 			clearClicked(event);
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
 			Notifications.create().title("Invalid value")
 					.text("Please enter only numbers for Price and Monday - Sunday fields")
 					.hideAfter(Duration.seconds(5)).showError();
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -913,11 +913,11 @@ public class AProductsTabController implements Initializable {
 					}
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				return null;
@@ -953,11 +953,11 @@ public class AProductsTabController implements Initializable {
 						stmt.close();
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 
@@ -1002,11 +1002,11 @@ public class AProductsTabController implements Initializable {
 						stmt.close();
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 
@@ -1046,13 +1046,13 @@ public class AProductsTabController implements Initializable {
 
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of line distributor has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -1116,7 +1116,7 @@ public class AProductsTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -1143,11 +1143,11 @@ public class AProductsTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -1179,11 +1179,11 @@ public class AProductsTabController implements Initializable {
 					stmt.close();
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				return null;
@@ -1242,11 +1242,11 @@ public class AProductsTabController implements Initializable {
 					refreshProdSpecialPriceTable();
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 			} else {
@@ -1295,11 +1295,11 @@ public class AProductsTabController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -1332,13 +1332,13 @@ public class AProductsTabController implements Initializable {
 
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of product special price has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -1400,11 +1400,11 @@ public class AProductsTabController implements Initializable {
 						rs.close();
 						stmt.close();
 					} catch (SQLException e) {
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -1500,11 +1500,11 @@ public class AProductsTabController implements Initializable {
 			}
 
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -1572,21 +1572,21 @@ public class AProductsTabController implements Initializable {
 							insertLineNum.execute();
 						} catch (SQLException e) {
 
-							Main._logger.debug(e.getStackTrace());
+							Main._logger.debug("Error :",e);
 							e.printStackTrace();
 						} catch (Exception e) {
 
-							Main._logger.debug(e.getStackTrace());
+							Main._logger.debug("Error :",e);
 							e.printStackTrace();
 						}
 					}
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				refreshProductsTable();

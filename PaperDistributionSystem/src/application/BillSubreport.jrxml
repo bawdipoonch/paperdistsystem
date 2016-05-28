@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-05-21T00:02:30 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BillSubreport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="435ca022-c2cc-41c8-9032-2d400a444245">
+<!-- 2016-05-26T22:09:51 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BillSubreport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="435ca022-c2cc-41c8-9032-2d400a444245">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
@@ -34,7 +34,7 @@
 	<subDataset name="DS" uuid="c58451a7-d5f7-4871-b87b-b9f38038afa9">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
-		<parameter name="BILL_INVOICE_NUM" class="java.math.BigDecimal"/>
+		<parameter name="BILL_INVOICE_NUM" class="java.lang.Long"/>
 		<queryString>
 			<![CDATA[SELECT "BILLING_LINES"."BILL_INVOICE_NUM",
 	"BILLING_LINES"."LINE_NUM",
@@ -44,16 +44,16 @@
 FROM "BILLING_LINES"
 WHERE "BILLING_LINES"."BILL_INVOICE_NUM"=$P{BILL_INVOICE_NUM}]]>
 		</queryString>
-		<field name="BILL_INVOICE_NUM" class="java.math.BigDecimal"/>
-		<field name="LINE_NUM" class="java.math.BigDecimal"/>
+		<field name="BILL_INVOICE_NUM" class="java.lang.Long"/>
+		<field name="LINE_NUM" class="java.lang.Long"/>
 		<field name="PRODUCT" class="java.lang.String"/>
-		<field name="AMOUNT" class="java.math.BigDecimal"/>
-		<field name="TEA_EXPENSES" class="java.math.BigDecimal"/>
+		<field name="AMOUNT" class="java.lang.Double"/>
+		<field name="TEA_EXPENSES" class="java.lang.Double"/>
 		<group name="BILL_INVOICE_NUM">
 			<groupExpression><![CDATA[$F{BILL_INVOICE_NUM}]]></groupExpression>
 		</group>
 	</subDataset>
-	<parameter name="BILL_INVOICE_NUM" class="java.math.BigDecimal"/>
+	<parameter name="BILL_INVOICE_NUM" class="java.lang.Long"/>
 	<queryString>
 		<![CDATA[SELECT "BILLING_LINES"."BILL_LINE_ID",
 	"BILLING_LINES"."BILL_INVOICE_NUM",
@@ -65,12 +65,12 @@ FROM "BILLING_LINES"
 WHERE "BILLING_LINES"."BILL_INVOICE_NUM"=$P{BILL_INVOICE_NUM}
 AND  (SELECT NVL("BILLING_LINES"."AMOUNT",0.0) + NVL("BILLING_LINES"."TEA_EXPENSES",0.0) FROM DUAL)>0.0]]>
 	</queryString>
-	<field name="BILL_LINE_ID" class="java.math.BigDecimal"/>
-	<field name="BILL_INVOICE_NUM" class="java.math.BigDecimal"/>
-	<field name="LINE_NUM" class="java.math.BigDecimal"/>
+	<field name="BILL_LINE_ID" class="java.lang.Long"/>
+	<field name="BILL_INVOICE_NUM" class="java.lang.Long"/>
+	<field name="LINE_NUM" class="java.lang.Integer"/>
 	<field name="PRODUCT" class="java.lang.String"/>
-	<field name="AMOUNT" class="java.math.BigDecimal"/>
-	<field name="TEA_EXPENSES" class="java.math.BigDecimal"/>
+	<field name="AMOUNT" class="java.lang.Double"/>
+	<field name="TEA_EXPENSES" class="java.lang.Double"/>
 	<sortField name="LINE_NUM"/>
 	<background>
 		<band splitType="Stretch"/>

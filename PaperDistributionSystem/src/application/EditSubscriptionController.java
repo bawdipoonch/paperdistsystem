@@ -340,11 +340,11 @@ public class EditSubscriptionController implements Initializable {
 			}
 
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		subscriptionTypeLOV.getItems().clear();
@@ -370,11 +370,11 @@ public class EditSubscriptionController implements Initializable {
 			}
 
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		paymentTypeLOV.getItems().clear();
@@ -400,11 +400,11 @@ public class EditSubscriptionController implements Initializable {
 			}
 
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		durationLOV.getItems().clear();
@@ -446,11 +446,11 @@ public class EditSubscriptionController implements Initializable {
 			prodNameLOV.getItems().addAll(productValues);
 
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -534,11 +534,11 @@ public class EditSubscriptionController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}

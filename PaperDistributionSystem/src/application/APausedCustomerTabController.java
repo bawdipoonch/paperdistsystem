@@ -326,11 +326,11 @@ public class APausedCustomerTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -378,11 +378,11 @@ public class APausedCustomerTabController implements Initializable {
 							});
 						} catch (SQLException e) {
 
-							Main._logger.debug(e.getStackTrace());
+							Main._logger.debug("Error :",e);
 							e.printStackTrace();
 						} catch (Exception e) {
 
-							Main._logger.debug(e.getStackTrace());
+							Main._logger.debug("Error :",e);
 							e.printStackTrace();
 						}
 					}
@@ -421,11 +421,11 @@ public class APausedCustomerTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -478,11 +478,11 @@ public class APausedCustomerTabController implements Initializable {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -540,11 +540,11 @@ public class APausedCustomerTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -605,11 +605,11 @@ public class APausedCustomerTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -674,11 +674,11 @@ public class APausedCustomerTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -707,7 +707,7 @@ public class APausedCustomerTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -737,7 +737,7 @@ public class APausedCustomerTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -784,11 +784,11 @@ public class APausedCustomerTabController implements Initializable {
 							cityTF.getItems().addAll(cityValues);
 						}
 					} catch (SQLException e) {
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}

@@ -444,11 +444,11 @@ public class Hawker {
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -502,12 +502,12 @@ public class Hawker {
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().title("Failed").text("Hawker update failed").showError();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}

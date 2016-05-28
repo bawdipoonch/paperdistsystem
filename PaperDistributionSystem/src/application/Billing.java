@@ -92,12 +92,12 @@ public class Billing {
 			con.commit();
 
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().title("Failed").text("Bill History record update failed").showError();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}

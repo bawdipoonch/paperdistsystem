@@ -325,7 +325,7 @@ public class AHawkerInfoTabController implements Initializable {
 		// Notifications.create().title("Invalid mobile number")
 		// .text("Mobile number should only contain 10 DIGITS")
 		// .hideAfter(Duration.seconds(5)).showError();
-		// Main._logger.debug(e.getStackTrace()); e.printStackTrace();
+		// Main._logger.debug("Error :",e); e.printStackTrace();
 		// }
 		// }
 		// });
@@ -602,7 +602,7 @@ public class AHawkerInfoTabController implements Initializable {
 								hawkerTable.refresh();
 							} catch (NumberFormatException e) {
 
-								Main._logger.debug(e.getStackTrace());
+								Main._logger.debug("Error :",e);
 								e.printStackTrace();
 								Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 										.text("Please enter numeric value only").showError();
@@ -725,7 +725,7 @@ public class AHawkerInfoTabController implements Initializable {
 	 * hawkerRow.calculateTotalDue(); hawkerRow.updateHawkerRecord(); //
 	 * hawkerTable.refresh(); con.commit();
 	 * 
-	 * } catch (SQLException e) { Main._logger.debug(e.getStackTrace());
+	 * } catch (SQLException e) { Main._logger.debug("Error :",e);
 	 * e.printStackTrace();
 	 * Notifications.create().hideAfter(Duration.seconds(5)).title("Error!").
 	 * text(
@@ -751,11 +751,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -789,13 +789,13 @@ public class AHawkerInfoTabController implements Initializable {
 				hawkerBillingTable.refresh();
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker bill has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -828,13 +828,13 @@ public class AHawkerInfoTabController implements Initializable {
 				hawkerTable.refresh();
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -915,7 +915,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -942,7 +942,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -1008,11 +1008,11 @@ public class AHawkerInfoTabController implements Initializable {
 					// con.close();
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 
@@ -1084,11 +1084,11 @@ public class AHawkerInfoTabController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				return null;
@@ -1122,7 +1122,7 @@ public class AHawkerInfoTabController implements Initializable {
 				validate = false;
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
 						.text("Fee per subscription should not be empty and must be numeric only").showError();
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -1149,7 +1149,7 @@ public class AHawkerInfoTabController implements Initializable {
 			Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return validate;
@@ -1171,11 +1171,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -1236,14 +1236,14 @@ public class AHawkerInfoTabController implements Initializable {
 
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 						.text("There has been some error during hawker creation, please retry").showError();
 				Main.reconnect();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 			resetClicked(event);
@@ -1272,11 +1272,11 @@ public class AHawkerInfoTabController implements Initializable {
 					}
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 				return null;
@@ -1413,7 +1413,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -1451,11 +1451,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -1513,7 +1513,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -1538,11 +1538,11 @@ public class AHawkerInfoTabController implements Initializable {
 			addHwkProf2.getItems().addAll(profileValues);
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -1566,11 +1566,11 @@ public class AHawkerInfoTabController implements Initializable {
 			addHwkEmployment.getItems().addAll(employmentValues);
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -1599,11 +1599,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -1628,11 +1628,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -1654,11 +1654,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -1695,11 +1695,11 @@ public class AHawkerInfoTabController implements Initializable {
 				cityTF.getItems().addAll(cityValues);
 			}
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 

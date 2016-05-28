@@ -59,6 +59,7 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+import net.sf.jasperreports.engine.JRException;
 
 public class ALineInfoTabController implements Initializable {
 
@@ -472,8 +473,8 @@ public class ALineInfoTabController implements Initializable {
 						if (lineRow != null) {
 							if (lineRow.getLineNum() > 0) {
 								Dialog<ButtonType> dateListDialog = new Dialog<ButtonType>();
-								dateListDialog.setTitle("Stop Subscription");
-								dateListDialog.setHeaderText("Please select the subscription you want to Stop");
+								dateListDialog.setTitle("Download PDF");
+								dateListDialog.setHeaderText("Please select the invoice date for which PDF should be created.");
 								ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
 								dateListDialog.getDialogPane().getButtonTypes().addAll(saveButtonType,
 										ButtonType.CANCEL);
@@ -495,10 +496,17 @@ public class ALineInfoTabController implements Initializable {
 								});
 								Optional<ButtonType> result = dateListDialog.showAndWait();
 								if (result.isPresent() && result.get() == saveButtonType) {
-									BillingUtilityClass.generateInvoicePDF(
-											hawkerComboBox.getSelectionModel().getSelectedItem(), lineRow.getLineNum(),
-											dateBox.getSelectionModel().getSelectedItem()
-													.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
+									try {
+										Notifications.create().title("Generating Invoice PDF").text("Generating Invoice PDF for selected line. Please wait...")
+										.hideAfter(Duration.seconds(10)).showInformation();
+										BillingUtilityClass.generateInvoicePDF(
+												hawkerComboBox.getSelectionModel().getSelectedItem(), lineRow.getLineNum(),
+												dateBox.getSelectionModel().getSelectedItem()
+														.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
+									} catch (JRException e) {
+										// TODO Auto-generated catch block
+										Main._logger.debug(e.getMessage());
+									}
 								}
 
 							} else {
@@ -1063,11 +1071,11 @@ public class ALineInfoTabController implements Initializable {
 											.text("Please enter only NUMERIC values in Total Due.")
 											.hideAfter(Duration.seconds(5)).showError();
 
-									Main._logger.debug(e.getStackTrace());
+									Main._logger.debug("Error :",e);
 									e.printStackTrace();
 									btnevent.consume();
 								} catch (Exception e) {
-									Main._logger.debug(e.getStackTrace());
+									Main._logger.debug("Error :",e);
 									e.printStackTrace();
 								}
 
@@ -1102,11 +1110,11 @@ public class ALineInfoTabController implements Initializable {
 											.text("Please enter only NUMERIC values in Total Due.")
 											.hideAfter(Duration.seconds(5)).showError();
 
-									Main._logger.debug(e.getStackTrace());
+									Main._logger.debug("Error :",e);
 									e.printStackTrace();
 									btnevent.consume();
 								} catch (Exception e) {
-									Main._logger.debug(e.getStackTrace());
+									Main._logger.debug("Error :",e);
 									e.printStackTrace();
 								}
 
@@ -1549,11 +1557,11 @@ public class ALineInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -1584,13 +1592,13 @@ public class ALineInfoTabController implements Initializable {
 				refreshSubscriptions();
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of subscription has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -1642,7 +1650,7 @@ public class ALineInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -1672,7 +1680,7 @@ public class ALineInfoTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -1698,11 +1706,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -1756,11 +1764,11 @@ public class ALineInfoTabController implements Initializable {
 						enableAll();
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -1800,11 +1808,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return subsList;
@@ -1838,11 +1846,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return subsList;
@@ -1878,13 +1886,13 @@ public class ALineInfoTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid line num")
 						.text("Please enter numeric line number only").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		});
@@ -1909,13 +1917,13 @@ public class ALineInfoTabController implements Initializable {
 					.text("Line number updation in line distribution boy successful").showInformation();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Update failed")
 					.text("Line number updation in line distribution boy failed").showError();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -1969,13 +1977,13 @@ public class ALineInfoTabController implements Initializable {
 					findStmt.close();
 				} catch (SQLException e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 							.text("Delete request of line has failed").showError();
 				} catch (Exception e) {
 
-					Main._logger.debug(e.getStackTrace());
+					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
 			}
@@ -2029,11 +2037,11 @@ public class ALineInfoTabController implements Initializable {
 						enableAll();
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -2100,11 +2108,11 @@ public class ALineInfoTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -2165,11 +2173,11 @@ public class ALineInfoTabController implements Initializable {
 							// populateSubscriptionCount();
 						} catch (SQLException e) {
 
-							Main._logger.debug(e.getStackTrace());
+							Main._logger.debug("Error :",e);
 							e.printStackTrace();
 						} catch (Exception e) {
 
-							Main._logger.debug(e.getStackTrace());
+							Main._logger.debug("Error :",e);
 							e.printStackTrace();
 						}
 					}
@@ -2228,11 +2236,11 @@ public class ALineInfoTabController implements Initializable {
 									}
 								} catch (SQLException e) {
 
-									Main._logger.debug(e.getStackTrace());
+									Main._logger.debug("Error :",e);
 									e.printStackTrace();
 								} catch (Exception e) {
 
-									Main._logger.debug(e.getStackTrace());
+									Main._logger.debug("Error :",e);
 									e.printStackTrace();
 								}
 							}
@@ -2249,7 +2257,7 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (NumberFormatException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Please enter proper numeric value in Line Number field").showError();
@@ -2277,11 +2285,11 @@ public class ALineInfoTabController implements Initializable {
 			hawkerIdStatement.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -2308,11 +2316,11 @@ public class ALineInfoTabController implements Initializable {
 			lineNumExists.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return true;
@@ -2462,11 +2470,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -2493,11 +2501,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -2556,11 +2564,11 @@ public class ALineInfoTabController implements Initializable {
 
 			} catch (IOException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -2595,13 +2603,13 @@ public class ALineInfoTabController implements Initializable {
 				populateCustomersForLine();
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of customer has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -2632,11 +2640,11 @@ public class ALineInfoTabController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -2720,7 +2728,7 @@ public class ALineInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -2778,11 +2786,11 @@ public class ALineInfoTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -2822,11 +2830,11 @@ public class ALineInfoTabController implements Initializable {
 
 			} catch (IOException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -2889,11 +2897,11 @@ public class ALineInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -2931,11 +2939,11 @@ public class ALineInfoTabController implements Initializable {
 
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 								.text("Error in creation of stop history record").showError();
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -2972,11 +2980,11 @@ public class ALineInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -3004,11 +3012,11 @@ public class ALineInfoTabController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return 1;
@@ -3049,11 +3057,11 @@ public class ALineInfoTabController implements Initializable {
 						stmt.close();
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -3101,11 +3109,11 @@ public class ALineInfoTabController implements Initializable {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -3157,11 +3165,11 @@ public class ALineInfoTabController implements Initializable {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -3199,7 +3207,7 @@ public class ALineInfoTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -3255,11 +3263,11 @@ public class ALineInfoTabController implements Initializable {
 						}
 						stmt.close();
 					} catch (SQLException e) {
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
@@ -3286,7 +3294,7 @@ public class ALineInfoTabController implements Initializable {
 			stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
 			stmt.setString(2, Integer.toString(lineRow.getLineNum()));
 			ResultSet rs = stmt.executeQuery();
-			if (rs.next()) {
+			while (rs.next()) {
 				dateList.add(rs.getDate(1).toLocalDate());
 			}
 
@@ -3294,11 +3302,11 @@ public class ALineInfoTabController implements Initializable {
 			stmt.close();
 			return dateList;
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return null;

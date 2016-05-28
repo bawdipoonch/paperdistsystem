@@ -1,12 +1,12 @@
 package application;
 
 import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Period;
@@ -18,8 +18,6 @@ import java.util.Map;
 
 import org.controlsfx.control.Notifications;
 
-import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.util.Duration;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -96,16 +94,16 @@ public class BillingUtilityClass {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug(e.getStackTrace());
+						Main._logger.debug("Error :",e);
 						e.printStackTrace();
 					}
 				}
 			} catch (Exception e) {
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 			bill.setDue(bill.getDue() + cust.getTotalDue());
@@ -116,11 +114,11 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} finally {
 
@@ -211,11 +209,11 @@ public class BillingUtilityClass {
 				stmt.close();
 			} catch (SQLException e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug(e.getStackTrace());
+				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 			}
 		}
@@ -246,11 +244,11 @@ public class BillingUtilityClass {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return false;
@@ -279,11 +277,11 @@ public class BillingUtilityClass {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
@@ -311,14 +309,43 @@ public class BillingUtilityClass {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static void createHawkerBill(Hawker hawker, LocalDate endDate){
+		try {
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			// lineNumCustomersTable.getItems().clear();
+			PreparedStatement stmt = con
+					.prepareStatement("SELECT hwk.hawker_code, COUNT(line.PRODUCT) CNT FROM hawker_info hwk, customer cust, billing bill, billing_lines line WHERE hwk.HAWKER_CODE =cust.HAWKER_CODE AND cust.CUSTOMER_ID =bill.CUSTOMER_ID AND bill.BILL_INVOICE_NUM=line.BILL_INVOICE_NUM and hwk.hawker_code=? and bill.INVOICE_DATE=? GROUP BY hwk.hawker_code ORDER BY hwk.hawker_code");
+			stmt.setString(1, hawker.getHawkerCode());
+			stmt.setDate(2, Date.valueOf(endDate));
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				
+			}
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
 	}
 
 	private static void deleteBillingLines(Billing bill) {
@@ -340,11 +367,11 @@ public class BillingUtilityClass {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 	}
@@ -369,11 +396,11 @@ public class BillingUtilityClass {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return null;
@@ -407,11 +434,11 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return subsList;
@@ -756,7 +783,7 @@ public class BillingUtilityClass {
 			stmt.close();
 			return stopHistList;
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return stopHistList;
@@ -788,7 +815,7 @@ public class BillingUtilityClass {
 			stmt.close();
 			return stopHistList;
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return stopHistList;
@@ -818,7 +845,7 @@ public class BillingUtilityClass {
 			return prodSpclPriceList;
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return prodSpclPriceList;
@@ -846,7 +873,7 @@ public class BillingUtilityClass {
 			rs.close();
 			stmt.close();
 		} catch (SQLException e) {
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return null;
@@ -895,7 +922,7 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return null;
@@ -924,7 +951,7 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return null;
@@ -964,7 +991,7 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug(e.getStackTrace());
+			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
 		return 0.0;
@@ -1219,28 +1246,32 @@ public class BillingUtilityClass {
 		return diff;
 	}
 
-	public static void generateInvoicePDF(String hawkerCode, int lineNum, String invoiceDate) {
-		Task<Void> task = new Task<Void>() {
-
-			@Override
-			protected Void call() throws Exception {
+	public static void generateInvoicePDF(String hawkerCode, int lineNum, String invoiceDate) throws JRException {
+//		Task<Void> task = new Task<Void>() {
+//
+//			@Override
+//			protected Void call() throws Exception {
 				try {
+//					
+//					Platform.runLater(new Runnable() {
+//
+//						@Override
+//						public void run() {
+
+							
+//						}
+//					});
 					
-					Platform.runLater(new Runnable() {
-
-						@Override
-						public void run() {
-
-							Notifications.create().title("Generating Invoice PDF").text("Generating Invoice PDF for selected line. Please wait...")
-									.hideAfter(Duration.seconds(10)).showInformation();
-						}
-					});
+					String reportSrcFile = "MasterInvoice.jrxml";
+					String subReportPath = "BillSubreport.jrxml";
 					
-					String reportSrcFile = "src/application/MasterInvoice.jrxml";
-
+					InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+					InputStream subreport = BillingUtilityClass.class.getResourceAsStream(subReportPath);
 					// First, compile jrxml file.
-					JasperReport jasperReport = JasperCompileManager.compileReport(reportSrcFile);
-
+//					JasperReport subReport = JasperCompileManager.compileReport(report);
+					JasperReport jasperReport = JasperCompileManager.compileReport(input);
+					JasperReport jasperSubReport = JasperCompileManager.compileReport(subreport);
+//					JasperCompileManager.compileReportToFile(reportSrcFile);
 					// Connection conn = ConnectionUtils.getConnection();
 
 					// Parameters for report
@@ -1248,8 +1279,9 @@ public class BillingUtilityClass {
 					parameters.put("HWK_CODE", hawkerCode);
 					parameters.put("LINE_NUM", lineNum);
 					parameters.put("INVOICE_DATE", invoiceDate);
+					parameters.put("SubReportParam", jasperSubReport);
 					JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
-
+//					JasperPrint print = JasperFillManager.fillReport("/application/MasterInvoice.jasper", parameters, Main.dbConnection);
 					// Make sure the output directory exists.
 					File outDir = new File("C:/pds");
 					outDir.mkdirs();
@@ -1272,24 +1304,24 @@ public class BillingUtilityClass {
 					SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 					exporter.setConfiguration(configuration);
 					exporter.exportReport();
-					Platform.runLater(new Runnable() {
-
-						@Override
-						public void run() {
+//					Platform.runLater(new Runnable() {
+//
+//						@Override
+//						public void run() {
 
 							Notifications.create().title("Invocie PDF Created").text("Invoice PDF created at : " + filename)
 									.hideAfter(Duration.seconds(15)).showInformation();
-						}
-					});
+//						}
+//					});
 				} catch (JRException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Main._logger.debug("Error during Bill PDF Generation: ",e);
+//					e.printStackTrace();
 				}
-				return null;
-			}
-
-		};
-		new Thread(task).start();
+//				return null;
+//			}
+//
+//		};
+//		new Thread(task).start();
 	}
 
 }
