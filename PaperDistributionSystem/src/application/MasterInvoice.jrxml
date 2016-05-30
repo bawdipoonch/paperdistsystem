@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-05-27T10:11:47 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoice" pageWidth="595" pageHeight="842" columnWidth="560" leftMargin="25" rightMargin="10" topMargin="10" bottomMargin="10" whenResourceMissingType="Empty" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
+<!-- 2016-05-30T23:24:17 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoice" pageWidth="595" pageHeight="842" columnWidth="560" leftMargin="25" rightMargin="10" topMargin="10" bottomMargin="10" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -150,7 +150,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	<parameter name="HWK_CODE" class="java.lang.String">
 		<parameterDescription><![CDATA[HAWKER CODE]]></parameterDescription>
 	</parameter>
-	<parameter name="LINE_NUM" class="java.lang.Integer">
+	<parameter name="LINE_NUM" class="java.lang.String">
 		<parameterDescription><![CDATA[Line num]]></parameterDescription>
 	</parameter>
 	<parameter name="INVOICE_DATE" class="java.lang.String"/>
@@ -215,7 +215,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	<field name="NAME" class="java.lang.String"/>
 	<field name="MOBILE_NUM" class="java.lang.String"/>
 	<field name="CUSTOMER_CODE" class="java.lang.Long"/>
-	<field name="LINE_NUM" class="java.lang.Integer"/>
+	<field name="LINE_NUM" class="java.lang.String"/>
 	<field name="HOUSE_SEQ" class="java.lang.Integer"/>
 	<field name="OLD_HOUSE_NUM" class="java.lang.String"/>
 	<field name="NEW_HOUSE_NUM" class="java.lang.String"/>

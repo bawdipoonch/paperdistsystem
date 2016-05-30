@@ -525,7 +525,7 @@ public class AProductsTabController implements Initializable {
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if(newValue!=null)
 					refreshProductsTable();
-				
+					refreshProdSpecialPriceTable();
 			}
 		});
 	}
@@ -1163,20 +1163,29 @@ public class AProductsTabController implements Initializable {
 					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
-					prodSpclPriceValues.clear();
-					PreparedStatement stmt = con.prepareStatement(
-							"select SPCL_PRICE_ID, PRODUCT_ID, FULL_DATE, PRICE from prod_spcl_price where product_id=? order by full_date desc");
-					stmt.setLong(1, productsTable.getSelectionModel().getSelectedItem().getProductId());
-					ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						prodSpclPriceValues.add(new ProductSpecialPrice(rs.getLong(1), rs.getLong(2),
-								rs.getDate(3).toLocalDate(), rs.getDouble(4)));
+					prodSpclPriceValues=FXCollections.observableArrayList();
+					if(productsTable.getSelectionModel().getSelectedItem()!=null){
+						PreparedStatement stmt = con.prepareStatement(
+								"select SPCL_PRICE_ID, PRODUCT_ID, FULL_DATE, PRICE from prod_spcl_price where product_id=? order by full_date desc");
+						
+						stmt.setLong(1, productsTable.getSelectionModel().getSelectedItem().getProductId());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							prodSpclPriceValues.add(new ProductSpecialPrice(rs.getLong(1), rs.getLong(2),
+									rs.getDate(3).toLocalDate(), rs.getDouble(4)));
+						}
+						rs.close();
+						stmt.close();
 					}
-					spclPriceTable.getItems().clear();
-					spclPriceTable.getItems().addAll(prodSpclPriceValues);
-					spclPriceTable.refresh();
-					rs.close();
-					stmt.close();
+					Platform.runLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							spclPriceTable.setItems(prodSpclPriceValues);
+							spclPriceTable.refresh();							
+						}
+					});
+					
 				} catch (SQLException e) {
 
 					Main._logger.debug("Error :",e);

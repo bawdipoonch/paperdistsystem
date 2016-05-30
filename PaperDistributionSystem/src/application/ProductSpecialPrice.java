@@ -11,12 +11,14 @@ import org.controlsfx.control.Notifications;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 public class ProductSpecialPrice {
 	public SimpleLongProperty spclPriceId = new SimpleLongProperty();
 	public SimpleLongProperty productId = new SimpleLongProperty();
 	public SimpleObjectProperty<LocalDate> fullDate = new SimpleObjectProperty<LocalDate>();
 	public SimpleDoubleProperty price = new SimpleDoubleProperty();
+	public SimpleStringProperty day = new SimpleStringProperty();
 
 	public ProductSpecialPrice(long spclPriceId, long productId, LocalDate fullDate, double price) {
 		setSpclPriceId(spclPriceId);
@@ -58,6 +60,10 @@ public class ProductSpecialPrice {
 
 	public double getPrice() {
 		return this.price.get();
+	}
+	
+	public String getDay(){
+		return this.fullDate.getValue().getDayOfWeek().toString();
 	}
 
 	public void updateProductSpecialPriceRecord() {

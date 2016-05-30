@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 import org.controlsfx.control.CheckComboBox;
@@ -14,13 +15,20 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 import javafx.util.Duration;
 
 public class EditProductsController implements Initializable {
@@ -74,13 +82,41 @@ public class EditProductsController implements Initializable {
 	private CheckComboBox<String> prodFreq;
 
 	private Product productRow;
+	
+
+	@FXML
+	private TableView<ProductSpecialPrice> spclPriceTable;
+
+	@FXML
+	private TableColumn<ProductSpecialPrice, LocalDate> spclPriceDateCol;
+
+	@FXML
+	private TableColumn<ProductSpecialPrice, String> spclPriceDayCol;
+
+	@FXML
+	private TableColumn<ProductSpecialPrice, Double> spclPriceCol;
 
 	private ObservableList<String> freqValues = FXCollections.observableArrayList();
 	private ObservableList<String> productTypeValues = FXCollections.observableArrayList();
 	private ObservableList<String> billCategoryValues = FXCollections.observableArrayList();
+	private ObservableList<ProductSpecialPrice> prodSpclPriceValues = FXCollections.observableArrayList();
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		spclPriceDateCol.setCellValueFactory(new PropertyValueFactory<ProductSpecialPrice, LocalDate>("fullDate"));
+		spclPriceDayCol.setCellValueFactory(new PropertyValueFactory<ProductSpecialPrice, String>("day"));
+		spclPriceCol.setCellValueFactory(new PropertyValueFactory<ProductSpecialPrice, Double>("price"));
+		spclPriceDateCol.setCellFactory(
+				new Callback<TableColumn<ProductSpecialPrice, LocalDate>, TableCell<ProductSpecialPrice, LocalDate>>() {
+
+					@Override
+					public TableCell<ProductSpecialPrice, LocalDate> call(
+							TableColumn<ProductSpecialPrice, LocalDate> param) {
+						TextFieldTableCell<ProductSpecialPrice, LocalDate> cell = new TextFieldTableCell<ProductSpecialPrice, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
 		prodFreq = new CheckComboBox<String>();
 		freqHBox.getChildren().add(prodFreq);
 		codeTF.textProperty().addListener(new ChangeListener<String>() {
@@ -138,6 +174,7 @@ public class EditProductsController implements Initializable {
 		populateProdFreqValues();
 		populateProdTypeValues();
 		populateBillCategoryValues();
+		refreshProdSpecialPriceTable();
 		checkItems();
 		dowTF.getItems().addAll("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
 		nameTF.setText(productRow.getName());
@@ -378,14 +415,60 @@ public class EditProductsController implements Initializable {
 		saturdayTF.setDisable(val);
 		sundayTF.setDisable(val);
 	}
+	
+
+	public void refreshProdSpecialPriceTable() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					prodSpclPriceValues.clear();
+					PreparedStatement stmt = con.prepareStatement(
+							"select SPCL_PRICE_ID, PRODUCT_ID, FULL_DATE, PRICE from prod_spcl_price where product_id=? order by full_date desc");
+					stmt.setLong(1, productRow.getProductId());
+					ResultSet rs = stmt.executeQuery();
+					while (rs.next()) {
+						prodSpclPriceValues.add(new ProductSpecialPrice(rs.getLong(1), rs.getLong(2),
+								rs.getDate(3).toLocalDate(), rs.getDouble(4)));
+					}
+					spclPriceTable.getItems().clear();
+					spclPriceTable.getItems().addAll(prodSpclPriceValues);
+					spclPriceTable.refresh();
+					rs.close();
+					stmt.close();
+				} catch (SQLException e) {
+
+					Main._logger.debug("Error :",e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :",e);
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+		};
+		new Thread(task).start();
+
+	}
+
 
 	public void releaseVariables() {
 		freqValues = null;
 		productTypeValues = null;
 		billCategoryValues = null;
+		prodSpclPriceValues=null;
 		freqValues = FXCollections.observableArrayList();
 		productTypeValues = FXCollections.observableArrayList();
 		billCategoryValues = FXCollections.observableArrayList();
+		prodSpclPriceValues=FXCollections.observableArrayList();
 	}
 
 }

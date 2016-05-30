@@ -453,7 +453,7 @@ public class BillingUtilityClass {
 			if (subRow.getStartDate().isAfter(startDate.withDayOfMonth(1)))
 				bill = calculateActualBilling(subRow, startDate, endDate);
 			else
-				bill = subRow.getCost() + calculateProdDiff(subRow, startDate, endDate);
+				bill = subRow.getCost() + ("Month End".equals(subRow.getSubscriptionType())?calculateProdDiff(subRow, startDate, endDate):0.0);
 		}
 		return bill;
 	}
@@ -1070,7 +1070,7 @@ public class BillingUtilityClass {
 
 		for (ProductSpecialPrice psp : prodSpclPriceList) {
 			boolean b = true;
-			for (StopHistory stp : stopHistList) {
+			/*for (StopHistory stp : stopHistList) {
 				if ((stp.getStopDate().isBefore(psp.getFullDate()) || stp.getStopDate().isEqual(psp.getFullDate()))
 						&& stp.getResumeDate() == null) {
 					b = false;
@@ -1079,20 +1079,7 @@ public class BillingUtilityClass {
 						&& (stp.getResumeDate().isAfter(psp.getFullDate())
 								|| stp.getResumeDate().isEqual(psp.getFullDate())))
 					b = false;
-			}
-		}
-		for (ProductSpecialPrice psp : prodSpclPriceList) {
-			boolean b = true;
-			for (StopHistory stp : stopHistList) {
-				if ((stp.getStopDate().isBefore(psp.getFullDate()) || stp.getStopDate().isEqual(psp.getFullDate()))
-						&& stp.getResumeDate() == null) {
-					b = false;
-				} else if ((stp.getStopDate().isBefore(psp.getFullDate())
-						|| stp.getStopDate().isEqual(psp.getFullDate()))
-						&& (stp.getResumeDate().isAfter(psp.getFullDate())
-								|| stp.getResumeDate().isEqual(psp.getFullDate())))
-					b = false;
-			}
+			}*/
 			if (b)
 				spclMap.put(psp.getFullDate(), psp.getPrice());
 		}
