@@ -301,10 +301,9 @@ public class EditLineDistributorController implements Initializable {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con.prepareStatement(
-					"select count(*) from line_distributor where hawker_id = ? and line_num=? and line_dist_id <> ?");
-			stmt.setLong(1, hawkerIdForCode(editHwkCode.getSelectionModel().getSelectedItem()));
-			stmt.setString(2, line_num);
-			stmt.setLong(3, lineDistRow.getLineDistId());
+					"select count(*) from line_distributor where line_id = ? and line_dist_id <> ?");
+			stmt.setLong(1, lineDistRow.getLineId());
+			stmt.setLong(2, lineDistRow.getLineDistId());
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next() && rs.getInt(1) > 0) {
 				return true;

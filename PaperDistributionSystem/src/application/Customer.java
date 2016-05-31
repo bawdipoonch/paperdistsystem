@@ -35,11 +35,13 @@ public class Customer {
 	private final SimpleStringProperty comments = new SimpleStringProperty("");
 	private final SimpleStringProperty buildingStreet = new SimpleStringProperty("");
 	private final SimpleDoubleProperty totalDue = new SimpleDoubleProperty();
+	private final SimpleLongProperty hawkerId = new SimpleLongProperty();
+	private final SimpleLongProperty lineId = new SimpleLongProperty();
 
 	public Customer(long customerId, long customerCode, String name, String mobileNum, String hawkerCode, long lineNum,
 			int houseSeq, String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2, String locality,
 			String city, String state, String profile1, String profile2, String profile3, String initials,
-			String employment, String comments, String buildingStreet, double totalDue) {
+			String employment, String comments, String buildingStreet, double totalDue,long hawkerId, long lineId) {
 		setCustomerCode(customerCode);
 		setCustomerId(customerId);
 		setName(name.toLowerCase());
@@ -62,6 +64,8 @@ public class Customer {
 		setComments(comments);
 		setBuildingStreet(buildingStreet);
 		setTotalDue(totalDue);
+		setHawkerId(hawkerId);
+		setLineId(lineId);
 	}
 
 	public Customer(Customer custRow) {
@@ -87,6 +91,8 @@ public class Customer {
 		setEmployment("" + custRow.getEmployment());
 		setComments("" + custRow.getComments());
 		setBuildingStreet("" + custRow.getBuildingStreet());
+		setHawkerId(custRow.getHawkerId());
+		setLineId(custRow.getLineId());
 	}
 
 	public Long getCustomerId() {
@@ -274,7 +280,24 @@ public class Customer {
 
 		return this.totalDue.get();
 	}
+	
 
+	public Long getHawkerId() {
+		return hawkerId.get();
+	}
+
+	public void setHawkerId(long hawkerId) {
+		this.hawkerId.set(hawkerId);
+	}
+	
+
+	public Long getLineId() {
+		return lineId.get();
+	}
+
+	public void setLineId(long lineId) {
+		this.lineId.set(lineId);
+	}
 	public void updateCustomerRecord() {
 		try {
 
@@ -282,7 +305,7 @@ public class Customer {
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, building_street=?, total_due=? where customer_id=?";
+			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, building_street=?, total_due=?, hawker_id=?, line_id=? where customer_id=?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setLong(1, getCustomerCode());
 			updateStmt.setString(2, getName());
@@ -305,7 +328,9 @@ public class Customer {
 			updateStmt.setString(19, getComments());
 			updateStmt.setString(20, getBuildingStreet());
 			updateStmt.setDouble(21, getTotalDue());
-			updateStmt.setLong(22, getCustomerId());
+			updateStmt.setLong(22, getHawkerId());
+			updateStmt.setLong(23, getLineId());
+			updateStmt.setLong(24, getCustomerId());
 			updateStmt.executeUpdate();
 			con.commit();
 

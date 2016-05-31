@@ -1803,7 +1803,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 	}
 
-	private long hawkerIdForCode(String hawkerCode) {
+	public static long hawkerIdForCode(String hawkerCode) {
 		Main._logger.debug("Entered hawkerIdForCode method");
 
 		long hawkerId = -1;
@@ -1831,6 +1831,37 @@ public class ACustomerInfoTabController implements Initializable {
 			e.printStackTrace();
 		}
 		return hawkerId;
+	}
+	public static long lineIdForNumHwkCode(int lineNum, String hwkCode) {
+		Main._logger.debug("Entered lineIdForNum method");
+
+		long lineId = -1;
+		Connection con = Main.dbConnection;
+		try {
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement lineIdStatement = null;
+			String lineIdQuery = "select line_id from line_info where hawker_code = ? and line_num=?";
+			lineIdStatement = con.prepareStatement(lineIdQuery);
+			lineIdStatement.setString(1, hwkCode);
+			lineIdStatement.setInt(2, lineNum);
+			
+			ResultSet lineIdRs = lineIdStatement.executeQuery();
+
+			if (lineIdRs.next()) {
+				lineId = lineIdRs.getLong(1);
+			}
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
+		return lineId;
 	}
 
 	private void hawkerNameMobCode(String hawkerCode) {
@@ -1880,17 +1911,17 @@ public class ACustomerInfoTabController implements Initializable {
 					disableAll();
 					if (HawkerLoginController.loggedInHawker == null) {
 						if (showAllRadioButton.isSelected()) {
-							queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer order by hawker_code,line_num,house_seq";
+							queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer order by hawker_code,line_num,house_seq";
 							stmt = con.prepareStatement(queryString);
 						} else {
-							queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? order by hawker_code,line_num,house_seq";
+							queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_code=? order by hawker_code,line_num,house_seq";
 							stmt = con.prepareStatement(queryString);
 							stmt.setString(1, addCustHwkCode.getSelectionModel().getSelectedItem());
 							// addPointName.setDisable(true);
 							// addCustHwkCode.setDisable(true);
 						}
 					} else {
-						queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? order by hawker_code,line_num,house_seq";
+						queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_code=? order by hawker_code,line_num,house_seq";
 						stmt = con.prepareStatement(queryString);
 						stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
 					}
@@ -1903,7 +1934,7 @@ public class ACustomerInfoTabController implements Initializable {
 								rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
 								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
 								rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21),
-								rs.getDouble(22)));
+								rs.getDouble(22), rs.getLong(23), rs.getLong(24)));
 					}
 					rs.close();
 					stmt.close();
@@ -2133,8 +2164,8 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 
 			PreparedStatement insertCustomer = null;
-			String insertStatement = "INSERT INTO CUSTOMER(name,mobile_num,hawker_code, line_num, house_seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street) "
-					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			String insertStatement = "INSERT INTO CUSTOMER(name,mobile_num,hawker_code, line_num, house_seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street,HAWKER_ID, LINE_ID) "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
 				if (!con.isValid(0)) {
@@ -2168,7 +2199,8 @@ public class ACustomerInfoTabController implements Initializable {
 				insertCustomer.setString(17, addCustEmployment.getSelectionModel().getSelectedItem());
 				insertCustomer.setString(18, addCustComments.getText());
 				insertCustomer.setString(19, addCustBuildingStreet.getText());
-
+				insertCustomer.setLong(20,hawkerIdForCode(addCustHwkCode.getSelectionModel().getSelectedItem()));
+				insertCustomer.setLong(21,lineIdForNumHwkCode(Integer.parseInt(addCustLineNum.getSelectionModel().getSelectedItem().split(" ")[0].trim()), addCustHwkCode.getSelectionModel().getSelectedItem()));
 				insertCustomer.executeUpdate();
 				refreshCustomerTable();
 				con.commit();
@@ -2208,7 +2240,7 @@ public class ACustomerInfoTabController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? and line_num=? order by house_seq";
+			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_code=? and line_num=? order by house_seq";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, hawkerCode);
 			stmt.setInt(2, lineNum);
@@ -2218,7 +2250,7 @@ public class ACustomerInfoTabController implements Initializable {
 						rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9),
 						rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14),
 						rs.getString(15), rs.getString(16), rs.getString(17), rs.getString(18), rs.getString(19),
-						rs.getString(20), rs.getString(21), rs.getDouble(22)));
+						rs.getString(20), rs.getString(21), rs.getDouble(22), rs.getLong(23), rs.getLong(24)));
 			}
 		} catch (SQLException e) {
 

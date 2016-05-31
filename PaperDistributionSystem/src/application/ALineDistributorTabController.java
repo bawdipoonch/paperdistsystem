@@ -898,18 +898,18 @@ public class ALineDistributorTabController implements Initializable {
 					if (HawkerLoginController.loggedInHawker == null) {
 						if (showAllRadioButton.isSelected()) {
 							stmt = con.prepareStatement(
-									"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
+									"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE, ld.line_id from line_distributor ld, hawker_info hwk  where ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
 
 						} else {
 							stmt = con.prepareStatement(
-									"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk  where hwk.hawker_code=? and ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
+									"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE, ld.line_id from line_distributor ld, hawker_info hwk  where hwk.hawker_code=? and ld.hawker_id=hwk.hawker_id order by hwk.hawker_code, ld.line_num, ld.name");
 							stmt.setString(1, addHwkCode.getSelectionModel().getSelectedItem());
 							// addPointName.setDisable(true);
 							// addHwkCode.setDisable(true);
 						}
 					} else {
 						stmt = con.prepareStatement(
-								"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE from line_distributor ld, hawker_info hwk where ld.hawker_id=hwk.hawker_id and ld.hawker_id = ? order by hwk.hawker_code, ld.line_num, ld.name");
+								"select ld.line_dist_id, ld.name, ld.mobile_num, ld.hawker_id, ld.line_num,ld.old_house_num, ld.new_house_num, ld.address_line1, ld.address_line2, ld.locality, ld.city, ld.state,ld.profile1,ld.profile2,ld.profile3,ld.initials, ld.employment, ld.comments, ld.building_street, hwk.HAWKER_CODE, ld.line_id from line_distributor ld, hawker_info hwk where ld.hawker_id=hwk.hawker_id and ld.hawker_id = ? order by hwk.hawker_code, ld.line_num, ld.name");
 						stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
 					}
 					ResultSet rs = stmt.executeQuery();
@@ -919,7 +919,7 @@ public class ALineDistributorTabController implements Initializable {
 								rs.getLong(4), rs.getInt(5), rs.getString(6), rs.getString(7), rs.getString(8),
 								rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
 								rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17),
-								rs.getString(18), rs.getString(19), rs.getString(20)));
+								rs.getString(18), rs.getString(19), rs.getString(20), rs.getLong(21)));
 					}
 					lineDistInfoTable.getItems().clear();
 					if (!lineDistData.isEmpty()) {

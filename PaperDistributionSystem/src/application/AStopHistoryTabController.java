@@ -375,7 +375,7 @@ public class AStopHistoryTabController implements Initializable {
 						customerData.clear();
 						// lineNumCustomersTable.getItems().clear();
 						PreparedStatement stmt = con.prepareStatement(
-								"select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code = ? and line_num = ? ORDER BY HOUSE_SEQ");
+								"select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_code = ? and line_num = ? ORDER BY HOUSE_SEQ");
 						stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
 						stmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
 						ResultSet rs = stmt.executeQuery();
@@ -385,7 +385,7 @@ public class AStopHistoryTabController implements Initializable {
 									rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
 									rs.getString(13), rs.getString(14), rs.getString(15), rs.getString(16),
 									rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20),
-									rs.getString(21), rs.getDouble(22)));
+									rs.getString(21), rs.getDouble(22), rs.getLong(23), rs.getLong(24)));
 						}
 						rs.close();
 						stmt.close();

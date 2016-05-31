@@ -343,6 +343,8 @@ public class EditCustomerController implements Initializable {
 			edittedCustomer.setBuildingStreet(editBldgStreetTF.getText());
 			edittedCustomer.setEmployment(editEmploymentLOV.getSelectionModel().getSelectedItem());
 			edittedCustomer.setComments(editCommentsTF.getText());
+			edittedCustomer.setHawkerId(ACustomerInfoTabController.hawkerIdForCode(editHawkerCodeLOV.getSelectionModel().getSelectedItem()));
+			edittedCustomer.setLineId(ACustomerInfoTabController.lineIdForNumHwkCode(Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0]), editHawkerCodeLOV.getSelectionModel().getSelectedItem()));
 			edittedCustomer.updateCustomerRecord();
 			return edittedCustomer;
 		} else
@@ -505,7 +507,7 @@ public class EditCustomerController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where hawker_code=? and line_num=? order by house_seq";
+			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_code=? and line_num=? order by house_seq";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, hawkerCode);
 			stmt.setInt(2, lineNum);
@@ -515,7 +517,7 @@ public class EditCustomerController implements Initializable {
 						rs.getString(5), rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9),
 						rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14),
 						rs.getString(15), rs.getString(16), rs.getString(17), rs.getString(18), rs.getString(19),
-						rs.getString(20), rs.getString(21), rs.getDouble(22)));
+						rs.getString(20), rs.getString(21), rs.getDouble(22), rs.getLong(23), rs.getLong(24)));
 			}
 		} catch (SQLException e) {
 
@@ -653,7 +655,7 @@ public class EditCustomerController implements Initializable {
 			// populateHawkerCodes();
 			String queryString;
 			PreparedStatement stmt;
-			queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due from customer where customer_id=? ";
+			queryString = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where customer_id=? ";
 			stmt = con.prepareStatement(queryString);
 			stmt.setLong(1, customerId);
 
@@ -663,7 +665,7 @@ public class EditCustomerController implements Initializable {
 						rs.getLong(6), rs.getInt(7), rs.getString(8), rs.getString(9), rs.getString(10),
 						rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15),
 						rs.getString(16), rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20),
-						rs.getString(21), rs.getDouble(22));
+						rs.getString(21), rs.getDouble(22), rs.getLong(23), rs.getLong(24));
 			}
 
 		} catch (SQLException e) {
