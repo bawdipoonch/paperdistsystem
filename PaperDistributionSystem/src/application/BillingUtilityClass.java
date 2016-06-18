@@ -94,16 +94,16 @@ public class BillingUtilityClass {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
 			} catch (Exception e) {
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 			bill.setDue(bill.getDue() + cust.getTotalDue());
@@ -114,11 +114,11 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} finally {
 
@@ -127,46 +127,48 @@ public class BillingUtilityClass {
 
 	public static double calculateBillForSubscription(Subscription subRow, LocalDate startDate, LocalDate endDate,
 			boolean regenerate) {
-		ArrayList<StopHistory> stopHistoryList = new ArrayList<StopHistory>();
-		boolean free = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment")
-				|| subRow.getSubscriptionType().equals("Free Copy"));
-		double val = 0.0;
-		int c = 0;
-		switch (subRow.getPaymentType()) {
-		case "Month End":
-			stopHistoryList = stopHistoryList(subRow.getSubscriptionId(), startDate, endDate);
-			c = Period.between(startDate, endDate).getDays()
-					- (free ? 0 : stopHistListDaysCountForSub(stopHistoryList, startDate, endDate));
-			if (c > 0) {
+		boolean retZero = subRow.getPausedDate() != null && (subRow.getPausedDate().isBefore(startDate.minusDays(1)));
+			
+			ArrayList<StopHistory> stopHistoryList = new ArrayList<StopHistory>();
+			boolean free = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment")
+					|| subRow.getSubscriptionType().equals("Free Copy"));
+			double val = 0.0;
+			int c = 0;
+			switch (subRow.getPaymentType()) {
+			case "Month End":
+				stopHistoryList = stopHistoryList(subRow.getSubscriptionId(), startDate, endDate);
+				c = Period.between(startDate, endDate).getDays()
+						- (free ? 0 : stopHistListDaysCountForSub(stopHistoryList, startDate, endDate));
+				if (c > 0) {
+					LocalDate sDate = subRow.getStartDate().isAfter(startDate) ? subRow.getStartDate() : startDate;
+					double subBill = calculateEOMBillForSub(subRow, sDate, endDate);
+					double stpBill = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment") ? 0.0
+							: calculateStopHistoryAmounts(stopHistoryList, sDate, endDate, regenerate));
+
+					val = subBill == stpBill ? 0.0 : subBill - stpBill + subRow.getAddToBill();
+				}
+				return retZero?0.0:val;
+			case "Current Month":
+				stopHistoryList = stopHistoryList(subRow.getSubscriptionId(), startDate, endDate);
+				// c = Period.between(startDate, endDate).getDays()
+				// - (free ? 0 : stopHistListDaysCountForSub(stopHistoryList,
+				// startDate, endDate));
+				// if (c > 0) {
 				LocalDate sDate = subRow.getStartDate().isAfter(startDate) ? subRow.getStartDate() : startDate;
-				double subBill = calculateEOMBillForSub(subRow, sDate, endDate);
+				double subBill = calculateEOMBillForSub(subRow, startDate.plusMonths(1),
+						startDate.plusMonths(1).plusMonths(1).minusDays(1));
 				double stpBill = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment") ? 0.0
-						: calculateStopHistoryAmounts(stopHistoryList, sDate, endDate, regenerate));
-
-				val = subBill - stpBill == subRow.getServiceCharge() ? 0.0 : subBill - stpBill + subRow.getAddToBill();
+						: calculateStopHistoryAmounts(stopHistoryList, startDate, endDate, regenerate));
+				boolean fail = (subRow.getSubscriptionType().equals("Free Copy")
+						|| subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment"));
+				double prodDiff = !fail ? calculateProdDiff(subRow, sDate, endDate) : 0.0;
+				val = prodDiff - stpBill + subBill + subRow.getAddToBill();
+				// }
+				return retZero?0.0:val;
+			// calculateEOMBillForSub(subRow, startDate.minusMonths(1),
+			// endDate.minusMonths(1))+
 			}
-			return val;
-		case "Current Month":
-			stopHistoryList = stopHistoryList(subRow.getSubscriptionId(), startDate, endDate);
-			// c = Period.between(startDate, endDate).getDays()
-			// - (free ? 0 : stopHistListDaysCountForSub(stopHistoryList,
-			// startDate, endDate));
-			// if (c > 0) {
-			LocalDate sDate = subRow.getStartDate().isAfter(startDate) ? subRow.getStartDate() : startDate;
-			double subBill = calculateEOMBillForSub(subRow, startDate.plusMonths(1),
-					startDate.plusMonths(1).plusMonths(1).minusDays(1));
-			double stpBill = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment") ? 0.0
-					: calculateStopHistoryAmounts(stopHistoryList, startDate, endDate, regenerate));
-			boolean fail = (subRow.getSubscriptionType().equals("Free Copy")
-					|| subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment"));
-			double prodDiff = !fail ? calculateProdDiff(subRow, sDate, endDate) : 0.0;
-			val = prodDiff - stpBill + subBill + subRow.getAddToBill();
-			// }
-			return val;
-		// calculateEOMBillForSub(subRow, startDate.minusMonths(1),
-		// endDate.minusMonths(1))+
-		}
-
+		
 		return 0;
 
 	}
@@ -209,11 +211,11 @@ public class BillingUtilityClass {
 				stmt.close();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -244,11 +246,11 @@ public class BillingUtilityClass {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -277,11 +279,11 @@ public class BillingUtilityClass {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -307,19 +309,85 @@ public class BillingUtilityClass {
 			}
 			rs.close();
 			stmt.close();
+
+			takeStopHistoryBackup(hawkerCode, endDate);
+			updateHawkerBill(hawkerCode, endDate);
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
 	}
-	
-	public static void createHawkerBill(Hawker hawker, LocalDate endDate){
+
+	public static void createBillingInvoiceForAllHwk() {
+
+		try {
+			LocalDate startDate = LocalDate.now().withDayOfMonth(1);
+			LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			// lineNumCustomersTable.getItems().clear();
+			PreparedStatement stmt = con.prepareStatement("select distinct hawker_code from hawker_info");
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				createBillingInvoiceForHwk(rs.getString(1), startDate, endDate, false);
+
+			}
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
+
+	}
+
+	public static void takeStopHistoryBackup(String hawkerCode, LocalDate endDate) {
+		try {
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String insertStmt = "INSERT INTO STOP_HISTORY_BKP (select * from stop_history where RESUME_DATE <= ? AND SUB_ID IN (SELECT SUBSCRIPTION_ID FROM SUBSCRIPTION WHERE CUSTOMER_ID IN (SELECT CUSTOMER_ID FROM CUSTOMER where hawker_code=?)))";
+			PreparedStatement stmt = con.prepareStatement(insertStmt);
+			stmt.setDate(1, Date.valueOf(endDate.plusDays(1).minusMonths(3)));
+			stmt.setString(2, hawkerCode);
+			long insertCount = stmt.executeUpdate();
+			Main._logger.debug(insertCount + "stop history records inserted to backup table.");
+			String deleteStmt = "delete from stop_history where RESUME_DATE <= ? AND SUB_ID IN (SELECT SUBSCRIPTION_ID FROM SUBSCRIPTION WHERE CUSTOMER_ID IN (SELECT CUSTOMER_ID FROM CUSTOMER where hawker_code=?))";
+			stmt = con.prepareStatement(deleteStmt);
+			stmt.setDate(1, Date.valueOf(endDate.plusDays(1).minusMonths(3)));
+			stmt.setString(2, hawkerCode);
+			long deleteCount = stmt.executeUpdate();
+			Main._logger.debug(deleteCount + "stop history records delete after backup.");
+
+			stmt.close();
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
+	}
+
+	public static void updateHawkerBill(String hawkerCode, LocalDate invoiceDate) {
 		try {
 
 			Connection con = Main.dbConnection;
@@ -327,23 +395,57 @@ public class BillingUtilityClass {
 				con = Main.reconnect();
 			}
 			// lineNumCustomersTable.getItems().clear();
-			PreparedStatement stmt = con
-					.prepareStatement("SELECT hwk.hawker_code, COUNT(line.PRODUCT) CNT FROM hawker_info hwk, customer cust, billing bill, billing_lines line WHERE hwk.HAWKER_CODE =cust.HAWKER_CODE AND cust.CUSTOMER_ID =bill.CUSTOMER_ID AND bill.BILL_INVOICE_NUM=line.BILL_INVOICE_NUM and hwk.hawker_code=? and bill.INVOICE_DATE=? GROUP BY hwk.hawker_code ORDER BY hwk.hawker_code");
-			stmt.setString(1, hawker.getHawkerCode());
-			stmt.setDate(2, Date.valueOf(endDate));
+			Hawker hwk = BillingUtilityClass.hawkerForHwkCode(hawkerCode);
+			PreparedStatement stmt = con.prepareStatement(
+					"SELECT hwk.hawker_code, COUNT(line.PRODUCT) CNT FROM hawker_info hwk, customer cust, billing bill, billing_lines line WHERE hwk.HAWKER_ID =cust.HAWKER_ID AND cust.CUSTOMER_ID =bill.CUSTOMER_ID AND bill.BILL_INVOICE_NUM=line.BILL_INVOICE_NUM and hwk.hawker_code=? and bill.INVOICE_DATE=? GROUP BY hwk.hawker_code");
+			stmt.setString(1, hawkerCode);
+			stmt.setDate(2, Date.valueOf(invoiceDate));
 			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				
+			if (rs.next()) {
+
+				hwk.setTotalDue(hwk.getTotalDue() + (rs.getDouble(2) * hwk.getFee()));
+				hwk.updateHawkerRecord();
+
 			}
 			rs.close();
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
+
+	}
+
+	public static void createHawkerBill(Hawker hawker, LocalDate endDate) {
+		try {
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			// lineNumCustomersTable.getItems().clear();
+			PreparedStatement stmt = con.prepareStatement(
+					"SELECT hwk.hawker_code, COUNT(line.PRODUCT) CNT FROM hawker_info hwk, customer cust, billing bill, billing_lines line WHERE hwk.HAWKER_CODE =cust.HAWKER_CODE AND cust.CUSTOMER_ID =bill.CUSTOMER_ID AND bill.BILL_INVOICE_NUM=line.BILL_INVOICE_NUM and hwk.hawker_code=? and bill.INVOICE_DATE=? GROUP BY hwk.hawker_code ORDER BY hwk.hawker_code");
+			stmt.setString(1, hawker.getHawkerCode());
+			stmt.setDate(2, Date.valueOf(endDate));
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+
+			}
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -367,11 +469,11 @@ public class BillingUtilityClass {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -396,11 +498,11 @@ public class BillingUtilityClass {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return null;
@@ -434,11 +536,11 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return subsList;
@@ -453,7 +555,8 @@ public class BillingUtilityClass {
 			if (subRow.getStartDate().isAfter(startDate.withDayOfMonth(1)))
 				bill = calculateActualBilling(subRow, startDate, endDate);
 			else
-				bill = subRow.getCost() + ("Month End".equals(subRow.getSubscriptionType())?calculateProdDiff(subRow, startDate, endDate):0.0);
+				bill = subRow.getCost() + ("Month End".equals(subRow.getSubscriptionType())
+						? calculateProdDiff(subRow, startDate, endDate) : 0.0);
 		}
 		return bill;
 	}
@@ -783,7 +886,7 @@ public class BillingUtilityClass {
 			stmt.close();
 			return stopHistList;
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return stopHistList;
@@ -815,7 +918,7 @@ public class BillingUtilityClass {
 			stmt.close();
 			return stopHistList;
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return stopHistList;
@@ -845,7 +948,7 @@ public class BillingUtilityClass {
 			return prodSpclPriceList;
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return prodSpclPriceList;
@@ -873,7 +976,7 @@ public class BillingUtilityClass {
 			rs.close();
 			stmt.close();
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return null;
@@ -922,7 +1025,7 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return null;
@@ -951,7 +1054,41 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Hawker hawkerForHwkCode(String hawkerCode) {
+		try {
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+
+			PreparedStatement stmt = con.prepareStatement(
+					"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access from hawker_info where hawker_code=?");
+			stmt.setString(1, hawkerCode);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				Hawker hwkRow = new Hawker(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),
+						rs.getString(5), rs.getString(6).equalsIgnoreCase("Y"), rs.getDouble(7), rs.getString(8),
+						rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13),
+						rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17), rs.getString(18),
+						rs.getString(19), rs.getString(20), rs.getString(21), rs.getString(22), rs.getString(23),
+						rs.getString(24), rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
+						rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32), rs.getString(33),
+						rs.getString(34));
+				return hwkRow;
+			}
+			rs.close();
+			stmt.close();
+
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return null;
@@ -991,7 +1128,7 @@ public class BillingUtilityClass {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return 0.0;
@@ -1070,16 +1207,16 @@ public class BillingUtilityClass {
 
 		for (ProductSpecialPrice psp : prodSpclPriceList) {
 			boolean b = true;
-			/*for (StopHistory stp : stopHistList) {
-				if ((stp.getStopDate().isBefore(psp.getFullDate()) || stp.getStopDate().isEqual(psp.getFullDate()))
-						&& stp.getResumeDate() == null) {
-					b = false;
-				} else if ((stp.getStopDate().isBefore(psp.getFullDate())
-						|| stp.getStopDate().isEqual(psp.getFullDate()))
-						&& (stp.getResumeDate().isAfter(psp.getFullDate())
-								|| stp.getResumeDate().isEqual(psp.getFullDate())))
-					b = false;
-			}*/
+			/*
+			 * for (StopHistory stp : stopHistList) { if
+			 * ((stp.getStopDate().isBefore(psp.getFullDate()) ||
+			 * stp.getStopDate().isEqual(psp.getFullDate())) &&
+			 * stp.getResumeDate() == null) { b = false; } else if
+			 * ((stp.getStopDate().isBefore(psp.getFullDate()) ||
+			 * stp.getStopDate().isEqual(psp.getFullDate())) &&
+			 * (stp.getResumeDate().isAfter(psp.getFullDate()) ||
+			 * stp.getResumeDate().isEqual(psp.getFullDate()))) b = false; }
+			 */
 			if (b)
 				spclMap.put(psp.getFullDate(), psp.getPrice());
 		}
@@ -1234,81 +1371,83 @@ public class BillingUtilityClass {
 	}
 
 	public static void generateInvoicePDF(String hawkerCode, int lineNum, String invoiceDate) throws JRException {
-//		Task<Void> task = new Task<Void>() {
-//
-//			@Override
-//			protected Void call() throws Exception {
-				try {
-//					
-//					Platform.runLater(new Runnable() {
-//
-//						@Override
-//						public void run() {
+		// Task<Void> task = new Task<Void>() {
+		//
+		// @Override
+		// protected Void call() throws Exception {
+		try {
+			//
+			// Platform.runLater(new Runnable() {
+			//
+			// @Override
+			// public void run() {
 
-							
-//						}
-//					});
-					
-					String reportSrcFile = "MasterInvoice.jrxml";
-					String subReportPath = "BillSubreport.jrxml";
-					
-					InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
-					InputStream subreport = BillingUtilityClass.class.getResourceAsStream(subReportPath);
-					// First, compile jrxml file.
-//					JasperReport subReport = JasperCompileManager.compileReport(report);
-					JasperReport jasperReport = JasperCompileManager.compileReport(input);
-					JasperReport jasperSubReport = JasperCompileManager.compileReport(subreport);
-//					JasperCompileManager.compileReportToFile(reportSrcFile);
-					// Connection conn = ConnectionUtils.getConnection();
+			// }
+			// });
 
-					// Parameters for report
-					Map<String, Object> parameters = new HashMap<String, Object>();
-					parameters.put("HWK_CODE", hawkerCode);
-					parameters.put("LINE_NUM", lineNum);
-					parameters.put("INVOICE_DATE", invoiceDate);
-					parameters.put("SubReportParam", jasperSubReport);
-					JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
-//					JasperPrint print = JasperFillManager.fillReport("/application/MasterInvoice.jasper", parameters, Main.dbConnection);
-					// Make sure the output directory exists.
-					File outDir = new File("C:/pds");
-					outDir.mkdirs();
+			String reportSrcFile = "MasterInvoice.jrxml";
+			String subReportPath = "BillSubreport.jrxml";
 
-					// PDF Exportor.
-					JRPdfExporter exporter = new JRPdfExporter();
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			InputStream subreport = BillingUtilityClass.class.getResourceAsStream(subReportPath);
+			// First, compile jrxml file.
+			// JasperReport subReport =
+			// JasperCompileManager.compileReport(report);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+			JasperReport jasperSubReport = JasperCompileManager.compileReport(subreport);
+			// JasperCompileManager.compileReportToFile(reportSrcFile);
+			// Connection conn = ConnectionUtils.getConnection();
 
-					ExporterInput exporterInput = new SimpleExporterInput(print);
-					// ExporterInput
-					exporter.setExporterInput(exporterInput);
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			parameters.put("HWK_CODE", hawkerCode);
+			parameters.put("LINE_NUM", lineNum);
+			parameters.put("INVOICE_DATE", invoiceDate);
+			parameters.put("SubReportParam", jasperSubReport);
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+			// JasperPrint print =
+			// JasperFillManager.fillReport("/application/MasterInvoice.jasper",
+			// parameters, Main.dbConnection);
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
 
-					// ExporterOutput
-					String filename = "C:/pds/" + hawkerCode + "-" + Integer.toString(lineNum) + "-"
-							+ invoiceDate.replace('/', '-') + ".pdf";
-					OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
-					// Output
-					exporter.setExporterOutput(exporterOutput);
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
 
-					//
-					SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
-					exporter.setConfiguration(configuration);
-					exporter.exportReport();
-//					Platform.runLater(new Runnable() {
-//
-//						@Override
-//						public void run() {
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
 
-							Notifications.create().title("Invocie PDF Created").text("Invoice PDF created at : " + filename)
-									.hideAfter(Duration.seconds(15)).showInformation();
-//						}
-//					});
-				} catch (JRException e) {
-					Main._logger.debug("Error during Bill PDF Generation: ",e);
-//					e.printStackTrace();
-				}
-//				return null;
-//			}
-//
-//		};
-//		new Thread(task).start();
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-" + Integer.toString(lineNum) + "-"
+					+ invoiceDate.replace('/', '-') + ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			// Platform.runLater(new Runnable() {
+			//
+			// @Override
+			// public void run() {
+
+			Notifications.create().title("Invocie PDF Created").text("Invoice PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+			// }
+			// });
+		} catch (JRException e) {
+			Main._logger.debug("Error during Bill PDF Generation: ", e);
+			// e.printStackTrace();
+		}
+		// return null;
+		// }
+		//
+		// };
+		// new Thread(task).start();
 	}
 
 }

@@ -169,6 +169,31 @@
 														</VBox>
 													</content>
 												</Tab>
+												<Tab closable="false" text="Stop History Backup">
+													<content>
+														<VBox alignment="TOP_CENTER">
+															<children>
+																<TableView fx:id="stopHistoryBkpTable" prefHeight="200.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
+																	<columns>
+																		<TableColumn fx:id="stphstopHistoryIdColumn" prefWidth="60.0" text="StopHist ID" />
+																		<TableColumn fx:id="stphsubsIdColumn" prefWidth="60.0" text="Sub ID" />
+                                          								<TableColumn fx:id="stphsubsProdCodeColumn" prefWidth="60.0" text="Code" />
+																		<TableColumn fx:id="stphsubsProdNameColumn" prefWidth="120.0" text="Product Name" />
+																		<TableColumn fx:id="stphsubsTypeColumn" prefWidth="120.0" text="Subscription Type" />
+																		<TableColumn fx:id="stphsubsFreqColumn" prefWidth="120.0" text="Subscription Freq" />
+																		<TableColumn fx:id="stphsubsDOWColumn" prefWidth="120.0" text="Day of the Week" />
+																		<TableColumn fx:id="stphsubsStopDateColumn" prefWidth="86.0" text="Stop Date" />
+																		<TableColumn fx:id="stphsubsResumeDateColumn" prefWidth="86.0" text="Resume Date" />
+																		<TableColumn fx:id="stphstopHistAmountColumn" prefWidth="86.0" text="Amount" />
+																	</columns>
+                                                   <VBox.margin>
+                                                      <Insets top="5.0" />
+                                                   </VBox.margin>
+																</TableView>
+															</children>
+														</VBox>
+													</content>
+												</Tab>
 											</tabs>
 										</TabPane>
 									</children>

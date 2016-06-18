@@ -537,6 +537,7 @@ public class AHawkerInfoTabController implements Initializable {
 								BillingUtilityClass.createBillingInvoiceForHwk(hawkerRow.getHawkerCode(),
 										pauseDP.getValue().withDayOfMonth(1),
 										pauseDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1), true);
+								refreshHawkerTable();
 							}
 						}
 					}

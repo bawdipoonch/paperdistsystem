@@ -620,9 +620,9 @@ public class AddCustomerExtraScreenController implements Initializable {
 				con = Main.reconnect();
 			}
 			PreparedStatement lineIdStatement = null;
-			String lineIdQuery = "select line_id from line_info where hawker_code = ? and line_num=?";
+			String lineIdQuery = "select line_id from line_info where hawker_id = ? and line_num=?";
 			lineIdStatement = con.prepareStatement(lineIdQuery);
-			lineIdStatement.setString(1, hwkCode);
+			lineIdStatement.setLong(1, BillingUtilityClass.hawkerForHwkCode(hwkCode).getHawkerId());
 			lineIdStatement.setInt(2, lineNum);
 			
 			ResultSet lineIdRs = lineIdStatement.executeQuery();

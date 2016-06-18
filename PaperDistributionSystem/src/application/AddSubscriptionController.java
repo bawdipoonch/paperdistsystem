@@ -207,11 +207,13 @@ public class AddSubscriptionController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (newValue.equals("Weekly")) {
-					dowLOV.setDisable(false);
-				} else {
-					dowLOV.setDisable(true);
-					dowLOV.getCheckModel().clearChecks();
+				if (newValue!=null) {
+					if (newValue.equals("Weekly")) {
+						dowLOV.setDisable(false);
+					} else {
+						dowLOV.setDisable(true);
+						dowLOV.getCheckModel().clearChecks();
+					} 
 				}
 
 			}
@@ -702,7 +704,7 @@ public class AddSubscriptionController implements Initializable {
 					insertSubscription.setLong(2, prodNameLOV.getSelectionModel().getSelectedItem().getProductId());
 					insertSubscription.setString(3, paymentTypeLOV.getSelectionModel().getSelectedItem());
 					insertSubscription.setDouble(4, Double.parseDouble(
-							priceTF.getText() == null || priceTF.getText().isEmpty() ? "0.0" : priceTF.getText()));
+							priceTF.getText() == null || priceTF.getText().isEmpty() || i > 0 ? "0.0" : priceTF.getText()));
 					insertSubscription.setDouble(5,
 							Double.parseDouble(
 									(serviceChargeTF.getText() == null || serviceChargeTF.getText().isEmpty() || i > 0)
@@ -718,7 +720,8 @@ public class AddSubscriptionController implements Initializable {
 					insertSubscription.setString(13, durationLOV.getSelectionModel().getSelectedItem());
 					insertSubscription.setInt(14, (int) offerMonthsTF.getValue());
 					insertSubscription.setString(15, subNumberTF.getText());
-					insertSubscription.setString(16, addToBillTF.getText());
+					insertSubscription.setString(16, (addToBillTF.getText() == null || addToBillTF.getText().isEmpty() || i > 0)
+							? "0.0" : addToBillTF.getText());
 					insertSubscription.executeUpdate();
 					ResultSet rs = insertSubscription.getGeneratedKeys();
 					subId = 0;

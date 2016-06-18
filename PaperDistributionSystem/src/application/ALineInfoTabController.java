@@ -208,6 +208,33 @@ public class ALineInfoTabController implements Initializable {
 	@FXML
 	private TableColumn<StopHistory, LocalDate> stpsubsResumeDateColumn;
 
+
+	@FXML
+	private TableView<StopHistoryBackup> stopHistoryBkpTable;
+
+	@FXML
+	private TableColumn<StopHistoryBackup, Long> stphstopHistoryIdColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, Long> stphsubsIdColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsProdCodeColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsProdNameColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsTypeColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsFreqColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsDOWColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, Double> stphstopHistAmountColumn;
+
+	@FXML
+	private TableColumn<StopHistoryBackup, LocalDate> stphsubsStopDateColumn;
+
+	@FXML
+	private TableColumn<StopHistoryBackup, LocalDate> stphsubsResumeDateColumn;
+
 	private ObservableList<Billing> invoiceDatesData = FXCollections.observableArrayList();
 	private ObservableList<BillingLine> billingLinesData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
@@ -217,6 +244,7 @@ public class ALineInfoTabController implements Initializable {
 	private ObservableList<Subscription> subscriptionMasterData = FXCollections.observableArrayList();
 	private ObservableList<StopHistory> stopHistoryMasterData = FXCollections.observableArrayList();
 	private ObservableList<String> cityValues = FXCollections.observableArrayList();
+	private ObservableList<StopHistoryBackup> stopHistoryBkpMasterData = FXCollections.observableArrayList();
 
 	private ArrayList<TextField> newHouseSeqTFArray;
 
@@ -345,6 +373,38 @@ public class ALineInfoTabController implements Initializable {
 					}
 				});
 
+
+		stphstopHistoryIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, Long>("stopHistoryId"));
+		stphsubsIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, Long>("subscriptionId"));
+		stphsubsProdCodeColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("productCode"));
+		stphsubsProdNameColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("productName"));
+		stphsubsTypeColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("subscriptionType"));
+		stphsubsFreqColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("subscriptionFreq"));
+		stphsubsDOWColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("subscriptionDOW"));
+		stphsubsResumeDateColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, LocalDate>("resumeDate"));
+		stphstopHistAmountColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, Double>("amount"));
+		stphsubsStopDateColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, LocalDate>("stopDate"));
+		stphsubsResumeDateColumn
+				.setCellFactory(new Callback<TableColumn<StopHistoryBackup, LocalDate>, TableCell<StopHistoryBackup, LocalDate>>() {
+
+					@Override
+					public TableCell<StopHistoryBackup, LocalDate> call(TableColumn<StopHistoryBackup, LocalDate> param) {
+						TextFieldTableCell<StopHistoryBackup, LocalDate> cell = new TextFieldTableCell<StopHistoryBackup, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
+		stphsubsStopDateColumn
+				.setCellFactory(new Callback<TableColumn<StopHistoryBackup, LocalDate>, TableCell<StopHistoryBackup, LocalDate>>() {
+
+					@Override
+					public TableCell<StopHistoryBackup, LocalDate> call(TableColumn<StopHistoryBackup, LocalDate> param) {
+						TextFieldTableCell<StopHistoryBackup, LocalDate> cell = new TextFieldTableCell<StopHistoryBackup, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
+		
 		hawkerComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -504,7 +564,6 @@ public class ALineInfoTabController implements Initializable {
 												dateBox.getSelectionModel().getSelectedItem()
 														.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
 									} catch (JRException e) {
-										// TODO Auto-generated catch block
 										Main._logger.debug(e.getMessage());
 									}
 								}
@@ -927,8 +986,10 @@ public class ALineInfoTabController implements Initializable {
 							Optional<ButtonType> result = deleteWarning.showAndWait();
 							if (result.isPresent() && result.get() == saveButtonType) {
 								Subscription subsRow = subsBox.getSelectionModel().getSelectedItem();
+
 								if (subsRow != null && subsRow.getStatus().equals("Stopped")) {
-									if (dp.getValue().isBefore(resumeDP.getValue())) {
+									LocalDate maxStopDate = findMaxStopDateForSub(subsRow);
+									if (maxStopDate.isBefore(resumeDP.getValue())) {
 										subsRow.resumeSubscription();
 
 										int count = subsPostCount(subsRow, "Stopped");
@@ -938,7 +999,7 @@ public class ALineInfoTabController implements Initializable {
 															+ " more stopped subscriptions for this customer")
 													.hideAfter(Duration.seconds(5)).showWarning();
 										}
-										resumeStopHistoryForSub(subsRow, dp.getValue(), resumeDP.getValue());
+										resumeStopHistoryForSub(subsRow, maxStopDate, resumeDP.getValue());
 										refreshSubscriptions();
 										refreshStopHistory();
 										Notifications.create().title("Resume successful")
@@ -947,7 +1008,7 @@ public class ALineInfoTabController implements Initializable {
 									} else {
 
 										Notifications.create().title("Invalid Resume Date")
-												.text("Resume date must be after stop date")
+												.text("Resume date must be after the Stop History latest stop date.")
 												.hideAfter(Duration.seconds(5)).showError();
 									}
 								} else {
@@ -1146,6 +1207,7 @@ public class ALineInfoTabController implements Initializable {
 					refreshSubscriptions();
 					populateInvoiceDates(newValue);
 					refreshStopHistory();
+					refreshStopHistoryBkp();
 				} else {
 					if (!Platform.isFxApplicationThread()) {
 						Platform.runLater(new Runnable() {
@@ -1156,6 +1218,10 @@ public class ALineInfoTabController implements Initializable {
 								subscriptionMasterData.clear();
 								billingLinesData.clear();
 								invoiceDatesData.clear();
+								stopHistoryBkpMasterData.clear();
+								stopHistoryMasterData.clear();
+								stopHistoryBkpTable.setItems(stopHistoryBkpMasterData);
+								stopHistoryTable.setItems(stopHistoryMasterData);
 								subscriptionsTable.setItems(subscriptionMasterData);
 								billingTable.setItems(billingLinesData);
 								invoiceDateLOV.setItems(invoiceDatesData);
@@ -1170,6 +1236,10 @@ public class ALineInfoTabController implements Initializable {
 						subscriptionMasterData.clear();
 						billingLinesData.clear();
 						invoiceDatesData.clear();
+						stopHistoryBkpMasterData.clear();
+						stopHistoryMasterData.clear();
+						stopHistoryBkpTable.setItems(stopHistoryBkpMasterData);
+						stopHistoryTable.setItems(stopHistoryMasterData);
 						subscriptionsTable.setItems(subscriptionMasterData);
 						billingTable.setItems(billingLinesData);
 						invoiceDateLOV.setItems(invoiceDatesData);
@@ -1359,9 +1429,10 @@ public class ALineInfoTabController implements Initializable {
 							resumeWarning.getDialogPane().setContent(grid);
 							Optional<ButtonType> result = resumeWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
-								if (pauseDP.getValue().isBefore(resumeDP.getValue())) {
+								LocalDate maxStopDate = findMaxStopDateForSub(subsRow);
+								if (maxStopDate.isBefore(resumeDP.getValue())) {
 									if (resumeDP.getValue()
-											.isBefore(pauseDP.getValue().plusMonths(1).withDayOfMonth(2))) {
+											.isBefore(maxStopDate.plusMonths(1).withDayOfMonth(1))) {
 										subsRow.resumeSubscription();
 										int count = subsPostCount(subsRow, "Stopped");
 										if (count > 0) {
@@ -1370,7 +1441,7 @@ public class ALineInfoTabController implements Initializable {
 															+ " more stopped subscriptions for this customer")
 													.hideAfter(Duration.seconds(5)).showWarning();
 										}
-										resumeStopHistoryForSub(subsRow, pauseDP.getValue(), resumeDP.getValue());
+										resumeStopHistoryForSub(subsRow, maxStopDate, resumeDP.getValue());
 										refreshSubscriptions();
 										refreshStopHistory();
 										Notifications.create().title("Resume successful")
@@ -1379,7 +1450,7 @@ public class ALineInfoTabController implements Initializable {
 									} else {
 
 										Notifications.create().title("Invalid Resume Date")
-												.text("Resume date must be in the same month as stop date.")
+												.text("Resume date must be in the same month as Stop History latest stop date.")
 												.hideAfter(Duration.seconds(5)).showError();
 									}
 								} else {
@@ -1729,7 +1800,7 @@ public class ALineInfoTabController implements Initializable {
 						}
 						disableAll();
 						subscriptionMasterData = FXCollections.observableArrayList();
-						String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by prod.name";
+						String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by sub.STATUS,prod.name";
 						PreparedStatement stmt = con.prepareStatement(query);
 						Customer cust = lineNumCustomersTable.getSelectionModel().getSelectedItem();
 						stmt.setLong(1, cust != null ? cust.getCustomerId() : null);
@@ -3182,6 +3253,62 @@ public class ALineInfoTabController implements Initializable {
 
 	}
 
+	private void refreshStopHistoryBkp() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						stopHistoryBkpMasterData = FXCollections.observableArrayList();
+						String query = "SELECT STP.STOP_HISTORY_ID, CUST.NAME, CUST.CUSTOMER_CODE, CUST.MOBILE_NUM, CUST.HAWKER_CODE, CUST.LINE_NUM, SUB.SUBSCRIPTION_ID, CUST.HOUSE_SEQ, PROD.NAME, PROD.CODE, PROD.BILL_CATEGORY, STP.STOP_DATE, STP.RESUME_DATE, SUB.TYPE, SUB.FREQUENCY, SUB.DOW, STP.AMOUNT FROM STOP_HISTORY_BKP STP, CUSTOMER CUST, PRODUCTS PROD , SUBSCRIPTION SUB WHERE CUST.CUSTOMER_ID=? AND STP.SUB_ID =SUB.SUBSCRIPTION_ID AND SUB.CUSTOMER_ID =CUST.CUSTOMER_ID AND SUB.PRODUCT_ID =PROD.PRODUCT_ID ORDER BY SUB.PAUSED_DATE DESC";
+						PreparedStatement stmt = con.prepareStatement(query);
+						stmt.setLong(1, lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							stopHistoryBkpMasterData.add(new StopHistoryBackup(rs.getLong(1), rs.getString(2), rs.getLong(3),
+									rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getInt(8),
+									rs.getString(9), rs.getString(10), rs.getString(11),
+									rs.getDate(12) == null ? null : rs.getDate(12).toLocalDate(),
+									rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(), rs.getString(14),
+									rs.getString(15), rs.getString(16), rs.getDouble(17)));
+						}
+
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								stopHistoryBkpTable.setItems(stopHistoryBkpMasterData);
+								stopHistoryBkpTable.refresh();
+							}
+						});
+						rs.close();
+						stmt.close();
+
+					} catch (SQLException e) {
+
+						Main._logger.debug("Error :",e);
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug("Error :",e);
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
+	}
+
 	private void showViewSubscriptionDialog(long subsId) {
 		try {
 
@@ -3312,6 +3439,36 @@ public class ALineInfoTabController implements Initializable {
 		return null;
 	}
 
+	public static LocalDate findMaxStopDateForSub(Subscription newValue) {
+		try {
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			ObservableList<LocalDate> dateList = FXCollections.observableArrayList();
+			PreparedStatement stmt = null;
+			stmt = con.prepareStatement(
+					"select max(stop_date) from stop_history where sub_id =? group by sub_id");
+			stmt.setLong(1, newValue.getSubscriptionId());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return rs.getDate(1).toLocalDate();
+			}
+
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	private void disableAll() {
 		if (!Platform.isFxApplicationThread()) {
 			Platform.runLater(new Runnable() {
@@ -3392,6 +3549,7 @@ public class ALineInfoTabController implements Initializable {
 		subscriptionMasterData = null;
 		stopHistoryMasterData = null;
 		cityValues = null;
+		stopHistoryBkpMasterData=null;
 		invoiceDatesData = FXCollections.observableArrayList();
 		billingLinesData = FXCollections.observableArrayList();
 		hawkerCodeData = FXCollections.observableArrayList();
@@ -3401,7 +3559,7 @@ public class ALineInfoTabController implements Initializable {
 		subscriptionMasterData = FXCollections.observableArrayList();
 		stopHistoryMasterData = FXCollections.observableArrayList();
 		cityValues = FXCollections.observableArrayList();
-
+		stopHistoryBkpMasterData=FXCollections.observableArrayList();
 		newHouseSeqTFArray = new ArrayList<TextField>();
 	}
 }

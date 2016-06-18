@@ -227,8 +227,9 @@ public class ACustomerInfoTabController implements Initializable {
 
 	@FXML
 	private Label netBillLabel;
-	
-	@FXML private Label monthLabel;
+
+	@FXML
+	private Label monthLabel;
 
 	@FXML
 	ComboBox<Billing> invoiceDateLOV;
@@ -269,6 +270,32 @@ public class ACustomerInfoTabController implements Initializable {
 	@FXML
 	private TableColumn<StopHistory, LocalDate> stpsubsResumeDateColumn;
 
+	@FXML
+	private TableView<StopHistoryBackup> stopHistoryBkpTable;
+
+	@FXML
+	private TableColumn<StopHistoryBackup, Long> stphstopHistoryIdColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, Long> stphsubsIdColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsProdCodeColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsProdNameColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsTypeColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsFreqColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, String> stphsubsDOWColumn;
+	@FXML
+	private TableColumn<StopHistoryBackup, Double> stphstopHistAmountColumn;
+
+	@FXML
+	private TableColumn<StopHistoryBackup, LocalDate> stphsubsStopDateColumn;
+
+	@FXML
+	private TableColumn<StopHistoryBackup, LocalDate> stphsubsResumeDateColumn;
+
 	private FilteredList<Customer> filteredData;
 	private String searchText;
 	private ObservableList<Customer> customerMasterData = FXCollections.observableArrayList();
@@ -282,6 +309,7 @@ public class ACustomerInfoTabController implements Initializable {
 	private ObservableList<BillingLine> billingLinesData = FXCollections.observableArrayList();
 	private ObservableList<String> cityValues = FXCollections.observableArrayList();
 	private ObservableList<StopHistory> stopHistoryMasterData = FXCollections.observableArrayList();
+	private ObservableList<StopHistoryBackup> stopHistoryBkpMasterData = FXCollections.observableArrayList();
 
 	@FXML
 	public RadioButton filterRadioButton;
@@ -354,7 +382,6 @@ public class ACustomerInfoTabController implements Initializable {
 		prodCol.setCellValueFactory(new PropertyValueFactory<BillingLine, String>("product"));
 		amountCol.setCellValueFactory(new PropertyValueFactory<BillingLine, Double>("amount"));
 		teaExpensesCol.setCellValueFactory(new PropertyValueFactory<BillingLine, Double>("teaExpenses"));
-		
 
 		stpstopHistoryIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, Long>("stopHistoryId"));
 		stpsubsIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistory, Long>("subscriptionId"));
@@ -387,7 +414,6 @@ public class ACustomerInfoTabController implements Initializable {
 					}
 				});
 
-		
 		subsPausedDateColumn.setCellFactory(
 				new Callback<TableColumn<Subscription, LocalDate>, TableCell<Subscription, LocalDate>>() {
 
@@ -428,6 +454,41 @@ public class ACustomerInfoTabController implements Initializable {
 						return cell;
 					}
 				});
+
+		stphstopHistoryIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, Long>("stopHistoryId"));
+		stphsubsIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, Long>("subscriptionId"));
+		stphsubsProdCodeColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("productCode"));
+		stphsubsProdNameColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("productName"));
+		stphsubsTypeColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("subscriptionType"));
+		stphsubsFreqColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("subscriptionFreq"));
+		stphsubsDOWColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("subscriptionDOW"));
+		stphsubsResumeDateColumn
+				.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, LocalDate>("resumeDate"));
+		stphstopHistAmountColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, Double>("amount"));
+		stphsubsStopDateColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, LocalDate>("stopDate"));
+		stphsubsResumeDateColumn.setCellFactory(
+				new Callback<TableColumn<StopHistoryBackup, LocalDate>, TableCell<StopHistoryBackup, LocalDate>>() {
+
+					@Override
+					public TableCell<StopHistoryBackup, LocalDate> call(
+							TableColumn<StopHistoryBackup, LocalDate> param) {
+						TextFieldTableCell<StopHistoryBackup, LocalDate> cell = new TextFieldTableCell<StopHistoryBackup, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
+		stphsubsStopDateColumn.setCellFactory(
+				new Callback<TableColumn<StopHistoryBackup, LocalDate>, TableCell<StopHistoryBackup, LocalDate>>() {
+
+					@Override
+					public TableCell<StopHistoryBackup, LocalDate> call(
+							TableColumn<StopHistoryBackup, LocalDate> param) {
+						TextFieldTableCell<StopHistoryBackup, LocalDate> cell = new TextFieldTableCell<StopHistoryBackup, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						return cell;
+					}
+				});
+
 		addCustLineNum.setDisable(true);
 		addCustHouseSeq.setDisable(true);
 		addCustLineNum.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
@@ -755,17 +816,17 @@ public class ACustomerInfoTabController implements Initializable {
 							subsBox.getSelectionModel().selectedItemProperty()
 									.addListener(new ChangeListener<Subscription>() {
 
-								@Override
-								public void changed(ObservableValue<? extends Subscription> observable,
-										Subscription oldValue, Subscription newValue) {
-									if (newValue != null) {
-										dp.setValue(newValue.getPausedDate());
-										resumeDP.setValue(newValue.getResumeDate() == null ? LocalDate.now()
-												: newValue.getResumeDate());
-									}
+										@Override
+										public void changed(ObservableValue<? extends Subscription> observable,
+												Subscription oldValue, Subscription newValue) {
+											if (newValue != null) {
+												dp.setValue(newValue.getPausedDate());
+												resumeDP.setValue(newValue.getResumeDate() == null ? LocalDate.now()
+														: newValue.getResumeDate());
+											}
 
-								}
-							});
+										}
+									});
 							subsBox.getSelectionModel().selectFirst();
 							grid.add(new Label("Subscription"), 0, 0);
 							grid.add(new Label("Stop Date"), 0, 1);
@@ -778,7 +839,8 @@ public class ACustomerInfoTabController implements Initializable {
 							if (result.isPresent() && result.get() == saveButtonType) {
 								Subscription subsRow = subsBox.getSelectionModel().getSelectedItem();
 								if (subsRow != null && subsRow.getStatus().equals("Stopped")) {
-									if (dp.getValue().isBefore(resumeDP.getValue())) {
+									LocalDate maxStopDate = ALineInfoTabController.findMaxStopDateForSub(subsRow);
+									if (maxStopDate.isBefore(resumeDP.getValue())) {
 										subsRow.resumeSubscription();
 
 										int count = subsPostCount(subsRow, "Stopped");
@@ -788,7 +850,7 @@ public class ACustomerInfoTabController implements Initializable {
 															+ " more stopped subscriptions for this customer")
 													.hideAfter(Duration.seconds(5)).showWarning();
 										}
-										resumeStopHistoryForSub(subsRow, dp.getValue(), resumeDP.getValue());
+										resumeStopHistoryForSub(subsRow, maxStopDate, resumeDP.getValue());
 										refreshSubscriptions();
 										refreshStopHistory();
 										Notifications.create().title("Resume successful")
@@ -797,7 +859,7 @@ public class ACustomerInfoTabController implements Initializable {
 									} else {
 
 										Notifications.create().title("Invalid Resume Date")
-												.text("Resume date must be after stop date")
+												.text("Resume date must be after the Stop History latest stop date.")
 												.hideAfter(Duration.seconds(5)).showError();
 									}
 								} else {
@@ -895,7 +957,6 @@ public class ACustomerInfoTabController implements Initializable {
 					}
 
 				});
-				
 
 				MenuItem mnuDue = new MenuItem("Change Due Amount");
 				mnuDue.setOnAction(new EventHandler<ActionEvent>() {
@@ -922,11 +983,11 @@ public class ACustomerInfoTabController implements Initializable {
 											.text("Please enter only NUMERIC values in Total Due.")
 											.hideAfter(Duration.seconds(5)).showError();
 
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 									btnevent.consume();
 								} catch (Exception e) {
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 								}
 
@@ -961,11 +1022,11 @@ public class ACustomerInfoTabController implements Initializable {
 											.text("Please enter only NUMERIC values in Total Due.")
 											.hideAfter(Duration.seconds(5)).showError();
 
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 									btnevent.consume();
 								} catch (Exception e) {
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 								}
 
@@ -1222,22 +1283,30 @@ public class ACustomerInfoTabController implements Initializable {
 							resumeWarning.getDialogPane().setContent(grid);
 							Optional<ButtonType> result = resumeWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
-								if (pauseDP.getValue().isBefore(resumeDP.getValue())) {
-									subsRow.resumeSubscription();
+								LocalDate maxStopDate = ALineInfoTabController.findMaxStopDateForSub(subsRow);
+								if (maxStopDate.isBefore(resumeDP.getValue())) {
+									if (resumeDP.getValue().isBefore(maxStopDate.plusMonths(1).withDayOfMonth(1))) {
+										subsRow.resumeSubscription();
 
-									int count = subsPostCount(subsRow, "Stopped");
-									if (count > 0) {
-										Notifications.create().title("Product has more stopped subscriptions")
-												.text("This product has " + count
-														+ " more stopped subscriptions for this customer")
-												.hideAfter(Duration.seconds(5)).showWarning();
+										int count = subsPostCount(subsRow, "Stopped");
+										if (count > 0) {
+											Notifications.create().title("Product has more stopped subscriptions")
+													.text("This product has " + count
+															+ " more stopped subscriptions for this customer")
+													.hideAfter(Duration.seconds(5)).showWarning();
+										}
+										resumeStopHistoryForSub(subsRow, pauseDP.getValue(), resumeDP.getValue());
+										refreshSubscriptions();
+										refreshStopHistory();
+										Notifications.create().title("Resume successful")
+												.text("Resume subscription successful").hideAfter(Duration.seconds(5))
+												.showInformation();
+									} else {
+
+										Notifications.create().title("Invalid Resume Date")
+												.text("Resume date must be in the same month as Stop History latest stop date.")
+												.hideAfter(Duration.seconds(5)).showError();
 									}
-									resumeStopHistoryForSub(subsRow, pauseDP.getValue(), resumeDP.getValue());
-									refreshSubscriptions();
-									refreshStopHistory();
-									Notifications.create().title("Resume successful")
-											.text("Resume subscription successful").hideAfter(Duration.seconds(5))
-											.showInformation();
 								} else {
 
 									Notifications.create().title("Invalid Resume Date")
@@ -1292,7 +1361,6 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		});
 
-
 		ACustInfoTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Customer>() {
 
 			@Override
@@ -1301,6 +1369,7 @@ public class ACustomerInfoTabController implements Initializable {
 					refreshSubscriptions();
 					populateInvoiceDates(newValue);
 					refreshStopHistory();
+					refreshStopHistoryBkp();
 				} else {
 					if (!Platform.isFxApplicationThread()) {
 						Platform.runLater(new Runnable() {
@@ -1310,6 +1379,10 @@ public class ACustomerInfoTabController implements Initializable {
 								subscriptionMasterData.clear();
 								billingLinesData.clear();
 								invoiceDatesData.clear();
+								stopHistoryBkpMasterData.clear();
+								stopHistoryMasterData.clear();
+								stopHistoryBkpTable.setItems(stopHistoryBkpMasterData);
+								stopHistoryTable.setItems(stopHistoryMasterData);
 								subscriptionsTable.setItems(subscriptionMasterData);
 								billingTable.setItems(billingLinesData);
 								invoiceDateLOV.setItems(invoiceDatesData);
@@ -1324,6 +1397,10 @@ public class ACustomerInfoTabController implements Initializable {
 						subscriptionMasterData.clear();
 						billingLinesData.clear();
 						invoiceDatesData.clear();
+						stopHistoryBkpMasterData.clear();
+						stopHistoryMasterData.clear();
+						stopHistoryBkpTable.setItems(stopHistoryBkpMasterData);
+						stopHistoryTable.setItems(stopHistoryMasterData);
 						subscriptionsTable.setItems(subscriptionMasterData);
 						billingTable.setItems(billingLinesData);
 						invoiceDateLOV.setItems(invoiceDatesData);
@@ -1416,7 +1493,7 @@ public class ACustomerInfoTabController implements Initializable {
 				}
 			}
 		});
-		
+
 		stopHistoryTable.setRowFactory(new Callback<TableView<StopHistory>, TableRow<StopHistory>>() {
 
 			@Override
@@ -1488,13 +1565,13 @@ public class ACustomerInfoTabController implements Initializable {
 				refreshCustomerTable();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of customer has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -1557,7 +1634,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1587,7 +1664,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1619,13 +1696,13 @@ public class ACustomerInfoTabController implements Initializable {
 				refreshSubscriptions();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of subscription has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -1683,7 +1760,7 @@ public class ACustomerInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1714,7 +1791,7 @@ public class ACustomerInfoTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1769,7 +1846,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1793,11 +1870,11 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -1823,15 +1900,16 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return hawkerId;
 	}
+
 	public static long lineIdForNumHwkCode(int lineNum, String hwkCode) {
 		Main._logger.debug("Entered lineIdForNum method");
 
@@ -1842,11 +1920,11 @@ public class ACustomerInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			PreparedStatement lineIdStatement = null;
-			String lineIdQuery = "select line_id from line_info where hawker_code = ? and line_num=?";
+			String lineIdQuery = "select line_id from line_info where hawker_id = ? and line_num=?";
 			lineIdStatement = con.prepareStatement(lineIdQuery);
-			lineIdStatement.setString(1, hwkCode);
+			lineIdStatement.setLong(1, BillingUtilityClass.hawkerForHwkCode(hwkCode).getHawkerId());
 			lineIdStatement.setInt(2, lineNum);
-			
+
 			ResultSet lineIdRs = lineIdStatement.executeQuery();
 
 			if (lineIdRs.next()) {
@@ -1854,11 +1932,11 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return lineId;
@@ -1884,11 +1962,11 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1940,11 +2018,11 @@ public class ACustomerInfoTabController implements Initializable {
 					stmt.close();
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				if (!customerMasterData.isEmpty()) {
@@ -1956,7 +2034,6 @@ public class ACustomerInfoTabController implements Initializable {
 
 						@Override
 						public void run() {
-
 
 							ACustInfoTable.setItems(sortedData);
 							ACustInfoTable.refresh();
@@ -2023,11 +2100,11 @@ public class ACustomerInfoTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -2056,11 +2133,11 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -2085,11 +2162,11 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return 1;
@@ -2199,8 +2276,12 @@ public class ACustomerInfoTabController implements Initializable {
 				insertCustomer.setString(17, addCustEmployment.getSelectionModel().getSelectedItem());
 				insertCustomer.setString(18, addCustComments.getText());
 				insertCustomer.setString(19, addCustBuildingStreet.getText());
-				insertCustomer.setLong(20,hawkerIdForCode(addCustHwkCode.getSelectionModel().getSelectedItem()));
-				insertCustomer.setLong(21,lineIdForNumHwkCode(Integer.parseInt(addCustLineNum.getSelectionModel().getSelectedItem().split(" ")[0].trim()), addCustHwkCode.getSelectionModel().getSelectedItem()));
+				insertCustomer.setLong(20, hawkerIdForCode(addCustHwkCode.getSelectionModel().getSelectedItem()));
+				insertCustomer.setLong(21,
+						lineIdForNumHwkCode(
+								Integer.parseInt(
+										addCustLineNum.getSelectionModel().getSelectedItem().split(" ")[0].trim()),
+								addCustHwkCode.getSelectionModel().getSelectedItem()));
 				insertCustomer.executeUpdate();
 				refreshCustomerTable();
 				con.commit();
@@ -2215,14 +2296,14 @@ public class ACustomerInfoTabController implements Initializable {
 
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 						.text("There has been some error during customer creation, please retry").showError();
 				Main.reconnect();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 
@@ -2254,11 +2335,11 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -2430,7 +2511,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -2496,11 +2577,11 @@ public class ACustomerInfoTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -2535,11 +2616,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				addCustProf1.getItems().clear();
@@ -2577,11 +2658,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				addCustEmployment.getItems().clear();
@@ -2614,11 +2695,11 @@ public class ACustomerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -2675,7 +2756,7 @@ public class ACustomerInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -2694,24 +2775,20 @@ public class ACustomerInfoTabController implements Initializable {
 						}
 						disableAll();
 						subscriptionMasterData = FXCollections.observableArrayList();
-						String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by prod.name";
+						String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by sub.STATUS,prod.name";
 						PreparedStatement stmt = con.prepareStatement(query);
 						Customer cust = ACustInfoTable.getSelectionModel().getSelectedItem();
 						stmt.setLong(1, cust != null ? cust.getCustomerId() : null);
 						ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
-							subscriptionMasterData
-									.add(new Subscription(rs.getLong(1), rs.getLong(2), rs.getLong(3),
-											rs.getString(4), rs.getString(5), rs.getString(6), rs.getDouble(7), rs
-													.getDouble(8),
-											rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
-											rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
-											rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(),
-											rs.getString(15),
-											rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(),
-											rs.getString(17), rs.getInt(18), rs.getString(19),
-											rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
-											rs.getDouble(21)));
+							subscriptionMasterData.add(new Subscription(rs.getLong(1), rs.getLong(2), rs.getLong(3),
+									rs.getString(4), rs.getString(5), rs.getString(6), rs.getDouble(7), rs.getDouble(8),
+									rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
+									rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
+									rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
+									rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17),
+									rs.getInt(18), rs.getString(19),
+									rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(), rs.getDouble(21)));
 						}
 						rs.close();
 						stmt.close();
@@ -2729,11 +2806,11 @@ public class ACustomerInfoTabController implements Initializable {
 						enableAll();
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -2800,11 +2877,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -2842,11 +2919,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 								.text("Error in creation of stop history record").showError();
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -2880,17 +2957,16 @@ public class ACustomerInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
 		return false;
 	}
-
 
 	private void populateBillingLines(Billing bill) {
 		Task<Void> task = new Task<Void>() {
@@ -2927,11 +3003,11 @@ public class ACustomerInfoTabController implements Initializable {
 						stmt.close();
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -2979,11 +3055,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -2994,7 +3070,6 @@ public class ACustomerInfoTabController implements Initializable {
 
 		new Thread(task).start();
 	}
-
 
 	public void populateCityValues() {
 		Task<Void> task = new Task<Void>() {
@@ -3047,11 +3122,11 @@ public class ACustomerInfoTabController implements Initializable {
 						}
 						stmt.close();
 					} catch (SQLException e) {
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -3089,11 +3164,10 @@ public class ACustomerInfoTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
-	
 
 	private void showViewProductDialog(Product productRow) {
 		try {
@@ -3116,11 +3190,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -3165,11 +3239,67 @@ public class ACustomerInfoTabController implements Initializable {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
+	}
+
+	private void refreshStopHistoryBkp() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						stopHistoryBkpMasterData = FXCollections.observableArrayList();
+						String query = "SELECT STP.STOP_HISTORY_ID, CUST.NAME, CUST.CUSTOMER_CODE, CUST.MOBILE_NUM, CUST.HAWKER_CODE, CUST.LINE_NUM, SUB.SUBSCRIPTION_ID, CUST.HOUSE_SEQ, PROD.NAME, PROD.CODE, PROD.BILL_CATEGORY, STP.STOP_DATE, STP.RESUME_DATE, SUB.TYPE, SUB.FREQUENCY, SUB.DOW, STP.AMOUNT FROM STOP_HISTORY_BKP STP, CUSTOMER CUST, PRODUCTS PROD , SUBSCRIPTION SUB WHERE CUST.CUSTOMER_ID=? AND STP.SUB_ID =SUB.SUBSCRIPTION_ID AND SUB.CUSTOMER_ID =CUST.CUSTOMER_ID AND SUB.PRODUCT_ID =PROD.PRODUCT_ID ORDER BY SUB.PAUSED_DATE DESC";
+						PreparedStatement stmt = con.prepareStatement(query);
+						stmt.setLong(1, ACustInfoTable.getSelectionModel().getSelectedItem().getCustomerId());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							stopHistoryBkpMasterData.add(new StopHistoryBackup(rs.getLong(1), rs.getString(2),
+									rs.getLong(3), rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7),
+									rs.getInt(8), rs.getString(9), rs.getString(10), rs.getString(11),
+									rs.getDate(12) == null ? null : rs.getDate(12).toLocalDate(),
+									rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(), rs.getString(14),
+									rs.getString(15), rs.getString(16), rs.getDouble(17)));
+						}
+
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								stopHistoryBkpTable.setItems(stopHistoryBkpMasterData);
+								stopHistoryBkpTable.refresh();
+							}
+						});
+						rs.close();
+						stmt.close();
+
+					} catch (SQLException e) {
+
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -3210,11 +3340,11 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return subsList;
@@ -3248,16 +3378,15 @@ public class ACustomerInfoTabController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return subsList;
 	}
-	
 
 	private int subsPostCount(Subscription subsRow, String status) {
 		try {
@@ -3280,16 +3409,16 @@ public class ACustomerInfoTabController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return 1;
 	}
-	
+
 	private void disableAll() {
 		if (!Platform.isFxApplicationThread()) {
 			Platform.runLater(new Runnable() {
@@ -3301,6 +3430,7 @@ public class ACustomerInfoTabController implements Initializable {
 					invoiceDateLOV.setDisable(true);
 					billingTable.setDisable(true);
 					stopHistoryTable.setDisable(true);
+					stopHistoryBkpTable.setDisable(true);
 
 				}
 			});
@@ -3310,6 +3440,7 @@ public class ACustomerInfoTabController implements Initializable {
 			invoiceDateLOV.setDisable(true);
 			billingTable.setDisable(true);
 			stopHistoryTable.setDisable(true);
+			stopHistoryBkpTable.setDisable(true);
 		}
 	}
 
@@ -3327,6 +3458,7 @@ public class ACustomerInfoTabController implements Initializable {
 					invoiceDateLOV.setDisable(false);
 					billingTable.setDisable(false);
 					stopHistoryTable.setDisable(false);
+					stopHistoryBkpTable.setDisable(false);
 				}
 			});
 		} else {
@@ -3335,9 +3467,9 @@ public class ACustomerInfoTabController implements Initializable {
 			invoiceDateLOV.setDisable(false);
 			billingTable.setDisable(false);
 			stopHistoryTable.setDisable(false);
+			stopHistoryBkpTable.setDisable(false);
 		}
 	}
-
 
 	// @Override
 	public void reloadData() {
@@ -3370,6 +3502,10 @@ public class ACustomerInfoTabController implements Initializable {
 
 		subscriptionMasterData.clear();
 		subscriptionsTable.setItems(subscriptionMasterData);
+		stopHistoryMasterData.clear();
+		stopHistoryTable.setItems(stopHistoryMasterData);
+		stopHistoryBkpMasterData.clear();
+		stopHistoryBkpTable.setItems(stopHistoryBkpMasterData);
 		addCustLineNum.getSelectionModel().clearSelection();
 		invoiceDateLOV.getItems().clear();
 		billingLinesData.clear();
@@ -3395,7 +3531,10 @@ public class ACustomerInfoTabController implements Initializable {
 		invoiceDatesData = null;
 		billingLinesData = null;
 		cityValues = null;
-
+		stopHistoryBkpMasterData = null;
+		stopHistoryMasterData = null;
+		stopHistoryBkpMasterData = FXCollections.observableArrayList();
+		stopHistoryMasterData = FXCollections.observableArrayList();
 		customerMasterData = FXCollections.observableArrayList();
 		subscriptionMasterData = FXCollections.observableArrayList();
 		hawkerCodeData = FXCollections.observableArrayList();
