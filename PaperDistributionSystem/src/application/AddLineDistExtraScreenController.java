@@ -280,8 +280,8 @@ public class AddLineDistExtraScreenController implements Initializable {
 
 			if (isValid()) {
 				PreparedStatement insertLineNum = null;
-				String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID,old_house_num, new_house_num, address_line1, address_line2, locality, city, state,profile1,profile2,profile3,initials) "
-						+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID,old_house_num, new_house_num, address_line1, address_line2, locality, city, state,profile1,profile2,profile3,initials,LINE_ID) "
+						+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				Connection con = Main.dbConnection;
 				try {
 					if (!con.isValid(0)) {
@@ -310,6 +310,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 					insertLineNum.setString(14,
 							addProfile3TF.getText() == null ? null : addProfile3TF.getText().toLowerCase());
 					insertLineNum.setString(15, initialsTF.getText());
+					insertLineNum.setLong(16, ACustomerInfoTabController.lineIdForNumHwkCode(Integer.parseInt(addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim()), addHwkCode.getSelectionModel().getSelectedItem()));
 					insertLineNum.execute();
 				} catch (SQLException e) {
 

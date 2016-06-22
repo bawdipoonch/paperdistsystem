@@ -472,7 +472,7 @@ public class AddCustomerExtraScreenController implements Initializable {
 				insertCustomer.setString(18, addCommentsTF.getText());
 				insertCustomer.setString(19, addBldgStreetTF.getText());
 				insertCustomer.setLong(20,hawkerIdForCode(addHawkerCodeLOV.getSelectionModel().getSelectedItem()));
-				insertCustomer.setLong(21,lineIdForNumHwkCode(Integer.parseInt(addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0].trim()), addHawkerCodeLOV.getSelectionModel().getSelectedItem()));
+				insertCustomer.setLong(21,ACustomerInfoTabController.lineIdForNumHwkCode(Integer.parseInt(addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0].trim()), addHawkerCodeLOV.getSelectionModel().getSelectedItem()));
 				
 				customerInserted = insertCustomer.executeUpdate() > 0;
 				if (customerInserted)
@@ -610,7 +610,7 @@ public class AddCustomerExtraScreenController implements Initializable {
 		return false;
 	}
 
-	private long lineIdForNumHwkCode(int lineNum, String hwkCode) {
+	/*private long lineIdForNumHwkCode(int lineNum, String hwkCode) {
 		Main._logger.debug("Entered lineIdForNum method");
 
 		long lineId = -1;
@@ -641,6 +641,7 @@ public class AddCustomerExtraScreenController implements Initializable {
 		}
 		return lineId;
 	}
+	*/
 	public void reset() {
 		Main._logger.debug("Entered reset   method");
 		addNameTF.clear();

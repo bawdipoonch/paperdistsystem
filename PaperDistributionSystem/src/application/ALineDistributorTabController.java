@@ -715,8 +715,8 @@ public class ALineDistributorTabController implements Initializable {
 
 		if (isValid()) {
 			PreparedStatement insertLineNum = null;
-			String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID,old_house_num, new_house_num, address_line1, address_line2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street) "
-					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			String insertStatement = "INSERT INTO LINE_DISTRIBUTOR(NAME, MOBILE_NUM, LINE_NUM,HAWKER_ID,old_house_num, new_house_num, address_line1, address_line2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street,LINE_ID) "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
 				if (!con.isValid(0)) {
@@ -744,6 +744,7 @@ public class ALineDistributorTabController implements Initializable {
 				insertLineNum.setString(16, addEmployment.getSelectionModel().getSelectedItem());
 				insertLineNum.setString(17, addComments.getText());
 				insertLineNum.setString(18, addBuildingStreet.getText());
+				insertLineNum.setLong(19, ACustomerInfoTabController.lineIdForNumHwkCode(Integer.parseInt(addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim()), addHwkCode.getSelectionModel().getSelectedItem()));
 				insertLineNum.execute();
 				resetClicked(event);
 				insertLineNum.close();
