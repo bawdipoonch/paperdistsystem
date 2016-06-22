@@ -2004,6 +2004,7 @@ public class ALineInfoTabController implements Initializable {
 
 		for (int i = 0; i < custData.size(); i++) {
 			custData.get(i).setLineNum(newLineNum);
+			custData.get(i).setLineId(ACustomerInfoTabController.lineIdForNumHwkCode(newLineNum, custData.get(i).getHawkerCode()));
 			custData.get(i).updateCustomerRecord();
 		}
 		lineNumCustomersTable.refresh();
