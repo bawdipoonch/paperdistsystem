@@ -31,6 +31,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -379,13 +380,107 @@ public class AProductsTabController implements Initializable {
 					}
 
 				});
+				MenuItem mnuChangeDay = new MenuItem("Change Day");
+				mnuChangeDay.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Product productRow = productsTable.getSelectionModel().getSelectedItem();
+						if (productRow != null) {
+							Dialog<ButtonType> billWarning = new Dialog<ButtonType>();
+							billWarning.setTitle("Change Product Day");
+							billWarning.setHeaderText("Please select the new Product Day");
+							ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+							billWarning.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+							GridPane grid = new GridPane();
+							grid.setHgap(10);
+							grid.setVgap(10);
+							grid.setPadding(new Insets(20, 150, 10, 10));
+
+							grid.add(new Label("Existing DayOfWeek"), 0, 0);
+							Label existingDOW = new Label(productRow.getDow());
+							ComboBox<String> dowTF = new ComboBox<String>();
+							dowTF.getItems().addAll("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+							dowTF.getItems().remove(productRow.getDow());
+							dowTF.getSelectionModel().selectFirst();
+							// pauseDP.setDisable(true);
+							grid.add(existingDOW, 1, 0);
+							grid.add(new Label("New DayOfWeek"), 0, 1);
+							grid.add(dowTF, 1, 1);
+							
+							billWarning.getDialogPane().setContent(grid);
+							Button saveBtn = (Button) billWarning.getDialogPane().lookupButton(saveButtonType);
+
+							saveBtn.addEventFilter(ActionEvent.ACTION, btnevent -> {
+
+								try {
+									if(productRow.getType().equals("Magazine") && productRow.getSupportingFreq().equals("Weekly")){
+										
+									}else{
+
+										Notifications.create().title("Invalid product")
+												.text("You can change DayOfWeek only for Weekly Magazine.")
+												.hideAfter(Duration.seconds(5)).showError();
+										btnevent.consume();
+									}
+										
+								} catch (NumberFormatException e) {
+									Notifications.create().title("Invalid value")
+											.text("Please enter only NUMERIC values in Total Due.")
+											.hideAfter(Duration.seconds(5)).showError();
+
+									Main._logger.debug("Error :",e);
+									e.printStackTrace();
+									btnevent.consume();
+								} catch (Exception e) {
+									Main._logger.debug("Error :",e);
+									e.printStackTrace();
+								}
+
+							});
+							Optional<ButtonType> result = billWarning.showAndWait();
+							if (result.isPresent() && result.get() == saveButtonType) {
+								productRow.setDow(dowTF.getSelectionModel().getSelectedItem());
+								productRow.updateProductRecord();
+								Task<Void> task = new Task<Void>() {
+									Notifications n = Notifications.create().title("Please wait")
+											.text("Updating DayOfWeek in all subscriptions for this product.");
+									
+
+									@Override
+									protected Void call() throws Exception {
+										updateSubscriptionDOW(productRow,dowTF.getSelectionModel().getSelectedItem());
+										Platform.runLater(new Runnable() {
+
+											@Override
+											public void run() {
+
+												n.hideAfter(Duration.seconds(10)).position(Pos.CENTER)
+														.showInformation();
+												refreshProductsTable();
+											}
+										});
+										
+										return null;
+									}
+									
+
+								};
+
+								new Thread(task).start();
+							}
+
+
+						}
+					}
+
+				});
 
 				if (HawkerLoginController.loggedInHawker == null) {
 					ContextMenu menu = new ContextMenu();
 					if (HawkerLoginController.loggedInHawker != null) {
 						menu.getItems().addAll(mnuEdit, mnuView, mnuDuplicate, mnuAddSpcl);
 					} else {
-						menu.getItems().addAll(mnuEdit, mnuView, mnuDuplicate, mnuDel, mnuAddSpcl);
+						menu.getItems().addAll(mnuEdit, mnuView, mnuDuplicate, mnuDel, mnuAddSpcl,mnuChangeDay);
 					}
 
 					row.contextMenuProperty().bind(Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu)
@@ -1367,7 +1462,7 @@ public class AProductsTabController implements Initializable {
 						if (!con.isValid(0)) {
 							con = Main.reconnect();
 						}
-						billCategoryValues.clear();
+						billCategoryValues=FXCollections.observableArrayList();
 						PreparedStatement stmt = null;
 						ResultSet rs = null;
 						if(HawkerLoginController.loggedInHawker!=null){
@@ -1611,6 +1706,34 @@ public class AProductsTabController implements Initializable {
 		};
 		new Thread(task).start();
 
+	}
+	
+
+	public void updateSubscriptionDOW(Product prod, String dow) {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String updateString = "update subscription set dow=? where product_id=?";
+			PreparedStatement updateStmt = con.prepareStatement(updateString);
+			updateStmt.setString(1, dow);
+			updateStmt.setLong(2, prod.getProductId());
+			updateStmt.executeUpdate();
+			con.commit();
+			updateStmt.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+			Notifications.create().title("Failed").text("Product record update failed").showError();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
 	}
 
 	// @Override

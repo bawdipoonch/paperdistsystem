@@ -82,7 +82,7 @@ public class AdminLoginController implements Initializable {
 	@FXML
 	private void loginClicked(ActionEvent event) {
 		System.out.println("Admin Login button clicked");
-		PrepareBillingXLS.PrepareBillingXLS();
+//		PrepareBillingXLS.PrepareBillingXLS();
 //		ExportToExcel.exportDataToExcel();
 		try {
 
