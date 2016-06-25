@@ -603,7 +603,7 @@ public class AHawkerInfoTabController implements Initializable {
 								hawkerTable.refresh();
 							} catch (NumberFormatException e) {
 
-								Main._logger.debug("Error :",e);
+								Main._logger.debug("Error :", e);
 								e.printStackTrace();
 								Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 										.text("Please enter numeric value only").showError();
@@ -752,11 +752,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -790,13 +790,13 @@ public class AHawkerInfoTabController implements Initializable {
 				hawkerBillingTable.refresh();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker bill has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -829,13 +829,13 @@ public class AHawkerInfoTabController implements Initializable {
 				hawkerTable.refresh();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of hawker has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -916,7 +916,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -943,7 +943,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1009,11 +1009,11 @@ public class AHawkerInfoTabController implements Initializable {
 					// con.close();
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 
@@ -1085,11 +1085,11 @@ public class AHawkerInfoTabController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -1123,7 +1123,7 @@ public class AHawkerInfoTabController implements Initializable {
 				validate = false;
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
 						.text("Fee per subscription should not be empty and must be numeric only").showError();
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -1150,7 +1150,7 @@ public class AHawkerInfoTabController implements Initializable {
 			Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return validate;
@@ -1172,11 +1172,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -1237,14 +1237,14 @@ public class AHawkerInfoTabController implements Initializable {
 
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 						.text("There has been some error during hawker creation, please retry").showError();
 				Main.reconnect();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 			resetClicked(event);
@@ -1273,11 +1273,11 @@ public class AHawkerInfoTabController implements Initializable {
 					}
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -1414,7 +1414,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -1452,11 +1452,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -1514,7 +1514,7 @@ public class AHawkerInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1539,11 +1539,11 @@ public class AHawkerInfoTabController implements Initializable {
 			addHwkProf2.getItems().addAll(profileValues);
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -1556,22 +1556,23 @@ public class AHawkerInfoTabController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			employmentValues.clear();
+			employmentValues = FXCollections.observableArrayList();
 			PreparedStatement stmt = con.prepareStatement(
 					"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				employmentValues.add(rs.getString(1));
+				if (employmentValues != null && !employmentValues.contains(rs.getString(1)))
+					employmentValues.add(rs.getString(1));
 			}
-			addHwkEmployment.getItems().clear();
-			addHwkEmployment.getItems().addAll(employmentValues);
+			addHwkEmployment.setItems(employmentValues);
+			new AutoCompleteComboBoxListener<>(addHwkEmployment);
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -1584,27 +1585,28 @@ public class AHawkerInfoTabController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			pointNameValues.clear();
+			pointNameValues=FXCollections.observableArrayList();
 			PreparedStatement stmt = con
 					.prepareStatement("select distinct name from point_name where city =? order by name");
 			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
+				if(pointNameValues!=null && !pointNameValues.contains(rs.getString(1)))
 				pointNameValues.add(rs.getString(1));
 			}
-			addPointName.getItems().clear();
-			addPointName.getItems().addAll(pointNameValues);
+			addPointName.setItems(pointNameValues);
+			new AutoCompleteComboBoxListener<>(addPointName);
 			if (HawkerLoginController.loggedInHawker != null) {
 
 				addPointName.setDisable(true);
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -1629,11 +1631,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -1655,11 +1657,11 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -1672,7 +1674,7 @@ public class AHawkerInfoTabController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			cityValues.clear();
+			cityValues = FXCollections.observableArrayList();
 			PreparedStatement stmt = null;
 			if (HawkerLoginController.loggedInHawker != null) {
 				stmt = con.prepareStatement("select distinct city from point_name where name=?");
@@ -1690,17 +1692,19 @@ public class AHawkerInfoTabController implements Initializable {
 				stmt = con.prepareStatement("select distinct city from point_name order by city");
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()) {
-					cityValues.add(rs.getString(1));
+					if (cityValues != null && !cityValues.contains(rs.getString(1)))
+						cityValues.add(rs.getString(1));
 				}
-				cityTF.getItems().clear();
-				cityTF.getItems().addAll(cityValues);
+				cityTF.setItems(cityValues);
+
+				new AutoCompleteComboBoxListener<>(cityTF);
 			}
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 

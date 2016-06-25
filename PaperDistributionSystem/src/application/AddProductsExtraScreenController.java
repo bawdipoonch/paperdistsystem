@@ -331,14 +331,15 @@ public class AddProductsExtraScreenController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			billCategoryValues.clear();
+			billCategoryValues=FXCollections.observableArrayList();
 			PreparedStatement stmt = con
 					.prepareStatement("select distinct bill_category from point_name order by bill_category");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				billCategoryValues.add(rs.getString(1).toLowerCase());
 			}
-			billCategoryTF.getItems().addAll(billCategoryValues);
+			billCategoryTF.setItems(billCategoryValues);
+			new AutoCompleteComboBoxListener<>(billCategoryTF);
 		} catch (SQLException e) {
 
 			Main._logger.debug("Error :",e);

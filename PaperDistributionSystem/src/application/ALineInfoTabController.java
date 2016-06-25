@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.Notifications;
+import org.controlsfx.control.textfield.TextFields;
 
 import com.amazonaws.util.NumberUtils;
 
@@ -208,7 +209,6 @@ public class ALineInfoTabController implements Initializable {
 	@FXML
 	private TableColumn<StopHistory, LocalDate> stpsubsResumeDateColumn;
 
-
 	@FXML
 	private TableView<StopHistoryBackup> stopHistoryBkpTable;
 
@@ -373,7 +373,6 @@ public class ALineInfoTabController implements Initializable {
 					}
 				});
 
-
 		stphstopHistoryIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, Long>("stopHistoryId"));
 		stphsubsIdColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, Long>("subscriptionId"));
 		stphsubsProdCodeColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("productCode"));
@@ -381,30 +380,33 @@ public class ALineInfoTabController implements Initializable {
 		stphsubsTypeColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("subscriptionType"));
 		stphsubsFreqColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("subscriptionFreq"));
 		stphsubsDOWColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, String>("subscriptionDOW"));
-		stphsubsResumeDateColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, LocalDate>("resumeDate"));
+		stphsubsResumeDateColumn
+				.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, LocalDate>("resumeDate"));
 		stphstopHistAmountColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, Double>("amount"));
 		stphsubsStopDateColumn.setCellValueFactory(new PropertyValueFactory<StopHistoryBackup, LocalDate>("stopDate"));
-		stphsubsResumeDateColumn
-				.setCellFactory(new Callback<TableColumn<StopHistoryBackup, LocalDate>, TableCell<StopHistoryBackup, LocalDate>>() {
+		stphsubsResumeDateColumn.setCellFactory(
+				new Callback<TableColumn<StopHistoryBackup, LocalDate>, TableCell<StopHistoryBackup, LocalDate>>() {
 
 					@Override
-					public TableCell<StopHistoryBackup, LocalDate> call(TableColumn<StopHistoryBackup, LocalDate> param) {
+					public TableCell<StopHistoryBackup, LocalDate> call(
+							TableColumn<StopHistoryBackup, LocalDate> param) {
 						TextFieldTableCell<StopHistoryBackup, LocalDate> cell = new TextFieldTableCell<StopHistoryBackup, LocalDate>();
 						cell.setConverter(Main.dateConvertor);
 						return cell;
 					}
 				});
-		stphsubsStopDateColumn
-				.setCellFactory(new Callback<TableColumn<StopHistoryBackup, LocalDate>, TableCell<StopHistoryBackup, LocalDate>>() {
+		stphsubsStopDateColumn.setCellFactory(
+				new Callback<TableColumn<StopHistoryBackup, LocalDate>, TableCell<StopHistoryBackup, LocalDate>>() {
 
 					@Override
-					public TableCell<StopHistoryBackup, LocalDate> call(TableColumn<StopHistoryBackup, LocalDate> param) {
+					public TableCell<StopHistoryBackup, LocalDate> call(
+							TableColumn<StopHistoryBackup, LocalDate> param) {
 						TextFieldTableCell<StopHistoryBackup, LocalDate> cell = new TextFieldTableCell<StopHistoryBackup, LocalDate>();
 						cell.setConverter(Main.dateConvertor);
 						return cell;
 					}
 				});
-		
+
 		hawkerComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -534,7 +536,8 @@ public class ALineInfoTabController implements Initializable {
 							if (lineRow.getLineNum() > 0) {
 								Dialog<ButtonType> dateListDialog = new Dialog<ButtonType>();
 								dateListDialog.setTitle("Download PDF");
-								dateListDialog.setHeaderText("Please select the invoice date for which PDF should be created.");
+								dateListDialog.setHeaderText(
+										"Please select the invoice date for which PDF should be created.");
 								ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
 								dateListDialog.getDialogPane().getButtonTypes().addAll(saveButtonType,
 										ButtonType.CANCEL);
@@ -552,16 +555,17 @@ public class ALineInfoTabController implements Initializable {
 								dateListDialog.getDialogPane().setContent(grid);
 								Button yesButton = (Button) dateListDialog.getDialogPane().lookupButton(saveButtonType);
 								yesButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
-									
+
 								});
 								Optional<ButtonType> result = dateListDialog.showAndWait();
 								if (result.isPresent() && result.get() == saveButtonType) {
 									try {
-										Notifications.create().title("Generating Invoice PDF").text("Generating Invoice PDF for selected line. Please wait...")
-										.hideAfter(Duration.seconds(10)).showInformation();
+										Notifications.create().title("Generating Invoice PDF")
+												.text("Generating Invoice PDF for selected line. Please wait...")
+												.hideAfter(Duration.seconds(10)).showInformation();
 										BillingUtilityClass.generateInvoicePDF(
-												hawkerComboBox.getSelectionModel().getSelectedItem(), lineRow.getLineNum(),
-												dateBox.getSelectionModel().getSelectedItem()
+												hawkerComboBox.getSelectionModel().getSelectedItem(),
+												lineRow.getLineNum(), dateBox.getSelectionModel().getSelectedItem()
 														.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
 									} catch (JRException e) {
 										Main._logger.debug(e.getMessage());
@@ -663,11 +667,93 @@ public class ALineInfoTabController implements Initializable {
 					}
 
 				});
+
+				MenuItem mnuTransfer = new MenuItem("Transfer Line");
+				mnuTransfer.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						LineInfo lineRow = lineNumTable.getSelectionModel().getSelectedItem();
+						if (lineRow != null) {
+							if (lineRow.getLineNum() > 0) {
+								Dialog<ButtonType> billWarning = new Dialog<ButtonType>();
+								billWarning.setTitle("Select Hawker");
+								billWarning.setHeaderText("Please select the new Hawker for this line.");
+								ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+								billWarning.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+								Button saveButton = (Button) billWarning.getDialogPane().lookupButton(saveButtonType);
+								GridPane grid = new GridPane();
+								grid.setHgap(10);
+								grid.setVgap(10);
+								grid.setPadding(new Insets(20, 150, 10, 10));
+								ComboBox<String> cityCombo = new ComboBox<>(cityValues);
+								cityCombo.getSelectionModel().select(cityTF.getSelectionModel().getSelectedItem());
+								cityCombo.setDisable(true);
+								ComboBox<String> pointCombo = new ComboBox<>(pointNameValues);
+								pointCombo.getSelectionModel()
+										.select(addPointName.getSelectionModel().getSelectedItem());
+								pointCombo.setDisable(true);
+								ComboBox<String> hawkerCombo = new ComboBox<>(hawkerCodeData);
+								hawkerCombo.getSelectionModel()
+										.select(hawkerComboBox.getSelectionModel().getSelectedItem());
+								grid.add(new Label("City"), 0, 0);
+								grid.add(cityCombo, 1, 0);
+								grid.add(new Label("Point"), 0, 1);
+								grid.add(pointCombo, 1, 1);
+								grid.add(new Label("Hawker"), 0, 2);
+								grid.add(hawkerCombo, 1, 2);
+
+								billWarning.getDialogPane().setContent(grid);
+
+								saveButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+									if (hawkerCombo.getSelectionModel().getSelectedItem()
+											.equals(hawkerComboBox.getSelectionModel().getSelectedItem())) {
+										Notifications.create().title("Invalid Hawker selection")
+												.text("Please select a different hawker").hideAfter(Duration.seconds(5))
+												.showError();
+										btnEvent.consume();
+									}
+								});
+								Optional<ButtonType> result = billWarning.showAndWait();
+								if (result.isPresent() && result.get() == saveButtonType) {
+									Task<Void> task = new Task<Void>() {
+
+										@Override
+										protected Void call() throws Exception {
+											transferLine(lineRow, hawkerCombo.getSelectionModel().getSelectedItem());
+
+											Platform.runLater(new Runnable() {
+
+												@Override
+												public void run() {
+
+													Notifications.create().title("Line Transferred")
+															.text("Line is transferred to selected hawker along with Customer and Line Distributor")
+															.hideAfter(Duration.seconds(5)).position(Pos.CENTER)
+															.showInformation();
+												}
+											});
+											return null;
+										}
+
+									};
+
+									new Thread(task).start();
+								}
+								lineNumTable.refresh();
+							} else {
+								Notifications.create().title("Cannot transfer line number 0")
+										.text("Cannot transfer line number 0").hideAfter(Duration.seconds(5))
+										.showError();
+							}
+						}
+					}
+
+				});
 				ContextMenu menu = new ContextMenu();
 				if (HawkerLoginController.loggedInHawker != null) {
 					menu.getItems().addAll(mnuEdit, mnuBill, mnuPDF);
 				} else {
-					menu.getItems().addAll(mnuEdit, mnuDel, mnuBill, mnuPDF);
+					menu.getItems().addAll(mnuEdit, mnuDel, mnuBill, mnuPDF, mnuTransfer);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -964,17 +1050,17 @@ public class ALineInfoTabController implements Initializable {
 							subsBox.getSelectionModel().selectedItemProperty()
 									.addListener(new ChangeListener<Subscription>() {
 
-								@Override
-								public void changed(ObservableValue<? extends Subscription> observable,
-										Subscription oldValue, Subscription newValue) {
-									if (newValue != null) {
-										dp.setValue(newValue.getPausedDate());
-										resumeDP.setValue(newValue.getResumeDate() == null ? LocalDate.now()
-												: newValue.getResumeDate());
-									}
+										@Override
+										public void changed(ObservableValue<? extends Subscription> observable,
+												Subscription oldValue, Subscription newValue) {
+											if (newValue != null) {
+												dp.setValue(newValue.getPausedDate());
+												resumeDP.setValue(newValue.getResumeDate() == null ? LocalDate.now()
+														: newValue.getResumeDate());
+											}
 
-								}
-							});
+										}
+									});
 							subsBox.getSelectionModel().selectFirst();
 							grid.add(new Label("Subscription"), 0, 0);
 							grid.add(new Label("Stop Date"), 0, 1);
@@ -1132,11 +1218,11 @@ public class ALineInfoTabController implements Initializable {
 											.text("Please enter only NUMERIC values in Total Due.")
 											.hideAfter(Duration.seconds(5)).showError();
 
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 									btnevent.consume();
 								} catch (Exception e) {
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 								}
 
@@ -1171,11 +1257,11 @@ public class ALineInfoTabController implements Initializable {
 											.text("Please enter only NUMERIC values in Total Due.")
 											.hideAfter(Duration.seconds(5)).showError();
 
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 									btnevent.consume();
 								} catch (Exception e) {
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 								}
 
@@ -1431,8 +1517,7 @@ public class ALineInfoTabController implements Initializable {
 							if (result.isPresent() && result.get() == ButtonType.YES) {
 								LocalDate maxStopDate = findMaxStopDateForSub(subsRow);
 								if (maxStopDate.isBefore(resumeDP.getValue())) {
-									if (resumeDP.getValue()
-											.isBefore(maxStopDate.plusMonths(1).withDayOfMonth(1))) {
+									if (resumeDP.getValue().isBefore(maxStopDate.plusMonths(1).withDayOfMonth(1))) {
 										subsRow.resumeSubscription();
 										int count = subsPostCount(subsRow, "Stopped");
 										if (count > 0) {
@@ -1607,6 +1692,11 @@ public class ALineInfoTabController implements Initializable {
 				}
 			}
 		});
+		// TextFields.bindAutoCompletion(cityTF.getEditor(), cityTF.getItems());
+		// TextFields.bindAutoCompletion(addPointName.getEditor(),
+		// pointNameValues);
+		// TextFields.bindAutoCompletion(hawkerComboBox.getEditor(),
+		// hawkerCodeData);
 	}
 
 	private void hawkerNameMobCode(String hawkerCode) {
@@ -1628,11 +1718,11 @@ public class ALineInfoTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1663,13 +1753,13 @@ public class ALineInfoTabController implements Initializable {
 				refreshSubscriptions();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of subscription has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -1721,7 +1811,7 @@ public class ALineInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1751,7 +1841,7 @@ public class ALineInfoTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1777,11 +1867,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -1806,18 +1896,14 @@ public class ALineInfoTabController implements Initializable {
 						stmt.setLong(1, cust != null ? cust.getCustomerId() : null);
 						ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
-							subscriptionMasterData
-									.add(new Subscription(rs.getLong(1), rs.getLong(2), rs.getLong(3),
-											rs.getString(4), rs.getString(5), rs.getString(6), rs.getDouble(7), rs
-													.getDouble(8),
-											rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
-											rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
-											rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(),
-											rs.getString(15),
-											rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(),
-											rs.getString(17), rs.getInt(18), rs.getString(19),
-											rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
-											rs.getDouble(21)));
+							subscriptionMasterData.add(new Subscription(rs.getLong(1), rs.getLong(2), rs.getLong(3),
+									rs.getString(4), rs.getString(5), rs.getString(6), rs.getDouble(7), rs.getDouble(8),
+									rs.getString(9), rs.getString(10), rs.getString(11), rs.getString(12),
+									rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
+									rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
+									rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17),
+									rs.getInt(18), rs.getString(19),
+									rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(), rs.getDouble(21)));
 						}
 						rs.close();
 						stmt.close();
@@ -1835,11 +1921,11 @@ public class ALineInfoTabController implements Initializable {
 						enableAll();
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -1879,11 +1965,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return subsList;
@@ -1917,11 +2003,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return subsList;
@@ -1957,13 +2043,13 @@ public class ALineInfoTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid line num")
 						.text("Please enter numeric line number only").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		});
@@ -1988,13 +2074,13 @@ public class ALineInfoTabController implements Initializable {
 					.text("Line number updation in line distribution boy successful").showInformation();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Update failed")
 					.text("Line number updation in line distribution boy failed").showError();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -2004,7 +2090,8 @@ public class ALineInfoTabController implements Initializable {
 
 		for (int i = 0; i < custData.size(); i++) {
 			custData.get(i).setLineNum(newLineNum);
-			custData.get(i).setLineId(ACustomerInfoTabController.lineIdForNumHwkCode(newLineNum, custData.get(i).getHawkerCode()));
+			custData.get(i).setLineId(
+					ACustomerInfoTabController.lineIdForNumHwkCode(newLineNum, custData.get(i).getHawkerCode()));
 			custData.get(i).updateCustomerRecord();
 		}
 		lineNumCustomersTable.refresh();
@@ -2049,13 +2136,13 @@ public class ALineInfoTabController implements Initializable {
 					findStmt.close();
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 					Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 							.text("Delete request of line has failed").showError();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 			}
@@ -2109,11 +2196,11 @@ public class ALineInfoTabController implements Initializable {
 						enableAll();
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -2152,13 +2239,21 @@ public class ALineInfoTabController implements Initializable {
 								}
 							});
 						} else {
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									hawkerComboBox.setDisable(true);
+								}
+							});
 							hawkerCodeData = FXCollections.observableArrayList();
 							PreparedStatement stmt = con.prepareStatement(
 									"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
 							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								hawkerCodeData.add(rs.getString(1));
+								if (hawkerCodeData!=null && !hawkerCodeData.contains(rs.getString(1)))
+									hawkerCodeData.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
 
@@ -2167,6 +2262,8 @@ public class ALineInfoTabController implements Initializable {
 
 									hawkerComboBox.getItems().clear();
 									hawkerComboBox.setItems(hawkerCodeData);
+									hawkerComboBox.setDisable(false);
+									new AutoCompleteComboBoxListener<>(hawkerComboBox);
 									// if (HawkerLoginController.loggedInHawker
 									// != null) {
 									// hawkerComboBox.getSelectionModel()
@@ -2180,11 +2277,11 @@ public class ALineInfoTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -2245,11 +2342,11 @@ public class ALineInfoTabController implements Initializable {
 							// populateSubscriptionCount();
 						} catch (SQLException e) {
 
-							Main._logger.debug("Error :",e);
+							Main._logger.debug("Error :", e);
 							e.printStackTrace();
 						} catch (Exception e) {
 
-							Main._logger.debug("Error :",e);
+							Main._logger.debug("Error :", e);
 							e.printStackTrace();
 						}
 					}
@@ -2308,11 +2405,11 @@ public class ALineInfoTabController implements Initializable {
 									}
 								} catch (SQLException e) {
 
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 								} catch (Exception e) {
 
-									Main._logger.debug("Error :",e);
+									Main._logger.debug("Error :", e);
 									e.printStackTrace();
 								}
 							}
@@ -2329,7 +2426,7 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (NumberFormatException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Please enter proper numeric value in Line Number field").showError();
@@ -2357,11 +2454,11 @@ public class ALineInfoTabController implements Initializable {
 			hawkerIdStatement.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -2388,11 +2485,11 @@ public class ALineInfoTabController implements Initializable {
 			lineNumExists.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return true;
@@ -2542,11 +2639,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -2573,11 +2670,11 @@ public class ALineInfoTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -2636,11 +2733,11 @@ public class ALineInfoTabController implements Initializable {
 
 			} catch (IOException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -2675,13 +2772,13 @@ public class ALineInfoTabController implements Initializable {
 				populateCustomersForLine();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of customer has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -2712,11 +2809,11 @@ public class ALineInfoTabController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -2800,7 +2897,7 @@ public class ALineInfoTabController implements Initializable {
 			});
 
 		} catch (IOException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -2831,13 +2928,22 @@ public class ALineInfoTabController implements Initializable {
 								}
 							});
 						} else {
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									addPointName.getItems().clear();
+									addPointName.setDisable(true);
+								}
+							});
 							pointNameValues = FXCollections.observableArrayList();
 							PreparedStatement stmt = con.prepareStatement(
 									"select distinct name from point_name where city =? order by name");
 							stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								pointNameValues.add(rs.getString(1));
+								if (pointNameValues!=null && !pointNameValues.contains(rs.getString(1)))
+									pointNameValues.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
 
@@ -2845,12 +2951,8 @@ public class ALineInfoTabController implements Initializable {
 								public void run() {
 									addPointName.getItems().clear();
 									addPointName.setItems(pointNameValues);
-									// if (HawkerLoginController.loggedInHawker
-									// != null) {
-									// addPointName.getSelectionModel()
-									// .select(HawkerLoginController.loggedInHawker.getPointName());
-									// addPointName.setDisable(true);
-									// }
+									new AutoCompleteComboBoxListener<>(addPointName);
+									addPointName.setDisable(false);
 								}
 							});
 							rs.close();
@@ -2858,11 +2960,11 @@ public class ALineInfoTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -2902,11 +3004,11 @@ public class ALineInfoTabController implements Initializable {
 
 			} catch (IOException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -2969,11 +3071,11 @@ public class ALineInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -3011,11 +3113,11 @@ public class ALineInfoTabController implements Initializable {
 
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 								.text("Error in creation of stop history record").showError();
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -3052,11 +3154,11 @@ public class ALineInfoTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -3084,11 +3186,11 @@ public class ALineInfoTabController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return 1;
@@ -3129,11 +3231,11 @@ public class ALineInfoTabController implements Initializable {
 						stmt.close();
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -3181,11 +3283,11 @@ public class ALineInfoTabController implements Initializable {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -3237,11 +3339,11 @@ public class ALineInfoTabController implements Initializable {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -3272,9 +3374,9 @@ public class ALineInfoTabController implements Initializable {
 						stmt.setLong(1, lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId());
 						ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
-							stopHistoryBkpMasterData.add(new StopHistoryBackup(rs.getLong(1), rs.getString(2), rs.getLong(3),
-									rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getInt(8),
-									rs.getString(9), rs.getString(10), rs.getString(11),
+							stopHistoryBkpMasterData.add(new StopHistoryBackup(rs.getLong(1), rs.getString(2),
+									rs.getLong(3), rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7),
+									rs.getInt(8), rs.getString(9), rs.getString(10), rs.getString(11),
 									rs.getDate(12) == null ? null : rs.getDate(12).toLocalDate(),
 									rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(), rs.getString(14),
 									rs.getString(15), rs.getString(16), rs.getDouble(17)));
@@ -3293,11 +3395,11 @@ public class ALineInfoTabController implements Initializable {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -3335,7 +3437,7 @@ public class ALineInfoTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -3373,10 +3475,18 @@ public class ALineInfoTabController implements Initializable {
 							});
 							rs.close();
 						} else {
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.setDisable(true);
+								}
+							});
 							stmt = con.prepareStatement("select distinct city from point_name order by city");
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								cityValues.add(rs.getString(1));
+								if(cityValues!=null && !cityValues.contains(rs.getString(1)))
+									cityValues.add(rs.getString(1));
 							}
 
 							Platform.runLater(new Runnable() {
@@ -3385,17 +3495,19 @@ public class ALineInfoTabController implements Initializable {
 								public void run() {
 									cityTF.getItems().clear();
 									cityTF.setItems(cityValues);
+									cityTF.setDisable(false);
+									new AutoCompleteComboBoxListener<>(cityTF);
 								}
 							});
 							rs.close();
 						}
 						stmt.close();
 					} catch (SQLException e) {
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -3430,11 +3542,11 @@ public class ALineInfoTabController implements Initializable {
 			stmt.close();
 			return dateList;
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return null;
@@ -3449,8 +3561,7 @@ public class ALineInfoTabController implements Initializable {
 			}
 			ObservableList<LocalDate> dateList = FXCollections.observableArrayList();
 			PreparedStatement stmt = null;
-			stmt = con.prepareStatement(
-					"select max(stop_date) from stop_history where sub_id =? group by sub_id");
+			stmt = con.prepareStatement("select max(stop_date) from stop_history where sub_id =? group by sub_id");
 			stmt.setLong(1, newValue.getSubscriptionId());
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
@@ -3460,14 +3571,110 @@ public class ALineInfoTabController implements Initializable {
 			rs.close();
 			stmt.close();
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	private void transferLine(LineInfo lineRow, String hawkerCode) {
+
+		PreparedStatement insertLineNum = null;
+		String insertStatement = "INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + "VALUES (?,?)";
+		Connection con = Main.dbConnection;
+		synchronized (this) {
+			try {
+				if (!con.isValid(0)) {
+					con = Main.reconnect();
+				}
+				insertLineNum = con.prepareStatement(insertStatement, new String[] { "LINE_ID" });
+				long hawkerId = hawkerIdForCode(hawkerCode);
+				if (hawkerId >= 1) {
+					int maxLineNum = maxLineNumForHawker(hawkerId) + 1;
+					insertLineNum.setInt(1, maxLineNum);
+					insertLineNum.setLong(2, hawkerId);
+					insertLineNum.executeUpdate();
+					ResultSet rs = insertLineNum.getGeneratedKeys();
+					long newLineId = 0;
+					if (rs.next()) {
+						newLineId = rs.getLong(1);
+					}
+					long existHawkerId = hawkerIdForCode(hawkerComboBox.getSelectionModel().getSelectedItem());
+					// Transfer Customers to new line
+					PreparedStatement updateCustStmt = con.prepareStatement(
+							"UPDATE CUSTOMER SET LINE_NUM=?, HAWKER_CODE=?, LINE_ID=?, HAWKER_ID=? WHERE HAWKER_ID=? AND LINE_ID=?");
+					updateCustStmt.setInt(1, maxLineNum);
+					updateCustStmt.setString(2, hawkerCode);
+					updateCustStmt.setLong(3, newLineId);
+					updateCustStmt.setLong(4, hawkerId);
+					updateCustStmt.setLong(5, existHawkerId);
+					updateCustStmt.setLong(6, lineRow.getLineId());
+					updateCustStmt.executeUpdate();
+
+					// Transfer LineDistributor to new Hawker
+					PreparedStatement updateDistStmt = con.prepareStatement(
+							"UPDATE LINE_DISTRIBUTOR SET LINE_NUM=?, LINE_ID=?, HAWKER_ID=? WHERE HAWKER_ID=? AND LINE_ID=?");
+					updateDistStmt.setInt(1, maxLineNum);
+					updateDistStmt.setLong(2, newLineId);
+					updateDistStmt.setLong(3, hawkerId);
+					updateDistStmt.setLong(4, existHawkerId);
+					updateDistStmt.setLong(5, lineRow.getLineId());
+					updateDistStmt.executeUpdate();
+
+					refreshLineNumTableForHawker(hawkerComboBox.getSelectionModel().getSelectedItem());
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							Notifications.create().hideAfter(Duration.seconds(5)).title("Line Number added.")
+									.text("Line number added successfully").showInformation();
+
+						}
+					});
+
+				}
+				insertLineNum.close();
+			} catch (SQLException e) {
+
+				Main._logger.debug("Error :", e);
+				e.printStackTrace();
+			} catch (Exception e) {
+
+				Main._logger.debug("Error :", e);
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private int maxLineNumForHawker(long hawkerId) {
+		PreparedStatement maxLineNum = null;
+		String query = "SELECT MAX(LINE_NUM) FROM LINE_INFO WHERE HAWKER_ID=?";
+		Connection con = Main.dbConnection;
+		try {
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			maxLineNum = con.prepareStatement(query);
+			if (hawkerId >= 1) {
+				maxLineNum.setLong(1, hawkerId);
+				ResultSet rs = maxLineNum.executeQuery();
+				if (rs.next())
+					return rs.getInt(1);
+			}
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 	private void disableAll() {
@@ -3550,7 +3757,7 @@ public class ALineInfoTabController implements Initializable {
 		subscriptionMasterData = null;
 		stopHistoryMasterData = null;
 		cityValues = null;
-		stopHistoryBkpMasterData=null;
+		stopHistoryBkpMasterData = null;
 		invoiceDatesData = FXCollections.observableArrayList();
 		billingLinesData = FXCollections.observableArrayList();
 		hawkerCodeData = FXCollections.observableArrayList();
@@ -3560,7 +3767,7 @@ public class ALineInfoTabController implements Initializable {
 		subscriptionMasterData = FXCollections.observableArrayList();
 		stopHistoryMasterData = FXCollections.observableArrayList();
 		cityValues = FXCollections.observableArrayList();
-		stopHistoryBkpMasterData=FXCollections.observableArrayList();
+		stopHistoryBkpMasterData = FXCollections.observableArrayList();
 		newHouseSeqTFArray = new ArrayList<TextField>();
 	}
 }

@@ -523,7 +523,7 @@ public class AddSubscriptionController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			productValues.clear();
+			productValues=FXCollections.observableArrayList();
 			PreparedStatement stmt = con.prepareStatement(
 					"SELECT prod.PRODUCT_ID, prod.NAME, prod.TYPE, prod.SUPPORTED_FREQ, prod.MONDAY, prod.TUESDAY, prod.WEDNESDAY, prod.THURSDAY, prod.FRIDAY, prod.SATURDAY, prod.SUNDAY, prod.PRICE, prod.CODE, prod.DOW, prod.FIRST_DELIVERY_DATE, prod.ISSUE_DATE, prod.bill_category FROM products prod, hawker_info hwk, point_name pn, customer cust where cust.hawker_code=hwk.hawker_code and hwk.point_name=pn.name and lower(pn.bill_category)=lower(prod.bill_category) and cust.customer_id=? ORDER BY prod.name");
 			stmt.setLong(1, custRow.getCustomerId());
@@ -535,8 +535,8 @@ public class AddSubscriptionController implements Initializable {
 						rs.getDate(15).toLocalDate(), rs.getDate(16).toLocalDate(), rs.getString(17)));
 			}
 
-			prodNameLOV.getItems().clear();
-			prodNameLOV.getItems().addAll(productValues);
+			prodNameLOV.setItems(productValues);
+			new AutoCompleteComboBoxListener<>(prodNameLOV);
 
 		} catch (SQLException e) {
 

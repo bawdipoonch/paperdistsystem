@@ -450,11 +450,11 @@ public class ALineDistributorTabController implements Initializable {
 					stmt.close();
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -487,11 +487,11 @@ public class ALineDistributorTabController implements Initializable {
 			hawkerIdStatement.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -519,11 +519,11 @@ public class ALineDistributorTabController implements Initializable {
 			hawkerStatement.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -556,13 +556,13 @@ public class ALineDistributorTabController implements Initializable {
 				deleteStmt.close();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of line distributor has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -625,7 +625,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -652,7 +652,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -705,7 +705,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -744,7 +744,13 @@ public class ALineDistributorTabController implements Initializable {
 				insertLineNum.setString(16, addEmployment.getSelectionModel().getSelectedItem());
 				insertLineNum.setString(17, addComments.getText());
 				insertLineNum.setString(18, addBuildingStreet.getText());
-				insertLineNum.setLong(19, ACustomerInfoTabController.lineIdForNumHwkCode(Integer.parseInt(addLineNumField.getSelectionModel().getSelectedItem().split(" ")[0].trim()), addHwkCode.getSelectionModel().getSelectedItem()));
+				insertLineNum
+						.setLong(19,
+								ACustomerInfoTabController
+										.lineIdForNumHwkCode(
+												Integer.parseInt(addLineNumField.getSelectionModel().getSelectedItem()
+														.split(" ")[0].trim()),
+												addHwkCode.getSelectionModel().getSelectedItem()));
 				insertLineNum.execute();
 				resetClicked(event);
 				insertLineNum.close();
@@ -757,11 +763,11 @@ public class ALineDistributorTabController implements Initializable {
 				refreshLineDistTable();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -833,11 +839,11 @@ public class ALineDistributorTabController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -937,11 +943,11 @@ public class ALineDistributorTabController implements Initializable {
 					// }
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 
@@ -971,11 +977,11 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -1059,7 +1065,7 @@ public class ALineDistributorTabController implements Initializable {
 
 			} catch (NumberFormatException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
 						.text("Please enter numeric value only").showError();
@@ -1117,8 +1123,8 @@ public class ALineDistributorTabController implements Initializable {
 								@Override
 								public void run() {
 
-									addHwkCode.getItems().clear();
 									addHwkCode.setItems(hawkerCodeData);
+									new AutoCompleteComboBoxListener<>(addHwkCode);
 								}
 							});
 							rs.close();
@@ -1126,11 +1132,11 @@ public class ALineDistributorTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -1154,24 +1160,33 @@ public class ALineDistributorTabController implements Initializable {
 					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
-					profileValues.clear();
+					profileValues = FXCollections.observableArrayList();
 					Statement stmt = con.createStatement();
 					ResultSet rs = stmt.executeQuery(
 							"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 					while (rs.next()) {
-						profileValues.add(rs.getString(1));
+						if (profileValues != null && !profileValues.contains(rs.getString(1)))
+							profileValues.add(rs.getString(1));
 					}
-					addProf1.getItems().clear();
-					addProf2.getItems().clear();
-					addProf1.getItems().addAll(profileValues);
-					addProf2.getItems().addAll(profileValues);
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+
+							addProf1.setItems(profileValues);
+							new AutoCompleteComboBoxListener<>(addProf1);
+							addProf2.setItems(profileValues);
+							new AutoCompleteComboBoxListener<>(addProf2);
+
+						}
+					});
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -1192,22 +1207,29 @@ public class ALineDistributorTabController implements Initializable {
 					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
-					employmentData.clear();
+					employmentData = FXCollections.observableArrayList();
 					Statement stmt = con.createStatement();
 					ResultSet rs = stmt.executeQuery(
 							"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 					while (rs.next()) {
 						employmentData.add(rs.getString(1));
 					}
-					addEmployment.getItems().clear();
-					addEmployment.getItems().addAll(employmentData);
+
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							addEmployment.setItems(employmentData);
+							new AutoCompleteComboBoxListener<>(addEmployment);
+						}
+					});
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -1255,8 +1277,8 @@ public class ALineDistributorTabController implements Initializable {
 
 								@Override
 								public void run() {
-									addPointName.getItems().clear();
 									addPointName.setItems(pointNameValues);
+									new AutoCompleteComboBoxListener<>(addPointName);
 								}
 							});
 							rs.close();
@@ -1264,11 +1286,11 @@ public class ALineDistributorTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -1278,7 +1300,6 @@ public class ALineDistributorTabController implements Initializable {
 		};
 
 		new Thread(task).start();
-
 
 	}
 
@@ -1318,11 +1339,11 @@ public class ALineDistributorTabController implements Initializable {
 								}
 							} catch (SQLException e) {
 
-								Main._logger.debug("Error :",e);
+								Main._logger.debug("Error :", e);
 								e.printStackTrace();
 							} catch (Exception e) {
 
-								Main._logger.debug("Error :",e);
+								Main._logger.debug("Error :", e);
 								e.printStackTrace();
 							}
 							return null;
@@ -1337,7 +1358,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		} catch (NumberFormatException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Please enter proper numeric value in Line Number field").showError();
@@ -1365,11 +1386,11 @@ public class ALineDistributorTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return true;
@@ -1418,19 +1439,19 @@ public class ALineDistributorTabController implements Initializable {
 
 								@Override
 								public void run() {
-									cityTF.getItems().clear();
 									cityTF.setItems(cityValues);
+									new AutoCompleteComboBoxListener<>(cityTF);
 								}
 							});
 							rs.close();
 						}
 						stmt.close();
 					} catch (SQLException e) {
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}

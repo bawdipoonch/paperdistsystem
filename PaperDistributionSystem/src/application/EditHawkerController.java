@@ -101,6 +101,7 @@ public class EditHawkerController implements Initializable {
 				"Odisha", "Punjab", "Rajasthan", "Sikkim", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
 				"West Bengal");
 		editStateLOV.getSelectionModel().select(hawkerRow.getState());
+		new AutoCompleteComboBoxListener<>(editStateLOV);
 
 		populateEmploymentValues();
 		populateProfileValues();
@@ -129,46 +130,24 @@ public class EditHawkerController implements Initializable {
 			}
 		});
 
-		editProfile1TF.getItems().addAll(profileValues);
-		editProfile2TF.getItems().addAll(profileValues);
+		editProfile1TF.setItems(profileValues);
+		new AutoCompleteComboBoxListener<>(editProfile1TF);
+		editProfile2TF.setItems(profileValues);
+		new AutoCompleteComboBoxListener<>(editProfile2TF);
 		editProfile1TF.getSelectionModel().select(hawkerRow.getProfile1());
 		editProfile2TF.getSelectionModel().select(hawkerRow.getProfile2());
 		editProfile3TF.setText(hawkerRow.getProfile3());
-		editEmploymentLOV.getItems().addAll(employmentData);
+		editEmploymentLOV.setItems(employmentData);
+		new AutoCompleteComboBoxListener<>(editEmploymentLOV);
 		editEmploymentLOV.getSelectionModel().select(hawkerRow.getEmployment());
 		editCommentsTF.setText(hawkerRow.getComments());
-		editPointNameLOV.getItems().addAll(pointNameValues);
+		editPointNameLOV.setItems(pointNameValues);
+		new AutoCompleteComboBoxListener<>(editPointNameLOV);
 		editPointNameLOV.getSelectionModel().select(hawkerRow.getPointName());
 		editNameTF.requestFocus();
 		editBankAcNo.setText(hawkerRow.getBankAcNo());
 		editBankName.setText(hawkerRow.getBankName());
 		editIfscCode.setText(hawkerRow.getIfscCode());
-		// editMobileNumTF.textProperty().addListener(new
-		// ChangeListener<String>() {
-		//
-		// @Override
-		// public void changed(ObservableValue<? extends String> observable,
-		// String oldValue, String newValue) {
-		//
-		// if (newValue.length() > 10){
-		// editMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// }
-		// try {
-		// Integer.parseInt(newValue);
-		// } catch (NumberFormatException e) {
-		// editMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// Main._logger.debug("Error :",e); e.printStackTrace();
-		// }
-		// }
-		// });
 	}
 
 	public boolean isValid() {
@@ -195,7 +174,7 @@ public class EditHawkerController implements Initializable {
 				validate = false;
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
 						.text("Fee per subscription should not be empty and must be numeric only").showError();
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -222,7 +201,7 @@ public class EditHawkerController implements Initializable {
 			Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return validate;
@@ -247,11 +226,11 @@ public class EditHawkerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -273,11 +252,11 @@ public class EditHawkerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -326,21 +305,22 @@ public class EditHawkerController implements Initializable {
 					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
-					profileValues.clear();
+					profileValues = FXCollections.observableArrayList();
 					Statement stmt = con.createStatement();
 					ResultSet rs = stmt.executeQuery(
 							"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 					while (rs.next()) {
-						profileValues.add(rs.getString(1));
+						if (profileValues != null && !profileValues.contains(rs.getString(1)))
+							profileValues.add(rs.getString(1));
 					}
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -361,21 +341,22 @@ public class EditHawkerController implements Initializable {
 					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
-					employmentData.clear();
+					employmentData = FXCollections.observableArrayList();
 					Statement stmt = con.createStatement();
 					ResultSet rs = stmt.executeQuery(
 							"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 					while (rs.next()) {
-						employmentData.add(rs.getString(1));
+						if (employmentData != null && !employmentData.contains(rs.getString(1)))
+							employmentData.add(rs.getString(1));
 					}
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -392,19 +373,20 @@ public class EditHawkerController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			pointNameValues.clear();
+			pointNameValues = FXCollections.observableArrayList();
 			PreparedStatement stmt = con.prepareStatement("select distinct name from point_name order by name");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				pointNameValues.add(rs.getString(1));
+				if (pointNameValues != null && !pointNameValues.contains(rs.getString(1)))
+					pointNameValues.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -427,11 +409,11 @@ public class EditHawkerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;

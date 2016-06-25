@@ -1497,6 +1497,7 @@ public class AProductsTabController implements Initializable {
 								public void run() {
 									billCategoryTF.getItems().clear();
 									billCategoryTF.setItems(billCategoryValues);
+									new AutoCompleteComboBoxListener<>(billCategoryTF);
 								}
 							});
 						}

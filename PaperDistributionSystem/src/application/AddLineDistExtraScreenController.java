@@ -80,6 +80,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		populateEmploymentValues();
 		populateProfileValues();
 		addHwkCode.getItems().addAll(hawkerCodeData);
+		new AutoCompleteComboBoxListener<>(addHwkCode);
 
 		if (HawkerLoginController.loggedInHawker == null) {
 
@@ -102,8 +103,11 @@ public class AddLineDistExtraScreenController implements Initializable {
 		});
 		// addLineNumField.getItems().addAll(lineNumData);
 		addProfile1TF.getItems().addAll(profileValues);
+		new AutoCompleteComboBoxListener<>(addProfile1TF);
 		addProfile2TF.getItems().addAll(profileValues);
+		new AutoCompleteComboBoxListener<>(addProfile2TF);
 		addEmploymentLOV.getItems().addAll(employmentData);
+		new AutoCompleteComboBoxListener<>(addEmploymentLOV);
 		initialsTF.textProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -113,32 +117,6 @@ public class AddLineDistExtraScreenController implements Initializable {
 					initialsTF.setText(oldValue);
 			}
 		});
-		// addMobileNumTF.textProperty().addListener(new
-		// ChangeListener<String>() {
-		//
-		// @Override
-		// public void changed(ObservableValue<? extends String> observable,
-		// String oldValue, String newValue) {
-		//
-		// if (newValue.length() > 10){
-		// addMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// }
-		// try {
-		// Integer.parseInt(newValue);
-		// } catch (NumberFormatException e) {
-		// addMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// Main._logger.debug("Error :",e); e.printStackTrace();
-		// }
-		// }
-		// });
 		addNameTF.requestFocus();
 	}
 
@@ -372,6 +350,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 			ResultSet rs = stmt.executeQuery(
 					"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 			while (rs.next()) {
+				if(profileValues!=null && !profileValues.contains(rs.getString(1)))
 				profileValues.add(rs.getString(1));
 			}
 
@@ -399,6 +378,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 			ResultSet rs = stmt.executeQuery(
 					"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 			while (rs.next()) {
+				if(employmentData!=null && !employmentData.contains(rs.getString(1)))
 				employmentData.add(rs.getString(1));
 			}
 
@@ -426,6 +406,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery("select distinct hawker_code from hawker_info order by hawker_code");
 			while (rs.next()) {
+				if(hawkerCodeData!=null && !hawkerCodeData.contains(rs.getString(1)))
 				hawkerCodeData.add(rs.getString(1));
 			}
 

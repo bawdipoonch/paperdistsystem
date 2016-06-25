@@ -105,11 +105,14 @@ public class EditLineDistributorController implements Initializable {
 		editProfile3TF.setText(lineDistRow.getProfile3());
 		initialsTF.setText(lineDistRow.getInitials());
 		editProfile1TF.getItems().addAll(profileValues);
+		new AutoCompleteComboBoxListener<>(editProfile1TF);
 		editProfile2TF.getItems().addAll(profileValues);
+		new AutoCompleteComboBoxListener<>(editProfile2TF);
 		editProfile1TF.getSelectionModel().select(lineDistRow.getProfile1());
 		editProfile2TF.getSelectionModel().select(lineDistRow.getProfile2());
 		editProfile3TF.setText(lineDistRow.getProfile3());
 		editEmploymentLOV.getItems().addAll(employmentData);
+		new AutoCompleteComboBoxListener<>(editEmploymentLOV);
 		editEmploymentLOV.getSelectionModel().select(lineDistRow.getEmployment());
 		editCommentsTF.setText(lineDistRow.getComments());
 		editHwkCode.getItems().addAll(hawkerCodeData);
@@ -135,32 +138,6 @@ public class EditLineDistributorController implements Initializable {
 					initialsTF.setText(oldValue);
 			}
 		});
-		// editMobileNumTF.textProperty().addListener(new
-		// ChangeListener<String>() {
-		//
-		// @Override
-		// public void changed(ObservableValue<? extends String> observable,
-		// String oldValue, String newValue) {
-		//
-		// if (newValue.length() > 10){
-		// editMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// }
-		// try {
-		// Integer.parseInt(newValue);
-		// } catch (NumberFormatException e) {
-		// editMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// Main._logger.debug("Error :",e); e.printStackTrace();
-		// }
-		// }
-		// });
 		editNameTF.requestFocus();
 	}
 
@@ -182,11 +159,11 @@ public class EditLineDistributorController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -219,21 +196,22 @@ public class EditLineDistributorController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			profileValues.clear();
+			profileValues = FXCollections.observableArrayList();
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(
 					"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 			while (rs.next()) {
-				profileValues.add(rs.getString(1));
+				if (profileValues != null && !profileValues.contains(rs.getString(1)))
+					profileValues.add(rs.getString(1));
 			}
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -246,21 +224,22 @@ public class EditLineDistributorController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			employmentData.clear();
+			employmentData = FXCollections.observableArrayList();
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(
 					"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 			while (rs.next()) {
-				employmentData.add(rs.getString(1));
+				if (employmentData != null && !employmentData.contains(rs.getString(1)))
+					employmentData.add(rs.getString(1));
 			}
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -274,20 +253,21 @@ public class EditLineDistributorController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			hawkerCodeData.clear();
+			hawkerCodeData=FXCollections.observableArrayList();
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery("select distinct hawker_code from hawker_info order by hawker_code");
 			while (rs.next()) {
+				if(hawkerCodeData!=null && !hawkerCodeData.contains(rs.getString(1)))
 				hawkerCodeData.add(rs.getString(1));
 			}
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -300,8 +280,8 @@ public class EditLineDistributorController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			PreparedStatement stmt = con.prepareStatement(
-					"select count(*) from line_distributor where line_id = ? and line_dist_id <> ?");
+			PreparedStatement stmt = con
+					.prepareStatement("select count(*) from line_distributor where line_id = ? and line_dist_id <> ?");
 			stmt.setLong(1, lineDistRow.getLineId());
 			stmt.setLong(2, lineDistRow.getLineDistId());
 			ResultSet rs = stmt.executeQuery();
@@ -310,11 +290,11 @@ public class EditLineDistributorController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -339,11 +319,11 @@ public class EditLineDistributorController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -367,11 +347,11 @@ public class EditLineDistributorController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -390,28 +370,6 @@ public class EditLineDistributorController implements Initializable {
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
 		}
-		// if (editMobileNumTF.getText()!=null) {
-		// Notifications.create().title("Invalid Mobile Number")
-		// .text("A line distributor cannot be created with empty mobile
-		// number")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// validate = false;
-		// }
-		// if (editMobileNumTF.getText().length()!=10) {
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// validate = false;
-		// }
-		// try {
-		// Integer.parseInt(editMobileNumTF.getText());
-		// } catch (NumberFormatException e) {
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// validate = false;
-		// Main._logger.debug("Error :",e); e.printStackTrace();
-		// }
 		if (editProfile3TF.getText() != null && checkExistingProfileValue(editProfile3TF.getText())) {
 			validate = false;
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Profile 3 already exists")
@@ -437,11 +395,11 @@ public class EditLineDistributorController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;

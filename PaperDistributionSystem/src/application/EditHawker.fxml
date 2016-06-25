@@ -46,7 +46,7 @@
             <TextField fx:id="editNameTF" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <TextField fx:id="initialsTF" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <TextField fx:id="editHawkerCodeTF" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <TextField fx:id="editMobileNumTF" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <TextField fx:id="editMobileNumTF" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <TextField fx:id="editAgencyNameTF" GridPane.columnIndex="1" GridPane.rowIndex="6" />
             <TextField fx:id="editFeeTF" GridPane.columnIndex="1" GridPane.rowIndex="7" />
             <TextField fx:id="editOldHouseNumTF" maxWidth="-Infinity" prefWidth="40.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />

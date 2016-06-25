@@ -152,11 +152,11 @@ public class AddHawkerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -205,6 +205,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 					ResultSet rs = stmt.executeQuery(
 							"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 					while (rs.next()) {
+						if(profileValues!=null && !profileValues.contains(rs.getString(1)))
 						profileValues.add(rs.getString(1));
 					}
 
@@ -214,17 +215,19 @@ public class AddHawkerExtraScreenController implements Initializable {
 						public void run() {
 
 							addHwkProfile1.setItems(profileValues);
+							new AutoCompleteComboBoxListener<>(addHwkProfile1);
 							addHwkProfile2.setItems(profileValues);
+							new AutoCompleteComboBoxListener<>(addHwkProfile2);
 						}
 					});
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -251,7 +254,8 @@ public class AddHawkerExtraScreenController implements Initializable {
 					ResultSet rs = stmt.executeQuery(
 							"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 					while (rs.next()) {
-						employmentData.add(rs.getString(1));
+						if (employmentData != null && !employmentData.contains(rs.getString(1)))
+							employmentData.add(rs.getString(1));
 					}
 					Platform.runLater(new Runnable() {
 
@@ -259,16 +263,17 @@ public class AddHawkerExtraScreenController implements Initializable {
 						public void run() {
 
 							addEmploymentLOV.setItems(employmentData);
+							new AutoCompleteComboBoxListener<>(addEmploymentLOV);
 						}
 					});
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -303,7 +308,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 				validate = false;
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid fee")
 						.text("Fee per subscription should not be empty and must be numeric only").showError();
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -334,7 +339,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 			Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return validate;
@@ -394,14 +399,14 @@ public class AddHawkerExtraScreenController implements Initializable {
 
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Error!")
 						.text("There has been some error during hawker creation, please retry").showError();
 				Main.reconnect();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -424,11 +429,11 @@ public class AddHawkerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -479,11 +484,11 @@ public class AddHawkerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -502,11 +507,13 @@ public class AddHawkerExtraScreenController implements Initializable {
 						con = Main.reconnect();
 					}
 					pointNameValues.clear();
-					PreparedStatement stmt = con.prepareStatement("select distinct name from point_name where city=? order by name");
+					PreparedStatement stmt = con
+							.prepareStatement("select distinct name from point_name where city=? order by name");
 					stmt.setString(1, addHwkCity.getSelectionModel().getSelectedItem());
 					ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
-						pointNameValues.add(rs.getString(1));
+						if (pointNameValues != null && !pointNameValues.contains(rs.getString(1)))
+							pointNameValues.add(rs.getString(1));
 					}
 					Platform.runLater(new Runnable() {
 
@@ -514,17 +521,18 @@ public class AddHawkerExtraScreenController implements Initializable {
 						public void run() {
 
 							addPointNameLOV.setItems(pointNameValues);
+							new AutoCompleteComboBoxListener<>(addPointNameLOV);
 
 							addPointNameLOV.setDisable(false);
 						}
 					});
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 
@@ -553,11 +561,11 @@ public class AddHawkerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return 0.0;
@@ -585,11 +593,11 @@ public class AddHawkerExtraScreenController implements Initializable {
 					}
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				return null;
@@ -617,7 +625,8 @@ public class AddHawkerExtraScreenController implements Initializable {
 						stmt = con.prepareStatement("select distinct city from point_name order by city");
 						ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
-							cityValues.add(rs.getString(1));
+							if (cityValues != null && !cityValues.contains(rs.getString(1)))
+								cityValues.add(rs.getString(1));
 						}
 
 						Platform.runLater(new Runnable() {
@@ -626,17 +635,18 @@ public class AddHawkerExtraScreenController implements Initializable {
 							public void run() {
 								addHwkCity.getItems().clear();
 								addHwkCity.setItems(cityValues);
+								new AutoCompleteComboBoxListener<>(addHwkCity);
 							}
 						});
 						rs.close();
 
 						stmt.close();
 					} catch (SQLException e) {
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -669,11 +679,11 @@ public class AddHawkerExtraScreenController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return hawkerId;

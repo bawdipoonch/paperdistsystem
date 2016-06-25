@@ -452,6 +452,7 @@ public class AStopHistoryTabController implements Initializable {
 							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
+								if(hawkerCodeData!=null && !hawkerCodeData.contains(rs.getString(1)))
 								hawkerCodeData.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
@@ -461,6 +462,7 @@ public class AStopHistoryTabController implements Initializable {
 
 									hawkerComboBox.getItems().clear();
 									hawkerComboBox.setItems(hawkerCodeData);
+									new AutoCompleteComboBoxListener<>(hawkerComboBox);
 								}
 							});
 							rs.close();
@@ -612,6 +614,7 @@ public class AStopHistoryTabController implements Initializable {
 							stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
+								if(pointNameValues!=null && !pointNameValues.contains(rs.getString(1)))
 								pointNameValues.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
@@ -620,6 +623,7 @@ public class AStopHistoryTabController implements Initializable {
 								public void run() {
 									addPointName.getItems().clear();
 									addPointName.setItems(pointNameValues);
+									new AutoCompleteComboBoxListener<>(addPointName);
 								}
 							});
 							rs.close();
@@ -718,7 +722,7 @@ public class AStopHistoryTabController implements Initializable {
 						if (!con.isValid(0)) {
 							con = Main.reconnect();
 						}
-						cityValues.clear();
+						cityValues=FXCollections.observableArrayList();
 						PreparedStatement stmt = null;
 						if (HawkerLoginController.loggedInHawker != null) {
 							stmt = con.prepareStatement("select distinct city from point_name where name=?");
@@ -742,10 +746,17 @@ public class AStopHistoryTabController implements Initializable {
 							stmt = con.prepareStatement("select distinct city from point_name order by city");
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
+								if(cityValues!=null && !cityValues.contains(rs.getString(1)))
 								cityValues.add(rs.getString(1));
 							}
-							cityTF.getItems().clear();
-							cityTF.getItems().addAll(cityValues);
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.setItems(cityValues);
+									new AutoCompleteComboBoxListener<>(cityTF);
+								}
+							});
 							rs.close();
 							stmt.close();
 						}

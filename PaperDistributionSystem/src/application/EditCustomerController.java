@@ -95,11 +95,13 @@ public class EditCustomerController implements Initializable {
 				"Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland",
 				"Odisha", "Punjab", "Rajasthan", "Sikkim", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
 				"West Bengal");
+		new AutoCompleteComboBoxListener<>(editStateLOV);
 		editStateLOV.getSelectionModel().select(custRow.getState());
 		populateHawkerCodes();
 		populateEmploymentValues();
 		populateProfileValues();
-		editHawkerCodeLOV.getItems().addAll(hawkerCodeData);
+		editHawkerCodeLOV.setItems(hawkerCodeData);
+		new AutoCompleteComboBoxListener<>(editHawkerCodeLOV);
 
 		editHawkerCodeLOV.getSelectionModel().select(custRow.getHawkerCode());
 		editLineNumLOV.getItems().clear();
@@ -138,11 +140,14 @@ public class EditCustomerController implements Initializable {
 		editLocalityTF.setText(custRow.getLocality());
 		editCityTF.setText(custRow.getCity());
 		editProfile1TF.getItems().addAll(profileValues);
+		new AutoCompleteComboBoxListener<>(editProfile1TF);
 		editProfile2TF.getItems().addAll(profileValues);
+		new AutoCompleteComboBoxListener<>(editProfile2TF);
 		editProfile1TF.getSelectionModel().select(custRow.getProfile1());
 		editProfile2TF.getSelectionModel().select(custRow.getProfile2());
 		editProfile3TF.setText(custRow.getProfile3());
 		editEmploymentLOV.getItems().addAll(employmentData);
+		new AutoCompleteComboBoxListener<>(editEmploymentLOV);
 		editEmploymentLOV.getSelectionModel().select(custRow.getEmployment());
 		editCommentsTF.setText(custRow.getComments());
 		initialsTF.setText(custRow.getInitials());
@@ -156,33 +161,6 @@ public class EditCustomerController implements Initializable {
 					initialsTF.setText(oldValue);
 			}
 		});
-
-		// editMobileNumTF.textProperty().addListener(new
-		// ChangeListener<String>() {
-		//
-		// @Override
-		// public void changed(ObservableValue<? extends String> observable,
-		// String oldValue, String newValue) {
-		//
-		// if (newValue.length() > 10){
-		// editMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// }
-		// try {
-		// Integer.parseInt(newValue);
-		// } catch (NumberFormatException e) {
-		// editMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// Main._logger.debug("Error :",e); e.printStackTrace();
-		// }
-		// }
-		// });
 		editNameTF.requestFocus();
 	}
 
@@ -204,11 +182,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -232,11 +210,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -250,19 +228,20 @@ public class EditCustomerController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			hawkerCodeData.clear();
+			hawkerCodeData = FXCollections.observableArrayList();
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery("select distinct hawker_code from hawker_info order by hawker_code");
 			while (rs.next()) {
-				hawkerCodeData.add(rs.getString(1));
+				if (hawkerCodeData != null && !hawkerCodeData.contains(rs.getString(1)))
+					hawkerCodeData.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -300,21 +279,6 @@ public class EditCustomerController implements Initializable {
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
 					.showError();
 		}
-		// if (editMobileNumTF.getText().length()!=10) {
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// validate = false;
-		// }
-		// try {
-		// Integer.parseInt(editMobileNumTF.getText());
-		// } catch (NumberFormatException e) {
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// validate = false;
-		// Main._logger.debug("Error :",e); e.printStackTrace();
-		// }
 		return validate;
 	}
 
@@ -343,8 +307,11 @@ public class EditCustomerController implements Initializable {
 			edittedCustomer.setBuildingStreet(editBldgStreetTF.getText());
 			edittedCustomer.setEmployment(editEmploymentLOV.getSelectionModel().getSelectedItem());
 			edittedCustomer.setComments(editCommentsTF.getText());
-			edittedCustomer.setHawkerId(ACustomerInfoTabController.hawkerIdForCode(editHawkerCodeLOV.getSelectionModel().getSelectedItem()));
-			edittedCustomer.setLineId(ACustomerInfoTabController.lineIdForNumHwkCode(Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0]), editHawkerCodeLOV.getSelectionModel().getSelectedItem()));
+			edittedCustomer.setHawkerId(ACustomerInfoTabController
+					.hawkerIdForCode(editHawkerCodeLOV.getSelectionModel().getSelectedItem()));
+			edittedCustomer.setLineId(ACustomerInfoTabController.lineIdForNumHwkCode(
+					Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0]),
+					editHawkerCodeLOV.getSelectionModel().getSelectedItem()));
 			edittedCustomer.updateCustomerRecord();
 			return edittedCustomer;
 		} else
@@ -398,11 +365,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -434,11 +401,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -451,21 +418,22 @@ public class EditCustomerController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			profileValues.clear();
+			profileValues=FXCollections.observableArrayList();
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(
 					"select value, code, seq, lov_lookup_id from lov_lookup where code='PROFILE_VALUES' order by seq");
 			while (rs.next()) {
+				if(profileValues!=null && !profileValues.contains(rs.getString(1)))
 				profileValues.add(rs.getString(1));
 			}
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -478,21 +446,22 @@ public class EditCustomerController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			employmentData.clear();
+			employmentData = FXCollections.observableArrayList();
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(
 					"select value, code, seq, lov_lookup_id from lov_lookup where code='EMPLOYMENT_STATUS' order by seq");
 			while (rs.next()) {
-				employmentData.add(rs.getString(1));
+				if (employmentData != null && !employmentData.contains(rs.getString(1)))
+					employmentData.add(rs.getString(1));
 			}
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -521,11 +490,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -607,11 +576,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -635,11 +604,11 @@ public class EditCustomerController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return 1;
@@ -670,11 +639,11 @@ public class EditCustomerController implements Initializable {
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}

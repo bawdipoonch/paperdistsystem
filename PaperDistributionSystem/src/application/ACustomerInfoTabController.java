@@ -2084,7 +2084,8 @@ public class ACustomerInfoTabController implements Initializable {
 							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								hawkerCodeData.add(rs.getString(1));
+								if(hawkerCodeData!=null && !hawkerCodeData.contains(rs.getString(1)))
+									hawkerCodeData.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
 
@@ -2093,6 +2094,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 									addCustHwkCode.getItems().clear();
 									addCustHwkCode.setItems(hawkerCodeData);
+									new AutoCompleteComboBoxListener<>(addCustHwkCode);
 								}
 							});
 							rs.close();
@@ -2562,7 +2564,8 @@ public class ACustomerInfoTabController implements Initializable {
 							stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								pointNameValues.add(rs.getString(1));
+								if(pointNameValues!=null && !pointNameValues.contains(rs.getString(1)))
+									pointNameValues.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
 
@@ -2570,6 +2573,7 @@ public class ACustomerInfoTabController implements Initializable {
 								public void run() {
 									addPointName.getItems().clear();
 									addPointName.setItems(pointNameValues);
+									new AutoCompleteComboBoxListener<>(addPointName);
 								}
 							});
 							rs.close();
@@ -2611,7 +2615,8 @@ public class ACustomerInfoTabController implements Initializable {
 					ResultSet rs = stmt.executeQuery(
 							"select value, code, seq from lov_lookup where code='PROFILE_VALUES' order by seq");
 					while (rs.next()) {
-						profileValues.add(rs.getString(1));
+						if(profileValues!=null && !profileValues.contains(rs.getString(1)))
+							profileValues.add(rs.getString(1));
 					}
 
 				} catch (SQLException e) {
@@ -2627,6 +2632,8 @@ public class ACustomerInfoTabController implements Initializable {
 				addCustProf2.getItems().clear();
 				addCustProf1.getItems().addAll(profileValues);
 				addCustProf2.getItems().addAll(profileValues);
+				new AutoCompleteComboBoxListener<>(addCustProf1);
+				new AutoCompleteComboBoxListener<>(addCustProf2);
 				return null;
 			}
 
@@ -2667,6 +2674,7 @@ public class ACustomerInfoTabController implements Initializable {
 				}
 				addCustEmployment.getItems().clear();
 				addCustEmployment.getItems().addAll(employmentData);
+				new AutoCompleteComboBoxListener<>(addCustEmployment);
 				return null;
 			}
 
@@ -3107,7 +3115,8 @@ public class ACustomerInfoTabController implements Initializable {
 							stmt = con.prepareStatement("select distinct city from point_name order by city");
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								cityValues.add(rs.getString(1));
+								if(cityValues!=null && !cityValues.contains(rs.getString(1)))
+										cityValues.add(rs.getString(1));
 							}
 
 							Platform.runLater(new Runnable() {
@@ -3116,6 +3125,7 @@ public class ACustomerInfoTabController implements Initializable {
 								public void run() {
 									cityTF.getItems().clear();
 									cityTF.setItems(cityValues);
+									new AutoCompleteComboBoxListener<>(cityTF);
 								}
 							});
 							rs.close();

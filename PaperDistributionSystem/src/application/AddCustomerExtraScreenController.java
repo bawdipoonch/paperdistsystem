@@ -93,6 +93,7 @@ public class AddCustomerExtraScreenController implements Initializable {
 		populateEmploymentValues();
 		populateProfileValues();
 		addHawkerCodeLOV.getItems().addAll(hawkerCodeData);
+		new AutoCompleteComboBoxListener<>(addHawkerCodeLOV);
 		addNameTF.requestFocus();
 
 		addLineNumLOV.getItems().addAll(hawkerLineNumData);
@@ -119,33 +120,6 @@ public class AddCustomerExtraScreenController implements Initializable {
 			}
 		});
 
-		// addMobileNumTF.textProperty().addListener(new
-		// ChangeListener<String>() {
-		//
-		// @Override
-		// public void changed(ObservableValue<? extends String> observable,
-		// String oldValue, String newValue) {
-		//
-		// if (newValue.length() > 10){
-		// addMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// }
-		// try {
-		// Integer.parseInt(newValue);
-		// } catch (NumberFormatException e) {
-		// addMobileNumTF.setText(oldValue);
-		//
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// Main._logger.debug("Error :",e); e.printStackTrace();
-		// }
-		// }
-		// });
-
 		addLineNumLOV.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -157,8 +131,11 @@ public class AddCustomerExtraScreenController implements Initializable {
 			}
 		});
 		addProfile1TF.getItems().addAll(profileValues);
+		new AutoCompleteComboBoxListener<>(addProfile1TF);
 		addProfile2TF.getItems().addAll(profileValues);
+		new AutoCompleteComboBoxListener<>(addProfile2TF);
 		addEmploymentLOV.getItems().addAll(employmentData);
+		new AutoCompleteComboBoxListener<>(addEmploymentLOV);
 		initialsTF.textProperty().addListener(new ChangeListener<String>() {
 
 			@Override

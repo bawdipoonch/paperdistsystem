@@ -326,11 +326,11 @@ public class APausedCustomerTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -378,11 +378,11 @@ public class APausedCustomerTabController implements Initializable {
 							});
 						} catch (SQLException e) {
 
-							Main._logger.debug("Error :",e);
+							Main._logger.debug("Error :", e);
 							e.printStackTrace();
 						} catch (Exception e) {
 
-							Main._logger.debug("Error :",e);
+							Main._logger.debug("Error :", e);
 							e.printStackTrace();
 						}
 					}
@@ -421,11 +421,11 @@ public class APausedCustomerTabController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return hawkerId;
@@ -478,11 +478,11 @@ public class APausedCustomerTabController implements Initializable {
 
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -525,14 +525,15 @@ public class APausedCustomerTabController implements Initializable {
 							stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								pointNameValues.add(rs.getString(1));
+								if (pointNameValues != null && !pointNameValues.contains(rs.getString(1)))
+									pointNameValues.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
 
 								@Override
 								public void run() {
-									addPointName.getItems().clear();
 									addPointName.setItems(pointNameValues);
+									new AutoCompleteComboBoxListener<>(addPointName);
 								}
 							});
 							rs.close();
@@ -540,11 +541,11 @@ public class APausedCustomerTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -589,15 +590,16 @@ public class APausedCustomerTabController implements Initializable {
 							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								hawkerCodeData.add(rs.getString(1));
+								if (hawkerCodeData != null && !hawkerCodeData.contains(rs.getString(1)))
+									hawkerCodeData.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
 
 								@Override
 								public void run() {
 
-									hawkerComboBox.getItems().clear();
 									hawkerComboBox.setItems(hawkerCodeData);
+									new AutoCompleteComboBoxListener<>(hawkerComboBox);
 								}
 							});
 							rs.close();
@@ -605,11 +607,11 @@ public class APausedCustomerTabController implements Initializable {
 						}
 					} catch (SQLException e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
@@ -674,11 +676,11 @@ public class APausedCustomerTabController implements Initializable {
 
 			Notifications.create().hideAfter(Duration.seconds(5)).title("Error")
 					.text("Error in creation of stop history record").showError();
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -707,7 +709,7 @@ public class APausedCustomerTabController implements Initializable {
 
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -737,7 +739,7 @@ public class APausedCustomerTabController implements Initializable {
 			// refreshCustomerTable();
 
 		} catch (IOException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -778,17 +780,24 @@ public class APausedCustomerTabController implements Initializable {
 							stmt = con.prepareStatement("select distinct city from point_name order by city");
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								cityValues.add(rs.getString(1));
+								if (cityValues != null && !cityValues.contains(rs.getString(1)))
+									cityValues.add(rs.getString(1));
 							}
-							cityTF.getItems().clear();
-							cityTF.getItems().addAll(cityValues);
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.setItems(cityValues);
+									new AutoCompleteComboBoxListener<>(cityTF);
+								}
+							});
 						}
 					} catch (SQLException e) {
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					} catch (Exception e) {
 
-						Main._logger.debug("Error :",e);
+						Main._logger.debug("Error :", e);
 						e.printStackTrace();
 					}
 				}
