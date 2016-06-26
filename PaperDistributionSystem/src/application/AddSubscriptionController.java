@@ -153,8 +153,9 @@ public class AddSubscriptionController implements Initializable {
 
 			@Override
 			public String toString(Product object) {
-
+				if(object!=null)
 				return object.getName();
+				else return null;
 			}
 
 			@Override

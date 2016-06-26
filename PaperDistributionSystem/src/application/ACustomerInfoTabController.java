@@ -2610,7 +2610,7 @@ public class ACustomerInfoTabController implements Initializable {
 					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
-					profileValues.clear();
+					profileValues=FXCollections.observableArrayList();
 					Statement stmt = con.createStatement();
 					ResultSet rs = stmt.executeQuery(
 							"select value, code, seq from lov_lookup where code='PROFILE_VALUES' order by seq");
@@ -2628,12 +2628,18 @@ public class ACustomerInfoTabController implements Initializable {
 					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
-				addCustProf1.getItems().clear();
-				addCustProf2.getItems().clear();
-				addCustProf1.getItems().addAll(profileValues);
-				addCustProf2.getItems().addAll(profileValues);
-				new AutoCompleteComboBoxListener<>(addCustProf1);
-				new AutoCompleteComboBoxListener<>(addCustProf2);
+				Platform.runLater(new Runnable() {
+					
+					@Override
+					public void run() {
+
+						addCustProf1.setItems(profileValues);
+						addCustProf2.setItems(profileValues);
+						new AutoCompleteComboBoxListener<>(addCustProf1);
+						new AutoCompleteComboBoxListener<>(addCustProf2);
+						
+					}
+				});
 				return null;
 			}
 
@@ -2672,9 +2678,16 @@ public class ACustomerInfoTabController implements Initializable {
 					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
-				addCustEmployment.getItems().clear();
-				addCustEmployment.getItems().addAll(employmentData);
-				new AutoCompleteComboBoxListener<>(addCustEmployment);
+				Platform.runLater(new Runnable() {
+					
+					@Override
+					public void run() {
+
+						addCustEmployment.setItems(employmentData);
+						new AutoCompleteComboBoxListener<>(addCustEmployment);
+						
+					}
+				});
 				return null;
 			}
 
