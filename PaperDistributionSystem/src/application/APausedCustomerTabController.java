@@ -100,6 +100,10 @@ public class APausedCustomerTabController implements Initializable {
 	@FXML
 	private TableColumn<PausedSubscription, LocalDate> resumeDateCol;
 	@FXML
+	private TableColumn<PausedSubscription, String> custAddr1Col;
+	@FXML
+	private TableColumn<PausedSubscription, String> custAddr2Col;
+	@FXML
 	private Label hawkerNameLabel;
 	@FXML
 	private Label hawkerMobLabel;
@@ -121,8 +125,8 @@ public class APausedCustomerTabController implements Initializable {
 		custNameCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("customerName"));
 		custCodeCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, Long>("customerCode"));
 		custMobCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("mobileNum"));
-		custHwkCodeCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("hawkerCode"));
-		custLineNumCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("lineNum"));
+//		custHwkCodeCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("hawkerCode"));
+//		custLineNumCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("lineNum"));
 		custHouseSeqCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, Integer>("houseSeq"));
 		prodNameCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("productName"));
 		prodTypeCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("productType"));
@@ -133,6 +137,8 @@ public class APausedCustomerTabController implements Initializable {
 		srvChargeCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, Double>("serviceCharge"));
 		pausedDateCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, LocalDate>("pausedDate"));
 		resumeDateCol.setCellValueFactory(new PropertyValueFactory<PausedSubscription, LocalDate>("resumeDate"));
+		custAddr1Col.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("addr1"));
+		custAddr2Col.setCellValueFactory(new PropertyValueFactory<PausedSubscription, String>("addr2"));
 		pausedDateCol.setCellFactory(
 				new Callback<TableColumn<PausedSubscription, LocalDate>, TableCell<PausedSubscription, LocalDate>>() {
 
@@ -445,7 +451,7 @@ public class APausedCustomerTabController implements Initializable {
 						}
 						pausedSubsValues.clear();
 						PreparedStatement stmt;
-						String queryString = "select cust.CUSTOMER_ID, sub.SUBSCRIPTION_ID, prod.PRODUCT_ID, cust.NAME Customer_Name, cust.CUSTOMER_CODE, cust.MOBILE_NUM,cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.NAME Product_Name, prod.TYPE product_type, sub.TYPE subscription_type, sub.FREQUENCY, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.PAUSED_DATE, sub.resume_date from customer cust, subscription sub, products prod where cust.customer_id=sub.customer_id and sub.product_id=prod.product_id and sub.STATUS='Stopped' and hawker_code=? and cust.LINE_NUM=? order by sub.resume_date desc, cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.name";
+						String queryString = "select cust.CUSTOMER_ID, sub.SUBSCRIPTION_ID, prod.PRODUCT_ID, cust.NAME Customer_Name, cust.CUSTOMER_CODE, cust.MOBILE_NUM,cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.NAME Product_Name, prod.TYPE product_type, sub.TYPE subscription_type, sub.FREQUENCY, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.PAUSED_DATE, sub.resume_date,cust.address_line1, cust.address_line2 from customer cust, subscription sub, products prod where cust.customer_id=sub.customer_id and sub.product_id=prod.product_id and sub.STATUS='Stopped' and hawker_code=? and cust.LINE_NUM=? order by sub.resume_date desc, cust.HAWKER_CODE, cust.LINE_NUM, cust.HOUSE_SEQ, prod.name";
 
 						if (HawkerLoginController.loggedInHawker != null) {
 							stmt = con.prepareStatement(queryString);
@@ -463,7 +469,7 @@ public class APausedCustomerTabController implements Initializable {
 									rs.getInt(9), rs.getString(10), rs.getString(11), rs.getString(12),
 									rs.getString(13), rs.getString(14), rs.getDouble(15), rs.getDouble(16),
 									rs.getDate(17) == null ? null : rs.getDate(17).toLocalDate(),
-									rs.getDate(18) == null ? null : rs.getDate(18).toLocalDate()));
+									rs.getDate(18) == null ? null : rs.getDate(18).toLocalDate(), rs.getString(19), rs.getString(20)));
 						}
 						Platform.runLater(new Runnable() {
 

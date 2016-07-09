@@ -134,7 +134,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 		addHwkName.requestFocus();
 	}
 
-	private boolean mobileNumExists(String mobileNum) {
+	public static boolean mobileNumExists(String mobileNum, String hwkCode) {
 		Main._logger.debug("Entered  mobileNumExists  method");
 		try {
 
@@ -145,7 +145,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 			String query = "select hawker_code,name from hawker_info where mobile_num=? and lower(hawker_code) <> ?";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, mobileNum);
-			stmt.setString(2, addHwkCode.getText().toLowerCase());
+			stmt.setString(2, hwkCode.toLowerCase());
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
 				return true;
@@ -292,7 +292,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
 		}
-		if (mobileNumExists(addHwkMobileNum.getText())) {
+		if (mobileNumExists(addHwkMobileNum.getText(), addHwkCode.getText())) {
 			Notifications.create().title("Mobile already exists")
 					.text("Hawker with same Mobile Number alraedy exists. Please enter a different value.")
 					.hideAfter(Duration.seconds(5)).showError();

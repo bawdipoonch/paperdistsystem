@@ -1370,7 +1370,7 @@ public class BillingUtilityClass {
 		return diff;
 	}
 
-	public static void generateInvoicePDF(String hawkerCode, int lineNum, String invoiceDate) throws JRException {
+	public static File generateInvoicePDF(String hawkerCode, int lineNum, String invoiceDate) throws JRException {
 		// Task<Void> task = new Task<Void>() {
 		//
 		// @Override
@@ -1430,6 +1430,7 @@ public class BillingUtilityClass {
 			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
+			File outFile = new File(filename);
 			// Platform.runLater(new Runnable() {
 			//
 			// @Override
@@ -1437,13 +1438,14 @@ public class BillingUtilityClass {
 
 			Notifications.create().title("Invocie PDF Created").text("Invoice PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
+			return outFile;
 			// }
 			// });
 		} catch (JRException e) {
 			Main._logger.debug("Error during Bill PDF Generation: ", e);
 			// e.printStackTrace();
 		}
-		// return null;
+		 return null;
 		// }
 		//
 		// };

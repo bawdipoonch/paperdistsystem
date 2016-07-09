@@ -1,5 +1,8 @@
 package application;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -13,12 +16,14 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
-
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.Notifications;
-import org.controlsfx.control.textfield.TextFields;
+import org.jpedal.examples.viewer.OpenViewerFX;
+import org.jpedal.exception.PdfException;
 
 import com.amazonaws.util.NumberUtils;
+import com.qoppa.pdf.PDFException;
+import com.qoppa.pdfViewerFX.PDFViewer;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -35,6 +40,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
@@ -56,7 +62,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -563,10 +571,11 @@ public class ALineInfoTabController implements Initializable {
 										Notifications.create().title("Generating Invoice PDF")
 												.text("Generating Invoice PDF for selected line. Please wait...")
 												.hideAfter(Duration.seconds(10)).showInformation();
-										BillingUtilityClass.generateInvoicePDF(
+										File pdfFile = BillingUtilityClass.generateInvoicePDF(
 												hawkerComboBox.getSelectionModel().getSelectedItem(),
 												lineRow.getLineNum(), dateBox.getSelectionModel().getSelectedItem()
 														.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
+										openPDFWindow(pdfFile);
 									} catch (JRException e) {
 										Main._logger.debug(e.getMessage());
 									}
@@ -2252,7 +2261,7 @@ public class ALineInfoTabController implements Initializable {
 							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								if (hawkerCodeData!=null && !hawkerCodeData.contains(rs.getString(1)))
+								if (hawkerCodeData != null && !hawkerCodeData.contains(rs.getString(1)))
 									hawkerCodeData.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
@@ -2942,7 +2951,7 @@ public class ALineInfoTabController implements Initializable {
 							stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								if (pointNameValues!=null && !pointNameValues.contains(rs.getString(1)))
+								if (pointNameValues != null && !pointNameValues.contains(rs.getString(1)))
 									pointNameValues.add(rs.getString(1));
 							}
 							Platform.runLater(new Runnable() {
@@ -3304,48 +3313,46 @@ public class ALineInfoTabController implements Initializable {
 
 			@Override
 			protected Void call() throws Exception {
-				synchronized (this) {
-					try {
+				try {
 
-						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
-							con = Main.reconnect();
-						}
-						// stopHistoryTable.getItems().clear();
-						stopHistoryMasterData = FXCollections.observableArrayList();
-						String query = "SELECT STP.STOP_HISTORY_ID, CUST.NAME, CUST.CUSTOMER_CODE, CUST.MOBILE_NUM, CUST.HAWKER_CODE, CUST.LINE_NUM, SUB.SUBSCRIPTION_ID, CUST.HOUSE_SEQ, PROD.NAME, PROD.CODE, PROD.BILL_CATEGORY, STP.STOP_DATE, STP.RESUME_DATE, SUB.TYPE, SUB.FREQUENCY, SUB.DOW, STP.AMOUNT FROM STOP_HISTORY STP, CUSTOMER CUST, PRODUCTS PROD , SUBSCRIPTION SUB WHERE CUST.CUSTOMER_ID=? AND STP.SUB_ID =SUB.SUBSCRIPTION_ID AND SUB.CUSTOMER_ID =CUST.CUSTOMER_ID AND SUB.PRODUCT_ID =PROD.PRODUCT_ID ORDER BY SUB.PAUSED_DATE DESC";
-						PreparedStatement stmt = con.prepareStatement(query);
-						stmt.setLong(1, lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId());
-						ResultSet rs = stmt.executeQuery();
-						while (rs.next()) {
-							stopHistoryMasterData.add(new StopHistory(rs.getLong(1), rs.getString(2), rs.getLong(3),
-									rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getInt(8),
-									rs.getString(9), rs.getString(10), rs.getString(11),
-									rs.getDate(12) == null ? null : rs.getDate(12).toLocalDate(),
-									rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(), rs.getString(14),
-									rs.getString(15), rs.getString(16), rs.getDouble(17)));
-						}
-
-						Platform.runLater(new Runnable() {
-
-							@Override
-							public void run() {
-								stopHistoryTable.setItems(stopHistoryMasterData);
-								stopHistoryTable.refresh();
-							}
-						});
-						rs.close();
-						stmt.close();
-
-					} catch (SQLException e) {
-
-						Main._logger.debug("Error :", e);
-						e.printStackTrace();
-					} catch (Exception e) {
-
-						Main._logger.debug("Error :", e);
-						e.printStackTrace();
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
 					}
+					// stopHistoryTable.getItems().clear();
+					stopHistoryMasterData = FXCollections.observableArrayList();
+					String query = "SELECT STP.STOP_HISTORY_ID, CUST.NAME, CUST.CUSTOMER_CODE, CUST.MOBILE_NUM, CUST.HAWKER_CODE, CUST.LINE_NUM, SUB.SUBSCRIPTION_ID, CUST.HOUSE_SEQ, PROD.NAME, PROD.CODE, PROD.BILL_CATEGORY, STP.STOP_DATE, STP.RESUME_DATE, SUB.TYPE, SUB.FREQUENCY, SUB.DOW, STP.AMOUNT FROM STOP_HISTORY STP, CUSTOMER CUST, PRODUCTS PROD , SUBSCRIPTION SUB WHERE CUST.CUSTOMER_ID=? AND STP.SUB_ID =SUB.SUBSCRIPTION_ID AND SUB.CUSTOMER_ID =CUST.CUSTOMER_ID AND SUB.PRODUCT_ID =PROD.PRODUCT_ID ORDER BY SUB.PAUSED_DATE DESC";
+					PreparedStatement stmt = con.prepareStatement(query);
+					stmt.setLong(1, lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId());
+					ResultSet rs = stmt.executeQuery();
+					while (rs.next()) {
+						stopHistoryMasterData.add(new StopHistory(rs.getLong(1), rs.getString(2), rs.getLong(3),
+								rs.getString(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getInt(8),
+								rs.getString(9), rs.getString(10), rs.getString(11),
+								rs.getDate(12) == null ? null : rs.getDate(12).toLocalDate(),
+								rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(), rs.getString(14),
+								rs.getString(15), rs.getString(16), rs.getDouble(17)));
+					}
+
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							stopHistoryTable.setItems(stopHistoryMasterData);
+							stopHistoryTable.refresh();
+						}
+					});
+					rs.close();
+					stmt.close();
+
+				} catch (SQLException e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
 				}
 				return null;
 			}
@@ -3485,7 +3492,7 @@ public class ALineInfoTabController implements Initializable {
 							stmt = con.prepareStatement("select distinct city from point_name order by city");
 							ResultSet rs = stmt.executeQuery();
 							while (rs.next()) {
-								if(cityValues!=null && !cityValues.contains(rs.getString(1)))
+								if (cityValues != null && !cityValues.contains(rs.getString(1)))
 									cityValues.add(rs.getString(1));
 							}
 
@@ -3730,6 +3737,35 @@ public class ALineInfoTabController implements Initializable {
 			billingTable.setDisable(false);
 			stopHistoryTable.setDisable(false);
 		}
+	}
+
+	private void openPDFWindow(File pdfFile) {
+
+		BorderPane root;
+		root = new BorderPane();
+		Stage stage = new Stage();
+		stage.setTitle("Invoice PDF");
+		stage.setScene(new Scene(root, 1024, 800));
+		OpenViewerFX fx = new OpenViewerFX(stage, null);
+		fx.setupViewer();
+		fx.openDefaultFile(pdfFile.getAbsolutePath());
+		stage.show();
+
+	}
+
+	public BorderPane createAndLoad(File pdfFile) {
+		long before = System.currentTimeMillis();
+		PDFViewer notesBean = new PDFViewer();
+		System.out.println("After: " + (System.currentTimeMillis() - before));
+		new Thread(() -> {
+			try {
+				notesBean.loadPDF(new FileInputStream(pdfFile));
+			} catch (PDFException | FileNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		}).run();
+		BorderPane borderPane = new BorderPane(notesBean);
+		return borderPane;
 	}
 
 	// @Override

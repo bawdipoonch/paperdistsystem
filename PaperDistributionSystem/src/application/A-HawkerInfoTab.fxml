@@ -133,6 +133,7 @@
             </Accordion>
             <TableView fx:id="hawkerTable" prefHeight="600.0" prefWidth="1280.0">
                <columns>
+                  <TableColumn fx:id="hwkIdColumn" prefWidth="100.0" text="Hawker ID" />
                   <TableColumn fx:id="hwkNameColumn" prefWidth="250.0" text="Hawker Name" />
                   <TableColumn fx:id="hwkInitialsColumn" prefWidth="40.0" text="Initials" />
                   <TableColumn fx:id="hwkCodeColumn" prefWidth="95.0" text="Hawker Code" />

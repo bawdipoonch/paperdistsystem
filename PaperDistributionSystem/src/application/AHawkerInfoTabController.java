@@ -134,6 +134,8 @@ public class AHawkerInfoTabController implements Initializable {
 
 	// Hawker Columns
 	@FXML
+	private TableColumn<Hawker, Long> hwkIdColumn;
+	@FXML
 	private TableColumn<Hawker, String> hwkNameColumn;
 	@FXML
 	private TableColumn<Hawker, String> hwkInitialsColumn;
@@ -247,6 +249,7 @@ public class AHawkerInfoTabController implements Initializable {
 			filterRadioButton.setSelected(true);
 
 		}
+		hwkIdColumn.setCellValueFactory(new PropertyValueFactory<Hawker, Long>("hawkerId"));
 		hwkNameColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("name"));
 		hwkInitialsColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("initials"));
 		hwkCodeColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("hawkerCode"));

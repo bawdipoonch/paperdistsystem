@@ -144,11 +144,6 @@ public class AddSubscriptionController implements Initializable {
 
 	public void setupBindings() {
 
-		populateProducts();
-		populatePaymentTypeValues();
-		populateSubscriptionTypeValues();
-		populateDurationValues();
-		dowLOV = new CheckComboBox<>();
 		prodNameLOV.setConverter(new StringConverter<Product>() {
 
 			@Override
@@ -169,6 +164,12 @@ public class AddSubscriptionController implements Initializable {
 				return null;
 			}
 		});
+		
+		populateProducts();
+		populatePaymentTypeValues();
+		populateSubscriptionTypeValues();
+		populateDurationValues();
+		dowLOV = new CheckComboBox<>();
 		startDate.setConverter(Main.dateConvertor);
 		startDate.focusedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
@@ -537,7 +538,7 @@ public class AddSubscriptionController implements Initializable {
 			}
 
 			prodNameLOV.setItems(productValues);
-			new AutoCompleteComboBoxListener<>(prodNameLOV);
+//			new AutoCompleteComboBoxListener<>(prodNameLOV);
 
 		} catch (SQLException e) {
 

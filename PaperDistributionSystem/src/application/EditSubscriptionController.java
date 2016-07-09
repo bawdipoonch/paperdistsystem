@@ -96,10 +96,6 @@ public class EditSubscriptionController implements Initializable {
 			}
 		});
 
-		populateProducts();
-		populateDurationValues();
-		populatePaymentTypeValues();
-		populateSubscriptionTypeValues();
 		prodNameLOV.setConverter(new StringConverter<Product>() {
 
 			@Override
@@ -119,6 +115,10 @@ public class EditSubscriptionController implements Initializable {
 				return null;
 			}
 		});
+		populateProducts();
+		populateDurationValues();
+		populatePaymentTypeValues();
+		populateSubscriptionTypeValues();
 		for (Object p : productValues.toArray()) {
 			if (((Product) p).getProductId() == subsRow.getProductId()) {
 				prodNameLOV.getSelectionModel().select(((Product) p));
@@ -179,7 +179,8 @@ public class EditSubscriptionController implements Initializable {
 		});
 
 		startDate.setValue(subsRow.getStartDate());
-
+		stopDate.setConverter(Main.dateConvertor);
+		resumeDate.setConverter(Main.dateConvertor);
 		endDate.setValue(subsRow.getStopDate());
 		endDate.setConverter(Main.dateConvertor);
 		offerMonthsTF.getItems().addAll(0, 1, 2, 3, 4, 5, 6);

@@ -32,11 +32,13 @@ public class PausedSubscription {
 	public SimpleDoubleProperty serviceCharge = new SimpleDoubleProperty();
 	SimpleObjectProperty<LocalDate> pausedDate = new SimpleObjectProperty<LocalDate>();
 	SimpleObjectProperty<LocalDate> resumeDate = new SimpleObjectProperty<LocalDate>();
+	public SimpleStringProperty addr1 = new SimpleStringProperty("");
+	public SimpleStringProperty addr2 = new SimpleStringProperty("");
 
 	public PausedSubscription(long customerId, long subscriptionId, long productId, String customerName,
 			long customerCode, String mobileNum, String hawkerCode, String lineNum, int houseSeq, String productName,
 			String productType, String subscriptionType, String frequency, String paymentType, double subscriptionCost,
-			double serviceCharge, LocalDate pausedDate, LocalDate resumeDate) {
+			double serviceCharge, LocalDate pausedDate, LocalDate resumeDate, String addr1, String addr2) {
 		this.customerId.set(customerId);
 		this.subscriptionId.set(subscriptionId);
 		this.productId.set(productId);
@@ -55,6 +57,8 @@ public class PausedSubscription {
 		this.serviceCharge.set(serviceCharge);
 		this.setPausedDate(pausedDate);
 		this.setResumeDate(resumeDate);
+		this.setAddr1(addr1);
+		this.setAddr2(addr2);
 	}
 
 	public long getCustomerId() {
@@ -200,6 +204,23 @@ public class PausedSubscription {
 	public void setResumeDate(LocalDate resumeDate) {
 		this.resumeDate.set(resumeDate);
 	}
+
+	public String getAddr1() {
+		return addr1.get();
+	}
+
+	public void setAddr1(String addrLine1) {
+		this.addr1.set(addrLine1);
+	}
+
+	public String getAddr2() {
+		return addr2.get();
+	}
+
+	public void setAddr2(String addrLine2) {
+		this.addr2.set(addrLine2);
+	}
+
 
 	public void resumeSubscription() {
 		try {

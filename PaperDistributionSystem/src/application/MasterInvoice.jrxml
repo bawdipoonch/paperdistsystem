@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-06-23T10:45:41 -->
+<!-- 2016-07-09T12:51:59 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoice" pageWidth="595" pageHeight="842" columnWidth="560" leftMargin="25" rightMargin="10" topMargin="10" bottomMargin="10" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -699,7 +699,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					</box>
 					<textField isBlankWhenNull="true">
-						<reportElement x="0" y="8" width="275" height="22" uuid="96d4c6ce-db4a-4d43-a65f-4f678b4a5fcb">
+						<reportElement x="0" y="8" width="275" height="19" uuid="96d4c6ce-db4a-4d43-a65f-4f678b4a5fcb">
 							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						</reportElement>
 						<box>
@@ -714,7 +714,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 						<textFieldExpression><![CDATA[($F{AGENCY_NAME}!=null?$F{AGENCY_NAME}:"") + " - " + ($F{HWK_MOB}!=null?$F{HWK_MOB}:"")]]></textFieldExpression>
 					</textField>
 					<textField isBlankWhenNull="true">
-						<reportElement x="0" y="30" width="275" height="15" uuid="110cea9b-f219-4764-b652-f5f677e16e49">
+						<reportElement x="0" y="27" width="275" height="18" uuid="110cea9b-f219-4764-b652-f5f677e16e49">
 							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						</reportElement>
 						<box>
@@ -726,7 +726,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 						<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
 							<font fontName="Arial" size="6"/>
 						</textElement>
-						<textFieldExpression><![CDATA[($F{HWK_NEW}!=null?$F{HWK_NEW} + ", ":" ") + ($F{BUILDING_STREET}!=null?$F{BUILDING_STREET} + ", ":" ") + ($F{ADDR_LINE1}!=null?$F{ADDR_LINE1} + ", ":" ") + ($F{ADDR_LINE2}!=null?$F{ADDR_LINE2} + ", ":" ") + ($F{HWK_CITY}!=null?$F{HWK_CITY} + ", ":" ") + ($F{HWK_STATE}!=null?$F{HWK_STATE}:" ")]]></textFieldExpression>
+						<textFieldExpression><![CDATA[($F{HWK_NEW}!=null?$F{HWK_NEW} + ", ":" ") + ($F{BUILDING_STREET}!=null?$F{BUILDING_STREET} + ", ":" ") + ($F{ADDR_LINE1}!=null?$F{ADDR_LINE1} + ", ":" ") + ($F{ADDR_LINE2}!=null?$F{ADDR_LINE2} + ", \n":"\n") + ($F{HWK_CITY}!=null?$F{HWK_CITY} + ", ":" ") + ($F{HWK_STATE}!=null?$F{HWK_STATE}:" ")]]></textFieldExpression>
 					</textField>
 					<staticText>
 						<reportElement x="0" y="45" width="50" height="12" uuid="c17509cb-402f-41c3-a6b6-2329df4e527c">
@@ -1093,7 +1093,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 							<font fontName="Arial" size="8"/>
 							<paragraph leftIndent="2"/>
 						</textElement>
-						<textFieldExpression><![CDATA["Name & Addr :" + "\n" + ($F{NAME}!=null?$F{NAME} + ",\n":"") + ($F{NEW_HOUSE_NUM}!=null?$F{NEW_HOUSE_NUM} + ",\n":"") + ($F{CUST_BLDG}!=null?$F{CUST_BLDG} + ",\n":"") + ($F{ADDRESS_LINE1}!=null?$F{ADDRESS_LINE1} + ", \n":"") + ($F{ADDRESS_LINE2}!=null?$F{ADDRESS_LINE2} + ",\n":"") + ($F{ADDRESS_LINE3}!=null?$F{ADDRESS_LINE3} + ",\n":"") + ($F{CITY}!=null?$F{CITY} + ",\n":"") + ($F{STATE}!=null?$F{STATE}:"") + "\n" + "Mobile: " + ($F{MOBILE_NUM}!=null?$F{MOBILE_NUM}:"")]]></textFieldExpression>
+						<textFieldExpression><![CDATA["Name & Addr :" + "\n" + ($F{NAME}!=null?$F{NAME} + ",\n":"") + ($F{NEW_HOUSE_NUM}!=null?$F{NEW_HOUSE_NUM} + ",\n":"") + ($F{CUST_BLDG}!=null?$F{CUST_BLDG} + ",\n":"") + ($F{ADDRESS_LINE1}!=null?$F{ADDRESS_LINE1} + ", \n":"") + ($F{ADDRESS_LINE2}!=null?$F{ADDRESS_LINE2} + ",\n":"") + ($F{ADDRESS_LINE3}!=null?$F{ADDRESS_LINE3} + ",\n":"") + ($F{CITY}!=null?$F{CITY} + ",\n":"") + ($F{STATE}!=null?$F{STATE}:"") + "\n" + ($F{MOBILE_NUM}!=null?"Mobile: " + $F{MOBILE_NUM}:"")]]></textFieldExpression>
 					</textField>
 					<staticText>
 						<reportElement x="275" y="193" width="96" height="16" uuid="7cf0a299-d0de-4e5b-9b18-18a412b6d6db"/>

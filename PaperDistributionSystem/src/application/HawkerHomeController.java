@@ -338,4 +338,37 @@ public class HawkerHomeController implements Initializable {
 		}
 	}
 
+
+	@FXML
+	private void changeMobileClicked(ActionEvent evt) {
+		TextInputDialog changeMobDialog = new TextInputDialog();
+		changeMobDialog.setTitle("Change Mobile");
+		changeMobDialog.setHeaderText("Please enter the new mobile. \nMobile number should only contain 10 digits.");
+		// changePwdDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK,
+		// ButtonType.CANCEL);
+		final Button btOk = (Button) changeMobDialog.getDialogPane().lookupButton(ButtonType.OK);
+		changeMobDialog.getEditor().setText(HawkerLoginController.loggedInHawker.getMobileNum());
+		btOk.addEventFilter(ActionEvent.ACTION, event -> {
+			if (changeMobDialog.getEditor().getText().isEmpty() || changeMobDialog.getEditor().getText().length() != 10) {
+				Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
+				.hideAfter(Duration.seconds(5)).showError();
+				event.consume();
+			} else if (AddHawkerExtraScreenController.mobileNumExists(changeMobDialog.getEditor().getText(), HawkerLoginController.loggedInHawker.getHawkerCode())){
+
+				Notifications.create().title("Mobile already exists")
+						.text("Hawker with same Mobile Number alraedy exists. Please enter a different value.")
+						.hideAfter(Duration.seconds(5)).showError();
+				event.consume();
+			}
+		});
+		Optional<String> result = changeMobDialog.showAndWait();
+		if (result.isPresent()) {
+			// changeHawkerPwd(hawkerRow,result.get());
+			HawkerLoginController.loggedInHawker.setMobileNum(result.get());
+			HawkerLoginController.loggedInHawker.updateHawkerRecord();
+			Notifications.create().title("Mobile Number updated").text("Mobile Number was successfully updated")
+					.hideAfter(Duration.seconds(5)).showInformation();
+		}
+	}
+
 }
