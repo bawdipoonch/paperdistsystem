@@ -62,6 +62,8 @@ public class HawkerHomeController implements Initializable {
 	@FXML
 	private Tab stopHistoryTab;
 	@FXML
+	private Tab reportsTab;
+	@FXML
 	private TabPane tabPane;
 
 	private ACustomerInfoTabController customerTabController;
@@ -70,6 +72,7 @@ public class HawkerHomeController implements Initializable {
 	private APausedCustomerTabController pausedCustTabController;
 	private AProductsTabController productsTabController;
 	private AStopHistoryTabController stopHistTabController;
+	private AReportsTabController reportsTabController;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -93,6 +96,8 @@ public class HawkerHomeController implements Initializable {
 			tabPane.getTabs().remove(productsTab);
 		if (!HawkerLoginController.loggedInHawker.getStopHistoryAccess().equals("Y"))
 			tabPane.getTabs().remove(stopHistoryTab);
+		if (!HawkerLoginController.loggedInHawker.getReportsAccess().equals("Y"))
+			tabPane.getTabs().remove(reportsTab);
 
 		tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
@@ -123,6 +128,9 @@ public class HawkerHomeController implements Initializable {
 					if (oldValue == stopHistoryTab) {
 						stopHistTabController.releaseVariables();
 					}
+					if (oldValue == reportsTab) {
+						reportsTabController.releaseVariables();
+					}
 					System.gc();
 				}
 
@@ -150,6 +158,9 @@ public class HawkerHomeController implements Initializable {
 					}
 					if (newValue == stopHistoryTab) {
 						stopHistTabController.reloadData();
+					}
+					if (newValue == reportsTab) {
+						reportsTabController.reloadData();
 					}
 
 				}
@@ -210,13 +221,6 @@ public class HawkerHomeController implements Initializable {
 			customersTab = new Tab();
 			customersTab.setText("Customers");
 			customersTab.setContent(custroot);
-			/*
-			 * customersTab.setOnSelectionChanged(new EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * customerTabController.reloadData(); } });
-			 */
 
 			lineDistTab = new Tab();
 			FXMLLoader lineDistTabLoader = new FXMLLoader(getClass().getResource("A-LineDistributorTab.fxml"));
@@ -224,13 +228,6 @@ public class HawkerHomeController implements Initializable {
 			lineDistTabController = lineDistTabLoader.<ALineDistributorTabController> getController();
 			lineDistTab.setText("Line Distribution Boy");
 			lineDistTab.setContent(linedistroot);
-			/*
-			 * lineDistTab.setOnSelectionChanged(new EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * lineDistTabController.reloadData(); } });
-			 */
 
 			lineInfoTab = new Tab();
 			FXMLLoader lineInfoTabLoader = new FXMLLoader(getClass().getResource("A-LineInfoTab.fxml"));
@@ -238,14 +235,6 @@ public class HawkerHomeController implements Initializable {
 			lineInfoTabController = lineInfoTabLoader.<ALineInfoTabController> getController();
 			lineInfoTab.setText("Line Information");
 			lineInfoTab.setContent(lineinforoot);
-
-			/*
-			 * lineInfoTab.setOnSelectionChanged(new EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * lineInfoTabController.reloadData(); } });
-			 */
 
 			pausedCustTab = new Tab();
 			FXMLLoader pausedCustTabLoader = new FXMLLoader(getClass().getResource("A-PausedCustomersTab.fxml"));
@@ -259,22 +248,25 @@ public class HawkerHomeController implements Initializable {
 			productsTabController = productsTabLoader.<AProductsTabController> getController();
 			productsTab.setText("Products");
 			productsTab.setContent(productsRoot);
-			/*
-			 * productsTab.setOnSelectionChanged(new EventHandler<Event>() {
-			 * 
-			 * @Override public void handle(Event event) {
-			 * 
-			 * productsTabController.reloadData(); } });
-			 */
+
 			stopHistoryTab = new Tab();
 			FXMLLoader stopHistTabLoader = new FXMLLoader(getClass().getResource("AStopHistoryTab.fxml"));
 			Parent stopHistRoot = (Parent) stopHistTabLoader.load();
 			stopHistTabController = stopHistTabLoader.<AStopHistoryTabController> getController();
 			stopHistoryTab.setText("Stop History");
 			stopHistoryTab.setContent(stopHistRoot);
+			
+
+			reportsTab = new Tab();
+			FXMLLoader reportsTabLoader = new FXMLLoader(getClass().getResource("AReportsTab.fxml"));
+			Parent reportsRoot = (Parent) reportsTabLoader.load();
+			reportsTabController = reportsTabLoader.<AReportsTabController> getController();
+			reportsTab.setText("Reports");
+			reportsTab.setContent(reportsRoot);
+
 
 			tabPane.getTabs().addAll(customersTab, lineInfoTab, lineDistTab, pausedCustTab, stopHistoryTab,
-					productsTab);
+					productsTab, reportsTab);
 		} catch (IOException e) {
 
 			Main._logger.debug("Error :",e);
@@ -296,17 +288,14 @@ public class HawkerHomeController implements Initializable {
 			if (t == pausedCustTab) {
 				pausedCustTabController.reloadData();
 			}
-			// if (t == hawkerTab) {
-			// hawkerTabController.reloadData();
-			// }
 			if (t == lineDistTab) {
 				lineDistTabController.reloadData();
 			}
-			// if (t == additionalItemsTab) {
-			// additionalItemsTabController.reloadData();
-			// }
 			if (t == productsTab) {
 				productsTabController.reloadData();
+			}
+			if (t == reportsTab) {
+				reportsTabController.reloadData();
 			}
 
 		}

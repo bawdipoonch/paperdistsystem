@@ -113,10 +113,12 @@ public class AddCustomerExtraScreenController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				addLineNumLOV.getItems().clear();
-				populateLineNumbersForHawkerCode(newValue);
-				addLineNumLOV.getItems().addAll(hawkerLineNumData);
-				addLineNumLOV.getSelectionModel().clearSelection();
+				if (newValue!=null) {
+					addLineNumLOV.getItems().clear();
+					populateLineNumbersForHawkerCode(newValue);
+					addLineNumLOV.getItems().addAll(hawkerLineNumData);
+					addLineNumLOV.getSelectionModel().clearSelection();
+				}
 			}
 		});
 

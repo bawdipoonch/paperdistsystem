@@ -136,6 +136,11 @@
 								<fx:include source="A-LineDistributorTab.fxml" />
 							</content>
 						</Tab>
+						<Tab fx:id="reportsTab" text="Reports">
+							<content>
+								<fx:include source="AReportsTab.fxml" />
+							</content>
+						</Tab>
 					</tabs>
 					<VBox.margin>
 						<Insets bottom="10.0" />
