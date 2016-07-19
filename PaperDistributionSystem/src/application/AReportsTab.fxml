@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40" fx:controller="application.AReportsTabController">
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.AReportsTabController">
    <children>
       <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <HBox alignment="CENTER" prefHeight="50.0" spacing="10.0">
+            <HBox alignment="CENTER_LEFT" prefHeight="50.0" spacing="10.0">
                <children>
                   <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="84.0" text="Hawker Code">
                      <font>
@@ -19,11 +19,41 @@
                      </font>
                   </Label>
                   <ComboBox fx:id="addHawkerCodeLOV" prefWidth="150.0" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
                   <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="78.0" text="Line Number" />
                   <ComboBox fx:id="addLineNumLOV" prefWidth="150.0" />
                   <Button fx:id="lineAllSubButton" mnemonicParsing="false" onAction="#lineAllSubButtonClicked" text="Generate Line All Sub Report" />
                </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
             </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                  <Label text="Date : " textAlignment="RIGHT" />
+                  <DatePicker fx:id="forDate" />
+                  <Button fx:id="hwkAllLineSubButton" mnemonicParsing="false" onAction="#hwkAllLineSubButtonClicked" text="Hawker All Line Subscription Report" HBox.hgrow="ALWAYS" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+            </HBox>
+            <VBox VBox.vgrow="ALWAYS">
+               <children>
+                  <AnchorPane fx:id="pdfPane" VBox.vgrow="ALWAYS" />
+                  <ButtonBar prefHeight="40.0" prefWidth="200.0">
+                    <buttons>
+                      <Button fx:id="closeButton" mnemonicParsing="false" onAction="#closeButtonClicked" text="Close" />
+                    </buttons>
+                     <VBox.margin>
+                        <Insets right="5.0" />
+                     </VBox.margin>
+                  </ButtonBar>
+               </children>
+            </VBox>
          </children>
       </VBox>
    </children>

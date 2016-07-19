@@ -64,7 +64,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -3745,11 +3748,15 @@ public class ALineInfoTabController implements Initializable {
 		root = new BorderPane();
 		Stage stage = new Stage();
 		stage.setTitle("Invoice PDF");
-		stage.setScene(new Scene(root, 1024, 800));
+        
 		OpenViewerFX fx = new OpenViewerFX(stage, null);
 		fx.setupViewer();
 		fx.openDefaultFile(pdfFile.getAbsolutePath());
-		stage.show();
+		
+
+		
+//		stage.setScene(new Scene(root, 1024, 800));
+//		stage.showAndWait();
 
 	}
 

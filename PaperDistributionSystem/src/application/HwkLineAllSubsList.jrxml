@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-07-10T16:30:04 -->
+<!-- 2016-07-11T21:21:55 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HwkLineAllSubsList" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="cbc78f29-314b-4511-a88f-82bf0570151f">
 	<property name="com.jaspersoft.studio.data.sql.tables" value="IkhXS19MSU5FX1NVQlNfTElTVCIgLDE1LDE1LDYwZTE2MGUyLWUxOTQtNDRiYi1hYTRhLWU4ZGIw&#xA;NTBiZDE2MDs="/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
@@ -184,7 +184,7 @@ WHERE
 			<textField>
 				<reportElement x="0" y="12" width="555" height="30" uuid="ed592f31-2ec5-4aab-bf33-92b84db4db57"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="14" isBold="true"/>
+					<font fontName="Arial" size="14" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA["Hawker : " + $P{HAWKER_CODE} + "  Line : " + $P{LINE_NUM}]]></textFieldExpression>
 			</textField>
@@ -208,11 +208,11 @@ WHERE
 		</band>
 	</pageFooter>
 	<summary>
-		<band height="150">
-			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+		<band height="175">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="0" width="555" height="75" uuid="564a7e06-3eed-48c8-95a7-73d767afd78c">
+				<reportElement positionType="Float" x="0" y="0" width="555" height="51" uuid="564a7e06-3eed-48c8-95a7-73d767afd78c">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
@@ -237,7 +237,9 @@ WHERE
 								<reportElement x="0" y="0" width="67" height="21" uuid="e80674e4-bcf5-40b3-a4e7-a530db68cd17">
 									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 								</reportElement>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial"/>
+								</textElement>
 								<text><![CDATA[H Seq]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -248,7 +250,7 @@ WHERE
 									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 								</reportElement>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font size="7"/>
+									<font fontName="Arial" size="7"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{SEQ}]]></textFieldExpression>
 							</textField>
@@ -262,7 +264,9 @@ WHERE
 								<reportElement x="0" y="0" width="78" height="21" uuid="3720f94d-c9bd-4bdc-aff4-1cae93c2dabd">
 									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 								</reportElement>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial"/>
+								</textElement>
 								<text><![CDATA[Cust Code]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -273,7 +277,7 @@ WHERE
 									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 								</reportElement>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font size="7"/>
+									<font fontName="Arial" size="7"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{CUST_CODE}]]></textFieldExpression>
 							</textField>
@@ -285,7 +289,9 @@ WHERE
 							<property name="com.jaspersoft.studio.unit.width" value="px"/>
 							<staticText>
 								<reportElement x="0" y="0" width="109" height="21" uuid="b4ebae43-c028-41a7-942c-5a11fb7f9c32"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial"/>
+								</textElement>
 								<text><![CDATA[Cust Name]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -294,7 +300,7 @@ WHERE
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="109" height="20" uuid="b66c6107-fa0f-4726-83c0-1f80720e11f2"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font size="7"/>
+									<font fontName="Arial" size="7"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{CUST_NAME}]]></textFieldExpression>
 							</textField>
@@ -304,7 +310,9 @@ WHERE
 						<jr:columnHeader style="Table 1_CH" height="21">
 							<staticText>
 								<reportElement x="0" y="0" width="107" height="21" uuid="a0aafdb6-d73c-4c80-b9ff-8ea202f381a5"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial"/>
+								</textElement>
 								<text><![CDATA[Address]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -313,7 +321,7 @@ WHERE
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="107" height="20" uuid="a265cf20-e068-4a1f-a0f5-bdfba51a5fb7"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font size="7"/>
+									<font fontName="Arial" size="7"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{ADDR}]]></textFieldExpression>
 							</textField>
@@ -323,7 +331,9 @@ WHERE
 						<jr:columnHeader style="Table 1_CH" height="21">
 							<staticText>
 								<reportElement x="0" y="0" width="62" height="21" uuid="f5e91720-35cc-44d3-a1df-73d69e102a44"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial"/>
+								</textElement>
 								<text><![CDATA[Payment]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -332,7 +342,7 @@ WHERE
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="62" height="20" uuid="c2dfd2ae-6fc2-47aa-81b1-31e7e312e7e5"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font size="7"/>
+									<font fontName="Arial" size="7"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{PAYMENT_TYPE}]]></textFieldExpression>
 							</textField>
@@ -342,7 +352,9 @@ WHERE
 						<jr:columnHeader style="Table 1_CH" height="21">
 							<staticText>
 								<reportElement x="0" y="0" width="132" height="21" uuid="0b96f29a-ce7e-48ad-93f6-cc48459a2c2f"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial"/>
+								</textElement>
 								<text><![CDATA[Product]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -351,7 +363,7 @@ WHERE
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="132" height="20" uuid="96145d7f-5c14-4ae6-83ff-ae3aef009344"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font size="7"/>
+									<font fontName="Arial" size="7"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{PRD}]]></textFieldExpression>
 							</textField>
@@ -359,8 +371,12 @@ WHERE
 					</jr:column>
 				</jr:table>
 			</componentElement>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="60" width="555" height="40" uuid="2113bceb-e571-46c5-b055-4abf27d40dac"/>
+				<text><![CDATA[]]></text>
+			</staticText>
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="75" width="555" height="75" uuid="3dbbc11b-3b25-41ff-9e45-f68e2d6ae0ee">
+				<reportElement positionType="Float" x="0" y="109" width="555" height="66" uuid="3dbbc11b-3b25-41ff-9e45-f68e2d6ae0ee">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>

@@ -6,10 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -27,15 +28,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.scene.control.ComboBox;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -57,7 +55,18 @@ public class AReportsTabController implements Initializable {
 	private ComboBox<String> addLineNumLOV;
 
 	@FXML
+	private AnchorPane pdfPane;
+
+	@FXML
+	private Button closeButton;
+
+    @FXML
+    private Button hwkAllLineSubButton;
+
+	@FXML
 	private Button lineAllSubButton;
+	
+	@FXML private DatePicker forDate;
 
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerLineNumData = FXCollections.observableArrayList();
@@ -79,9 +88,10 @@ public class AReportsTabController implements Initializable {
 				}
 			}
 		});
+		
+		forDate.setValue(LocalDate.now());
 
 	}
-
 
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {
 		Main._logger.debug("Entered  populateLineNumbersForHawkerCode  method");
@@ -219,7 +229,6 @@ public class AReportsTabController implements Initializable {
 		new Thread(task).start();
 
 	}
-	
 
 	@FXML
 	void lineAllSubButtonClicked(ActionEvent event) {
@@ -249,8 +258,7 @@ public class AReportsTabController implements Initializable {
 			exporter.setExporterInput(exporterInput);
 
 			// ExporterOutput
-			String filename = "C:/pds/" + hawkerCode + "-" + lineNum + "-"
-					+ "SubscriptionList" + ".pdf";
+			String filename = "C:/pds/" + hawkerCode + "-" + lineNum + "-" + "SubscriptionList" + ".pdf";
 			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 			// Output
 			exporter.setExporterOutput(exporterOutput);
@@ -261,33 +269,25 @@ public class AReportsTabController implements Initializable {
 			exporter.exportReport();
 			File outFile = new File(filename);
 
-			Notifications.create().title("Invocie PDF Created").text("Invoice PDF created at : " + filename)
+			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
-			
-			BorderPane root;
-			root = new BorderPane();
-			Stage stage = new Stage();
-			stage.setTitle("Invoice PDF");
-			stage.setScene(new Scene(root, 1024, 800));
-			OpenViewerFX fx = new OpenViewerFX(stage, null);
+
+			// BorderPane root;
+			// root = new BorderPane();
+			// Stage stage = new Stage();
+			// stage.setTitle("Invoice PDF");
+			// stage.setScene(new Scene(root, 1024, 800));
+			//
+			if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
+				pdfPane.getChildren().removeAll(pdfPane.getChildren());
+			OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
 			fx.setupViewer();
 			fx.openDefaultFile(outFile.getAbsolutePath());
-			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-				
-				@Override
-				public void handle(WindowEvent event) {
-					((Stage)event.getSource()).hide();
-					
-				}
-			});
-			stage.show();
-
 
 		} catch (JRException e) {
-			Main._logger.debug("Error during Bill PDF Generation: ", e);
+			Main._logger.debug("Error during Report PDF Generation: ", e);
 		}
 	}
-	
 
 	public BorderPane createAndLoad(File pdfFile) {
 		long before = System.currentTimeMillis();
@@ -303,6 +303,57 @@ public class AReportsTabController implements Initializable {
 		BorderPane borderPane = new BorderPane(notesBean);
 		return borderPane;
 	}
+
+	@FXML
+	void closeButtonClicked(ActionEvent event) {
+		if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
+			pdfPane.getChildren().removeAll(pdfPane.getChildren());
+	}
+	
+
+    @FXML
+    void hwkAllLineSubButtonClicked(ActionEvent event) {
+    	try {
+			if (addHawkerCodeLOV.getSelectionModel().getSelectedItem()!=null && forDate.getValue() != null) {
+				String reportSrcFile = "HawkerAllLinesProdList.jrxml";
+				InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
+				JasperReport jasperReport = JasperCompileManager.compileReport(input);
+				// Parameters for report
+				Map<String, Object> parameters = new HashMap<String, Object>();
+				String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+//				String lineNum = addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0];
+				parameters.put("HAWKER_CODE", hawkerCode);
+				parameters.put("TESTDATE", Date.valueOf(forDate.getValue()));
+				JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+				// Make sure the output directory exists.
+				File outDir = new File("C:/pds");
+				outDir.mkdirs();
+				// PDF Exportor.
+				JRPdfExporter exporter = new JRPdfExporter();
+				ExporterInput exporterInput = new SimpleExporterInput(print);
+				// ExporterInput
+				exporter.setExporterInput(exporterInput);
+				// ExporterOutput
+				String filename = "C:/pds/" + hawkerCode + "-AllLine" + "-" + "SubscriptionCount" + ".pdf";
+				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+				// Output
+				exporter.setExporterOutput(exporterOutput);
+				//
+				SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+				exporter.setConfiguration(configuration);
+				exporter.exportReport();
+				File outFile = new File(filename);
+				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
+						.hideAfter(Duration.seconds(15)).showInformation();
+			} else {
+				Notifications.create().title("Required values missing").text("Please select Hawker and Date before generating report.")
+				.hideAfter(Duration.seconds(15)).showError();
+			}
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Bill PDF Generation: ", e);
+		}
+    }
 
 	public void reloadData() {
 		hawkerLineNumData.clear();
