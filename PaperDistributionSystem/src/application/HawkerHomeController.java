@@ -47,6 +47,15 @@ public class HawkerHomeController implements Initializable {
 	private Label billCategory;
 	@FXML
 	private Label pointName;
+
+    @FXML
+    private Label adminAgencyName;
+
+    @FXML
+    private Label adminMobileLabel;
+
+    @FXML
+    private Label adminAddrLabel;
 	// Stage stage;
 	Parent root;
 	@FXML
@@ -77,12 +86,8 @@ public class HawkerHomeController implements Initializable {
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
-		hawkerName.setText(HawkerLoginController.loggedInHawker.getName());
-		code.setText(HawkerLoginController.loggedInHawker.getHawkerCode());
-		agencyName.setText(HawkerLoginController.loggedInHawker.getAgencyName());
-		mobileNum.setText(HawkerLoginController.loggedInHawker.getMobileNum());
-		pointName.setText(HawkerLoginController.loggedInHawker.getPointName());
 		populateBillCategory();
+		populateAdminHeaders();
 		loadTabs();
 		if (!HawkerLoginController.loggedInHawker.getCustomerAccess().equals("Y"))
 			tabPane.getTabs().remove(customersTab);
@@ -172,6 +177,42 @@ public class HawkerHomeController implements Initializable {
 
 	}
 
+	private void populateAdminHeaders() {
+
+		hawkerName.setText(HawkerLoginController.loggedInHawker.getName());
+		code.setText(HawkerLoginController.loggedInHawker.getHawkerCode());
+		agencyName.setText(HawkerLoginController.loggedInHawker.getAgencyName());
+		mobileNum.setText(HawkerLoginController.loggedInHawker.getMobileNum());
+		pointName.setText(HawkerLoginController.loggedInHawker.getPointName());
+		try {
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String query = "select company_name,company_mobile,company_addr from admin_login where username ='admin' ";
+			PreparedStatement stmt = con.prepareStatement(query);
+//			stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				adminAgencyName.setText(rs.getString(1));
+				adminMobileLabel.setText(rs.getString(2));
+				adminAddrLabel.setText(rs.getString(3));
+			}
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
+		
+	}
+
 	private void populateBillCategory() {
 		try {
 
@@ -186,6 +227,8 @@ public class HawkerHomeController implements Initializable {
 			if (rs.next()) {
 				billCategory.setText(rs.getString(1));
 			}
+			rs.close();
+			stmt.close();
 		} catch (SQLException e) {
 
 			Main._logger.debug("Error :",e);
@@ -277,6 +320,7 @@ public class HawkerHomeController implements Initializable {
 
 	@FXML
 	private void refreshClicked(ActionEvent event) {
+		populateAdminHeaders();
 		Tab t = tabPane.getSelectionModel().getSelectedItem();
 		if (t != null) {
 			if (t == customersTab) {
@@ -330,7 +374,12 @@ public class HawkerHomeController implements Initializable {
 
 	@FXML
 	private void changeMobileClicked(ActionEvent evt) {
-		TextInputDialog changeMobDialog = new TextInputDialog();
+		AHawkerInfoTabController.showEditHawkerDialog(HawkerLoginController.loggedInHawker);
+
+		Notifications.create().title("Please login again").text("Hawker profile updated, please logout and login again to see changes.")
+				.hideAfter(Duration.seconds(5)).showInformation();
+		populateAdminHeaders();
+		/*TextInputDialog changeMobDialog = new TextInputDialog();
 		changeMobDialog.setTitle("Change Mobile");
 		changeMobDialog.setHeaderText("Please enter the new mobile. \nMobile number should only contain 10 digits.");
 		// changePwdDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK,
@@ -357,7 +406,7 @@ public class HawkerHomeController implements Initializable {
 			HawkerLoginController.loggedInHawker.updateHawkerRecord();
 			Notifications.create().title("Mobile Number updated").text("Mobile Number was successfully updated")
 					.hideAfter(Duration.seconds(5)).showInformation();
-		}
+		}*/
 	}
 
 }

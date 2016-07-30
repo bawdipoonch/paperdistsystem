@@ -463,7 +463,8 @@ public class AHawkerInfoTabController implements Initializable {
 						Hawker hawkerRow = hawkerMasterData.get(hawkerTable.getSelectionModel().getSelectedIndex());
 						if (hawkerRow != null) {
 							showEditHawkerDialog(hawkerRow);
-							hawkerTable.refresh();
+							refreshHawkerTable();
+//							hawkerTable.refresh();
 						}
 					}
 
@@ -867,8 +868,8 @@ public class AHawkerInfoTabController implements Initializable {
 		}
 	}
 
-	private void showEditHawkerDialog(Hawker hawkerRow) {
-		int selectedIndex = hawkerTable.getSelectionModel().selectedIndexProperty().get();
+	public static void showEditHawkerDialog(Hawker hawkerRow) {
+//		int selectedIndex = hawkerTable.getSelectionModel().selectedIndexProperty().get();
 		try {
 
 			Dialog<Hawker> editHawkerDialog = new Dialog<Hawker>();
@@ -880,7 +881,7 @@ public class AHawkerInfoTabController implements Initializable {
 			editHawkerDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 			Button saveBtn = (Button) editHawkerDialog.getDialogPane().lookupButton(saveButtonType);
 
-			FXMLLoader editHawkerLoader = new FXMLLoader(getClass().getResource("EditHawker.fxml"));
+			FXMLLoader editHawkerLoader = new FXMLLoader(AHawkerInfoTabController.class.getResource("EditHawker.fxml"));
 			Parent editHawkerGrid = (Parent) editHawkerLoader.load();
 			EditHawkerController editHawkerController = editHawkerLoader.<EditHawkerController> getController();
 
@@ -889,8 +890,10 @@ public class AHawkerInfoTabController implements Initializable {
 			editHawkerController.setupBindings();
 			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
 				if (!editHawkerController.isValid()) {
-
+					
 					btnEvent.consume();
+				} else {
+					editHawkerController.returnUpdatedHawker();
 				}
 			});
 			editHawkerDialog.setResultConverter(dialogButton -> {
@@ -908,12 +911,10 @@ public class AHawkerInfoTabController implements Initializable {
 
 				@Override
 				public void accept(Hawker t) {
-
-					hawkerMasterData.add(selectedIndex, t);
-					hawkerMasterData.remove(hawkerRow);
-					hawkerTable.getSelectionModel().select(t);
-					hawkerTable.getSelectionModel().getSelectedItem().updateHawkerRecord();
+					
+					t.updateHawkerRecord();
 					editHawkerController.releaseVariables();
+					
 				}
 			});
 

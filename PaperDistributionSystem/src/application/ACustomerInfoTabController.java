@@ -20,7 +20,7 @@ import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.Notifications;
 
 import com.amazonaws.util.NumberUtils;
-
+ 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;

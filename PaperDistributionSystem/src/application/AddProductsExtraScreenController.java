@@ -192,31 +192,41 @@ public class AddProductsExtraScreenController implements Initializable {
 		boolean valid = true;
 		if (nameTF.getText().isEmpty() || nameTF.getText() == null) {
 			valid = false;
-			Notifications.create().text("Invalid Product Name").text("Product name cannot be left empty.")
+			Notifications.create().title("Invalid Product Name").text("Product name cannot be left empty.")
 					.hideAfter(Duration.seconds(5)).showError();
 		}
 		if (codeTF.getText().isEmpty() || codeTF.getText() == null) {
 			valid = false;
-			Notifications.create().text("Invalid Product Code").text("Product code cannot be left empty.")
+			Notifications.create().title("Invalid Product Code").text("Product code cannot be left empty.")
 					.hideAfter(Duration.seconds(5)).showError();
 		}
 		if (typeTF.getSelectionModel().getSelectedItem() == null) {
 			valid = false;
-			Notifications.create().text("Invalid Product Type Selection")
+			Notifications.create().title("Invalid Product Type Selection")
 					.text("Type selection cannot be left empty and must be selected").hideAfter(Duration.seconds(5))
 					.showError();
 		}
 		if (prodFreq.getCheckModel().isEmpty()) {
 			valid = false;
-			Notifications.create().text("Invalid Frequency")
+			Notifications.create().title("Invalid Frequency")
 					.text("Product Frequency selection cannot be left empty and must be selected")
 					.hideAfter(Duration.seconds(5)).showError();
 		}
 		if (productExistsInCategory(nameTF.getText(), billCategoryTF.getSelectionModel().getSelectedItem())) {
 			valid = false;
-			Notifications.create().text("Duplicate Product in Bill Category")
+			Notifications.create().title("Duplicate Product in Bill Category")
 					.text("Product Name already exists in this bill category.").hideAfter(Duration.seconds(5))
 					.showError();
+		}
+		if (issueDate.getValue()==null) {
+			valid = false;
+			Notifications.create().title("Invalid Issue Date").text("Issue date is needed for product")
+					.hideAfter(Duration.seconds(5)).showError();
+		}
+		if (firstDeliveryDate.getValue()==null) {
+			valid = false;
+			Notifications.create().title("Invalid First Delivery Date").text("First Delivery date is needed for product")
+					.hideAfter(Duration.seconds(5)).showError();
 		}
 		return valid;
 	}

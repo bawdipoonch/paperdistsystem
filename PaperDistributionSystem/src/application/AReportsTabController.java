@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -62,6 +63,7 @@ public class AReportsTabController implements Initializable {
 
     @FXML
     private Button hwkAllLineSubButton;
+    @FXML private Button hwkAllLineSubProdCodeButton;
 
 	@FXML
 	private Button lineAllSubButton;
@@ -90,6 +92,7 @@ public class AReportsTabController implements Initializable {
 		});
 		
 		forDate.setValue(LocalDate.now());
+		forDate.setConverter(Main.dateConvertor);
 
 	}
 
@@ -314,7 +317,25 @@ public class AReportsTabController implements Initializable {
     @FXML
     void hwkAllLineSubButtonClicked(ActionEvent event) {
     	try {
+    		
+    		
 			if (addHawkerCodeLOV.getSelectionModel().getSelectedItem()!=null && forDate.getValue() != null) {
+				Connection con = Main.dbConnection;
+				if (!con.isValid(0)) {
+					con = Main.reconnect();
+				}
+				PreparedStatement stmt = con.prepareStatement(
+						"DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+	    		stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+	    		stmt.executeUpdate();
+	    		stmt = con.prepareStatement(
+						"INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
+				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.setDate(2, Date.valueOf(forDate.getValue()));
+				stmt.executeUpdate();
+				stmt.close();
+				
+				ExportToExcel.exportHwkAllLineSubCountToExcel(addHawkerCodeLOV.getSelectionModel().getSelectedItem(), forDate.getValue());
 				String reportSrcFile = "HawkerAllLinesProdList.jrxml";
 				InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
 				JasperReport jasperReport = JasperCompileManager.compileReport(input);
@@ -324,6 +345,7 @@ public class AReportsTabController implements Initializable {
 //				String lineNum = addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0];
 				parameters.put("HAWKER_CODE", hawkerCode);
 				parameters.put("TESTDATE", Date.valueOf(forDate.getValue()));
+				parameters.put("DayOfWeek", forDate.getValue().getDayOfWeek().name());
 				JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
 				// Make sure the output directory exists.
 				File outDir = new File("C:/pds");
@@ -334,7 +356,7 @@ public class AReportsTabController implements Initializable {
 				// ExporterInput
 				exporter.setExporterInput(exporterInput);
 				// ExporterOutput
-				String filename = "C:/pds/" + hawkerCode + "-AllLine" + "-" + "SubscriptionCount" + ".pdf";
+				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "SubsCount-" + forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
 				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 				// Output
 				exporter.setExporterOutput(exporterOutput);
@@ -345,13 +367,90 @@ public class AReportsTabController implements Initializable {
 				File outFile = new File(filename);
 				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
 						.hideAfter(Duration.seconds(15)).showInformation();
+				stmt = con.prepareStatement(
+								"DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+			    		stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+			    		stmt.executeUpdate();
 			} else {
 				Notifications.create().title("Required values missing").text("Please select Hawker and Date before generating report.")
-				.hideAfter(Duration.seconds(15)).showError();
+				.hideAfter(Duration.seconds(5)).showError();
 			}
 
 		} catch (JRException e) {
 			Main._logger.debug("Error during Bill PDF Generation: ", e);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+
+    @FXML
+    void hwkAllLineSubProdCodeButtonClicked(ActionEvent event) {
+    	try {
+    		
+    		
+			if (addHawkerCodeLOV.getSelectionModel().getSelectedItem()!=null && forDate.getValue() != null) {
+				Connection con = Main.dbConnection;
+				if (!con.isValid(0)) {
+					con = Main.reconnect();
+				}
+				PreparedStatement stmt = con.prepareStatement(
+						"DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+	    		stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+	    		stmt.executeUpdate();
+	    		stmt = con.prepareStatement(
+						"INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
+				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.setDate(2, Date.valueOf(forDate.getValue()));
+				stmt.executeUpdate();
+				stmt.close();
+				
+				ExportToExcel.exportHwkAllLineSubCountToExcel(addHawkerCodeLOV.getSelectionModel().getSelectedItem(), forDate.getValue());
+				String reportSrcFile = "HawkerAllLineProdCodeWiseList.jrxml";
+				InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
+				JasperReport jasperReport = JasperCompileManager.compileReport(input);
+				// Parameters for report
+				Map<String, Object> parameters = new HashMap<String, Object>();
+				String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+//				String lineNum = addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0];
+				parameters.put("HAWKER_CODE", hawkerCode);
+				parameters.put("TESTDATE", Date.valueOf(forDate.getValue()));
+				parameters.put("DayOfWeek", forDate.getValue().getDayOfWeek().name());
+				JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+				// Make sure the output directory exists.
+				File outDir = new File("C:/pds");
+				outDir.mkdirs();
+				// PDF Exportor.
+				JRPdfExporter exporter = new JRPdfExporter();
+				ExporterInput exporterInput = new SimpleExporterInput(print);
+				// ExporterInput
+				exporter.setExporterInput(exporterInput);
+				// ExporterOutput
+				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "ProdCodeWiseSubsCount-" + forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
+				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+				// Output
+				exporter.setExporterOutput(exporterOutput);
+				//
+				SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+				exporter.setConfiguration(configuration);
+				exporter.exportReport();
+				File outFile = new File(filename);
+				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
+						.hideAfter(Duration.seconds(15)).showInformation();
+				stmt = con.prepareStatement(
+								"DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+			    		stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+			    		stmt.executeUpdate();
+			} else {
+				Notifications.create().title("Required values missing").text("Please select Hawker and Date before generating report.")
+				.hideAfter(Duration.seconds(5)).showError();
+			}
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Bill PDF Generation: ", e);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
     }
 

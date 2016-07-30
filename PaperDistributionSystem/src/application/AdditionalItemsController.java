@@ -93,8 +93,7 @@ public class AdditionalItemsController implements Initializable {
 			MenuItem deleteItem = new MenuItem();
 			deleteItem.textProperty().bind(Bindings.format("Delete \"%s\"", cell.itemProperty()));
 			deleteItem.setOnAction(event -> {
-
-				profileValuesListView.getItems().remove(cell.getItem());
+				showDeleteProfileValue(cell.getItem());
 			});
 			contextMenu.getItems().addAll(editItem, deleteItem);
 
@@ -212,6 +211,45 @@ public class AdditionalItemsController implements Initializable {
 		});
 	}
 
+	private void showDeleteProfileValue(String item) {
+		Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
+
+		deleteWarning.setTitle("Delete?");
+		deleteWarning.setHeaderText("Are you sure you want to delete selected profile value");
+
+		deleteWarning.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.CANCEL);
+		Optional<ButtonType> result = deleteWarning.showAndWait();
+		if (result.isPresent() && result.get() == ButtonType.YES) {
+
+			try {
+
+				Connection con = Main.dbConnection;
+				if (!con.isValid(0)) {
+					con = Main.reconnect();
+				}
+
+				profileValues.clear();
+				PreparedStatement stmt = con.prepareStatement("delete from lov_lookup where code = 'PROFILE_VALUES' AND value=?");
+				stmt.setString(1, item);
+				stmt.executeUpdate();
+				Notifications.create().text("Profile deleted").text("Profile value successfully deleted")
+						.hideAfter(Duration.seconds(5)).showInformation();
+				reloadData();
+			} catch (SQLException e) {
+
+				Main._logger.debug("Error :",e);
+				e.printStackTrace();
+				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
+						.text("Delete request of profile has failed").showError();
+			} catch (Exception e) {
+
+				Main._logger.debug("Error :",e);
+				e.printStackTrace();
+			}
+		}
+		
+	}
+
 	private void showEditProfileValue() {
 		TextInputDialog dialog = new TextInputDialog();
 
@@ -285,7 +323,7 @@ public class AdditionalItemsController implements Initializable {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt = con.prepareStatement(
-							"insert into lov_lookup(value, code, seq) values(?,'PROFILE_VALUES',select MAX(seq)+1 as mseq from lov_lookup where code='PROFILE_VALUES' group by code)");
+							"insert into lov_lookup(value, code, seq) values(?,'PROFILE_VALUES',(select MAX(seq)+1 as mseq from lov_lookup where code='PROFILE_VALUES' group by code))");
 					stmt.setString(1, dialog.getEditor().getText().toLowerCase());
 					stmt.executeUpdate();
 					con.commit();
@@ -466,7 +504,7 @@ public class AdditionalItemsController implements Initializable {
 				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
-						.text("Delete request of line has failed").showError();
+						.text("Delete request of employment status has failed").showError();
 			} catch (Exception e) {
 
 				Main._logger.debug("Error :",e);
@@ -861,7 +899,7 @@ public class AdditionalItemsController implements Initializable {
 				Main._logger.debug("Error :",e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
-						.text("Delete request of line has failed").showError();
+						.text("Delete request of point has failed").showError();
 			} catch (Exception e) {
 
 				Main._logger.debug("Error :",e);

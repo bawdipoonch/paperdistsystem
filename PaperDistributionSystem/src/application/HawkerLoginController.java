@@ -152,7 +152,7 @@ public class HawkerLoginController implements Initializable {
 								.text("Login successful").showInformation();
 						// stage = (Stage) loginButton.getScene().getWindow();
 						// load up OTHER FXML document
-						root = FXMLLoader.load(getClass().getResource("HawkerHome.fxml"));
+						root = FXMLLoader.load(HawkerLoginController.class.getResource("HawkerHome.fxml"));
 						Scene scene = new Scene(root);
 						Main.primaryStage.setScene(scene);
 						Main.primaryStage.setMaximized(true);

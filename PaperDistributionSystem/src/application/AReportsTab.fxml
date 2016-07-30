@@ -35,7 +35,9 @@
                <children>
                   <Label text="Date : " textAlignment="RIGHT" />
                   <DatePicker fx:id="forDate" />
-                  <Button fx:id="hwkAllLineSubButton" mnemonicParsing="false" onAction="#hwkAllLineSubButtonClicked" text="Hawker All Line Subscription Report" HBox.hgrow="ALWAYS" />
+                  <Label text="Hawker All Line Subscription Report :" />
+                  <Button fx:id="hwkAllLineSubButton" mnemonicParsing="false" onAction="#hwkAllLineSubButtonClicked" text="Product + Frequency Wise" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="hwkAllLineSubProdCodeButton" mnemonicParsing="false" onAction="#hwkAllLineSubProdCodeButtonClicked" text="Product Code Wise" />
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

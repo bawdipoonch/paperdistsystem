@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -12,22 +14,32 @@ import org.controlsfx.control.Notifications;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 
 public class AdminHomeController implements Initializable {
 
@@ -325,6 +337,68 @@ public class AdminHomeController implements Initializable {
 
 		}
 	}
+
+    @FXML
+    void updateAdminDetails(ActionEvent event) {
+    	try {
+		TextField mobileNum = new TextField();
+		TextField agencyName = new TextField();
+		TextField addr = new TextField();
+    	
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String query = "select company_name,company_mobile,company_addr from admin_login where username ='admin' ";
+			PreparedStatement stmt = con.prepareStatement(query);
+//			stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				agencyName.setText(rs.getString(1));
+				mobileNum.setText(rs.getString(2));
+				addr.setText(rs.getString(3));
+			}
+			rs.close();
+			stmt.close();
+		
+    	
+    	Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
+		deleteWarning.setTitle("Update Admin Details");
+		deleteWarning.setHeaderText("Update admin details below.");
+		ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+		deleteWarning.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+		
+			GridPane grid = new GridPane();
+			grid.setHgap(10);
+			grid.setVgap(10);
+			grid.setPadding(new Insets(20, 150, 10, 10));
+			
+			grid.add(new Label("Agency Name"), 0, 0);
+			grid.add(new Label("Mobile"), 0, 1);
+			grid.add(new Label("Address"), 0, 2);
+			grid.add(agencyName, 1, 1);
+			grid.add(mobileNum, 1, 0);
+			grid.add(addr, 1, 2);
+			deleteWarning.getDialogPane().setContent(grid);
+			Optional<ButtonType> result = deleteWarning.showAndWait();
+			if (result.isPresent() && result.get() == saveButtonType) {
+				PreparedStatement updateStmt = con.prepareStatement("update admin_login set company_name=?, company_mobile=?, company_addr=?");
+				updateStmt.setString(1, agencyName.getText());
+				updateStmt.setString(2, mobileNum.getText());
+				updateStmt.setString(3, addr.getText());
+				updateStmt.executeUpdate();
+			}
+    	} catch (SQLException e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
+    }
 	
 
     @FXML

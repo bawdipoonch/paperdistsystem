@@ -363,46 +363,13 @@ public class AddCustomerExtraScreenController implements Initializable {
 					.text("Value for Profile 3 already exists, please select this in Profile 1 or Profile 2 field.")
 					.showError();
 		}
-		// if (addMobileNumTF.getText().length()!=10) {
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// validate = false;
-		// }
-		// try {
-		// Integer.parseInt(addMobileNumTF.getText());
-		// } catch (NumberFormatException e) {
-		// Notifications.create().title("Invalid mobile number")
-		// .text("Mobile number should only contain 10 DIGITS")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// validate = false;
-		// Main._logger.debug("Error :",e); e.printStackTrace();
-		// }
 		return validate;
 	}
 
 	public void addCustomer() {
 		Main._logger.debug("Entered  addCustomer  method");
 
-		/*
-		 * boolean validate = true; if
-		 * (addHawkerCodeLOV.getSelectionModel().getSelectedItem() == null) {
-		 * validate = false;
-		 * Notifications.create().hideAfter(Duration.seconds(5)).title(
-		 * "Hawker not selected") .text(
-		 * "Please select a hawker before adding the the customer").showError();
-		 * } if (addLineNumLOV.getSelectionModel().getSelectedItem() == null) {
-		 * validate = false;
-		 * Notifications.create().hideAfter(Duration.seconds(5)).title(
-		 * "Line number not selected") .text(
-		 * "Please select a line number before adding the the customer"
-		 * ).showError(); } if (NumberUtils.tryParseInt(addHouseSeqTF.getText())
-		 * == null) { validate = false;
-		 * Notifications.create().hideAfter(Duration.seconds(5)).title(
-		 * "Invalid house number") .text(
-		 * "House sequence should not be empty and must be NUMBERS only"
-		 * ).showError(); }
-		 */
+		
 
 		if (isValid()) {
 			if (houseSequenceExistsInLine(addHawkerCodeLOV.getSelectionModel().getSelectedItem(),

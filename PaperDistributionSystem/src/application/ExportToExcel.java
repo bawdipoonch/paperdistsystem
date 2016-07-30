@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -20,6 +21,211 @@ import javafx.concurrent.Task;
 import javafx.util.Duration;
 
 public class ExportToExcel {
+	public static void exportHwkAllLineSubCountToExcel(String hawkerCode, LocalDate forDate){
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+
+				try {
+
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							Notifications.create().title("Data export started").text("Export of data started, please wait.")
+							.hideAfter(Duration.seconds(10)).showInformation();
+
+						}
+					});
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					String filename = hawkerCode+"-AllLineSubsCount-"+ ".xlsx";
+					XSSFWorkbook workbook = new XSSFWorkbook();
+					XSSFSheet hawkersheet = workbook.createSheet("AllLineSubsCount");
+					XSSFRow row = hawkersheet.createRow(1);
+					XSSFCell cell;
+
+					cell = row.createCell(1);
+					cell.setCellValue("HWK_ID");
+					cell = row.createCell(2);
+					cell.setCellValue("HWK_NAME");
+					cell = row.createCell(3);
+					cell.setCellValue("HWK_CODE");
+					cell = row.createCell(4);
+					cell.setCellValue("ACTIVE_FLAG");
+					cell = row.createCell(5);
+					cell.setCellValue("AGENCY_NAME");
+					cell = row.createCell(6);
+					cell.setCellValue("HWK_MOB_NUM");
+					cell = row.createCell(7);
+					cell.setCellValue("LINE_HWK_ID");
+					cell = row.createCell(8);
+					cell.setCellValue("LINE_ID");
+					cell = row.createCell(9);
+					cell.setCellValue("LINE_NUM");
+					cell = row.createCell(10);
+					cell.setCellValue("DIST_HWK_ID");
+					cell = row.createCell(11);
+					cell.setCellValue("LINE_DIST_ID");
+					cell = row.createCell(12);
+					cell.setCellValue("DIST_LINE_ID");
+					cell = row.createCell(13);
+					cell.setCellValue("DIST_LINE_NUM");
+					cell = row.createCell(14);
+					cell.setCellValue("DIST_NAME");
+					cell = row.createCell(15);
+					cell.setCellValue("CUST_NAME");
+					cell = row.createCell(16);
+					cell.setCellValue("CUST_HWK_ID");
+					cell = row.createCell(17);
+					cell.setCellValue("CUST_LINE_ID");
+					cell = row.createCell(18);
+					cell.setCellValue("CUST_LINE_NUM");
+					cell = row.createCell(19);
+					cell.setCellValue("CUST_HWK_CODE");
+					cell = row.createCell(20);
+					cell.setCellValue("HOUSE_SEQ");
+					cell = row.createCell(21);
+					cell.setCellValue("CUST_ID");
+					cell = row.createCell(22);
+					cell.setCellValue("CUST_CODE");
+					cell = row.createCell(23);
+					cell.setCellValue("SUB_ID");
+					cell = row.createCell(24);
+					cell.setCellValue("SUB_PROD_ID");
+					cell = row.createCell(25);
+					cell.setCellValue("SUB_CUST_ID");
+					cell = row.createCell(26);
+					cell.setCellValue("PRD");
+					cell = row.createCell(27);
+					cell.setCellValue("SUB_DOW");
+					cell = row.createCell(28);
+					cell.setCellValue("SUB_FREQ");
+					cell = row.createCell(29);
+					cell.setCellValue("PROD_ID");
+					cell = row.createCell(30);
+					cell.setCellValue("PROD_NAME");
+					cell = row.createCell(31);
+					cell.setCellValue("PROD_CODE");
+					cell = row.createCell(32);
+					cell.setCellValue("FIRST_DELIVERY_DATE");
+					cell = row.createCell(33);
+					cell.setCellValue("SUB_START_DATE");
+
+
+					PreparedStatement stmt = con.prepareStatement(
+							"select HWK_ID, HWK_NAME, HWK_CODE, ACTIVE_FLAG, AGENCY_NAME, HWK_MOB_NUM, LINE_HWK_ID, LINE_ID, LINE_NUM, DIST_HWK_ID, LINE_DIST_ID, DIST_LINE_ID, DIST_LINE_NUM, DIST_NAME, CUST_NAME, CUST_HWK_ID, CUST_LINE_ID, CUST_LINE_NUM, CUST_HWK_CODE, HOUSE_SEQ, CUST_ID, CUST_CODE, SUB_ID, SUB_PROD_ID, SUB_CUST_ID, PRD, SUB_DOW, SUB_FREQ, PROD_ID, PROD_NAME, PROD_CODE, FIRST_DELIVERY_DATE, SUB_START_DATE FROM HWK_ALL_LINE_PROD_LIST_XLS WHERE HWK_CODE=?");
+					stmt.setString(1, hawkerCode);
+					ResultSet rs = stmt.executeQuery();
+					int i = 2;
+					while (rs.next()) {
+						row = hawkersheet.createRow(i);
+						cell = row.createCell(1);
+						cell.setCellValue(rs.getString("HWK_ID"));
+						cell = row.createCell(2);
+						cell.setCellValue(rs.getString("HWK_NAME"));
+						cell = row.createCell(3);
+						cell.setCellValue(rs.getString("HWK_CODE"));
+						cell = row.createCell(4);
+						cell.setCellValue(rs.getString("ACTIVE_FLAG"));
+						cell = row.createCell(5);
+						cell.setCellValue(rs.getString("AGENCY_NAME"));
+						cell = row.createCell(6);
+						cell.setCellValue(rs.getString("HWK_MOB_NUM"));
+						cell = row.createCell(7);
+						cell.setCellValue(rs.getString("LINE_HWK_ID"));
+						cell = row.createCell(8);
+						cell.setCellValue(rs.getString("LINE_ID"));
+						cell = row.createCell(9);
+						cell.setCellValue(rs.getString("LINE_NUM"));
+						cell = row.createCell(10);
+						cell.setCellValue(rs.getString("DIST_HWK_ID"));
+						cell = row.createCell(11);
+						cell.setCellValue(rs.getString("LINE_DIST_ID"));
+						cell = row.createCell(12);
+						cell.setCellValue(rs.getString("DIST_LINE_ID"));
+						cell = row.createCell(13);
+						cell.setCellValue(rs.getString("DIST_LINE_NUM"));
+						cell = row.createCell(14);
+						cell.setCellValue(rs.getString("DIST_NAME"));
+						cell = row.createCell(15);
+						cell.setCellValue(rs.getString("CUST_NAME"));
+						cell = row.createCell(16);
+						cell.setCellValue(rs.getString("CUST_HWK_ID"));
+						cell = row.createCell(17);
+						cell.setCellValue(rs.getString("CUST_LINE_ID"));
+						cell = row.createCell(18);
+						cell.setCellValue(rs.getString("CUST_LINE_NUM"));
+						cell = row.createCell(19);
+						cell.setCellValue(rs.getString("CUST_HWK_CODE"));
+						cell = row.createCell(20);
+						cell.setCellValue(rs.getString("HOUSE_SEQ"));
+						cell = row.createCell(21);
+						cell.setCellValue(rs.getString("CUST_ID"));
+						cell = row.createCell(22);
+						cell.setCellValue(rs.getString("CUST_CODE"));
+						cell = row.createCell(23);
+						cell.setCellValue(rs.getString("SUB_ID"));
+						cell = row.createCell(24);
+						cell.setCellValue(rs.getString("SUB_PROD_ID"));
+						cell = row.createCell(25);
+						cell.setCellValue(rs.getString("SUB_CUST_ID"));
+						cell = row.createCell(26);
+						cell.setCellValue(rs.getString("PRD"));
+						cell = row.createCell(27);
+						cell.setCellValue(rs.getString("SUB_DOW"));
+						cell = row.createCell(28);
+						cell.setCellValue(rs.getString("SUB_FREQ"));
+						cell = row.createCell(29);
+						cell.setCellValue(rs.getString("PROD_ID"));
+						cell = row.createCell(30);
+						cell.setCellValue(rs.getString("PROD_NAME"));
+						cell = row.createCell(31);
+						cell.setCellValue(rs.getString("PROD_CODE"));
+						cell = row.createCell(32);
+						cell.setCellValue(rs.getString("FIRST_DELIVERY_DATE"));
+						cell = row.createCell(33);
+						cell.setCellValue(rs.getString("SUB_START_DATE"));
+
+						i++;
+					}
+
+					
+
+					FileOutputStream out = new FileOutputStream(new File("C:\\pds\\" + filename));
+					workbook.write(out);
+					out.close();
+					rs.close();
+					stmt.close();
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							Notifications.create().title("Data exported")
+									.text("Data successfully exported to location : " + "C:\\pds\\" + filename)
+									.hideAfter(Duration.seconds(10)).showInformation();
+
+						}
+					});
+
+				} catch (SQLException e) {
+					Main._logger.debug("Error :",e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :",e);
+					e.printStackTrace();
+				}
+
+				return null;
+			}
+
+		};
+		new Thread(task).start();
+	}
 
 	public static void exportDataToExcel() {
 		Task<Void> task = new Task<Void>() {
@@ -852,6 +1058,8 @@ public class ExportToExcel {
 					FileOutputStream out = new FileOutputStream(new File("C:\\pds\\" + filename));
 					workbook.write(out);
 					out.close();
+					rs.close();
+					stmt.close();
 
 					Platform.runLater(new Runnable() {
 

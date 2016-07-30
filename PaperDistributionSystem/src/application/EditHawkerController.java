@@ -196,7 +196,7 @@ public class EditHawkerController implements Initializable {
 			validate = false;
 		}
 		try {
-			Integer.parseInt(editMobileNumTF.getText());
+			Long.parseLong(editMobileNumTF.getText().trim());
 		} catch (NumberFormatException e) {
 			Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
 					.hideAfter(Duration.seconds(5)).showError();
@@ -218,7 +218,7 @@ public class EditHawkerController implements Initializable {
 			String query = "select count(*) from hawker_info where lower(hawker_code) = ? and hawker_id<>?";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, hawkerCode.toLowerCase());
-			stmt.setLong(1, hawkerRow.getHawkerId());
+			stmt.setLong(2, hawkerRow.getHawkerId());
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
 				if (rs.getInt(1) > 0)

@@ -190,27 +190,7 @@ public class EditSubscriptionController implements Initializable {
 			public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue,
 					LocalDate newValue) {
 				if (durationLOV.getSelectionModel().getSelectedItem() != null) {
-					switch (durationLOV.getSelectionModel().getSelectedItem()) {
-					case "3 MONTHS":
-						endDate.setValue(startDate.getValue()
-								.plusMonths(3 + (int) offerMonthsTF.getSelectionModel().getSelectedItem())
-								.minusDays(1));
-						break;
-					case "6 MONTHS":
-
-						endDate.setValue(startDate.getValue()
-								.plusMonths(6 + (int) offerMonthsTF.getSelectionModel().getSelectedItem())
-								.minusDays(1));
-						break;
-					case "12 MONTHS":
-
-						endDate.setValue(startDate.getValue().plusYears(1)
-								.plusMonths((int) offerMonthsTF.getSelectionModel().getSelectedItem()).minusDays(1));
-						break;
-					default:
-						stopDate.setValue(null);
-						break;
-					}
+					setEndDateValue();
 				}
 
 			}
@@ -220,27 +200,7 @@ public class EditSubscriptionController implements Initializable {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (newValue != null) {
-					switch (newValue) {
-					case "3 MONTHS":
-						endDate.setValue(startDate.getValue()
-								.plusMonths(3 + (int) offerMonthsTF.getSelectionModel().getSelectedItem())
-								.minusDays(1));
-						break;
-					case "6 MONTHS":
-
-						endDate.setValue(startDate.getValue()
-								.plusMonths(6 + (int) offerMonthsTF.getSelectionModel().getSelectedItem())
-								.minusDays(1));
-						break;
-					case "12 MONTHS":
-
-						endDate.setValue(startDate.getValue().plusYears(1)
-								.plusMonths((int) offerMonthsTF.getSelectionModel().getSelectedItem()).minusDays(1));
-						break;
-					default:
-						stopDate.setValue(null);
-						break;
-					}
+					setEndDateValue();
 
 				}
 
@@ -254,23 +214,7 @@ public class EditSubscriptionController implements Initializable {
 			@Override
 			public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
 				if (durationLOV.getSelectionModel().getSelectedIndex() > 0) {
-					switch (durationLOV.getSelectionModel().getSelectedItem()) {
-					case "3 MONTHS":
-						stopDate.setValue(startDate.getValue().plusMonths(3 + newValue.intValue()).minusDays(1));
-						break;
-					case "6 MONTHS":
-
-						stopDate.setValue(startDate.getValue().plusMonths(6 + newValue.intValue()).minusDays(1));
-						break;
-					case "12 MONTHS":
-
-						stopDate.setValue(
-								startDate.getValue().plusYears(1).plusMonths(newValue.intValue()).minusDays(1));
-						break;
-					default:
-						stopDate.setValue(null);
-						break;
-					}
+					setEndDateValue();
 				}
 
 			}
@@ -322,6 +266,27 @@ public class EditSubscriptionController implements Initializable {
 	public void setSubscriptionToEdit(Subscription subsRow) {
 		this.subsRow = subsRow;
 
+	}
+	public void setEndDateValue(){
+		int offerMonths = offerMonthsTF.getSelectionModel().getSelectedItem()!=null?offerMonthsTF.getSelectionModel().getSelectedItem():0;
+		
+		switch (durationLOV.getSelectionModel().getSelectedItem()) {
+		case "3 MONTHS":
+			endDate.setValue(startDate.getValue().plusMonths(3 + offerMonths).minusDays(1));
+			break;
+		case "6 MONTHS":
+
+			endDate.setValue(startDate.getValue().plusMonths(6 + offerMonths).minusDays(1));
+			break;
+		case "12 MONTHS":
+
+			endDate.setValue(
+					startDate.getValue().plusYears(1).plusMonths(offerMonths).minusDays(1));
+			break;
+		default:
+			endDate.setValue(null);
+			break;
+		}
 	}
 
 	private void populateSubscriptionTypeValues() {

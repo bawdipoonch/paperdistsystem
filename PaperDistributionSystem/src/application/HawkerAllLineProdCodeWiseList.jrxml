@@ -1,24 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-07-26T23:53:33 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HawkerAllLinesProdList" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a6479d7a-f2df-4ca8-835d-17b0c3cf8f7d">
-	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+<!-- 2016-07-27T00:03:30 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HawkerAllLineProdCodeWiseList" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8abbec41-494b-4fe7-b388-e5ff89008bf6">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
-	<property name="com.jaspersoft.studio.unit." value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
-	<import value="net.sf.jasperreports.functions.*"/>
-	<import value="org.joda.time.*"/>
-	<import value="org.apache.commons.lang.time.*"/>
-	<import value="net.sf.jasperreports.functions.standard.*"/>
-	<import value="org.apache.commons.lang.text.*"/>
-	<import value="org.apache.commons.lang.math.*"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<style name="Crosstab_CH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
 			<pen lineWidth="0.5" lineColor="#000000"/>
@@ -133,9 +118,9 @@ WHERE
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="64" splitType="Stretch">
+		<band height="67" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="0" width="802" height="64" uuid="4c52cf7a-737c-4809-9058-258450a5e0cd"/>
+				<reportElement x="0" y="0" width="802" height="60" uuid="6b0c35b9-d01e-4cfe-84fd-208404726280"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Arial" size="14" isBold="true"/>
 				</textElement>
@@ -144,24 +129,35 @@ WHERE
 		</band>
 	</title>
 	<pageHeader>
-		<band height="35" splitType="Stretch"/>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
 	</pageHeader>
 	<columnHeader>
-		<band splitType="Stretch"/>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
 	</columnHeader>
 	<detail>
-		<band splitType="Stretch"/>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
 	</detail>
 	<columnFooter>
-		<band splitType="Stretch"/>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
 	</columnFooter>
 	<pageFooter>
-		<band splitType="Stretch"/>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
 	</pageFooter>
 	<summary>
 		<band height="71" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<crosstab>
-				<reportElement x="0" y="0" width="802" height="71" uuid="f67133e0-af0c-4cf4-bb47-9ab865f21790">
+				<reportElement x="0" y="0" width="802" height="71" uuid="d6b55ef3-941c-4adc-99f2-8ad677a2f768">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 				</reportElement>
 				<rowGroup name="LINE_NUM" width="20" totalPosition="End">
@@ -170,8 +166,8 @@ WHERE
 					</bucket>
 					<crosstabRowHeader>
 						<cellContents mode="Opaque" style="Crosstab_CH">
-							<textField>
-								<reportElement x="0" y="0" width="20" height="20" uuid="bce3c2fb-5f70-46c5-b24f-de1174537008"/>
+							<textField isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="20" height="20" uuid="0a648029-5aa1-4c08-9a48-f78a69587569"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
 								</textElement>
@@ -182,7 +178,7 @@ WHERE
 					<crosstabTotalRowHeader>
 						<cellContents mode="Opaque" style="Crosstab_CT">
 							<staticText>
-								<reportElement x="0" y="0" width="80" height="20" forecolor="#FFFFFF" uuid="6d93b5d2-3ca3-4b5a-b919-7ed22a31924e"/>
+								<reportElement x="0" y="0" width="80" height="20" forecolor="#FFFFFF" uuid="b2652d82-8fa4-4615-86a6-724f1a04ac01"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
 								</textElement>
@@ -191,46 +187,49 @@ WHERE
 						</cellContents>
 					</crosstabTotalRowHeader>
 				</rowGroup>
-				<rowGroup name="LineDist" width="60" totalPosition="End" mergeHeaderCells="false">
+				<rowGroup name="DIST_NAME" width="60">
 					<bucket class="java.lang.String">
 						<bucketExpression><![CDATA[$F{DIST_NAME}]]></bucketExpression>
 					</bucket>
 					<crosstabRowHeader>
 						<cellContents mode="Opaque" style="Crosstab_CH">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="60" height="20" uuid="97e7bf8d-0bde-4905-ad88-afb2d60ebe16"/>
+								<reportElement x="0" y="0" width="60" height="20" uuid="0e614dc6-7f80-434e-ac6e-bc36cbf63cb1"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$V{LineDist}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[$V{DIST_NAME}]]></textFieldExpression>
 							</textField>
 						</cellContents>
 					</crosstabRowHeader>
 					<crosstabTotalRowHeader>
 						<cellContents>
-							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<staticText>
+								<reportElement x="0" y="0" width="-2147483648" height="-2147483648" uuid="af64ff1a-90cc-465b-b7ea-66bda0039dc0"/>
+								<text><![CDATA[Total DIST_NAME]]></text>
+							</staticText>
 						</cellContents>
 					</crosstabTotalRowHeader>
 				</rowGroup>
-				<columnGroup name="PRD" height="20" totalPosition="End">
+				<columnGroup name="PROD_CODE" height="20" totalPosition="End">
 					<bucket class="java.lang.String">
-						<bucketExpression><![CDATA[$F{PRD}]]></bucketExpression>
+						<bucketExpression><![CDATA[$F{PROD_CODE}]]></bucketExpression>
 					</bucket>
 					<crosstabColumnHeader>
 						<cellContents mode="Opaque" style="Crosstab_CH">
 							<textField>
-								<reportElement x="0" y="0" width="40" height="20" uuid="a4a8e962-2a6a-4f11-827b-ed4e13d6bf81"/>
+								<reportElement x="0" y="0" width="40" height="20" uuid="ecb9e203-5086-4afe-9125-e715617e8b6e"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Arial" size="7"/>
+									<font fontName="Arial" size="8"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$V{PRD}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[$V{PROD_CODE}]]></textFieldExpression>
 							</textField>
 						</cellContents>
 					</crosstabColumnHeader>
 					<crosstabTotalColumnHeader>
 						<cellContents mode="Opaque" style="Crosstab_CT">
 							<staticText>
-								<reportElement x="0" y="0" width="40" height="20" forecolor="#FFFFFF" uuid="128e90a5-952c-42c7-b803-7e09ef63736d"/>
+								<reportElement x="0" y="0" width="60" height="20" forecolor="#FFFFFF" uuid="4303e1e7-b339-4368-8c7d-b68de6ad18f2"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
 								</textElement>
@@ -239,58 +238,68 @@ WHERE
 						</cellContents>
 					</crosstabTotalColumnHeader>
 				</columnGroup>
-				<measure name="PROD_NAME_MEASURE" class="java.lang.Integer" calculation="Count">
-					<measureExpression><![CDATA[$F{PRD}]]></measureExpression>
+				<measure name="PROD_CODE_MEASURE" class="java.lang.Integer" calculation="Count">
+					<measureExpression><![CDATA[$F{PROD_CODE}]]></measureExpression>
 				</measure>
 				<crosstabCell width="40" height="20">
 					<cellContents mode="Opaque" style="Crosstab_CD">
 						<textField isBlankWhenNull="true">
-							<reportElement x="0" y="0" width="40" height="20" uuid="87ed6295-4629-419f-b959-4659fd2d9875"/>
+							<reportElement x="0" y="0" width="40" height="20" uuid="92672af4-2dc4-46a5-ade2-245eff6f2ebb"/>
 							<textElement textAlignment="Center" verticalAlignment="Middle">
 								<font fontName="Arial" size="8"/>
 							</textElement>
-							<textFieldExpression><![CDATA[$V{PROD_NAME_MEASURE}]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$V{PROD_CODE_MEASURE}]]></textFieldExpression>
 						</textField>
 					</cellContents>
 				</crosstabCell>
-				<crosstabCell width="40" height="20" columnTotalGroup="PRD">
+				<crosstabCell width="60" height="20" columnTotalGroup="PROD_CODE">
 					<cellContents mode="Opaque" style="Crosstab_CT">
 						<textField>
-							<reportElement x="0" y="0" width="40" height="20" forecolor="#FFFFFF" uuid="559b55bd-5b03-4a23-9650-e427af5d7d0c"/>
+							<reportElement x="0" y="0" width="60" height="20" forecolor="#FFFFFF" uuid="3bff2dde-c048-4cdc-94f8-f7e8536c97f5"/>
 							<textElement textAlignment="Center" verticalAlignment="Middle">
 								<font fontName="Arial" size="8"/>
 							</textElement>
-							<textFieldExpression><![CDATA[$V{PROD_NAME_MEASURE}]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$V{PROD_CODE_MEASURE}]]></textFieldExpression>
 						</textField>
 					</cellContents>
 				</crosstabCell>
 				<crosstabCell width="40" height="20" rowTotalGroup="LINE_NUM">
 					<cellContents mode="Opaque" style="Crosstab_CT">
 						<textField>
-							<reportElement x="0" y="0" width="40" height="20" forecolor="#FFFFFF" uuid="5fffed54-150e-4e7b-81ea-17e9f1746b12"/>
+							<reportElement x="0" y="0" width="40" height="20" forecolor="#FFFFFF" uuid="b2b92746-5499-4bee-a9f5-80e606fdfe42"/>
 							<textElement textAlignment="Center" verticalAlignment="Middle">
 								<font fontName="Arial" size="8"/>
 							</textElement>
-							<textFieldExpression><![CDATA[$V{PROD_NAME_MEASURE}]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$V{PROD_CODE_MEASURE}]]></textFieldExpression>
 						</textField>
 					</cellContents>
 				</crosstabCell>
-				<crosstabCell width="40" height="20" rowTotalGroup="LINE_NUM" columnTotalGroup="PRD">
+				<crosstabCell width="60" height="20" rowTotalGroup="LINE_NUM" columnTotalGroup="PROD_CODE">
 					<cellContents mode="Opaque" style="Crosstab_CT">
 						<textField>
-							<reportElement x="0" y="0" width="40" height="20" forecolor="#FFFFFF" uuid="befda061-7b86-4248-8c08-cc1e6fa785f7"/>
+							<reportElement x="0" y="0" width="60" height="20" forecolor="#FFFFFF" uuid="fbb380ba-0b46-44f7-a13f-21aaa61cecec"/>
 							<textElement textAlignment="Center" verticalAlignment="Middle">
 								<font fontName="Arial" size="8"/>
 							</textElement>
-							<textFieldExpression><![CDATA[$V{PROD_NAME_MEASURE}]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$V{PROD_CODE_MEASURE}]]></textFieldExpression>
 						</textField>
 					</cellContents>
 				</crosstabCell>
-				<crosstabCell width="40" height="0" rowTotalGroup="LineDist">
-					<cellContents/>
+				<crosstabCell width="60" height="20" rowTotalGroup="DIST_NAME">
+					<cellContents mode="Opaque" style="Crosstab_CG">
+						<textField>
+							<reportElement x="0" y="0" width="60" height="20" uuid="570932f0-8148-4dac-a86e-11f7821924f7"/>
+							<textFieldExpression><![CDATA[$V{PROD_CODE_MEASURE}]]></textFieldExpression>
+						</textField>
+					</cellContents>
 				</crosstabCell>
-				<crosstabCell width="40" height="0" rowTotalGroup="LineDist" columnTotalGroup="PRD">
-					<cellContents mode="Opaque" style="Crosstab_CT"/>
+				<crosstabCell width="60" height="20" rowTotalGroup="DIST_NAME" columnTotalGroup="PROD_CODE">
+					<cellContents mode="Opaque" style="Crosstab_CT">
+						<textField>
+							<reportElement x="0" y="0" width="60" height="20" forecolor="#FFFFFF" uuid="94090217-46a1-4016-8d4f-71ab6a6684d4"/>
+							<textFieldExpression><![CDATA[$V{PROD_CODE_MEASURE}]]></textFieldExpression>
+						</textField>
+					</cellContents>
 				</crosstabCell>
 			</crosstab>
 		</band>
