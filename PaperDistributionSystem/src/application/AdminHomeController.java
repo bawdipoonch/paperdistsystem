@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -14,7 +14,6 @@ import org.controlsfx.control.Notifications;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -25,23 +24,30 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
 
 public class AdminHomeController implements Initializable {
+
+
+    @FXML
+    private Label adminAgencyName;
+
+    @FXML
+    private Label adminMobileLabel;
+
+    @FXML
+    private Label adminAddrLabel;
 
 	@FXML
 	private Button logoutButton;
@@ -80,7 +86,7 @@ public class AdminHomeController implements Initializable {
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
+		populateAdminHeaders();
 		loadTabs();
 		tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
@@ -162,6 +168,14 @@ public class AdminHomeController implements Initializable {
 		});
 	}
 
+	private void populateAdminHeaders() {
+
+		HashMap<String,String> adminMap = Main.getAdminDetails();
+		adminAgencyName.setText(adminMap.get("name"));
+		adminMobileLabel.setText(adminMap.get("mobile"));
+		adminAddrLabel.setText(adminMap.get("addr"));
+		
+	}
 	@FXML
 	private void logoutClicked(ActionEvent event) throws IOException {
 		System.out.println("Logout clicked");
@@ -254,6 +268,7 @@ public class AdminHomeController implements Initializable {
 	@FXML
 	private void refreshClicked(ActionEvent event) {
 
+		populateAdminHeaders();
 		Tab t = tabPane.getSelectionModel().getSelectedItem();
 		if (t != null) {
 			if (t == customersTab) {

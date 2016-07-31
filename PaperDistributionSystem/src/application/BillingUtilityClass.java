@@ -45,7 +45,7 @@ public class BillingUtilityClass {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select distinct prod.code from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and (stop_date is null or ? between start_date and stop_date-1) order by prod.code";
+			String query = "select distinct prod.code from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and (stop_date is null or ? between start_date and stop_date) order by prod.code";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, cust.getCustomerId());
 			stmt.setDate(2, Date.valueOf(endDate));
@@ -162,7 +162,8 @@ public class BillingUtilityClass {
 				boolean fail = (subRow.getSubscriptionType().equals("Free Copy")
 						|| subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment"));
 				double prodDiff = !fail ? calculateProdDiff(subRow, sDate, endDate) : 0.0;
-				val = prodDiff - stpBill + subBill + subRow.getAddToBill();
+				val=subBill>0?prodDiff - stpBill + subBill + subRow.getAddToBill():prodDiff - stpBill;
+//				val = prodDiff - stpBill + subBill + subRow.getAddToBill();
 				// }
 				return retZero?0.0:val;
 			// calculateEOMBillForSub(subRow, startDate.minusMonths(1),
@@ -628,7 +629,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("15 Days")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 			LocalDate secondDate = firstDate.plusDays(15);
 			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
@@ -643,7 +645,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Monthly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
@@ -652,7 +655,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Quarterly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 3 == 0) {
@@ -663,7 +667,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Half Yearly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 6 == 0) {
@@ -674,7 +679,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Yearly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 12 == 0) {
@@ -764,7 +770,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("15 Days")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 			LocalDate secondDate = firstDate.plusDays(15);
 			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
@@ -781,7 +788,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Monthly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
@@ -791,7 +799,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Quarterly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 3 == 0) {
@@ -803,7 +812,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Half Yearly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 6 == 0) {
@@ -815,7 +825,8 @@ public class BillingUtilityClass {
 			}
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Yearly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 12 == 0) {
@@ -904,8 +915,8 @@ public class BillingUtilityClass {
 				}
 			}
 		} else if (subRow.getFrequency().equals("15 Days")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate())
-					.getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 			LocalDate secondDate = firstDate.plusDays(15);
 			if (!(firstDate.isBefore(stpRow.getStopDate())) && (firstDate.isBefore(stpRow.getResumeDate()))) {
@@ -919,8 +930,8 @@ public class BillingUtilityClass {
 				}
 			}
 		} else if (subRow.getFrequency().equals("Monthly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate())
-					.getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (!(firstDate.isBefore(stpRow.getStopDate())) && (firstDate.isBefore(stpRow.getResumeDate()))) {
@@ -928,8 +939,8 @@ public class BillingUtilityClass {
 
 			}
 		} else if (subRow.getFrequency().equals("Quarterly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate())
-					.getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 3 == 0) {
@@ -939,8 +950,8 @@ public class BillingUtilityClass {
 				}
 			}
 		} else if (subRow.getFrequency().equals("Half Yearly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate())
-					.getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 6 == 0) {
@@ -950,7 +961,8 @@ public class BillingUtilityClass {
 				}
 			}
 		} else if (subRow.getFrequency().equals("Yearly")) {
-			int months = Period.between(prod.getFirstDeliveryDate(), stpRow.getStopDate()).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), stpRow.getStopDate()).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 12 == 0) {
@@ -1405,7 +1417,8 @@ public class BillingUtilityClass {
 				}
 			}
 		} else if (subRow.getFrequency().equals("15 Days")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 			LocalDate secondDate = firstDate.plusDays(15);
 			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
@@ -1419,7 +1432,8 @@ public class BillingUtilityClass {
 				}
 			}
 		} else if (subRow.getFrequency().equals("Monthly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
@@ -1427,7 +1441,8 @@ public class BillingUtilityClass {
 
 			}
 		} else if (subRow.getFrequency().equals("Quarterly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 3 == 0) {
@@ -1437,7 +1452,8 @@ public class BillingUtilityClass {
 				}
 			}
 		} else if (subRow.getFrequency().equals("Half Yearly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 6 == 0) {
@@ -1447,7 +1463,8 @@ public class BillingUtilityClass {
 				}
 			}
 		} else if (subRow.getFrequency().equals("Yearly")) {
-			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (months % 12 == 0) {

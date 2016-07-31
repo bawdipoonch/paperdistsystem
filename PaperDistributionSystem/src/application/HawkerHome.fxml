@@ -30,7 +30,10 @@
                   <VBox alignment="CENTER" prefHeight="63.0" prefWidth="376.0" spacing="5.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label fx:id="adminMobileLabel" prefHeight="17.0" prefWidth="348.0" text="Mobile" />
-                        <Label fx:id="adminAddrLabel" prefHeight="33.0" prefWidth="349.0" text="Addr" wrapText="true" />
+                        <Label fx:id="adminAddrLabel" prefHeight="33.0" prefWidth="349.0" text="Addr" wrapText="true">
+                           <font>
+                              <Font size="10.0" />
+                           </font></Label>
                      </children>
                   </VBox>
                   <VBox prefHeight="55.0" prefWidth="257.0" spacing="5.0">

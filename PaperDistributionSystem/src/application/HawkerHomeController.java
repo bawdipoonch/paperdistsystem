@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -184,32 +185,10 @@ public class HawkerHomeController implements Initializable {
 		agencyName.setText(HawkerLoginController.loggedInHawker.getAgencyName());
 		mobileNum.setText(HawkerLoginController.loggedInHawker.getMobileNum());
 		pointName.setText(HawkerLoginController.loggedInHawker.getPointName());
-		try {
-
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			String query = "select company_name,company_mobile,company_addr from admin_login where username ='admin' ";
-			PreparedStatement stmt = con.prepareStatement(query);
-//			stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
-			ResultSet rs = stmt.executeQuery();
-			if (rs.next()) {
-				adminAgencyName.setText(rs.getString(1));
-				adminMobileLabel.setText(rs.getString(2));
-				adminAddrLabel.setText(rs.getString(3));
-			}
-			rs.close();
-			stmt.close();
-		} catch (SQLException e) {
-
-			Main._logger.debug("Error :",e);
-			e.printStackTrace();
-		} catch (Exception e) {
-
-			Main._logger.debug("Error :",e);
-			e.printStackTrace();
-		}
+		HashMap<String,String> adminMap = Main.getAdminDetails();
+		adminAgencyName.setText(adminMap.get("name"));
+		adminMobileLabel.setText(adminMap.get("mobile"));
+		adminAddrLabel.setText(adminMap.get("addr"));
 		
 	}
 

@@ -3,9 +3,14 @@ package application;
 import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -153,5 +158,51 @@ public class Main extends Application {
 		}
 
 		return dbConnection;
+	}
+	
+	public static HashMap<String,String> getAdminDetails(){
+		HashMap<String,String> retMap = new HashMap<String,String>();
+		try {
+			Connection con = Main.dbConnection;
+			if(con==null){
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+				AWSCredentials credentials = null;
+				credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+				AmazonRDSClient client = new AmazonRDSClient(credentials);
+				client.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+				DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
+				req.setDBInstanceIdentifier("lateefahmedpds");
+				DescribeDBInstancesResult result = client.describeDBInstances();
+				DBInstance dbInstance = (DBInstance) result.getDBInstances().toArray()[0];
+				String address=dbInstance.getEndpoint().getAddress();
+				
+				// step2 create the connection object
+				con = DriverManager.getConnection("jdbc:oracle:thin:@"+dbInstance.getEndpoint().getAddress()+":"+dbInstance.getEndpoint().getPort()+":ORCL", "admin", "LateefAhmedPDS");
+
+			}
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String query = "select company_name,company_mobile,company_addr from admin_login where username ='admin' ";
+			PreparedStatement stmt = con.prepareStatement(query);
+//			stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				retMap.put("name", rs.getString(1));
+				retMap.put("mobile",rs.getString(2));
+				retMap.put("addr",rs.getString(3));
+			}
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
+		return retMap;
 	}
 }

@@ -5,6 +5,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import org.controlsfx.control.Notifications;
@@ -17,6 +18,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -24,6 +26,16 @@ import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
 
 public class AdminLoginController implements Initializable {
+
+
+    @FXML
+    private Label adminAgencyName;
+
+    @FXML
+    private Label adminMobileLabel;
+
+    @FXML
+    private Label adminAddrLabel;
 
 	@FXML
 	private Button adminLoginButton;
@@ -39,7 +51,7 @@ public class AdminLoginController implements Initializable {
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-
+		populateAdminHeaders();
 		adminUsername.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -138,5 +150,14 @@ public class AdminLoginController implements Initializable {
 		Main.primaryStage.setMaximized(true);
 		Main.primaryStage.show();
 	}
+	
+	private void populateAdminHeaders() {
+		HashMap<String,String> adminMap = Main.getAdminDetails();
+		adminAgencyName.setText(adminMap.get("name"));
+		adminMobileLabel.setText(adminMap.get("mobile"));
+		adminAddrLabel.setText(adminMap.get("addr"));
+		
+	}
+
 
 }

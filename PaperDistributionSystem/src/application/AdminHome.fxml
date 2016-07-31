@@ -14,11 +14,27 @@
          <children>
             <HBox alignment="CENTER_RIGHT" maxHeight="-Infinity" prefHeight="50.0" spacing="25.0" VBox.vgrow="ALWAYS">
                <children>
-                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="500.0" text="Paper Distribution System - Admin Homepage" HBox.hgrow="ALWAYS">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
+                  <HBox alignment="CENTER_RIGHT">
+                     <children>
+                        <Label fx:id="adminAgencyName" alignment="CENTER_RIGHT" prefHeight="35.0" prefWidth="668.0" text="Admin Agency Name" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <padding>
+                              <Insets right="25.0" />
+                           </padding>
+                        </Label>
+                        <VBox alignment="CENTER" prefHeight="63.0" prefWidth="376.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label fx:id="adminMobileLabel" prefHeight="17.0" prefWidth="348.0" text="Mobile" />
+                              <Label fx:id="adminAddrLabel" prefHeight="33.0" prefWidth="349.0" text="Addr" wrapText="true" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
                   <HBox alignment="CENTER" spacing="10.0">
                      <children>
                         <Button mnemonicParsing="false" onAction="#updateAdminDetails" text="Update Admin Details" />

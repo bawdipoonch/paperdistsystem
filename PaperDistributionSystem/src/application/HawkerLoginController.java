@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -20,16 +21,26 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class HawkerLoginController implements Initializable {
+
+
+    @FXML
+    private Label adminAgencyName;
+
+    @FXML
+    private Label adminMobileLabel;
+
+    @FXML
+    private Label adminAddrLabel;
 
 	@FXML
 	private Button loginButton;
@@ -60,7 +71,7 @@ public class HawkerLoginController implements Initializable {
 		 * 
 		 * }
 		 */
-
+		populateAdminHeaders();
 		password.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
@@ -271,6 +282,15 @@ public class HawkerLoginController implements Initializable {
 			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		}
+	}
+
+
+	private void populateAdminHeaders() {
+		HashMap<String,String> adminMap = Main.getAdminDetails();
+		adminAgencyName.setText(adminMap.get("name"));
+		adminMobileLabel.setText(adminMap.get("mobile"));
+		adminAddrLabel.setText(adminMap.get("addr"));
+		
 	}
 
 }
