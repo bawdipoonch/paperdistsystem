@@ -58,7 +58,7 @@ public class BillingUtilityClass {
 			for (Subscription sub : subsList) {
 				double val = calculateBillForSubscription(sub, startDate, endDate, regenerate);
 				if ((sub.getSubscriptionType().equals("Free Copy")
-						|| sub.getSubscriptionType().equals("Coupon Copy/Adv Payment"))) {
+						|| sub.getSubscriptionType().equals("Coupon Copy/Adv Payment")) && freeCouponCopySubValid(sub,startDate, endDate)) {
 					prodValPair.put(sub.getProductCode(), (prodValPair.get(sub.getProductCode()) == null ? 0.0
 							: prodValPair.get(sub.getProductCode())) + val);
 					prodTeaExpPair.put(sub.getProductCode(), (prodTeaExpPair.get(sub.getProductCode()) == null ? 0.0
@@ -141,8 +141,8 @@ public class BillingUtilityClass {
 						- (free ? 0 : stopHistListDaysCountForSub(stopHistoryList, startDate, endDate));
 				if (c > 0) {
 					LocalDate sDate = subRow.getStartDate().isAfter(startDate) ? subRow.getStartDate() : startDate;
-					double subBill = calculateEOMBillForSub(subRow, sDate, endDate);
-					double stpBill = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment") ? 0.0
+					double subBill = free ? 0 :calculateEOMBillForSub(subRow, sDate, endDate);
+					double stpBill = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment")|| subRow.getSubscriptionType().equals("Free Copy") ? 0.0
 							: calculateStopHistoryAmounts(stopHistoryList, sDate, endDate, regenerate));
 
 					val = subBill == stpBill ? 0.0 : subBill - stpBill + subRow.getAddToBill();
@@ -155,9 +155,9 @@ public class BillingUtilityClass {
 				// startDate, endDate));
 				// if (c > 0) {
 				LocalDate sDate = subRow.getStartDate().isAfter(startDate) ? subRow.getStartDate() : startDate;
-				double subBill = calculateEOMBillForSub(subRow, startDate.plusMonths(1),
+				double subBill = free ? 0 :calculateEOMBillForSub(subRow, startDate.plusMonths(1),
 						startDate.plusMonths(1).plusMonths(1).minusDays(1));
-				double stpBill = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment") ? 0.0
+				double stpBill = (subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment")|| subRow.getSubscriptionType().equals("Free Copy") ? 0.0
 						: calculateStopHistoryAmounts(stopHistoryList, startDate, endDate, regenerate));
 				boolean fail = (subRow.getSubscriptionType().equals("Free Copy")
 						|| subRow.getSubscriptionType().equals("Coupon Copy/Adv Payment"));
@@ -567,10 +567,7 @@ public class BillingUtilityClass {
 		double bill = 0.0;
 		Product prod = productForSub(subRow.getProductId());
 		if (subRow.getFrequency().equals("Daily")) {
-			for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-				bill += subRow.getCost();
-
-			}
+				bill = subRow.getCost();
 			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Weekly")) {
 			ArrayList<LocalDate> dateList = new ArrayList<LocalDate>();
@@ -1513,6 +1510,135 @@ public class BillingUtilityClass {
 			break;
 		}
 		return diff;
+	}
+	
+	public static boolean freeCouponCopySubValid(Subscription sub, LocalDate startDate, LocalDate endDate){
+		boolean valid = false;
+		Product prod = productForSub(sub.getProductId());
+		if (sub.getFrequency().equals("Daily")) {
+			valid=true;
+			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
+		} else if (sub.getFrequency().equals("Weekly")) {
+			ArrayList<LocalDate> dateList = new ArrayList<LocalDate>();
+			switch (sub.getDow()) {
+			case "Monday":
+				dateList = weeksInPeriod(DayOfWeek.MONDAY, startDate, endDate);
+				break;
+			case "Tuesday":
+				dateList = weeksInPeriod(DayOfWeek.TUESDAY, startDate, endDate);
+				break;
+			case "Wednesday":
+				dateList = weeksInPeriod(DayOfWeek.WEDNESDAY, startDate, endDate);
+				break;
+			case "Thursday":
+				dateList = weeksInPeriod(DayOfWeek.THURSDAY, startDate, endDate);
+				break;
+			case "Friday":
+				dateList = weeksInPeriod(DayOfWeek.FRIDAY, startDate, endDate);
+				break;
+			case "Saturday":
+				dateList = weeksInPeriod(DayOfWeek.SATURDAY, startDate, endDate);
+				break;
+			case "Sunday":
+				dateList = weeksInPeriod(DayOfWeek.SUNDAY, startDate, endDate);
+				break;
+			}
+			if(dateList.size()>0){
+				// bill += spclMap.containsKey(date) ? spclMap.get(date) :
+				// prod.getPrice();
+				// confirm whether to get price from DOW of SUB PRICE
+				valid =true;
+
+			}
+			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
+		} else if (sub.getFrequency().equals("14 Days")) {
+			double first = Math.ceil(ChronoUnit.DAYS.between(prod.getFirstDeliveryDate(), startDate) / 14.0);
+			LocalDate firstDate = prod.getFirstDeliveryDate().plusDays((int) (14 * first));
+			LocalDate secondDate = !firstDate.plusDays(14).isAfter(endDate) ? firstDate.plusDays(14) : null;
+			LocalDate thirdDate = secondDate == null ? null
+					: !secondDate.plusDays(14).isAfter(endDate) ? secondDate.plusDays(14) : null;
+			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+				valid =true;
+
+			}
+			if (secondDate != null) {
+				if (!(secondDate.isBefore(startDate)) && (!secondDate.isAfter(endDate))) {
+					valid =true;
+
+				}
+			}
+			if (thirdDate != null) {
+				if (!(thirdDate.isBefore(startDate)) && (!thirdDate.isAfter(endDate))) {
+					valid =true;
+
+				}
+			}
+			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
+		} else if (sub.getFrequency().equals("15 Days")) {
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+			LocalDate secondDate = firstDate.plusDays(15);
+			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+				valid =true;
+
+			}
+			if (secondDate != null) {
+				if (!(secondDate.isBefore(startDate)) && (!secondDate.isAfter(endDate))) {
+					valid =true;
+
+				}
+			}
+			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
+		} else if (sub.getFrequency().equals("Monthly")) {
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+
+			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+				valid =true;
+
+			}
+			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
+		} else if (sub.getFrequency().equals("Quarterly")) {
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+
+			if (months % 3 == 0) {
+				if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+					valid =true;
+
+				}
+			}
+			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
+		} else if (sub.getFrequency().equals("Half Yearly")) {
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+
+			if (months % 6 == 0) {
+				if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+					valid =true;
+
+				}
+			}
+			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
+		} else if (sub.getFrequency().equals("Yearly")) {
+			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+
+			if (months % 12 == 0) {
+				if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+					valid =true;
+
+				}
+			}
+			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
+		}
+
+		return valid;
 	}
 
 	public static File generateInvoicePDF(String hawkerCode, int lineNum, String invoiceDate) throws JRException {

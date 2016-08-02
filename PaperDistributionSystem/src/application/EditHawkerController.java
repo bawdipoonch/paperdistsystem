@@ -117,6 +117,8 @@ public class EditHawkerController implements Initializable {
 		editCityTF.setText(hawkerRow.getCity());
 		editAgencyNameTF.setText(hawkerRow.getAgencyName());
 		editFeeTF.setText("" + hawkerRow.getFee());
+		if(HawkerLoginController.loggedInHawker!=null)
+			editFeeTF.setDisable(true);
 		editActiveCheck.setSelected(hawkerRow.getActiveFlag());
 		editProfile3TF.setText(hawkerRow.getProfile3());
 		initialsTF.setText(hawkerRow.getInitials());
