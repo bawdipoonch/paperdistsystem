@@ -1,10 +1,15 @@
 package application;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -13,15 +18,27 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.Notifications;
 import org.jpedal.examples.viewer.OpenViewerFX;
-import org.jpedal.exception.PdfException;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.lambda.AWSLambdaClient;
+import com.amazonaws.services.lambda.invoke.LambdaFunctionException;
+import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.amazonaws.services.lambda.model.InvokeResult;
+import com.amazonaws.util.Base64;
 import com.amazonaws.util.NumberUtils;
+import com.amazonaws.util.StringUtils;
+import com.google.gson.Gson;
 import com.qoppa.pdf.PDFException;
 import com.qoppa.pdfViewerFX.PDFViewer;
 
@@ -40,7 +57,6 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
@@ -64,10 +80,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -457,6 +470,7 @@ public class ALineInfoTabController implements Initializable {
 			@Override
 			public void changed(ObservableValue<? extends LineInfo> observable, LineInfo oldValue, LineInfo newValue) {
 				if (newValue != null) {
+//					customerListForLineFunction();
 					customerData.clear();
 					lineNumCustomersTable.setItems(customerData);
 					stopHistoryMasterData.clear();
@@ -578,15 +592,70 @@ public class ALineInfoTabController implements Initializable {
 												hawkerComboBox.getSelectionModel().getSelectedItem(),
 												lineRow.getLineNum(), dateBox.getSelectionModel().getSelectedItem()
 														.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
-										openPDFWindow(pdfFile);
+//										openPDFWindow(pdfFile);
 									} catch (JRException e) {
 										Main._logger.debug(e.getMessage());
 									}
 								}
 
 							} else {
-								Notifications.create().title("Cannot edit line number 0")
-										.text("Cannot edit line number 0").hideAfter(Duration.seconds(5)).showError();
+								Notifications.create().title("Cannot generate PDF for line number 0")
+										.text("Cannot generate PDF for line number 0").hideAfter(Duration.seconds(5)).showError();
+							}
+						}
+					}
+
+				});
+
+				MenuItem mnuSummaryPDF = new MenuItem("Download Invoice Summary PDF");
+				mnuSummaryPDF.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						LineInfo lineRow = lineNumTable.getSelectionModel().getSelectedItem();
+						if (lineRow != null) {
+							if (lineRow.getLineNum() > 0) {
+								Dialog<ButtonType> dateListDialog = new Dialog<ButtonType>();
+								dateListDialog.setTitle("Download Invoice Summary PDF");
+								dateListDialog.setHeaderText(
+										"Please select the invoice date for which Summary PDF should be created.");
+								ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+								dateListDialog.getDialogPane().getButtonTypes().addAll(saveButtonType,
+										ButtonType.CANCEL);
+								GridPane grid = new GridPane();
+								grid.setHgap(10);
+								grid.setVgap(10);
+								grid.setPadding(new Insets(20, 150, 10, 10));
+								ObservableList<LocalDate> dateList = getInvoiceDateListForLine(lineRow);
+								Label dateLabel = new Label("Invoice Date: ");
+								ComboBox<LocalDate> dateBox = new ComboBox<>(dateList);
+								dateBox.setConverter(Main.dateConvertor);
+								dateBox.getSelectionModel().selectFirst();
+								grid.add(dateLabel, 0, 0);
+								grid.add(dateBox, 1, 0);
+								dateListDialog.getDialogPane().setContent(grid);
+								Button yesButton = (Button) dateListDialog.getDialogPane().lookupButton(saveButtonType);
+								yesButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+
+								});
+								Optional<ButtonType> result = dateListDialog.showAndWait();
+								if (result.isPresent() && result.get() == saveButtonType) {
+									try {
+										Notifications.create().title("Generating Invoice PDF")
+												.text("Generating Invoice PDF for selected line. Please wait...")
+												.hideAfter(Duration.seconds(10)).showInformation();
+										File pdfFile = BillingUtilityClass.generateInvoiceSummaryPDF(
+												hawkerComboBox.getSelectionModel().getSelectedItem(),
+												lineRow.getLineNum(), dateBox.getSelectionModel().getSelectedItem()
+														.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
+//										openPDFWindow(pdfFile);
+									} catch (JRException e) {
+										Main._logger.debug(e.getMessage());
+									}
+								}
+
+							} else {
+								Notifications.create().title("Cannot generate PDF for line number 0")
+										.text("Cannot generate PDF for line number 0").hideAfter(Duration.seconds(5)).showError();
 							}
 						}
 					}
@@ -761,11 +830,40 @@ public class ALineInfoTabController implements Initializable {
 					}
 
 				});
+				
+
+				MenuItem mnuAdd = new MenuItem("Add Customer");
+				mnuAdd.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						LineInfo lineRow = lineNumTable.getSelectionModel().getSelectedItem();
+						if (lineRow != null) {
+								addCustomerExtraScreenClicked(t);
+								lineNumCustomersTable.refresh();
+							
+						}
+					}
+
+				});
+				
+
+				MenuItem mnuShuffle = new MenuItem("Shuffle House Sequence");
+				mnuShuffle.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						LineInfo lineRow = lineNumTable.getSelectionModel().getSelectedItem();
+						if (lineRow != null) {
+							shuffleHouseSeqClicked(t);
+								
+						}
+					}
+
+				});
 				ContextMenu menu = new ContextMenu();
 				if (HawkerLoginController.loggedInHawker != null) {
-					menu.getItems().addAll(mnuEdit, mnuBill, mnuPDF);
+					menu.getItems().addAll(mnuEdit, mnuBill, mnuPDF,mnuSummaryPDF,mnuAdd,mnuShuffle);
 				} else {
-					menu.getItems().addAll(mnuEdit, mnuDel, mnuBill, mnuPDF, mnuTransfer);
+					menu.getItems().addAll(mnuEdit, mnuDel, mnuBill, mnuPDF,mnuSummaryPDF, mnuTransfer,mnuAdd,mnuShuffle);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -1302,6 +1400,9 @@ public class ALineInfoTabController implements Initializable {
 			@Override
 			public void changed(ObservableValue<? extends Customer> observable, Customer oldValue, Customer newValue) {
 				if (newValue != null) {
+//					subsListForCustFunction();
+//					stpHistoryistForCustFunction();
+//					billingListForCustFunction();
 					refreshSubscriptions();
 					populateInvoiceDates(newValue);
 					refreshStopHistory();
@@ -1634,6 +1735,7 @@ public class ALineInfoTabController implements Initializable {
 					totalBillLabel.setText(Double.toString(d));
 					netBillLabel.setText(Double.toString(net));
 					monthLabel.setText(month);
+//					billingLineListForBillFunction();
 				} else {
 					if (!Platform.isFxApplicationThread()) {
 						Platform.runLater(new Runnable() {
@@ -3774,7 +3876,205 @@ public class ALineInfoTabController implements Initializable {
 		BorderPane borderPane = new BorderPane(notesBean);
 		return borderPane;
 	}
+	
+	private void customerListForLineFunction() {
 
+		String ACCESS_KEY = "AKIAJHK6Z2KAU4WJSTGQ";
+		String SECRET = "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";
+		Gson gson = new Gson();
+		AWSCredentials credentials = null;
+		credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+		AWSLambdaClient lambdaClient = new AWSLambdaClient(credentials);
+
+        lambdaClient.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+        try {
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("CustomerListForHawkerAndLine");
+            HashMap<String,String> map = new HashMap<String,String>();
+            map.put("hawkerId", HawkerLoginController.loggedInHawker.getHawkerId().toString());
+            map.put("lineId",lineNumTable.getSelectionModel().getSelectedItem().getLineId().toString());
+            invokeRequest.setPayload(ByteBuffer.wrap(gson.toJson(map).getBytes(StringUtils.UTF8)));
+            InvokeResult invokeResult = lambdaClient.invoke(invokeRequest);
+            
+            if (invokeResult.getLogResult() != null) { 
+                System.out.println(" log: " 
+                        + new String(Base64.decode(invokeResult.getLogResult()))); 
+            } 
+     
+            if (invokeResult.getFunctionError() != null) { 
+                throw new LambdaFunctionException(invokeResult.getFunctionError(), 
+                        false, new String(invokeResult.getPayload().array())); 
+            } 
+     
+            if (invokeResult.getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT ) { 
+                return; 
+            } 
+            System.out.println(gson.fromJson(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))), ArrayList.class));
+        }catch (LambdaFunctionException e){
+        	
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+	}
+
+	private void subsListForCustFunction() {
+
+		String ACCESS_KEY = "AKIAJHK6Z2KAU4WJSTGQ";
+		String SECRET = "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";
+		Gson gson = new Gson();
+		AWSCredentials credentials = null;
+		credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+		AWSLambdaClient lambdaClient = new AWSLambdaClient(credentials);
+        lambdaClient.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+        try {
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("SubsListForCustomer");
+            invokeRequest.setPayload(ByteBuffer.wrap(gson.toJson(lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId().toString()).getBytes(StringUtils.UTF8)));
+            InvokeResult invokeResult = lambdaClient.invoke(invokeRequest);
+            
+            if (invokeResult.getLogResult() != null) { 
+                System.out.println(" log: " 
+                        + new String(Base64.decode(invokeResult.getLogResult()))); 
+            } 
+     
+            if (invokeResult.getFunctionError() != null) { 
+                throw new LambdaFunctionException(invokeResult.getFunctionError(), 
+                        false, new String(invokeResult.getPayload().array())); 
+            } 
+     
+            if (invokeResult.getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT ) { 
+                return; 
+            } 
+            System.out.println(gson.fromJson(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))), ArrayList.class));
+        }catch (LambdaFunctionException e){
+            e.printStackTrace();
+        	
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+	}
+
+	private void stpHistoryistForCustFunction() {
+
+		String ACCESS_KEY = "AKIAJHK6Z2KAU4WJSTGQ";
+		String SECRET = "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";
+		Gson gson = new Gson();
+		AWSCredentials credentials = null;
+		credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+		AWSLambdaClient lambdaClient = new AWSLambdaClient(credentials);
+		HashMap<String,String> map = new HashMap<String,String>();
+		map.put("customerId", lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId().toString());
+        lambdaClient.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+        try {
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("StopHistoryListForCust");
+            invokeRequest.setPayload(ByteBuffer.wrap(gson.toJson(map).getBytes(StringUtils.UTF8)));
+            InvokeResult invokeResult = lambdaClient.invoke(invokeRequest);
+            
+            if (invokeResult.getLogResult() != null) { 
+                System.out.println(" log: " 
+                        + new String(Base64.decode(invokeResult.getLogResult()))); 
+            } 
+     
+            if (invokeResult.getFunctionError() != null) { 
+                throw new LambdaFunctionException(invokeResult.getFunctionError(), 
+                        false, new String(invokeResult.getPayload().array())); 
+            } 
+     
+            if (invokeResult.getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT ) { 
+                return; 
+            } 
+            System.out.println(gson.fromJson(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))), ArrayList.class));
+        }catch (LambdaFunctionException e){
+        	
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+	}
+
+	private void billingListForCustFunction() {
+
+		String ACCESS_KEY = "AKIAJHK6Z2KAU4WJSTGQ";
+		String SECRET = "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";
+		Gson gson = new Gson();
+		AWSCredentials credentials = null;
+		credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+		AWSLambdaClient lambdaClient = new AWSLambdaClient(credentials);
+
+		HashMap<String,String> map = new HashMap<String,String>();
+		map.put("customerId", lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId().toString());
+        lambdaClient.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+        try {
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("BillingListForCust");
+            invokeRequest.setPayload(ByteBuffer.wrap(gson.toJson(map).getBytes(StringUtils.UTF8)));
+            InvokeResult invokeResult = lambdaClient.invoke(invokeRequest);
+            
+            if (invokeResult.getLogResult() != null) { 
+                System.out.println(" log: " 
+                        + new String(Base64.decode(invokeResult.getLogResult()))); 
+            } 
+     
+            if (invokeResult.getFunctionError() != null) { 
+                throw new LambdaFunctionException(invokeResult.getFunctionError(), 
+                        false, new String(invokeResult.getPayload().array())); 
+            } 
+     
+            if (invokeResult.getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT ) { 
+                return; 
+            } 
+            System.out.println(gson.fromJson(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))), ArrayList.class));
+        }catch (LambdaFunctionException e){
+        	
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+	}
+
+	private void billingLineListForBillFunction() {
+
+		String ACCESS_KEY = "AKIAJHK6Z2KAU4WJSTGQ";
+		String SECRET = "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";
+		Gson gson = new Gson();
+		AWSCredentials credentials = null;
+		credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+		AWSLambdaClient lambdaClient = new AWSLambdaClient(credentials);
+
+		HashMap<String,String> map = new HashMap<String,String>();
+		map.put("customerId", lineNumCustomersTable.getSelectionModel().getSelectedItem().getCustomerId().toString());
+        lambdaClient.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+        try {
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("BillingLineListForBill");
+            invokeRequest.setPayload(ByteBuffer.wrap(gson.toJson(map).getBytes(StringUtils.UTF8)));
+            InvokeResult invokeResult = lambdaClient.invoke(invokeRequest);
+            
+            if (invokeResult.getLogResult() != null) { 
+                System.out.println(" log: " 
+                        + new String(Base64.decode(invokeResult.getLogResult()))); 
+            } 
+     
+            if (invokeResult.getFunctionError() != null) { 
+                throw new LambdaFunctionException(invokeResult.getFunctionError(), 
+                        false, new String(invokeResult.getPayload().array())); 
+            } 
+     
+            if (invokeResult.getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT ) { 
+                return; 
+            } 
+            System.out.println(gson.fromJson(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))), ArrayList.class));
+        }catch (LambdaFunctionException e){
+        	
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+	}
+	
 	// @Override
 	public void reloadData() {
 		lineNumData.clear();

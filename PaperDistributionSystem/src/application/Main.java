@@ -100,18 +100,6 @@ public class Main extends Application {
 			// step2 create the connection object
 			dbConnection = DriverManager.getConnection("jdbc:oracle:thin:@"+dbInstance.getEndpoint().getAddress()+":"+dbInstance.getEndpoint().getPort()+":ORCL", "admin", "LateefAhmedPDS");
 
-			// step3 create the statement object
-			// Statement stmt = dbConnection.createStatement();
-
-			// step4 execute query
-			// ResultSet rs = stmt.executeQuery("select * from CUSTOMER");
-			// while (rs.next())
-			// System.out.println(rs.getInt(1) + " " + rs.getString(2) + " " +
-			// rs.getString(3));
-
-			// step5 close the connection object
-			// con.close();
-
 		} catch (Exception e) {
 			System.out.println(e);
 		}

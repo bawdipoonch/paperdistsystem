@@ -10,6 +10,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -54,25 +56,54 @@ public class AReportsTabController implements Initializable {
 	private ComboBox<String> addHawkerCodeLOV;
 	@FXML
 	private ComboBox<String> addLineNumLOV;
+	@FXML
+	private ComboBox<String> addLineNumLOV2;
 
 	@FXML
 	private AnchorPane pdfPane;
 
 	@FXML
-	private Button closeButton;
+	private Button generateFilteredReportButton;
 
-    @FXML
-    private Button hwkAllLineSubButton;
-    @FXML private Button hwkAllLineSubProdCodeButton;
+	@FXML
+	private Button hwkAllLineSubButton;
+	@FXML
+	private Button hwkAllLineSubProdCodeButton;
 
 	@FXML
 	private Button lineAllSubButton;
-	
-	@FXML private DatePicker forDate;
+
+    @FXML
+    private Label datesList;
+    
+	@FXML
+	private DatePicker forDate;
 
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerLineNumData = FXCollections.observableArrayList();
 
+	private ObservableList<String> subscriptionTypeValues = FXCollections.observableArrayList();
+	private ObservableList<String> paymentTypeValues = FXCollections.observableArrayList();
+	private ObservableList<String> frequencyValues = FXCollections.observableArrayList();
+	private ObservableList<String> productValues = FXCollections.observableArrayList();
+	private ObservableList<Product> productValues2 = FXCollections.observableArrayList();
+	private ObservableList<String> durationValues = FXCollections.observableArrayList();
+	private ObservableList<String> dowValues = FXCollections.observableArrayList();
+	@FXML
+	private ComboBox<String> dowLOV;
+	@FXML
+	private ComboBox<String> subscriptionTypeLOV;
+	@FXML
+	private ComboBox<String> paymentTypeLOV;
+	@FXML
+	private ComboBox<String> durationLOV;
+	@FXML
+	private ComboBox<String> frequencyLOV;
+	@FXML
+	private ComboBox<String> prodNameLOV;
+
+    @FXML
+    private ComboBox<String> statusLOV;
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
@@ -90,47 +121,104 @@ public class AReportsTabController implements Initializable {
 				}
 			}
 		});
-		
+
 		forDate.setValue(LocalDate.now());
 		forDate.setConverter(Main.dateConvertor);
+		prodNameLOV.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if (newValue != null) {
+					if (prodNameLOV.getSelectionModel().getSelectedIndex()>1) {
+						Product prod = productValues2.get(prodNameLOV.getSelectionModel().getSelectedIndex());
+						populateDOWValues(prod);
+						datesList.setText(BillingUtilityClass.findDeliveryDatesForMonth(prod));
+					} else {
+						datesList.setText("");
+						dowValues.clear();
+						dowValues.addAll("All","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+						dowLOV.setItems(dowValues);
+						new AutoCompleteComboBoxListener<String>(dowLOV);
+						dowLOV.getSelectionModel().selectFirst();
+					}
+				}
+
+			}
+		});
+		/*prodNameLOV.setConverter(new StringConverter<Product>() {
+
+			@Override
+			public String toString(Product object) {
+				if (object != null)
+					return object.getName();
+				else
+					return null;
+			}
+
+			@Override
+			public Product fromString(String string) {
+				while (productValues.iterator().hasNext()) {
+					Product p = productValues.iterator().next();
+					if (p.getName().equalsIgnoreCase(string)) {
+						return p;
+					}
+				}
+				return null;
+			}
+		});*/
 
 	}
 
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {
 		Main._logger.debug("Entered  populateLineNumbersForHawkerCode  method");
+		Task<Void> task = new Task<Void>() {
 
-		try {
+			@Override
+			protected Void call() throws Exception {
+				try {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			hawkerLineNumData.clear();
-			PreparedStatement stmt = con.prepareStatement(
-					"select li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? and li.line_num<>0 order by li.line_num");
-			stmt.setLong(1, hawkerIdForCode(hawkerCode));
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				hawkerLineNumData.add(rs.getString(1));
-			}
-			Platform.runLater(new Runnable() {
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					ObservableList<String> hawkerLineNumData2 = FXCollections.observableArrayList();
+					hawkerLineNumData.clear();
+					hawkerLineNumData2.add("All");
+					PreparedStatement stmt = con.prepareStatement(
+							"select li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? and li.line_num<>0 order by li.line_num");
+					stmt.setLong(1, hawkerIdForCode(hawkerCode));
+					ResultSet rs = stmt.executeQuery();
+					while (rs.next()) {
+						hawkerLineNumData.add(rs.getString(1));
+						hawkerLineNumData2.add(rs.getString(1));
+					}
+					Platform.runLater(new Runnable() {
 
-				@Override
-				public void run() {
-					addLineNumLOV.setItems(hawkerLineNumData);
+						@Override
+						public void run() {
+							addLineNumLOV.setItems(hawkerLineNumData);
+							addLineNumLOV2.setItems(hawkerLineNumData2);
 
-					new AutoCompleteComboBoxListener<>(addLineNumLOV);
+							new AutoCompleteComboBoxListener<>(addLineNumLOV);
+							new AutoCompleteComboBoxListener<>(addLineNumLOV2);
+							addLineNumLOV2.getSelectionModel().selectFirst();
+						}
+					});
+				} catch (SQLException e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
 				}
-			});
-		} catch (SQLException e) {
+				return null;
+			}
 
-			Main._logger.debug("Error :", e);
-			e.printStackTrace();
-		} catch (Exception e) {
+		};
 
-			Main._logger.debug("Error :", e);
-			e.printStackTrace();
-		}
+		new Thread(task).start();
 	}
 
 	private long hawkerIdForCode(String hawkerCode) {
@@ -170,60 +258,59 @@ public class AReportsTabController implements Initializable {
 			@Override
 			protected Void call() throws Exception {
 
-				synchronized (this) {
-					try {
+				try {
 
-						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
-							con = Main.reconnect();
-						}
-						if (HawkerLoginController.loggedInHawker != null) {
-							Platform.runLater(new Runnable() {
-
-								@Override
-								public void run() {
-									hawkerCodeData = FXCollections.observableArrayList();
-									hawkerCodeData.add(HawkerLoginController.loggedInHawker.getHawkerCode());
-									addHawkerCodeLOV.setItems(hawkerCodeData);
-									addHawkerCodeLOV.getSelectionModel().selectFirst();
-									addHawkerCodeLOV.setDisable(true);
-								}
-							});
-						} else {
-							hawkerCodeData = FXCollections.observableArrayList();
-							PreparedStatement stmt = con.prepareStatement(
-									"select distinct hawker_code from hawker_info order by hawker_code");
-							ResultSet rs = stmt.executeQuery();
-							while (rs.next()) {
-								if (hawkerCodeData != null && !hawkerCodeData.contains(rs.getString(1)))
-									hawkerCodeData.add(rs.getString(1));
-							}
-							Platform.runLater(new Runnable() {
-
-								@Override
-								public void run() {
-
-									addHawkerCodeLOV.getItems().clear();
-									addHawkerCodeLOV.setItems(hawkerCodeData);
-									new AutoCompleteComboBoxListener<>(addHawkerCodeLOV);
-								}
-							});
-							rs.close();
-							stmt.close();
-						}
-					} catch (
-
-					SQLException e) {
-
-						Main._logger.debug("Error :", e);
-						e.printStackTrace();
-					} catch (Exception e) {
-
-						Main._logger.debug("Error :", e);
-						e.printStackTrace();
-
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
 					}
+					if (HawkerLoginController.loggedInHawker != null) {
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								hawkerCodeData = FXCollections.observableArrayList();
+								hawkerCodeData.add(HawkerLoginController.loggedInHawker.getHawkerCode());
+								addHawkerCodeLOV.setItems(hawkerCodeData);
+								addHawkerCodeLOV.getSelectionModel().selectFirst();
+								addHawkerCodeLOV.setDisable(true);
+							}
+						});
+					} else {
+						hawkerCodeData = FXCollections.observableArrayList();
+						PreparedStatement stmt = con
+								.prepareStatement("select distinct hawker_code from hawker_info order by hawker_code");
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							if (hawkerCodeData != null && !hawkerCodeData.contains(rs.getString(1)))
+								hawkerCodeData.add(rs.getString(1));
+						}
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								addHawkerCodeLOV.getItems().clear();
+								addHawkerCodeLOV.setItems(hawkerCodeData);
+								new AutoCompleteComboBoxListener<>(addHawkerCodeLOV);
+							}
+						});
+						rs.close();
+						stmt.close();
+					}
+				} catch (
+
+				SQLException e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+
 				}
+
 				return null;
 			}
 
@@ -281,11 +368,11 @@ public class AReportsTabController implements Initializable {
 			// stage.setTitle("Invoice PDF");
 			// stage.setScene(new Scene(root, 1024, 800));
 			//
-			if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
+			/*if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
 				pdfPane.getChildren().removeAll(pdfPane.getChildren());
 			OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
 			fx.setupViewer();
-			fx.openDefaultFile(outFile.getAbsolutePath());
+			fx.openDefaultFile(outFile.getAbsolutePath());*/
 
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
@@ -312,37 +399,36 @@ public class AReportsTabController implements Initializable {
 		if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
 			pdfPane.getChildren().removeAll(pdfPane.getChildren());
 	}
-	
 
-    @FXML
-    void hwkAllLineSubButtonClicked(ActionEvent event) {
-    	try {
-    		
-    		
-			if (addHawkerCodeLOV.getSelectionModel().getSelectedItem()!=null && forDate.getValue() != null) {
+	@FXML
+	void hwkAllLineSubButtonClicked(ActionEvent event) {
+		try {
+
+			if (addHawkerCodeLOV.getSelectionModel().getSelectedItem() != null && forDate.getValue() != null) {
 				Connection con = Main.dbConnection;
 				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
-				PreparedStatement stmt = con.prepareStatement(
-						"DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
-	    		stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
-	    		stmt.executeUpdate();
-	    		stmt = con.prepareStatement(
-						"INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
+				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.executeUpdate();
+				stmt = con.prepareStatement("INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
 				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
 				stmt.setDate(2, Date.valueOf(forDate.getValue()));
 				stmt.executeUpdate();
 				stmt.close();
-				
-				ExportToExcel.exportHwkAllLineSubCountToExcel(addHawkerCodeLOV.getSelectionModel().getSelectedItem(), forDate.getValue());
+
+				ExportToExcel.exportHwkAllLineSubCountToExcel(addHawkerCodeLOV.getSelectionModel().getSelectedItem(),
+						forDate.getValue());
 				String reportSrcFile = "HawkerAllLinesProdList.jrxml";
 				InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
 				JasperReport jasperReport = JasperCompileManager.compileReport(input);
 				// Parameters for report
 				Map<String, Object> parameters = new HashMap<String, Object>();
 				String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
-//				String lineNum = addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0];
+				// String lineNum =
+				// addLineNumLOV.getSelectionModel().getSelectedItem().split("
+				// ")[0];
 				parameters.put("HAWKER_CODE", hawkerCode);
 				parameters.put("TESTDATE", Date.valueOf(forDate.getValue()));
 				parameters.put("DayOfWeek", forDate.getValue().getDayOfWeek().name());
@@ -356,7 +442,8 @@ public class AReportsTabController implements Initializable {
 				// ExporterInput
 				exporter.setExporterInput(exporterInput);
 				// ExporterOutput
-				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "SubsCount-" + forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
+				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "SubsCount-"
+						+ forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
 				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 				// Output
 				exporter.setExporterOutput(exporterOutput);
@@ -367,13 +454,13 @@ public class AReportsTabController implements Initializable {
 				File outFile = new File(filename);
 				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
 						.hideAfter(Duration.seconds(15)).showInformation();
-				stmt = con.prepareStatement(
-								"DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
-			    		stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
-			    		stmt.executeUpdate();
+				stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.executeUpdate();
 			} else {
-				Notifications.create().title("Required values missing").text("Please select Hawker and Date before generating report.")
-				.hideAfter(Duration.seconds(5)).showError();
+				Notifications.create().title("Required values missing")
+						.text("Please select Hawker and Date before generating report.").hideAfter(Duration.seconds(5))
+						.showError();
 			}
 
 		} catch (JRException e) {
@@ -382,37 +469,37 @@ public class AReportsTabController implements Initializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    }
+	}
 
-    @FXML
-    void hwkAllLineSubProdCodeButtonClicked(ActionEvent event) {
-    	try {
-    		
-    		
-			if (addHawkerCodeLOV.getSelectionModel().getSelectedItem()!=null && forDate.getValue() != null) {
+	@FXML
+	void hwkAllLineSubProdCodeButtonClicked(ActionEvent event) {
+		try {
+
+			if (addHawkerCodeLOV.getSelectionModel().getSelectedItem() != null && forDate.getValue() != null) {
 				Connection con = Main.dbConnection;
 				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
-				PreparedStatement stmt = con.prepareStatement(
-						"DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
-	    		stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
-	    		stmt.executeUpdate();
-	    		stmt = con.prepareStatement(
-						"INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
+				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.executeUpdate();
+				stmt = con.prepareStatement("INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
 				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
 				stmt.setDate(2, Date.valueOf(forDate.getValue()));
 				stmt.executeUpdate();
 				stmt.close();
-				
-				ExportToExcel.exportHwkAllLineSubCountToExcel(addHawkerCodeLOV.getSelectionModel().getSelectedItem(), forDate.getValue());
+
+				ExportToExcel.exportHwkAllLineSubCountToExcel(addHawkerCodeLOV.getSelectionModel().getSelectedItem(),
+						forDate.getValue());
 				String reportSrcFile = "HawkerAllLineProdCodeWiseList.jrxml";
 				InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
 				JasperReport jasperReport = JasperCompileManager.compileReport(input);
 				// Parameters for report
 				Map<String, Object> parameters = new HashMap<String, Object>();
 				String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
-//				String lineNum = addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0];
+				// String lineNum =
+				// addLineNumLOV.getSelectionModel().getSelectedItem().split("
+				// ")[0];
 				parameters.put("HAWKER_CODE", hawkerCode);
 				parameters.put("TESTDATE", Date.valueOf(forDate.getValue()));
 				parameters.put("DayOfWeek", forDate.getValue().getDayOfWeek().name());
@@ -426,7 +513,8 @@ public class AReportsTabController implements Initializable {
 				// ExporterInput
 				exporter.setExporterInput(exporterInput);
 				// ExporterOutput
-				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "ProdCodeWiseSubsCount-" + forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
+				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "ProdCodeWiseSubsCount-"
+						+ forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
 				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 				// Output
 				exporter.setExporterOutput(exporterOutput);
@@ -437,13 +525,13 @@ public class AReportsTabController implements Initializable {
 				File outFile = new File(filename);
 				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
 						.hideAfter(Duration.seconds(15)).showInformation();
-				stmt = con.prepareStatement(
-								"DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
-			    		stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
-			    		stmt.executeUpdate();
+				stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.executeUpdate();
 			} else {
-				Notifications.create().title("Required values missing").text("Please select Hawker and Date before generating report.")
-				.hideAfter(Duration.seconds(5)).showError();
+				Notifications.create().title("Required values missing")
+						.text("Please select Hawker and Date before generating report.").hideAfter(Duration.seconds(5))
+						.showError();
 			}
 
 		} catch (JRException e) {
@@ -452,12 +540,472 @@ public class AReportsTabController implements Initializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@FXML
+	void generateFilteredReportButtonClicked(ActionEvent event) {
+		try {
+			String reportSrcFile = "HwkLinesFilteredSubsList.jrxml";
+
+			InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			String lineNum2 = addLineNumLOV2.getSelectionModel().getSelectedItem().equals("All")?null:addLineNumLOV2.getSelectionModel().getSelectedItem().split(" ")[0];
+			String paymentType = paymentTypeLOV.getSelectionModel().getSelectedItem().equals("All")?null:paymentTypeLOV.getSelectionModel().getSelectedItem();
+			String subType = subscriptionTypeLOV.getSelectionModel().getSelectedItem().equals("All")?null:subscriptionTypeLOV.getSelectionModel().getSelectedItem();
+			String freq = frequencyLOV.getSelectionModel().getSelectedItem().equals("All")?null:frequencyLOV.getSelectionModel().getSelectedItem();
+			String dow = dowLOV.getSelectionModel().getSelectedItem().equals("All")?null:dowLOV.getSelectionModel().getSelectedItem();
+			String prodName = prodNameLOV.getSelectionModel().getSelectedItem().equals("All")?null:prodNameLOV.getSelectionModel().getSelectedItem();
+			String status = statusLOV.getSelectionModel().getSelectedItem().equals("All")?null:statusLOV.getSelectionModel().getSelectedItem();
+			parameters.put("HAWKER_CODE", hawkerCode);
+			parameters.put("LINE_NUM", lineNum2);
+			parameters.put("PAYMENT_TYPE", paymentType);
+			parameters.put("SUB_TYPE", subType);
+			parameters.put("FREQUENCY", freq);
+			parameters.put("DOW", dow);
+			parameters.put("PROD_NAME", prodName);
+			parameters.put("STATUS", status);
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-Filtered" + "-" + "SubList-" + LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+
+			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+
+			// BorderPane root;
+			// root = new BorderPane();
+			// Stage stage = new Stage();
+			// stage.setTitle("Invoice PDF");
+			// stage.setScene(new Scene(root, 1024, 800));
+			//
+			/*if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
+				pdfPane.getChildren().removeAll(pdfPane.getChildren());
+			OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
+			fx.setupViewer();
+			fx.openDefaultFile(outFile.getAbsolutePath());*/
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Report PDF Generation: ", e);
+		}
+	}
+	
+
+    @FXML
+    void upcomingEndDateListClicked(ActionEvent event) {
+    	try {
+			String reportSrcFile = "HawkerSubListEndDate.jrxml";
+
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			parameters.put("HAWKER_CODE", hawkerCode);
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-SubEndDateList" +LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) +  ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+
+			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+
+			// BorderPane root;
+			// root = new BorderPane();
+			// Stage stage = new Stage();
+			// stage.setTitle("Invoice PDF");
+			// stage.setScene(new Scene(root, 1024, 800));
+			//
+//			if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
+//				pdfPane.getChildren().removeAll(pdfPane.getChildren());
+//			OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
+//			fx.setupViewer();
+//			fx.openDefaultFile(outFile.getAbsolutePath());
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Report PDF Generation: ", e);
+		}
     }
+
+    @FXML
+    void upcomingResumeDateListClicked(ActionEvent event) {
+    	try {
+			String reportSrcFile = "HawkerSubListResumeDate.jrxml";
+
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			parameters.put("HAWKER_CODE", hawkerCode);
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-SubResumeDateList" +LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) +  ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+
+			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+
+			// BorderPane root;
+			// root = new BorderPane();
+			// Stage stage = new Stage();
+			// stage.setTitle("Invoice PDF");
+			// stage.setScene(new Scene(root, 1024, 800));
+			//
+//			if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
+//				pdfPane.getChildren().removeAll(pdfPane.getChildren());
+//			OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
+//			fx.setupViewer();
+//			fx.openDefaultFile(outFile.getAbsolutePath());
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Report PDF Generation: ", e);
+		}
+    }
+
+	private void populateDOWValues(Product prod) {
+//		dowLOV.getItems().clear();
+//		dowLOV.getItems().addAll("All");
+		dowValues.clear();
+		if (prod.getType().equals("Newspaper")) {
+			
+			dowValues.addAll("All","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+		} else {
+			String[] dow = prod.getDow().split(",");
+			dowValues.addAll(dow);
+		}
+		dowLOV.setItems(dowValues);
+		new AutoCompleteComboBoxListener<String>(dowLOV);
+		dowLOV.getSelectionModel().selectFirst();
+	}
+
+	private void populateSubscriptionTypeValues() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					subscriptionTypeValues.clear();
+					Statement stmt = con.createStatement();
+					ResultSet rs = stmt.executeQuery(
+							"select value, code, seq from lov_lookup where code='SUBSCRIPTION_TYPE' order by seq");
+					subscriptionTypeValues.addAll("All");
+					while (rs.next()) {
+						subscriptionTypeValues.add(rs.getString(1));
+					}
+
+				} catch (SQLException e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				}
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+						subscriptionTypeLOV.setItems(subscriptionTypeValues);
+						new AutoCompleteComboBoxListener<String>(subscriptionTypeLOV);
+						subscriptionTypeLOV.getSelectionModel().selectFirst();
+
+					}
+				});
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
+	}
+
+	private void populatePaymentTypeValues() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					paymentTypeValues.clear();
+					Statement stmt = con.createStatement();
+					ResultSet rs = stmt.executeQuery(
+							"select value, code, seq from lov_lookup where code='SUB_PAYMENT_TYPE' order by seq");
+					paymentTypeValues.addAll("All");
+					while (rs.next()) {
+						paymentTypeValues.add(rs.getString(1));
+					}
+
+				} catch (SQLException e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				}
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+						paymentTypeLOV.setItems(paymentTypeValues);
+						new AutoCompleteComboBoxListener<String>(paymentTypeLOV);
+						paymentTypeLOV.getSelectionModel().selectFirst();
+
+					}
+				});
+
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
+	}
+
+	private void populateDurationValues() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					durationValues.clear();
+					Statement stmt = con.createStatement();
+					ResultSet rs = stmt.executeQuery(
+							"select value, code, seq from lov_lookup where code='SUB_DURATION' order by seq");
+					durationValues.addAll("All");
+					while (rs.next()) {
+						durationValues.add(rs.getString(1));
+					}
+
+				} catch (SQLException e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				}
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+						durationLOV.setItems(durationValues);
+						new AutoCompleteComboBoxListener<String>(durationLOV);
+						durationLOV.getSelectionModel().selectFirst();
+
+					}
+				});
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
+	}
+
+	private void populateFrequencyValues() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					frequencyValues.clear();
+					PreparedStatement stmt = con.prepareStatement(
+							"select value, code, seq, lov_lookup_id from lov_lookup where code='PRODUCT_FREQ' order by seq");
+					ResultSet rs = stmt.executeQuery();
+					frequencyValues.addAll("All");
+					while (rs.next()) {
+						frequencyValues.add(rs.getString(1));
+					}
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							frequencyLOV.setItems(frequencyValues);
+							new AutoCompleteComboBoxListener<String>(frequencyLOV);
+							frequencyLOV.getSelectionModel().selectFirst();
+						}
+					});
+				} catch (SQLException e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+	}
+
+	public void populateProducts() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					productValues = FXCollections.observableArrayList();
+					productValues2 = FXCollections.observableArrayList();
+					PreparedStatement stmt = con.prepareStatement(
+							"SELECT prod.PRODUCT_ID, prod.NAME, prod.TYPE, prod.SUPPORTED_FREQ, prod.MONDAY, prod.TUESDAY, prod.WEDNESDAY, prod.THURSDAY, prod.FRIDAY, prod.SATURDAY, prod.SUNDAY, prod.PRICE, prod.CODE, prod.DOW, prod.FIRST_DELIVERY_DATE, prod.ISSUE_DATE, prod.bill_category FROM products prod, hawker_info hwk, point_name pn where hwk.point_name=pn.name and lower(pn.bill_category)=lower(prod.bill_category) and hwk.hawker_id=? ORDER BY prod.name");
+					stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
+					ResultSet rs = stmt.executeQuery();
+					productValues.add("All");
+					while (rs.next()) {
+						productValues2.add(new Product(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),
+								rs.getDouble(5), rs.getDouble(6), rs.getDouble(7), rs.getDouble(8), rs.getDouble(9),
+								rs.getDouble(10), rs.getDouble(11), rs.getDouble(12), rs.getString(13),
+								rs.getString(14), rs.getDate(15).toLocalDate(), rs.getDate(16).toLocalDate(),
+								rs.getString(17)));
+						productValues.add(rs.getString(2));
+					}
+
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							prodNameLOV.setItems(productValues);
+							new AutoCompleteComboBoxListener<String>(prodNameLOV);
+							prodNameLOV.getSelectionModel().selectFirst();
+
+						}
+					});
+					// new AutoCompleteComboBoxListener<>(prodNameLOV);
+
+				} catch (SQLException e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+	}
+
+	private void populateStatusValues() {
+		statusLOV.getItems().addAll("Active","Stopped");
+		new AutoCompleteComboBoxListener<String>(statusLOV);
+		statusLOV.getSelectionModel().selectFirst();
+	}
 
 	public void reloadData() {
 		hawkerLineNumData.clear();
 		hawkerCodeData.clear();
 		populateHawkerCodes();
+		populateProducts();
+//		populateDurationValues();
+		populateFrequencyValues();
+		populatePaymentTypeValues();
+		populateSubscriptionTypeValues();
+		populateStatusValues();
 	}
 
 	public void releaseVariables() {

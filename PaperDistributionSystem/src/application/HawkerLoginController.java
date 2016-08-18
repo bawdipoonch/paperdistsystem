@@ -1,17 +1,34 @@
 package application;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
-
+import java.nio.ByteBuffer;
 import org.controlsfx.control.Notifications;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.lambda.AWSLambdaClient;
+import com.amazonaws.services.lambda.invoke.LambdaFunctionException;
+import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.amazonaws.services.lambda.model.InvokeResult;
+import com.amazonaws.regions.Region;
+import com.amazonaws.util.Base64;
+import com.amazonaws.util.StringUtils;
+import com.google.gson.Gson;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -55,6 +72,8 @@ public class HawkerLoginController implements Initializable {
 	// Stage stage;
 	Parent root;
 
+	final private static String ACCESS_KEY = "AKIAJHK6Z2KAU4WJSTGQ";
+	final private static String SECRET = "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";
 	public static Hawker loggedInHawker;
 
 	@Override
@@ -126,10 +145,11 @@ public class HawkerLoginController implements Initializable {
 		});
 
 	}
+	
 
 	@FXML
 	public void loginClicked(ActionEvent event) {
-
+//		callLoginFunction();
 		System.out.println("Hawker Login button clicked");
 
 		try {
@@ -159,6 +179,7 @@ public class HawkerLoginController implements Initializable {
 								rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
 								rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32),
 								rs.getString(33), rs.getString(34));
+//						callLineInfoListFunction();
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Logged in")
 								.text("Login successful").showInformation();
 						// stage = (Stage) loginButton.getScene().getWindow();
@@ -291,6 +312,78 @@ public class HawkerLoginController implements Initializable {
 		adminMobileLabel.setText(adminMap.get("mobile"));
 		adminAddrLabel.setText(adminMap.get("addr"));
 		
+	}
+	
+	private void callLineInfoListFunction() {
+		Gson gson = new Gson();
+		AWSCredentials credentials = null;
+		credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+		AWSLambdaClient lambdaClient = new AWSLambdaClient(credentials);
+
+        lambdaClient.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+        try {
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("LineInfoList");
+            invokeRequest.setPayload(ByteBuffer.wrap(gson.toJson(loggedInHawker.getHawkerId()).getBytes(StringUtils.UTF8)));
+            InvokeResult invokeResult = lambdaClient.invoke(invokeRequest);
+            
+            if (invokeResult.getLogResult() != null) { 
+                System.out.println(" log: " 
+                        + new String(Base64.decode(invokeResult.getLogResult()))); 
+            } 
+     
+            if (invokeResult.getFunctionError() != null) { 
+                throw new LambdaFunctionException(invokeResult.getFunctionError(), 
+                        false, new String(invokeResult.getPayload().array())); 
+            } 
+     
+            if (invokeResult.getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT ) { 
+                return; 
+            } 
+//            System.out.println(gson.fromJson(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))), ArrayList.class));
+            System.out.println(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))));
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+	}
+	
+	private void callLoginFunction(){
+		Gson gson = new Gson();
+		AWSCredentials credentials = null;
+		credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+		AWSLambdaClient lambdaClient = new AWSLambdaClient(credentials);
+
+        lambdaClient.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+        try {
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("Login");
+            HashMap<String,String> map = new HashMap<String,String>();
+            map.put("Mobile", mobileNum.getText());
+            map.put("Password",password.getText());
+            invokeRequest.setPayload(ByteBuffer.wrap(gson.toJson(map).getBytes(StringUtils.UTF8)));
+            InvokeResult invokeResult = lambdaClient.invoke(invokeRequest);
+            
+            if (invokeResult.getLogResult() != null) { 
+                System.out.println(" log: " 
+                        + new String(Base64.decode(invokeResult.getLogResult()))); 
+            } 
+     
+            if (invokeResult.getFunctionError() != null) { 
+                throw new LambdaFunctionException(invokeResult.getFunctionError(), 
+                        false, new String(invokeResult.getPayload().array())); 
+            } 
+     
+            if (invokeResult.getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT ) { 
+                return; 
+            } 
+            System.out.println(gson.fromJson(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))), Boolean.class));
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
 	}
 
 }

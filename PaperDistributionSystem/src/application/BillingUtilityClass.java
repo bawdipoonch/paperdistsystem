@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -1135,6 +1136,21 @@ public class BillingUtilityClass {
 
 		return firstDaysOfWeeks;
 	}
+	public static String weeksInPeriodDateList(DayOfWeek dow, LocalDate startDate, LocalDate endDate) {
+		StringBuilder dateList = new StringBuilder();
+		ChronoUnit.DAYS.between(startDate, endDate);
+		LocalDate firstDOW = startDate.with(TemporalAdjusters.nextOrSame(dow));
+
+		if (firstDOW.isAfter(endDate))
+			firstDOW = null;
+		if (firstDOW != null) {
+			for (LocalDate date = firstDOW; !date.isAfter(endDate); date = date.plusWeeks(1)) {
+				dateList.append(date.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+			}
+		}
+
+		return dateList.toString();
+	}
 
 	public static Subscription subForSubId(long subId) {
 		try {
@@ -1640,32 +1656,147 @@ public class BillingUtilityClass {
 
 		return valid;
 	}
+	
+	public static String findDeliveryDatesForMonth(Product prod){
+		LocalDate fordate = LocalDate.now();
+		LocalDate startDate = fordate.withDayOfMonth(1);
+		LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+		StringBuilder dateList= new StringBuilder();
+		String[] freqList = prod.getSupportingFreq().split(",");
+		for(String frequency : freqList){
+			if (frequency.equals("Daily")) {
+				dateList.append("Please select a magazine.");
+				/*for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+					dateList.append(date.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+				}*/
+			} else if (frequency.equals("Weekly")) {
+				if(!dateList.toString().equals("Please select a magazine."))
+				dateList.append("Please select a magazine.");
+				/*switch (prod.getDow()) {
+				case "Monday":
+					dateList.append(weeksInPeriodDateList(DayOfWeek.MONDAY, startDate, endDate));
+					break;
+				case "Tuesday":
+					dateList.append(weeksInPeriodDateList(DayOfWeek.TUESDAY, startDate, endDate));
+					break;
+				case "Wednesday":
+					dateList.append(weeksInPeriodDateList(DayOfWeek.WEDNESDAY, startDate, endDate));
+					break;
+				case "Thursday":
+					dateList.append(weeksInPeriodDateList(DayOfWeek.THURSDAY, startDate, endDate));
+					break;
+				case "Friday":
+					dateList.append(weeksInPeriodDateList(DayOfWeek.FRIDAY, startDate, endDate));
+					break;
+				case "Saturday":
+					dateList.append(weeksInPeriodDateList(DayOfWeek.SATURDAY, startDate, endDate));
+					break;
+				case "Sunday":
+					dateList.append(weeksInPeriodDateList(DayOfWeek.SUNDAY, startDate, endDate));
+					break;
+				}*/
+			} else if (frequency.equals("14 Days")) {
+				double first = Math.ceil(ChronoUnit.DAYS.between(prod.getFirstDeliveryDate(), startDate) / 14.0);
+				LocalDate firstDate = prod.getFirstDeliveryDate().plusDays((int) (14 * first));
+				LocalDate secondDate = !firstDate.plusDays(14).isAfter(endDate) ? firstDate.plusDays(14) : null;
+				LocalDate thirdDate = secondDate == null ? null
+						: !secondDate.plusDays(14).isAfter(endDate) ? secondDate.plusDays(14) : null;
+				if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+					dateList.append(firstDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+				}
+				if (secondDate != null) {
+					if (!(secondDate.isBefore(startDate)) && (!secondDate.isAfter(endDate))) {
+						dateList.append(secondDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+					}
+				}
+				if (thirdDate != null) {
+					if (!(thirdDate.isBefore(startDate)) && (!thirdDate.isAfter(endDate))) {
+						dateList.append(thirdDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+					}
+				}
+			} else if (frequency.equals("15 Days")) {
+				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+						Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+				LocalDate secondDate = firstDate.plusDays(15);
+				if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+					dateList.append(firstDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+				}
+				if (secondDate != null) {
+					if (!(secondDate.isBefore(startDate)) && (!secondDate.isAfter(endDate))) {
+						dateList.append(secondDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+					}
+				}
+			} else if (frequency.equals("Monthly")) {
+				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+						Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+	
+				if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+					dateList.append(firstDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+				}
+			} else if (frequency.equals("Quarterly")) {
+				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+						Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+	
+				if (months % 3 == 0) {
+					if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+						dateList.append(firstDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+					}
+				}
+			} else if (frequency.equals("Half Yearly")) {
+				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+						Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+	
+				if (months % 6 == 0) {
+					if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+						dateList.append(firstDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+					}
+				}
+			} else if (frequency.equals("Yearly")) {
+				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
+						Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
+				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
+	
+				if (months % 12 == 0) {
+					if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
+						dateList.append(firstDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+	
+					}
+				}
+			}
+		}
+		return dateList.toString();
+	}
 
 	public static File generateInvoicePDF(String hawkerCode, int lineNum, String invoiceDate) throws JRException {
-		// Task<Void> task = new Task<Void>() {
-		//
-		// @Override
-		// protected Void call() throws Exception {
+		
 		try {
-			//
-			// Platform.runLater(new Runnable() {
-			//
-			// @Override
-			// public void run() {
-
-			// }
-			// });
 
 			String reportSrcFile = "MasterInvoice.jrxml";
 			String subReportPath = "BillSubreport.jrxml";
+			String summaryReportPath = "BillGeneratedLineSummary.jrxml";
 
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
 			InputStream subreport = BillingUtilityClass.class.getResourceAsStream(subReportPath);
+			InputStream summaryreport = BillingUtilityClass.class.getResourceAsStream(summaryReportPath);
 			// First, compile jrxml file.
 			// JasperReport subReport =
 			// JasperCompileManager.compileReport(report);
 			JasperReport jasperReport = JasperCompileManager.compileReport(input);
 			JasperReport jasperSubReport = JasperCompileManager.compileReport(subreport);
+			JasperReport jasperSummaryReport = JasperCompileManager.compileReport(summaryreport);
 			// JasperCompileManager.compileReportToFile(reportSrcFile);
 			// Connection conn = ConnectionUtils.getConnection();
 
@@ -1675,10 +1806,9 @@ public class BillingUtilityClass {
 			parameters.put("LINE_NUM", lineNum);
 			parameters.put("INVOICE_DATE", invoiceDate);
 			parameters.put("SubReportParam", jasperSubReport);
+			parameters.put("SummaryReportParam", jasperSummaryReport);
 			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
-			// JasperPrint print =
-			// JasperFillManager.fillReport("/application/MasterInvoice.jasper",
-			// parameters, Main.dbConnection);
+			
 			// Make sure the output directory exists.
 			File outDir = new File("C:/pds");
 			outDir.mkdirs();
@@ -1702,25 +1832,73 @@ public class BillingUtilityClass {
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
 			File outFile = new File(filename);
-			// Platform.runLater(new Runnable() {
-			//
-			// @Override
-			// public void run() {
-
+			
 			Notifications.create().title("Invocie PDF Created").text("Invoice PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
 			return outFile;
-			// }
-			// });
+			
 		} catch (JRException e) {
 			Main._logger.debug("Error during Bill PDF Generation: ", e);
 			// e.printStackTrace();
 		}
 		 return null;
-		// }
-		//
-		// };
-		// new Thread(task).start();
+		
 	}
 
+	public static File generateInvoiceSummaryPDF(String hawkerCode, int lineNum, String invoiceDate) throws JRException {
+		
+		try {
+
+			String summaryReportPath = "BillGeneratedLineSummary.jrxml";
+
+			InputStream summaryreport = BillingUtilityClass.class.getResourceAsStream(summaryReportPath);
+			// First, compile jrxml file.
+			// JasperReport subReport =
+			// JasperCompileManager.compileReport(report);
+			JasperReport jasperSummaryReport = JasperCompileManager.compileReport(summaryreport);
+			// JasperCompileManager.compileReportToFile(reportSrcFile);
+			// Connection conn = ConnectionUtils.getConnection();
+
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			parameters.put("HAWKER_CODE", hawkerCode);
+			parameters.put("LINE_NUM", lineNum);
+			parameters.put("INVOICE_DATE", invoiceDate);
+			JasperPrint print = JasperFillManager.fillReport(jasperSummaryReport, parameters, Main.dbConnection);
+			
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-" + Integer.toString(lineNum) + "-"
+					+ invoiceDate.replace('/', '-') + "Summary.pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+			
+			Notifications.create().title("Invocie Summary PDF Created").text("Invoice Summary PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+			return outFile;
+			
+		} catch (JRException e) {
+			Main._logger.debug("Error during Bill PDF Summary Generation: ", e);
+			// e.printStackTrace();
+		}
+		 return null;
+		
+	}
 }
