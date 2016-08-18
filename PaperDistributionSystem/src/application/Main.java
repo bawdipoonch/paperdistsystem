@@ -1,5 +1,7 @@
 package application;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +32,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import java.util.Properties;
 
 public class Main extends Application {
 	public static Connection dbConnection = null;
@@ -55,8 +58,7 @@ public class Main extends Application {
 			}
 		}
 	};
-	final private static String ACCESS_KEY = "AKIAJHK6Z2KAU4WJSTGQ";
-	final private static String SECRET = "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";
+
 	final private static String dbConnectionString = "jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL";
 	public static Stage primaryStage;
 	public static DecimalFormat df = new DecimalFormat("#.##");
@@ -85,10 +87,25 @@ public class Main extends Application {
 		Main._logger.debug("Entered Main method");
 		df.setRoundingMode(RoundingMode.CEILING);
 		try {
+			Properties prop = new Properties();
+			String propFileName = "config.properties";
+ 
+			InputStream inputStream = Main.class.getClassLoader().getResourceAsStream(propFileName);
+ 
+			if (inputStream != null) {
+				prop.load(inputStream);
+			} else {
+				throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+			}
+ 
+ 
+			// get the property value and print it out
+			String access_key = prop.getProperty("ACCESS_KEY");
+			String secret = prop.getProperty("SECRET");
 			// step1 load the driver class
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 			AWSCredentials credentials = null;
-			credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+			credentials = new BasicAWSCredentials(access_key, secret);
 			AmazonRDSClient client = new AmazonRDSClient(credentials);
 			client.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
 			DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
@@ -150,11 +167,26 @@ public class Main extends Application {
 	public static HashMap<String,String> getAdminDetails(){
 		HashMap<String,String> retMap = new HashMap<String,String>();
 		try {
+			Properties prop = new Properties();
+			String propFileName = "config.properties";
+ 
+			InputStream inputStream = Main.class.getClassLoader().getResourceAsStream(propFileName);
+ 
+			if (inputStream != null) {
+				prop.load(inputStream);
+			} else {
+				throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+			}
+ 
+ 
+			// get the property value and print it out
+			String access_key = prop.getProperty("ACCESS_KEY");
+			String secret = prop.getProperty("SECRET");
 			Connection con = Main.dbConnection;
 			if(con==null){
 				Class.forName("oracle.jdbc.driver.OracleDriver");
 				AWSCredentials credentials = null;
-				credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+				credentials = new BasicAWSCredentials(access_key, secret);
 				AmazonRDSClient client = new AmazonRDSClient(credentials);
 				client.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
 				DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
