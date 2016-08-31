@@ -569,7 +569,6 @@ public class BillingUtilityClass {
 		Product prod = productForSub(subRow.getProductId());
 		if (subRow.getFrequency().equals("Daily")) {
 				bill = subRow.getCost();
-			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Weekly")) {
 			ArrayList<LocalDate> dateList = new ArrayList<LocalDate>();
 			switch (subRow.getDow()) {
@@ -596,13 +595,8 @@ public class BillingUtilityClass {
 				break;
 			}
 			for (LocalDate date : dateList) {
-				// bill += spclMap.containsKey(date) ? spclMap.get(date) :
-				// prod.getPrice();
-				// confirm whether to get price from DOW of SUB PRICE
-				bill += subRow.getCost();
-
+				bill = subRow.getCost();
 			}
-			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("14 Days")) {
 			double first = Math.ceil(ChronoUnit.DAYS.between(prod.getFirstDeliveryDate(), startDate) / 14.0);
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusDays((int) (14 * first));
@@ -610,48 +604,45 @@ public class BillingUtilityClass {
 			LocalDate thirdDate = secondDate == null ? null
 					: !secondDate.plusDays(14).isAfter(endDate) ? secondDate.plusDays(14) : null;
 			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
-				bill += subRow.getCost();
+				bill = subRow.getCost();
 
 			}
 			if (secondDate != null) {
 				if (!(secondDate.isBefore(startDate)) && (!secondDate.isAfter(endDate))) {
-					bill += subRow.getCost();
+					bill = subRow.getCost();
 
 				}
 			}
 			if (thirdDate != null) {
 				if (!(thirdDate.isBefore(startDate)) && (!thirdDate.isAfter(endDate))) {
-					bill += subRow.getCost();
+					bill = subRow.getCost();
 
 				}
 			}
-			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("15 Days")) {
 			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
 					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 			LocalDate secondDate = firstDate.plusDays(15);
 			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
-				bill += subRow.getCost();
+				bill = subRow.getCost();
 
 			}
 			if (secondDate != null) {
 				if (!(secondDate.isBefore(startDate)) && (!secondDate.isAfter(endDate))) {
-					bill += subRow.getCost();
+					bill = subRow.getCost();
 
 				}
 			}
-			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Monthly")) {
 			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
 					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 			LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
 
 			if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
-				bill += subRow.getCost();
+				bill = subRow.getCost();
 
 			}
-			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Quarterly")) {
 			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
 					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
@@ -659,11 +650,10 @@ public class BillingUtilityClass {
 
 			if (months % 3 == 0) {
 				if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
-					bill += subRow.getCost();
+					bill = subRow.getCost();
 
 				}
 			}
-			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Half Yearly")) {
 			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
 					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
@@ -671,11 +661,10 @@ public class BillingUtilityClass {
 
 			if (months % 6 == 0) {
 				if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
-					bill += subRow.getCost();
+					bill = subRow.getCost();
 
 				}
 			}
-			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		} else if (subRow.getFrequency().equals("Yearly")) {
 			int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears()*12 + 
 					Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
@@ -683,11 +672,10 @@ public class BillingUtilityClass {
 
 			if (months % 12 == 0) {
 				if (!(firstDate.isBefore(startDate)) && (!firstDate.isAfter(endDate))) {
-					bill += subRow.getCost();
+					bill = subRow.getCost();
 
 				}
 			}
-			// bill += bill == 0.0 ? 0.0 : subRow.getServiceCharge();
 		}
 
 		return bill;
@@ -1222,7 +1210,7 @@ public class BillingUtilityClass {
 			}
 
 			PreparedStatement stmt = con.prepareStatement(
-					"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access from hawker_info where hawker_code=?");
+					"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo from hawker_info where hawker_code=?");
 			stmt.setString(1, hawkerCode);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
@@ -1233,7 +1221,7 @@ public class BillingUtilityClass {
 						rs.getString(19), rs.getString(20), rs.getString(21), rs.getString(22), rs.getString(23),
 						rs.getString(24), rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
 						rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32), rs.getString(33),
-						rs.getString(34));
+						rs.getString(34), rs.getBlob(35));
 				return hwkRow;
 			}
 			rs.close();

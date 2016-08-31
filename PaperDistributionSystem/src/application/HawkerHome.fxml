@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.input.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -9,159 +11,103 @@
 
 <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.HawkerHomeController">
 	<children>
-		<VBox prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-			<children>
-            <HBox alignment="CENTER_RIGHT">
-               <VBox.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </VBox.margin>
+      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox>
                <children>
-						<Label fx:id="adminAgencyName" alignment="CENTER_RIGHT" prefHeight="35.0" prefWidth="668.0" text="Admin Agency Name" textAlignment="CENTER" HBox.hgrow="ALWAYS">
-							<font>
-								<Font size="24.0" />
-							</font>
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                     <padding>
-                        <Insets right="25.0" />
-                     </padding>
-						</Label>
-                  <VBox alignment="CENTER" prefHeight="63.0" prefWidth="376.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                  <MenuBar HBox.hgrow="ALWAYS">
+                    <menus>
+                      <Menu mnemonicParsing="false" text="File">
+                        <items>
+                              <MenuItem mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
+                          <MenuItem mnemonicParsing="false" onAction="#exitMenuOptionClicked" text="Exit" />
+                        </items>
+                      </Menu>
+                      <Menu mnemonicParsing="false" text="Operations">
+                        <items>
+                              <MenuItem mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
+                              <MenuItem mnemonicParsing="false" onAction="#changeMobileClicked" text="Edit Hawker Details" />
+                              <MenuItem mnemonicParsing="false" onAction="#changePasswordClicked" text="Change Password" />
+                          <MenuItem mnemonicParsing="false" onAction="#updateProductFixedRateClicked" text="Update Product Fixed Rate" />
+                        </items>
+                      </Menu>
+                      <Menu mnemonicParsing="false" text="Help" visible="false">
+                        <items>
+                          <MenuItem mnemonicParsing="false" text="About" />
+                        </items>
+                      </Menu>
+                    </menus>
+                  </MenuBar>
+                  <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label fx:id="adminMobileLabel" prefHeight="17.0" prefWidth="348.0" text="Mobile" />
-                        <Label fx:id="adminAddrLabel" prefHeight="33.0" prefWidth="349.0" text="Addr" wrapText="true">
-                           <font>
-                              <Font size="10.0" />
-                           </font></Label>
-                     </children>
-                  </VBox>
-                  <VBox prefHeight="55.0" prefWidth="257.0" spacing="5.0">
-                     <children>
-                        <HBox alignment="CENTER" spacing="20.0">
+                        <HBox alignment="CENTER" spacing="10.0">
                            <children>
-            						<Button fx:id="refreshButton" minWidth="120.0" mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
-            						<Button fx:id="logoutButton" minWidth="120.0" mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
+            						<Label fx:id="adminAgencyName" alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Admin Agency Name" textAlignment="RIGHT" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <padding>
+                                    <Insets right="25.0" />
+                                 </padding>
+            						</Label>
+                              <Label fx:id="adminMobileLabel" text="Mobile" />
+                              <Label fx:id="adminAddrLabel" text="Addr" wrapText="true" />
                            </children>
+                           <padding>
+                              <Insets right="25.0" />
+                           </padding>
                         </HBox>
-                        <HBox alignment="CENTER" spacing="20.0">
-                           <children>
-            						<Button fx:id="changeMobButton" minWidth="120.0" mnemonicParsing="false" onAction="#changeMobileClicked" text="Edit Hawker Details" />
-            						<Button fx:id="changePwdButton" minWidth="120.0" mnemonicParsing="false" onAction="#changePasswordClicked" text="Change Password" />
-                           </children>
-                        </HBox>
+                        <Button mnemonicParsing="false" onAction="#updateProductFixedRateClicked" prefHeight="25.0" prefWidth="164.0" text="Update Product Fixed Rate" />
+                        <ButtonBar prefHeight="25.0" prefWidth="164.0">
+                          <buttons>
+                              <Button mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
+                            <Button mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
+                          </buttons>
+                           <padding>
+                              <Insets right="5.0" />
+                           </padding>
+                        </ButtonBar>
                      </children>
-                  </VBox>
+                  </HBox>
                </children>
             </HBox>
-				<HBox alignment="TOP_CENTER" maxHeight="-Infinity" prefHeight="20.0" VBox.vgrow="ALWAYS">
-					<VBox.margin>
-						<Insets bottom="10.0" left="10.0" right="10.0" />
-					</VBox.margin>
-					<children>
-						<VBox maxHeight="-Infinity" prefHeight="20.0" HBox.hgrow="ALWAYS">
-							<children>
-								<HBox alignment="CENTER" prefHeight="20.0" prefWidth="705.0" spacing="10.0">
-									<children>
-										<Label text="Name : ">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label fx:id="hawkerName" text="&lt;Hawker Name&gt;">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label text="Hawker Code : ">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label fx:id="code" text="&lt;Hawker Code&gt;">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label text="Agency Name : ">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label fx:id="agencyName" text="&lt;Agency Name&gt;">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label text="Mobile Number : ">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label fx:id="mobileNum" text="&lt;MobNum&gt;">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label text="Point Name : ">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label fx:id="pointName" text="&lt;Point Name&gt;">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label text="Bill Category : ">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-										<Label fx:id="billCategory" text="&lt;Bill Category&gt;">
-											<font>
-												<Font size="14.0" />
-											</font>
-										</Label>
-									</children>
-								</HBox>
-							</children>
-						</VBox>
-					</children>
-				</HBox>
-				<TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-					<tabs>
-						<Tab fx:id="customersTab" text="Customers">
-							<content>
-								<fx:include source="A-CustomersTab.fxml" />
-							</content>
-						</Tab>
-						<Tab fx:id="lineInfoTab" text="Line Information">
-							<content>
-								<fx:include source="A-LineInfoTab.fxml" />
-							</content>
-						</Tab>
-						<Tab fx:id="pausedCustTab" text="Stopped Customers">
-							<content>
-								<fx:include source="A-PausedCustomersTab.fxml" />
-							</content>
-						</Tab>
-						<Tab fx:id="lineDistTab" text="Line Distributor">
-							<content>
-								<fx:include source="A-LineDistributorTab.fxml" />
-							</content>
-						</Tab>
-						<Tab fx:id="reportsTab" text="Reports">
-							<content>
-								<fx:include source="AReportsTab.fxml" />
-							</content>
-						</Tab>
-					</tabs>
-					<VBox.margin>
-						<Insets bottom="10.0" />
-					</VBox.margin>
-				</TabPane>
-			</children>
-		</VBox>
+      		<VBox prefHeight="800.0" prefWidth="1280.0">
+      			<children>
+      				<TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+      					<tabs>
+      						<Tab fx:id="customersTab" text="Customers">
+      							<content>
+      								<fx:include source="A-CustomersTab.fxml" />
+      							</content>
+      						</Tab>
+      						<Tab fx:id="lineInfoTab" text="Line Information">
+      							<content>
+      								<fx:include source="A-LineInfoTab.fxml" />
+      							</content>
+      						</Tab>
+      						<Tab fx:id="pausedCustTab" text="Stopped Customers">
+      							<content>
+      								<fx:include source="A-PausedCustomersTab.fxml" />
+      							</content>
+      						</Tab>
+      						<Tab fx:id="lineDistTab" text="Line Distributor">
+      							<content>
+      								<fx:include source="A-LineDistributorTab.fxml" />
+      							</content>
+      						</Tab>
+      						<Tab fx:id="reportsTab" text="Reports">
+      							<content>
+      								<fx:include source="AReportsTab.fxml" />
+      							</content>
+      						</Tab>
+      					</tabs>
+      					<VBox.margin>
+      						<Insets bottom="10.0" />
+      					</VBox.margin>
+      				</TabPane>
+      			</children>
+      		</VBox>
+         </children>
+      </VBox>
 	</children>
 </AnchorPane>

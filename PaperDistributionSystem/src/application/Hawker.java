@@ -1,15 +1,24 @@
 package application;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.imageio.ImageIO;
+
 import org.controlsfx.control.Notifications;
+import org.jpedal.parser.image.ImageUtils;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 
@@ -50,6 +59,7 @@ public class Hawker {
 	private SimpleStringProperty bankName = new SimpleStringProperty("");
 	private SimpleStringProperty ifscCode = new SimpleStringProperty("");
 	private SimpleStringProperty stopHistoryAccess = new SimpleStringProperty("");
+	private Blob logo;
 
 	public Hawker(long hawkerId, String name, String hawkerCode, String moblieNum, String agencyName,
 			boolean activeFlag, double fee, String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2,
@@ -57,7 +67,7 @@ public class Hawker {
 			String lineInfoAccess, String lineDistAccess, String pausedCustAccess, String productAccess,
 			String reportsAccess, String profile1, String profile2, String profile3, String initials, String password,
 			String employment, String comments, String pointName, String buildingStreet, String bankAcNo,
-			String bankName, String ifscCode, String stopHistoryAccess) {
+			String bankName, String ifscCode, String stopHistoryAccess, Blob logo) {
 		super();
 		setHawkerId(hawkerId);
 		setName(name);
@@ -93,10 +103,10 @@ public class Hawker {
 		setBankName(bankName);
 		setIfscCode(ifscCode);
 		setStopHistoryAccess(stopHistoryAccess);
+		setLogo(logo);
 	}
 
 	public Hawker(Hawker hawkerRow) {
-		// TODO Auto-generated constructor stub
 		setHawkerId(hawkerRow.getHawkerId());
 		setName(hawkerRow.getName());
 		setMobileNum(hawkerRow.getMobileNum());
@@ -429,6 +439,23 @@ public class Hawker {
 		this.stopHistoryAccess.set(stopHistoryAccess);
 	}
 
+	public Image getLogo() {
+		BufferedImage image = null;
+		try {
+			InputStream in = this.logo.getBinaryStream();  
+			image = ImageIO.read(in);
+		} catch (SQLException | IOException e) {
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
+		
+		return image;
+	}
+
+	public void setLogo(Blob logo) {
+		this.logo = logo;
+	}
+
 	public void calculateTotalDue() {
 		try {
 
@@ -444,7 +471,6 @@ public class Hawker {
 				setTotalDue(rs.getDouble(1));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -502,7 +528,6 @@ public class Hawker {
 			con.commit();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 			Notifications.create().title("Failed").text("Hawker update failed").showError();

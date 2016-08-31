@@ -745,7 +745,7 @@ public class ExportToExcel {
 					row = subsheet.createRow(1);
 
 					stmt = con.prepareStatement(
-							"select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID order by prod.name");
+							"select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE sub_type, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID order by prod.name");
 
 					cell = row.createCell(1);
 					cell.setCellValue("SUBSCRIPTION_ID");
@@ -756,7 +756,7 @@ public class ExportToExcel {
 					cell = row.createCell(4);
 					cell.setCellValue("name");
 					cell = row.createCell(5);
-					cell.setCellValue("type");
+					cell.setCellValue("product type");
 					cell = row.createCell(6);
 					cell.setCellValue("PAYMENT_TYPE");
 					cell = row.createCell(7);
@@ -766,7 +766,7 @@ public class ExportToExcel {
 					cell = row.createCell(9);
 					cell.setCellValue("FREQUENCY");
 					cell = row.createCell(10);
-					cell.setCellValue("TYPE");
+					cell.setCellValue("SUBSCRIPTION TYPE");
 					cell = row.createCell(11);
 					cell.setCellValue("DOW");
 					cell = row.createCell(12);
@@ -811,7 +811,7 @@ public class ExportToExcel {
 						cell = row.createCell(9);
 						cell.setCellValue(rs.getString("FREQUENCY"));
 						cell = row.createCell(10);
-						cell.setCellValue(rs.getString("TYPE"));
+						cell.setCellValue(rs.getString("sub_TYPE"));
 						cell = row.createCell(11);
 						cell.setCellValue(rs.getString("DOW"));
 						cell = row.createCell(12);

@@ -1806,6 +1806,10 @@ public class ALineInfoTabController implements Initializable {
 				}
 			}
 		});
+		
+
+//		customerTitledPane.setExpanded(true);
+		
 		// TextFields.bindAutoCompletion(cityTF.getEditor(), cityTF.getItems());
 		// TextFields.bindAutoCompletion(addPointName.getEditor(),
 		// pointNameValues);
@@ -2227,10 +2231,10 @@ public class ALineInfoTabController implements Initializable {
 						con = Main.reconnect();
 					}
 
-					String findString = "select count(*) from customer where hawker_code=? and line_num=?";
+					String findString = "select count(*) from customer where hawker_code=? and line_id=?";
 					PreparedStatement findStmt = con.prepareStatement(findString);
 					findStmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
-					findStmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
+					findStmt.setLong(2, lineNumTable.getSelectionModel().getSelectedItem().getLineId());
 					ResultSet rs = findStmt.executeQuery();
 					if (rs.next() && rs.getInt(1) == 0) {
 						String deleteString = "delete from line_info where line_id=?";
@@ -2283,9 +2287,9 @@ public class ALineInfoTabController implements Initializable {
 						customerData = FXCollections.observableArrayList();
 						// lineNumCustomersTable.getItems().clear();
 						PreparedStatement stmt = con.prepareStatement(
-								"select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_code = ? and line_num = ? ORDER BY HOUSE_SEQ");
-						stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
-						stmt.setInt(2, lineNumTable.getSelectionModel().getSelectedItem().getLineNum());
+								"select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_id = ? and line_id = ? ORDER BY HOUSE_SEQ");
+						stmt.setLong(1,hawkerIdForCode(hawkerComboBox.getSelectionModel().getSelectedItem()));
+						stmt.setLong(2, lineNumTable.getSelectionModel().getSelectedItem().getLineId());
 						ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
 							customerData.add(new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3),
@@ -2415,12 +2419,12 @@ public class ALineInfoTabController implements Initializable {
 		long hawkerId = hawkerIdForCode(hawkerCode);
 
 		if (hawkerId >= 1) {
-			Task<Void> task = new Task<Void>() {
+			/*Task<Void> task = new Task<Void>() {
 
 				@Override
 				protected Void call() throws Exception {
 
-					synchronized (this) {
+					synchronized (this) {*/
 						try {
 
 							lineNumData = FXCollections.observableArrayList();
@@ -2430,7 +2434,7 @@ public class ALineInfoTabController implements Initializable {
 							}
 							disableAll();
 							PreparedStatement lineNumStatement = null;
-							String lineNumQuery = "select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? order by li.line_num";
+							String lineNumQuery = "select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_id=ld.line_id(+) and li.hawker_id = ? order by li.line_num";
 							lineNumStatement = con.prepareStatement(lineNumQuery);
 							lineNumStatement.setLong(1, hawkerId);
 							ResultSet rs = lineNumStatement.executeQuery();
@@ -2463,13 +2467,13 @@ public class ALineInfoTabController implements Initializable {
 							Main._logger.debug("Error :", e);
 							e.printStackTrace();
 						}
-					}
+					/*}
 					return null;
 				}
 
 			};
 
-			new Thread(task).start();
+			new Thread(task).start();*/
 		} else {
 			lineNumData.clear();
 			lineNumTable.getItems().clear();
@@ -2867,7 +2871,7 @@ public class ALineInfoTabController implements Initializable {
 
 			try {
 				ArrayList<Customer> custData = getCustomerDataToShift(custRow.getHawkerCode(),
-						custRow.getLineNum().intValue());
+						custRow.getLineId());
 				shiftHouseSeqForDelete(custData, custRow.getHouseSeq());
 				Connection con = Main.dbConnection;
 				if (!con.isValid(0)) {
@@ -2899,7 +2903,7 @@ public class ALineInfoTabController implements Initializable {
 
 	}
 
-	public ArrayList<Customer> getCustomerDataToShift(String hawkerCode, int lineNum) {
+	public ArrayList<Customer> getCustomerDataToShift(String hawkerCode, Long lineId) {
 		ArrayList<Customer> custData = new ArrayList<Customer>();
 
 		try {
@@ -2908,10 +2912,10 @@ public class ALineInfoTabController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_code=? and line_num=? order by house_seq";
+			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_id=? and line_id=? order by house_seq";
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, hawkerCode);
-			stmt.setInt(2, lineNum);
+			stmt.setLong(1, hawkerIdForCode(hawkerCode));
+			stmt.setLong(2, lineId);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				custData.add(new Customer(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4),
@@ -3642,9 +3646,9 @@ public class ALineInfoTabController implements Initializable {
 			ObservableList<LocalDate> dateList = FXCollections.observableArrayList();
 			PreparedStatement stmt = null;
 			stmt = con.prepareStatement(
-					"select distinct invoice_date from billing where customer_id in (select distinct customer_id from customer where hawker_code=? and line_num=?) order by invoice_date desc");
-			stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
-			stmt.setString(2, Integer.toString(lineRow.getLineNum()));
+					"select distinct invoice_date from billing where customer_id in (select distinct customer_id from customer where hawker_id=? and line_id=?) order by invoice_date desc");
+			stmt.setLong(1, hawkerIdForCode(hawkerComboBox.getSelectionModel().getSelectedItem()));
+			stmt.setLong(2, lineRow.getLineId());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				dateList.add(rs.getDate(1).toLocalDate());

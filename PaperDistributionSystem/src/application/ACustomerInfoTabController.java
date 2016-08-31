@@ -3535,9 +3535,7 @@ public class ACustomerInfoTabController implements Initializable {
 		billingTable.setItems(billingLinesData);
 		populateProfileValues();
 		populateEmploymentValues();
-		addCustProf1.getItems().addAll(profileValues);
-		addCustProf2.getItems().addAll(profileValues);
-		addCustEmployment.getItems().addAll(employmentData);
+		
 
 	}
 

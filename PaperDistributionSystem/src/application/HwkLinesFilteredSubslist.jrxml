@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-08-14T18:33:48 -->
+<!-- 2016-08-22T22:07:47 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HwkLinesFilteredSubslist" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="773c0140-0b9d-4735-add1-84b46cdba75b">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
@@ -82,6 +82,10 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 		<field name="PRD" class="java.lang.String"/>
 		<field name="HAWKER_CODE" class="java.lang.String"/>
 		<field name="FIRST_DELIVERY_DATE" class="java.sql.Timestamp"/>
+		<variable name="tCount" class="java.lang.Integer" calculation="Count">
+			<variableExpression><![CDATA[$F{PROD_CODE}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
 	</subDataset>
 	<parameter name="PROD_NAME" class="java.lang.String"/>
 	<parameter name="PAYMENT_TYPE" class="java.lang.String"/>
@@ -153,7 +157,7 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 		<band splitType="Stretch"/>
 	</pageFooter>
 	<summary>
-		<band height="204" splitType="Stretch">
+		<band height="80" splitType="Stretch">
 			<componentElement>
 				<reportElement x="0" y="0" width="555" height="70" uuid="204c3605-bfac-44bd-a64c-1051dd83c368">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
@@ -191,18 +195,19 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					</datasetRun>
 					<jr:column width="40" uuid="0ec68cb5-e2cb-4ef8-9be1-85b29878e184">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
-						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="40" height="30" uuid="dafebcf7-338a-4999-bb0c-12bdd96c031b"/>
+								<reportElement x="0" y="0" width="40" height="20" uuid="dafebcf7-338a-4999-bb0c-12bdd96c031b"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
 								</textElement>
 								<text><![CDATA[Line Num]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="40" height="30" uuid="6afe7dbb-8612-4446-8054-ec6d1a9ef21b"/>
+								<reportElement x="0" y="0" width="40" height="20" uuid="6afe7dbb-8612-4446-8054-ec6d1a9ef21b"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -213,9 +218,10 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					</jr:column>
 					<jr:column width="40" uuid="54ab0e84-e96b-4611-8d3e-304c4898144b">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
-						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="40" height="30" uuid="62659178-a6e5-4bd5-b5b4-7df632ac31c8"/>
+								<reportElement x="0" y="0" width="40" height="20" uuid="62659178-a6e5-4bd5-b5b4-7df632ac31c8"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -223,9 +229,9 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 								<text><![CDATA[Seq]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="40" height="30" uuid="c45cc90c-a7c0-4b87-bcd1-d94af91ec4d9"/>
+								<reportElement x="0" y="0" width="40" height="20" uuid="c45cc90c-a7c0-4b87-bcd1-d94af91ec4d9"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -236,9 +242,10 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					</jr:column>
 					<jr:column width="50" uuid="eb778577-5951-409e-962f-58968ce76a46">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
-						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="50" height="30" uuid="41db4ab1-cf4c-4583-aede-7e836a291c07"/>
+								<reportElement x="0" y="0" width="50" height="20" uuid="41db4ab1-cf4c-4583-aede-7e836a291c07"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -246,9 +253,9 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 								<text><![CDATA[Cust Code]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="50" height="30" uuid="6209616f-31d3-4595-bfcd-aff0f6887f9f"/>
+								<reportElement x="0" y="0" width="50" height="20" uuid="6209616f-31d3-4595-bfcd-aff0f6887f9f"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -259,9 +266,10 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					</jr:column>
 					<jr:column width="80" uuid="0da0fc36-bf23-472e-a758-94efa7c1b12a">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
-						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="80" height="30" uuid="fe022e42-f3d1-40f6-bfbc-d3ac08f9defd"/>
+								<reportElement x="0" y="0" width="80" height="20" uuid="fe022e42-f3d1-40f6-bfbc-d3ac08f9defd"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -269,9 +277,9 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 								<text><![CDATA[Cust Name]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="80" height="30" uuid="f3146238-b6d8-4f87-9171-4a4b3e11625a"/>
+								<reportElement x="0" y="0" width="80" height="20" uuid="f3146238-b6d8-4f87-9171-4a4b3e11625a"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -283,10 +291,11 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					<jr:column width="100" uuid="9a1b7ddc-5696-4857-adaf-e874c2638a32">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<property name="com.jaspersoft.studio.unit.width" value="px"/>
 							<staticText>
-								<reportElement x="0" y="0" width="100" height="30" uuid="d7360b07-ebd9-4952-a9cf-3cd307b0c15b"/>
+								<reportElement x="0" y="0" width="100" height="20" uuid="d7360b07-ebd9-4952-a9cf-3cd307b0c15b"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -294,9 +303,9 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 								<text><![CDATA[Addr]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="100" height="30" uuid="86989529-ec73-478e-b2d7-fa1e8eaadf2d"/>
+								<reportElement x="0" y="0" width="100" height="20" uuid="86989529-ec73-478e-b2d7-fa1e8eaadf2d"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -307,9 +316,19 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					</jr:column>
 					<jr:column width="80" uuid="df58f3c7-8b2a-4b5e-96ed-36241feb9ee3">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
-						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="80" height="30" uuid="52004d8d-fa61-4f8e-9593-2ce84eb08d46"/>
+								<reportElement x="0" y="0" width="80" height="20" uuid="430b79d0-da8f-42eb-9f84-aea4bf6f2ae0"/>
+								<box rightPadding="2"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<text><![CDATA[Count]]></text>
+							</staticText>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="80" height="20" uuid="52004d8d-fa61-4f8e-9593-2ce84eb08d46"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -317,9 +336,9 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 								<text><![CDATA[Payment Type]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="80" height="30" uuid="5f8a5887-91b5-4ae2-b95d-33b234213843"/>
+								<reportElement x="0" y="0" width="80" height="20" uuid="5f8a5887-91b5-4ae2-b95d-33b234213843"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -330,9 +349,19 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					</jr:column>
 					<jr:column width="50" uuid="0524f7d5-3b8a-4288-97f6-2849e356675b">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
-						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="50" height="20" uuid="0c9c55a8-d494-4cd5-912a-11204c6f10e8"/>
+								<box leftPadding="5"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{tCount}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="50" height="30" uuid="11c2e8b9-9217-4060-9cf1-c70d40bb9c00"/>
+								<reportElement x="0" y="0" width="50" height="20" uuid="11c2e8b9-9217-4060-9cf1-c70d40bb9c00"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -340,9 +369,9 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 								<text><![CDATA[Prod Code]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="50" height="30" uuid="29060852-cd18-49dd-a13c-d1875f121c3d"/>
+								<reportElement x="0" y="0" width="50" height="20" uuid="29060852-cd18-49dd-a13c-d1875f121c3d"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -353,9 +382,10 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					</jr:column>
 					<jr:column width="60" uuid="21d06a9c-cd0a-44fa-9712-1ca66871791b">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
-						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="60" height="30" uuid="853dc2d6-4717-4fa5-9ffc-694c2c488e75"/>
+								<reportElement x="0" y="0" width="60" height="20" uuid="853dc2d6-4717-4fa5-9ffc-694c2c488e75"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -363,9 +393,9 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 								<text><![CDATA[Freq]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="60" height="30" uuid="30970bec-ef7c-4636-a786-cd7f9b4077cc"/>
+								<reportElement x="0" y="0" width="60" height="20" uuid="30970bec-ef7c-4636-a786-cd7f9b4077cc"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -376,9 +406,10 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					</jr:column>
 					<jr:column width="60" uuid="60e20140-6bf3-472d-bfc9-c21ad9597256">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
-						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="60" height="30" uuid="b7c4e1c8-1ec0-445c-9acb-40afe99f8fe9"/>
+								<reportElement x="0" y="0" width="60" height="20" uuid="b7c4e1c8-1ec0-445c-9acb-40afe99f8fe9"/>
 								<box leftPadding="5"/>
 								<textElement verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -386,9 +417,9 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 								<text><![CDATA[DOW]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="60" height="30" uuid="b999c278-5c20-4075-8415-9093f00ac6fc"/>
+								<reportElement x="0" y="0" width="60" height="20" uuid="b999c278-5c20-4075-8415-9093f00ac6fc"/>
 								<box leftPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="8"/>
@@ -399,12 +430,6 @@ AND ("HWK_LINE_FLTRD_SUB_LIST"."STATUS"=$P{STATUS}  OR $P{STATUS} IS NULL)]]>
 					</jr:column>
 				</jr:table>
 			</componentElement>
-			<staticText>
-				<reportElement x="0" y="60" width="545" height="30" uuid="bfa63ece-a396-46f0-8c4f-d543f3d153a2"/>
-				<text><![CDATA[
-
-]]></text>
-			</staticText>
 		</band>
 	</summary>
 </jasperReport>

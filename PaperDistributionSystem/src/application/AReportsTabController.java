@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.controlsfx.control.Notifications;
-import org.jpedal.examples.viewer.OpenViewerFX;
 
 import com.qoppa.pdf.PDFException;
 import com.qoppa.pdfViewerFX.PDFViewer;
@@ -32,12 +31,13 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -58,6 +58,8 @@ public class AReportsTabController implements Initializable {
 	private ComboBox<String> addLineNumLOV;
 	@FXML
 	private ComboBox<String> addLineNumLOV2;
+	@FXML
+	private ComboBox<String> addLineNumLOV3;
 
 	@FXML
 	private AnchorPane pdfPane;
@@ -101,6 +103,8 @@ public class AReportsTabController implements Initializable {
 	private ComboBox<String> frequencyLOV;
 	@FXML
 	private ComboBox<String> prodNameLOV;
+	@FXML
+	private ComboBox<String> prodNameLOV1;
 
     @FXML
     private ComboBox<String> statusLOV;
@@ -130,7 +134,7 @@ public class AReportsTabController implements Initializable {
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (newValue != null) {
 					if (prodNameLOV.getSelectionModel().getSelectedIndex()>1) {
-						Product prod = productValues2.get(prodNameLOV.getSelectionModel().getSelectedIndex());
+						Product prod = productValues2.get(prodNameLOV.getSelectionModel().getSelectedIndex()-1);
 						populateDOWValues(prod);
 						datesList.setText(BillingUtilityClass.findDeliveryDatesForMonth(prod));
 					} else {
@@ -198,10 +202,13 @@ public class AReportsTabController implements Initializable {
 						public void run() {
 							addLineNumLOV.setItems(hawkerLineNumData);
 							addLineNumLOV2.setItems(hawkerLineNumData2);
+							addLineNumLOV3.setItems(hawkerLineNumData2);
 
 							new AutoCompleteComboBoxListener<>(addLineNumLOV);
 							new AutoCompleteComboBoxListener<>(addLineNumLOV2);
+							new AutoCompleteComboBoxListener<>(addLineNumLOV3);
 							addLineNumLOV2.getSelectionModel().selectFirst();
+							addLineNumLOV3.getSelectionModel().selectFirst();
 						}
 					});
 				} catch (SQLException e) {
@@ -545,9 +552,9 @@ public class AReportsTabController implements Initializable {
 	@FXML
 	void generateFilteredReportButtonClicked(ActionEvent event) {
 		try {
-			String reportSrcFile = "HwkLinesFilteredSubsList.jrxml";
+			String reportSrcFile = "HwkLinesFilteredSubslist.jrxml";
 
-			InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
 			JasperReport jasperReport = JasperCompileManager.compileReport(input);
 
 			// Parameters for report
@@ -654,18 +661,6 @@ public class AReportsTabController implements Initializable {
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
 
-			// BorderPane root;
-			// root = new BorderPane();
-			// Stage stage = new Stage();
-			// stage.setTitle("Invoice PDF");
-			// stage.setScene(new Scene(root, 1024, 800));
-			//
-//			if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
-//				pdfPane.getChildren().removeAll(pdfPane.getChildren());
-//			OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
-//			fx.setupViewer();
-//			fx.openDefaultFile(outFile.getAbsolutePath());
-
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
 		}
@@ -711,17 +706,104 @@ public class AReportsTabController implements Initializable {
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
 
-			// BorderPane root;
-			// root = new BorderPane();
-			// Stage stage = new Stage();
-			// stage.setTitle("Invoice PDF");
-			// stage.setScene(new Scene(root, 1024, 800));
+		} catch (JRException e) {
+			Main._logger.debug("Error during Report PDF Generation: ", e);
+		}
+    }
+    
+
+    @FXML
+    void upcomingEndDateListFilteredClicked(ActionEvent event) {
+    	try {
+			String reportSrcFile = "HawkerSubListEndDate.jrxml";
+
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+			String lineNum = addLineNumLOV3.getSelectionModel().getSelectedItem().equals("All")?null:addLineNumLOV3.getSelectionModel().getSelectedItem().split(" ")[0];
+			String prodName = prodNameLOV1.getSelectionModel().getSelectedItem().equals("All")?null:prodNameLOV1.getSelectionModel().getSelectedItem();
+			
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			parameters.put("HAWKER_CODE", hawkerCode);
+			parameters.put("LINE_NUM", lineNum);
+			parameters.put("PROD_NAME", prodName);
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-SubEndDateListFilter" +LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) +  ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
 			//
-//			if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
-//				pdfPane.getChildren().removeAll(pdfPane.getChildren());
-//			OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
-//			fx.setupViewer();
-//			fx.openDefaultFile(outFile.getAbsolutePath());
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+
+			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Report PDF Generation: ", e);
+		}
+    }
+
+    @FXML
+    void upcomingResumeDateListFilteredClicked(ActionEvent event) {
+    	try {
+			String reportSrcFile = "HawkerSubListResumeDate.jrxml";
+
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+			String lineNum = addLineNumLOV3.getSelectionModel().getSelectedItem().equals("All")?null:addLineNumLOV3.getSelectionModel().getSelectedItem().split(" ")[0];
+			String prodName = prodNameLOV1.getSelectionModel().getSelectedItem().equals("All")?null:prodNameLOV1.getSelectionModel().getSelectedItem();
+			
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			parameters.put("HAWKER_CODE", hawkerCode);
+			parameters.put("LINE_NUM", lineNum);
+			parameters.put("PROD_NAME", prodName);
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-SubResumeDateListFilter" +LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) +  ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+
+			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
 
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
@@ -968,6 +1050,9 @@ public class AReportsTabController implements Initializable {
 							prodNameLOV.setItems(productValues);
 							new AutoCompleteComboBoxListener<String>(prodNameLOV);
 							prodNameLOV.getSelectionModel().selectFirst();
+							prodNameLOV1.setItems(productValues);
+							new AutoCompleteComboBoxListener<String>(prodNameLOV1);
+							prodNameLOV1.getSelectionModel().selectFirst();
 
 						}
 					});

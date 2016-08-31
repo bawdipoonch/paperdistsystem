@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-08-16T10:57:22 -->
+<!-- 2016-08-29T23:52:25 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BillGeneratedLineSummary" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="22fdbade-03b4-4ad1-914f-4c9691e5cd65">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
@@ -103,10 +103,21 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 		<field name="INVOICE_DATE" class="java.lang.String"/>
 		<field name="DUE" class="java.math.BigDecimal"/>
 		<field name="MONTH" class="java.lang.String"/>
-		<field name="TOTAL" class="java.math.BigDecimal"/>
+		<field name="TOTAL" class="java.lang.Double"/>
 		<field name="GTOTAL" class="java.math.BigDecimal"/>
 		<field name="LINE_NUM1" class="java.math.BigDecimal"/>
 		<sortField name="HOUSE_SEQ"/>
+		<variable name="tSum" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[$F{TOTAL}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="dSum" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[$F{DUE}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="gSum" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[$F{GTOTAL}]]></variableExpression>
+		</variable>
 	</subDataset>
 	<parameter name="HAWKER_CODE" class="java.lang.String"/>
 	<parameter name="LINE_NUM" class="java.lang.Integer"/>
@@ -243,9 +254,9 @@ FROM "INVOICE_QUERY"]]>
 		<band splitType="Stretch"/>
 	</pageFooter>
 	<summary>
-		<band height="52" splitType="Stretch">
+		<band height="76" splitType="Stretch">
 			<componentElement>
-				<reportElement x="0" y="0" width="551" height="50" uuid="cc69fe9e-7063-45cf-8b60-59f38c38f68c">
+				<reportElement x="0" y="0" width="551" height="70" uuid="cc69fe9e-7063-45cf-8b60-59f38c38f68c">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
@@ -264,30 +275,9 @@ FROM "INVOICE_QUERY"]]>
 						</datasetParameter>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
-					<jr:column width="40" uuid="292b6076-bec7-4bad-ba28-27319849a3ae">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
-						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
-							<staticText>
-								<reportElement x="0" y="0" width="40" height="20" uuid="ce0dfc02-7e58-40b2-bf38-28dd03746fc0"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Arial" size="8"/>
-								</textElement>
-								<text><![CDATA[Line Num]]></text>
-							</staticText>
-						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="20">
-							<textField>
-								<reportElement x="0" y="0" width="40" height="20" uuid="2cf70a9e-5143-44d1-b21b-0310b014352d"/>
-								<box leftPadding="5" rightPadding="0"/>
-								<textElement textAlignment="Left" verticalAlignment="Middle">
-									<font fontName="Arial" size="8"/>
-								</textElement>
-								<textFieldExpression><![CDATA[$F{LINE_NUM}]]></textFieldExpression>
-							</textField>
-						</jr:detailCell>
-					</jr:column>
 					<jr:column width="40" uuid="7e8a0c77-5717-45cc-85a3-e4168ed525b9">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
 						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="40" height="20" uuid="2da00b23-45b1-48eb-a52c-531c66ef460b"/>
@@ -309,7 +299,8 @@ FROM "INVOICE_QUERY"]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="78" uuid="789d20eb-e378-45bd-bd65-0fd11862c57d">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
 						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="78" height="20" uuid="5fbf736c-4a20-4f57-9076-f6db62072e13"/>
@@ -331,7 +322,8 @@ FROM "INVOICE_QUERY"]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="42" uuid="39efe351-91f4-46f9-bea7-9056ce399329">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
 						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="42" height="20" uuid="9107a9e2-15e8-4189-9bc3-d4b1d6993b31"/>
@@ -353,7 +345,17 @@ FROM "INVOICE_QUERY"]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="40" uuid="9e7da4ae-3463-4987-b463-4c248bc9ad2f">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="40" height="20" uuid="b0250c9e-8646-4ef8-968d-3901bf5b9b44"/>
+								<box rightPadding="5"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{tSum}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
 						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="40" height="20" uuid="7d53df46-9ea5-4836-a846-46e114da6899"/>
@@ -375,7 +377,17 @@ FROM "INVOICE_QUERY"]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="30" uuid="7a39508d-cec3-4bd8-87e3-c22d904917db">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="30" height="20" uuid="25d25ca1-ccf3-40e1-957f-21f4e394809c"/>
+								<box rightPadding="2"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{dSum}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
 						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="30" height="20" uuid="afa788fd-27a8-4e21-aab9-546fb483a3df"/>
@@ -397,7 +409,17 @@ FROM "INVOICE_QUERY"]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="40" uuid="a52a289c-131b-42f9-be10-faaa009f8685">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="40" height="20" uuid="844ce843-85eb-4a04-bbd9-0b8172a7676e"/>
+								<box rightPadding="2"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{gSum}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
 						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="40" height="20" uuid="a5b6d3eb-cab5-417c-a3fb-08434464a14d"/>
@@ -419,7 +441,8 @@ FROM "INVOICE_QUERY"]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="40" uuid="8bb00c66-57a8-4692-8527-a4a084c1990f">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
 						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="40" height="20" uuid="2f979fee-d3cd-4db7-8fcb-4818cebcab00"/>
@@ -432,7 +455,8 @@ FROM "INVOICE_QUERY"]]>
 						<jr:detailCell style="Table_TD" height="20"/>
 					</jr:column>
 					<jr:column width="40" uuid="4cb22a33-3daa-4899-87e9-96545e42f00c">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
 						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="40" height="20" uuid="d5fe1f80-d81b-4440-8207-1711f77e6008"/>
@@ -445,7 +469,8 @@ FROM "INVOICE_QUERY"]]>
 						<jr:detailCell style="Table_TD" height="20"/>
 					</jr:column>
 					<jr:column width="150" uuid="4eef5938-89cd-45e0-8fc7-9c98896416f9">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
+						<jr:tableFooter style="Table_TH" height="20" rowSpan="1"/>
 						<jr:columnHeader style="Table_CH" height="20" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="150" height="20" uuid="51da8bef-b3f9-41fe-a438-760a10efb6a7"/>

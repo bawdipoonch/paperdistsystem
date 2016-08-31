@@ -10,26 +10,39 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import javax.swing.JFileChooser;
+
 import org.controlsfx.control.Notifications;
+
+import com.lowagie.toolbox.arguments.filters.ImageFilter;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 
 public class HawkerHomeController implements Initializable {
-
+	JFileChooser fc = new JFileChooser();
 	@FXML
 	private Button logoutButton;
 	@FXML
@@ -49,14 +62,14 @@ public class HawkerHomeController implements Initializable {
 	@FXML
 	private Label pointName;
 
-    @FXML
-    private Label adminAgencyName;
+	@FXML
+	private Label adminAgencyName;
 
-    @FXML
-    private Label adminMobileLabel;
+	@FXML
+	private Label adminMobileLabel;
 
-    @FXML
-    private Label adminAddrLabel;
+	@FXML
+	private Label adminAddrLabel;
 	// Stage stage;
 	Parent root;
 	@FXML
@@ -74,6 +87,8 @@ public class HawkerHomeController implements Initializable {
 	@FXML
 	private Tab reportsTab;
 	@FXML
+	private Tab hawkerProfileTab;
+	@FXML
 	private TabPane tabPane;
 
 	private ACustomerInfoTabController customerTabController;
@@ -83,11 +98,13 @@ public class HawkerHomeController implements Initializable {
 	private AProductsTabController productsTabController;
 	private AStopHistoryTabController stopHistTabController;
 	private AReportsTabController reportsTabController;
+	private HawkerProfileController hawkerProfileTabController;
+	private ObservableList<Product> productValues = FXCollections.observableArrayList();
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
-		populateBillCategory();
+//		populateBillCategory();
 		populateAdminHeaders();
 		loadTabs();
 		if (!HawkerLoginController.loggedInHawker.getCustomerAccess().equals("Y"))
@@ -137,6 +154,9 @@ public class HawkerHomeController implements Initializable {
 					if (oldValue == reportsTab) {
 						reportsTabController.releaseVariables();
 					}
+					if (oldValue == hawkerProfileTab) {
+						hawkerProfileTabController.releaseVariables();
+					}
 					System.gc();
 				}
 
@@ -174,22 +194,23 @@ public class HawkerHomeController implements Initializable {
 			}
 		});
 		tabPane.getSelectionModel().selectFirst();
-		customerTabController.reloadData();
+		hawkerProfileTabController.reloadData();
+		fc.setFileFilter(new ImageFilter());
 
 	}
 
 	private void populateAdminHeaders() {
 
-		hawkerName.setText(HawkerLoginController.loggedInHawker.getName());
-		code.setText(HawkerLoginController.loggedInHawker.getHawkerCode());
-		agencyName.setText(HawkerLoginController.loggedInHawker.getAgencyName());
-		mobileNum.setText(HawkerLoginController.loggedInHawker.getMobileNum());
-		pointName.setText(HawkerLoginController.loggedInHawker.getPointName());
-		HashMap<String,String> adminMap = Main.getAdminDetails();
+//		hawkerName.setText(HawkerLoginController.loggedInHawker.getName());
+//		code.setText(HawkerLoginController.loggedInHawker.getHawkerCode());
+//		agencyName.setText(HawkerLoginController.loggedInHawker.getAgencyName());
+//		mobileNum.setText(HawkerLoginController.loggedInHawker.getMobileNum());
+//		pointName.setText(HawkerLoginController.loggedInHawker.getPointName());
+		HashMap<String, String> adminMap = Main.getAdminDetails();
 		adminAgencyName.setText(adminMap.get("name"));
 		adminMobileLabel.setText(adminMap.get("mobile"));
 		adminAddrLabel.setText(adminMap.get("addr"));
-		
+
 	}
 
 	private void populateBillCategory() {
@@ -210,11 +231,11 @@ public class HawkerHomeController implements Initializable {
 			stmt.close();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -277,7 +298,6 @@ public class HawkerHomeController implements Initializable {
 			stopHistTabController = stopHistTabLoader.<AStopHistoryTabController> getController();
 			stopHistoryTab.setText("Stop History");
 			stopHistoryTab.setContent(stopHistRoot);
-			
 
 			reportsTab = new Tab();
 			FXMLLoader reportsTabLoader = new FXMLLoader(getClass().getResource("AReportsTab.fxml"));
@@ -286,12 +306,18 @@ public class HawkerHomeController implements Initializable {
 			reportsTab.setText("Reports");
 			reportsTab.setContent(reportsRoot);
 
+			hawkerProfileTab = new Tab();
+			FXMLLoader hawkerProfileTabLoader = new FXMLLoader(getClass().getResource("HawkerProfile.fxml"));
+			Parent hawkerProfileRoot = (Parent) hawkerProfileTabLoader.load();
+			hawkerProfileTabController = hawkerProfileTabLoader.<HawkerProfileController> getController();
+			hawkerProfileTab.setText("Hawker Profile");
+			hawkerProfileTab.setContent(hawkerProfileRoot);
 
-			tabPane.getTabs().addAll(customersTab, lineInfoTab, lineDistTab, pausedCustTab, stopHistoryTab,
-					productsTab, reportsTab);
+			tabPane.getTabs().addAll(hawkerProfileTab, lineInfoTab, customersTab, lineDistTab, pausedCustTab, stopHistoryTab, productsTab,
+					reportsTab);
 		} catch (IOException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -319,6 +345,9 @@ public class HawkerHomeController implements Initializable {
 			}
 			if (t == reportsTab) {
 				reportsTabController.reloadData();
+			}
+			if (t == hawkerProfileTab) {
+				hawkerProfileTabController.reloadData();
 			}
 
 		}
@@ -350,42 +379,193 @@ public class HawkerHomeController implements Initializable {
 		}
 	}
 
-
 	@FXML
 	private void changeMobileClicked(ActionEvent evt) {
 		AHawkerInfoTabController.showEditHawkerDialog(HawkerLoginController.loggedInHawker);
 
-		Notifications.create().title("Please login again").text("Hawker profile updated, please logout and login again to see changes.")
+		Notifications.create().title("Please login again")
+				.text("Hawker profile updated, please logout and login again to see changes.")
 				.hideAfter(Duration.seconds(5)).showInformation();
 		populateAdminHeaders();
-		/*TextInputDialog changeMobDialog = new TextInputDialog();
-		changeMobDialog.setTitle("Change Mobile");
-		changeMobDialog.setHeaderText("Please enter the new mobile. \nMobile number should only contain 10 digits.");
-		// changePwdDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK,
-		// ButtonType.CANCEL);
-		final Button btOk = (Button) changeMobDialog.getDialogPane().lookupButton(ButtonType.OK);
-		changeMobDialog.getEditor().setText(HawkerLoginController.loggedInHawker.getMobileNum());
-		btOk.addEventFilter(ActionEvent.ACTION, event -> {
-			if (changeMobDialog.getEditor().getText().isEmpty() || changeMobDialog.getEditor().getText().length() != 10) {
-				Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
-				.hideAfter(Duration.seconds(5)).showError();
-				event.consume();
-			} else if (AddHawkerExtraScreenController.mobileNumExists(changeMobDialog.getEditor().getText(), HawkerLoginController.loggedInHawker.getHawkerCode())){
+		/*
+		 * TextInputDialog changeMobDialog = new TextInputDialog();
+		 * changeMobDialog.setTitle("Change Mobile");
+		 * changeMobDialog.setHeaderText(
+		 * "Please enter the new mobile. \nMobile number should only contain 10 digits."
+		 * ); //
+		 * changePwdDialog.getDialogPane().getButtonTypes().addAll(ButtonType.
+		 * OK, // ButtonType.CANCEL); final Button btOk = (Button)
+		 * changeMobDialog.getDialogPane().lookupButton(ButtonType.OK);
+		 * changeMobDialog.getEditor().setText(HawkerLoginController.
+		 * loggedInHawker.getMobileNum());
+		 * btOk.addEventFilter(ActionEvent.ACTION, event -> { if
+		 * (changeMobDialog.getEditor().getText().isEmpty() ||
+		 * changeMobDialog.getEditor().getText().length() != 10) {
+		 * Notifications.create().title("Invalid mobile number").text(
+		 * "Mobile number should only contain 10 DIGITS")
+		 * .hideAfter(Duration.seconds(5)).showError(); event.consume(); } else
+		 * if (AddHawkerExtraScreenController.mobileNumExists(changeMobDialog.
+		 * getEditor().getText(),
+		 * HawkerLoginController.loggedInHawker.getHawkerCode())){
+		 * 
+		 * Notifications.create().title("Mobile already exists") .text(
+		 * "Hawker with same Mobile Number alraedy exists. Please enter a different value."
+		 * ) .hideAfter(Duration.seconds(5)).showError(); event.consume(); } });
+		 * Optional<String> result = changeMobDialog.showAndWait(); if
+		 * (result.isPresent()) { // changeHawkerPwd(hawkerRow,result.get());
+		 * HawkerLoginController.loggedInHawker.setMobileNum(result.get());
+		 * HawkerLoginController.loggedInHawker.updateHawkerRecord();
+		 * Notifications.create().title("Mobile Number updated").text(
+		 * "Mobile Number was successfully updated")
+		 * .hideAfter(Duration.seconds(5)).showInformation(); }
+		 */
+	}
 
-				Notifications.create().title("Mobile already exists")
-						.text("Hawker with same Mobile Number alraedy exists. Please enter a different value.")
-						.hideAfter(Duration.seconds(5)).showError();
-				event.consume();
+	@FXML
+	private void exitMenuOptionClicked(ActionEvent evt) {
+		System.exit(0);
+	}
+	
+	@FXML
+	private void updateProductFixedRateClicked(ActionEvent evt) {
+		populateDailyProducts();
+		Dialog<ButtonType> prodDialog = new Dialog<ButtonType>();
+		prodDialog.setTitle("Update product fixed rate.");
+		prodDialog.setHeaderText("Update customer subscription fixed rate for the product selection below.");
+		ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+		prodDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(20, 150, 10, 10));
+		Label prodLabel = new Label("Product: ");
+		ComboBox<Product> prodBox = new ComboBox<Product>(productValues);
+		prodBox.setConverter(new StringConverter<Product>() {
+
+			@Override
+			public String toString(Product object) {
+				if (object != null)
+					return object.getName();
+				else
+					return null;
+			}
+
+			@Override
+			public Product fromString(String string) {
+				while (productValues.iterator().hasNext()) {
+					Product p = productValues.iterator().next();
+					if (p.getName().equalsIgnoreCase(string)) {
+						return p;
+					}
+				}
+				return null;
 			}
 		});
-		Optional<String> result = changeMobDialog.showAndWait();
-		if (result.isPresent()) {
-			// changeHawkerPwd(hawkerRow,result.get());
-			HawkerLoginController.loggedInHawker.setMobileNum(result.get());
-			HawkerLoginController.loggedInHawker.updateHawkerRecord();
-			Notifications.create().title("Mobile Number updated").text("Mobile Number was successfully updated")
-					.hideAfter(Duration.seconds(5)).showInformation();
-		}*/
+
+//		new AutoCompleteComboBoxListener<Product>(prodBox);
+		Label fixedRateLabel = new Label("Fixed Rate: ");
+		TextField fixedRateTF = new TextField("0.0");
+		grid.add(prodLabel, 0, 0);
+		grid.add(prodBox, 1, 0);
+		grid.add(fixedRateLabel, 0, 1);
+		grid.add(fixedRateTF, 1, 1);
+		prodDialog.getDialogPane().setContent(grid);
+		prodBox.getSelectionModel().selectFirst();
+		Button yesButton = (Button) prodDialog.getDialogPane().lookupButton(saveButtonType);
+		yesButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+			if (prodBox.getSelectionModel().getSelectedItem() == null) {
+
+				Notifications.create().title("Invalid product selection")
+						.text("Please select a product before updating.").hideAfter(Duration.seconds(10))
+						.showError();
+				btnEvent.consume();
+			}
+			if (fixedRateTF.getText() == null) {
+				Notifications.create().title("Invalid Fixed Rate").text("Please provide appropriate fixed rate.")
+						.hideAfter(Duration.seconds(10)).showError();
+				btnEvent.consume();
+			}
+			if (fixedRateTF.getText() != null) {
+				try {
+					Double.parseDouble(fixedRateTF.getText().trim());
+				} catch (NumberFormatException e) {
+					Notifications.create().title("Invalid Fixed Rate").text("Please provide appropriate fixed rate.")
+							.hideAfter(Duration.seconds(10)).showError();
+					btnEvent.consume();
+				}
+			}
+		});
+		Optional<ButtonType> result = prodDialog.showAndWait();
+		if (result.isPresent() && result.get() == saveButtonType) {
+			Notifications.create().title("Updating fixed rate.")
+					.text("Updating fixed rate of all subscriptions for selected product. Please refresh when finished.")
+					.hideAfter(Duration.seconds(10)).showInformation();
+			try {
+
+				Connection con = Main.dbConnection;
+				if (!con.isValid(0)) {
+					con = Main.reconnect();
+				}
+//				productValues.clear();
+				PreparedStatement stmt;
+				stmt = con.prepareStatement(
+						"update subscription sub set sub.subscription_cost=? where sub.product_id=? and sub.type='Fixed Rate' and sub.subscription_cost>0 and exists (select 1 from customer cust where cust.customer_id=sub.customer_id and cust.hawker_id=?)");
+				stmt.setDouble(1, Double.parseDouble(fixedRateTF.getText().trim()));
+				stmt.setLong(2, prodBox.getSelectionModel().getSelectedItem().getProductId());
+				stmt.setLong(3, HawkerLoginController.loggedInHawker.getHawkerId());
+
+				stmt.executeUpdate();
+				stmt.close();
+			} catch (SQLException e) {
+
+				Main._logger.debug("Error :", e);
+				e.printStackTrace();
+				Notifications.create().title("Error").text("Something failed while updating subscriptions fixed rate.")
+				.hideAfter(Duration.seconds(10)).showError();
+			} catch (Exception e) {
+
+				Main._logger.debug("Error :", e);
+				e.printStackTrace();
+				Notifications.create().title("Error").text("Something failed while updating subscriptions fixed rate.")
+				.hideAfter(Duration.seconds(10)).showError();
+			}
+		}
+	}
+
+	public void populateDailyProducts() {
+
+		try {
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			productValues.clear();
+			PreparedStatement stmt;
+			stmt = con.prepareStatement(
+					"SELECT prod.PRODUCT_ID, prod.NAME, prod.TYPE, prod.SUPPORTED_FREQ, prod.MONDAY, prod.TUESDAY, prod.WEDNESDAY, prod.THURSDAY, prod.FRIDAY, prod.SATURDAY, prod.SUNDAY, prod.PRICE, prod.CODE, prod.DOW, prod.FIRST_DELIVERY_DATE, prod.ISSUE_DATE, prod.bill_Category FROM products prod, point_name pn, hawker_info hwk where hwk.HAWKER_CODE = ? and hwk.POINT_NAME = pn.name and pn.BILL_CATEGORY = prod.BILL_CATEGORY ORDER BY name");
+			stmt.setString(1, HawkerLoginController.loggedInHawker.getHawkerCode());
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				productValues.add(new Product(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),
+						rs.getDouble(5), rs.getDouble(6), rs.getDouble(7), rs.getDouble(8), rs.getDouble(9),
+						rs.getDouble(10), rs.getDouble(11), rs.getDouble(12), rs.getString(13), rs.getString(14),
+						rs.getDate(15) == null ? null : rs.getDate(15).toLocalDate(),
+						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17)));
+			}
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
+
 	}
 
 }

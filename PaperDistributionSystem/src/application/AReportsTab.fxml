@@ -40,8 +40,11 @@
                   <Button fx:id="hwkAllLineSubProdCodeButton" mnemonicParsing="false" onAction="#hwkAllLineSubProdCodeButtonClicked" text="Product Code Wise" />
                </children>
                <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  <Insets />
                </VBox.margin>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
             </HBox>
             <HBox>
                <children>
@@ -100,9 +103,49 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
                <children>
-                  <Label text="End Date and Resume Date Reports :" />
-                  <Button mnemonicParsing="false" onAction="#upcomingEndDateListClicked" text="Upcoming End Date List" />
-                  <Button mnemonicParsing="false" onAction="#upcomingResumeDateListClicked" text="Upcoming Resume Date List" />
+                  <VBox spacing="10.0">
+                     <children>
+                        <Label text="End Date and Resume Date Reports :" />
+                        <VBox alignment="CENTER_LEFT" spacing="5.0">
+                           <children>
+                              <Label text="Without Filter :" />
+                              <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#upcomingEndDateListClicked" text="Upcoming End Date List" />
+                                    <Button mnemonicParsing="false" onAction="#upcomingResumeDateListClicked" text="Upcoming Resume Date List" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" spacing="5.0">
+                           <children>
+                              <Label text="Filter with :" />
+                              <GridPane>
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="88.0" text="Line Number :" />
+                                    <ComboBox fx:id="addLineNumLOV3" prefHeight="25.0" prefWidth="180.0" GridPane.columnIndex="1" />
+                                    <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="87.0" text="Product Name :" GridPane.rowIndex="1" />
+                                    <ComboBox fx:id="prodNameLOV1" prefHeight="25.0" prefWidth="181.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                 </children>
+                              </GridPane>
+                           </children>
+                        </VBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#upcomingEndDateListFilteredClicked" text="Upcoming End Date List" />
+                              <Button mnemonicParsing="false" onAction="#upcomingResumeDateListFilteredClicked" text="Upcoming Resume Date List" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
                </children>
             </HBox>
          </children>

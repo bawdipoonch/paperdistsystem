@@ -10,13 +10,36 @@
 
 <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.AdminHomeController">
    <children>
-      <VBox alignment="TOP_CENTER" layoutY="10.0" prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <HBox alignment="CENTER_RIGHT" maxHeight="-Infinity" prefHeight="50.0" spacing="25.0" VBox.vgrow="ALWAYS">
+            <MenuBar>
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
+                    <MenuItem mnemonicParsing="false" onAction="#exitMenuOptionClicked" text="Exit" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Operations">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
+                        <MenuItem mnemonicParsing="false" onAction="#changePasswordClicked" text="Change Password" />
+                        <MenuItem mnemonicParsing="false" onAction="#exportDataClicked" text="Export Data" />
+                        <MenuItem mnemonicParsing="false" onAction="#updateAdminDetails" text="Update Admin Details" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help" visible="false">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <VBox alignment="TOP_CENTER" prefHeight="800.0" prefWidth="1280.0">
                <children>
-                  <HBox alignment="CENTER_RIGHT">
+                  <HBox alignment="CENTER" maxHeight="-Infinity" prefHeight="50.0" spacing="25.0" VBox.vgrow="ALWAYS">
                      <children>
-                        <Label fx:id="adminAgencyName" alignment="CENTER_RIGHT" prefHeight="35.0" prefWidth="668.0" text="Admin Agency Name" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                        <Label fx:id="adminAgencyName" alignment="CENTER_RIGHT" prefHeight="35.0" prefWidth="660.0" text="Admin Agency Name" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                            <font>
                               <Font size="24.0" />
                            </font>
@@ -27,74 +50,53 @@
                               <Insets right="25.0" />
                            </padding>
                         </Label>
-                        <VBox alignment="CENTER" prefHeight="63.0" prefWidth="376.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                        <VBox alignment="CENTER_LEFT" prefHeight="63.0" prefWidth="376.0" spacing="5.0" HBox.hgrow="ALWAYS">
                            <children>
                               <Label fx:id="adminMobileLabel" prefHeight="17.0" prefWidth="348.0" text="Mobile" />
                               <Label fx:id="adminAddrLabel" prefHeight="33.0" prefWidth="349.0" text="Addr" wrapText="true" />
                            </children>
                         </VBox>
                      </children>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
                   </HBox>
-                  <HBox alignment="CENTER" spacing="10.0">
+                  <VBox prefHeight="691.0" prefWidth="1280.0" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
                      <children>
-                        <Button minWidth="140.0" mnemonicParsing="false" onAction="#updateAdminDetails" text="Update Admin Details" />
-                        <VBox spacing="10.0">
-                           <children>
-                              <HBox alignment="CENTER" spacing="15.0" VBox.vgrow="ALWAYS">
-                                 <children>
-                                    <Button minWidth="110.0" mnemonicParsing="false" onAction="#exportDataClicked" prefWidth="110.0" text="Export Data" />
-                                 	<Button fx:id="changePwdButton" minWidth="110.0" mnemonicParsing="false" onAction="#changePasswordClicked" prefHeight="25.0" text="Change Password" />
-                                 </children>
-                              </HBox>
-                              <HBox alignment="CENTER" spacing="15.0">
-                                 <children>
-                                    <Button minWidth="110.0" mnemonicParsing="false" onAction="#refreshClicked" prefWidth="110.0" text="Refresh" />
-                                    <Button fx:id="logoutButton" minWidth="110.0" mnemonicParsing="false" onAction="#logoutClicked" prefWidth="110.0" text="Logout" />
-                                 </children>
-                              </HBox>
-                           </children>
-                        </VBox>
+                        <TabPane fx:id="tabPane" prefWidth="1280.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                           <tabs>
+                              <Tab text="Hawker Information">
+                                 <content>
+                                    <fx:include source="A-HawkerInfoTab.fxml" />
+                                 </content>
+                              </Tab>
+                              <Tab text="Customers">
+                                 <content>
+                                    <fx:include source="A-CustomersTab.fxml" />
+                                 </content>
+                              </Tab>
+                              <Tab text="Line Information">
+                                 <content>
+                                    <fx:include source="A-LineInfoTab.fxml" />
+                                 </content>
+                              </Tab>
+                              <Tab text="Stopped Customers">
+                                 <content>
+                                    <fx:include source="A-PausedCustomersTab.fxml" />
+                                 </content>
+                              </Tab>
+                              <Tab text="Products">
+                                 <content>
+                                    <fx:include source="AProductsTab.fxml" />
+                                 </content>
+                              </Tab>
+                           </tabs>
+                        </TabPane>
                      </children>
-                  </HBox>
-               </children>
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </VBox.margin>
-            </HBox>
-            <VBox prefHeight="691.0" prefWidth="1280.0" VBox.vgrow="ALWAYS">
-               <VBox.margin>
-                  <Insets bottom="10.0" />
-               </VBox.margin>
-               <children>
-                  <TabPane fx:id="tabPane" prefWidth="1280.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-                     <tabs>
-                        <Tab text="Hawker Information">
-                           <content>
-                              <fx:include source="A-HawkerInfoTab.fxml" />
-                           </content>
-                        </Tab>
-                        <Tab text="Customers">
-                           <content>
-                              <fx:include source="A-CustomersTab.fxml" />
-                           </content>
-                        </Tab>
-                        <Tab text="Line Information">
-                           <content>
-                              <fx:include source="A-LineInfoTab.fxml" />
-                           </content>
-                        </Tab>
-                        <Tab text="Stopped Customers">
-                           <content>
-                              <fx:include source="A-PausedCustomersTab.fxml" />
-                           </content>
-                        </Tab>
-                        <Tab text="Products">
-                           <content>
-                              <fx:include source="AProductsTab.fxml" />
-                           </content>
-                        </Tab>
-                     </tabs>
-                  </TabPane>
+                  </VBox>
                </children>
             </VBox>
          </children>

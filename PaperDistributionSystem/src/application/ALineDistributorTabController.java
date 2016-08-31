@@ -438,7 +438,7 @@ public class ALineDistributorTabController implements Initializable {
 					}
 					lineNumData.clear();
 					PreparedStatement stmt = con.prepareStatement(
-							"select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_num=ld.line_num(+) and li.hawker_id = ? and li.line_num<>0 order by li.line_num");
+							"select li.line_id, li.line_num, li.hawker_id,li.LINE_NUM || ' ' || ld.NAME as line_num_dist from line_info li, line_distributor ld where li.HAWKER_ID=ld.HAWKER_ID(+) and li.line_id=ld.line_id(+) and li.hawker_id = ? and li.line_num<>0 order by li.line_num");
 					stmt.setLong(1, hawkerIdForCode(hawkerCode));
 					ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
@@ -965,12 +965,12 @@ public class ALineDistributorTabController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
+			Long hawkerId = HawkerLoginController.loggedInHawker != null ? HawkerLoginController.loggedInHawker.getHawkerId()
+					: hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem());
 			PreparedStatement stmt = con
-					.prepareStatement("select count(*) from line_distributor where hawker_id = ? and line_num=?");
-			stmt.setLong(1,
-					HawkerLoginController.loggedInHawker != null ? HawkerLoginController.loggedInHawker.getHawkerId()
-							: hawkerIdForCode(addHwkCode.getSelectionModel().getSelectedItem()));
-			stmt.setString(2, line_num);
+					.prepareStatement("select count(*) from line_distributor where hawker_id = ? and line_id=?");
+			stmt.setLong(1,hawkerId);
+			stmt.setLong(2, lineIdForHwkCodeAndLineNum(hawkerId,Integer.parseInt(line_num)));
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next() && rs.getInt(1) > 0) {
 				return true;
@@ -986,7 +986,36 @@ public class ALineDistributorTabController implements Initializable {
 		}
 		return false;
 	}
+	private long lineIdForHwkCodeAndLineNum(long hawkerId, int lineNum) {
 
+		long lineId = -1;
+		Connection con = Main.dbConnection;
+		try {
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			PreparedStatement hawkerIdStatement = null;
+			String hawkerIdQuery = "select line_id from line_info where hawker_id = ? and line_num=?";
+			hawkerIdStatement = con.prepareStatement(hawkerIdQuery);
+			hawkerIdStatement.setLong(1, hawkerId);
+			hawkerIdStatement.setInt(1, lineNum);
+			ResultSet hawkerIdRs = hawkerIdStatement.executeQuery();
+
+			if (hawkerIdRs.next()) {
+				lineId = hawkerIdRs.getLong(1);
+			}
+			hawkerIdStatement.close();
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
+		return lineId;
+	}
 	@FXML
 	private void filterLineDistClicked(ActionEvent event) {
 

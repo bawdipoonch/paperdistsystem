@@ -152,7 +152,7 @@ public class AdminHomeController implements Initializable {
 		});
 		tabPane.getSelectionModel().selectFirst();
 
-		logoutButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
+		/*logoutButton.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
 			@Override
 			public void handle(KeyEvent event) {
@@ -165,7 +165,7 @@ public class AdminHomeController implements Initializable {
 					}
 				}
 			}
-		});
+		});*/
 	}
 
 	private void populateAdminHeaders() {
@@ -255,7 +255,7 @@ public class AdminHomeController implements Initializable {
 			stopHistoryTab.setText("Stop History");
 			stopHistoryTab.setContent(stopHistRoot);
 
-			tabPane.getTabs().addAll(hawkerTab, customersTab, lineInfoTab, lineDistTab, productsTab, additionalItemsTab,
+			tabPane.getTabs().addAll(hawkerTab, lineInfoTab,customersTab,  lineDistTab, productsTab, additionalItemsTab,
 					pausedCustTab, stopHistoryTab);
 		} catch (IOException e) {
 
@@ -423,4 +423,8 @@ public class AdminHomeController implements Initializable {
     }
 	
 
+	@FXML
+	private void exitMenuOptionClicked(ActionEvent evt) {
+		System.exit(0);
+	}
 }
