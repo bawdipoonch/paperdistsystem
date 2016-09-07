@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,9 +76,9 @@ public class AReportsTabController implements Initializable {
 	@FXML
 	private Button lineAllSubButton;
 
-    @FXML
-    private Label datesList;
-    
+	@FXML
+	private Label datesList;
+
 	@FXML
 	private DatePicker forDate;
 
@@ -105,9 +106,12 @@ public class AReportsTabController implements Initializable {
 	private ComboBox<String> prodNameLOV;
 	@FXML
 	private ComboBox<String> prodNameLOV1;
+	@FXML
+	private ComboBox<String> prodNameLOV2;
 
-    @FXML
-    private ComboBox<String> statusLOV;
+	@FXML
+	private ComboBox<String> statusLOV;
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
@@ -126,21 +130,22 @@ public class AReportsTabController implements Initializable {
 			}
 		});
 
-		forDate.setValue(LocalDate.now());
+		forDate.setValue(LocalDate.now().plusDays(1));
 		forDate.setConverter(Main.dateConvertor);
 		prodNameLOV.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (newValue != null) {
-					if (prodNameLOV.getSelectionModel().getSelectedIndex()>1) {
-						Product prod = productValues2.get(prodNameLOV.getSelectionModel().getSelectedIndex()-1);
+					if (prodNameLOV.getSelectionModel().getSelectedIndex() > 1) {
+						Product prod = productValues2.get(prodNameLOV.getSelectionModel().getSelectedIndex() - 1);
 						populateDOWValues(prod);
 						datesList.setText(BillingUtilityClass.findDeliveryDatesForMonth(prod));
 					} else {
 						datesList.setText("");
 						dowValues.clear();
-						dowValues.addAll("All","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+						dowValues.addAll("All", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+								"Sunday");
 						dowLOV.setItems(dowValues);
 						new AutoCompleteComboBoxListener<String>(dowLOV);
 						dowLOV.getSelectionModel().selectFirst();
@@ -149,27 +154,18 @@ public class AReportsTabController implements Initializable {
 
 			}
 		});
-		/*prodNameLOV.setConverter(new StringConverter<Product>() {
-
-			@Override
-			public String toString(Product object) {
-				if (object != null)
-					return object.getName();
-				else
-					return null;
-			}
-
-			@Override
-			public Product fromString(String string) {
-				while (productValues.iterator().hasNext()) {
-					Product p = productValues.iterator().next();
-					if (p.getName().equalsIgnoreCase(string)) {
-						return p;
-					}
-				}
-				return null;
-			}
-		});*/
+		/*
+		 * prodNameLOV.setConverter(new StringConverter<Product>() {
+		 * 
+		 * @Override public String toString(Product object) { if (object !=
+		 * null) return object.getName(); else return null; }
+		 * 
+		 * @Override public Product fromString(String string) { while
+		 * (productValues.iterator().hasNext()) { Product p =
+		 * productValues.iterator().next(); if
+		 * (p.getName().equalsIgnoreCase(string)) { return p; } } return null; }
+		 * });
+		 */
 
 	}
 
@@ -207,6 +203,7 @@ public class AReportsTabController implements Initializable {
 							new AutoCompleteComboBoxListener<>(addLineNumLOV);
 							new AutoCompleteComboBoxListener<>(addLineNumLOV2);
 							new AutoCompleteComboBoxListener<>(addLineNumLOV3);
+							addLineNumLOV.getSelectionModel().selectFirst();
 							addLineNumLOV2.getSelectionModel().selectFirst();
 							addLineNumLOV3.getSelectionModel().selectFirst();
 						}
@@ -339,8 +336,11 @@ public class AReportsTabController implements Initializable {
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
 			String lineNum = addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0];
+			String prodName = prodNameLOV2.getSelectionModel().getSelectedItem().equals("All") ? null
+					: prodNameLOV2.getSelectionModel().getSelectedItem();
 			parameters.put("HAWKER_CODE", hawkerCode);
 			parameters.put("LINE_NUM", lineNum);
+			parameters.put("PROD_NAME", prodName);
 			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
 
 			// Make sure the output directory exists.
@@ -355,7 +355,8 @@ public class AReportsTabController implements Initializable {
 			exporter.setExporterInput(exporterInput);
 
 			// ExporterOutput
-			String filename = "C:/pds/" + hawkerCode + "-" + lineNum + "-" + "SubscriptionList" + ".pdf";
+			String filename = "C:/pds/" + hawkerCode + "-" + lineNum + "-" + "SubscriptionList"  + "-At-"
+					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) +  ".pdf";
 			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 			// Output
 			exporter.setExporterOutput(exporterOutput);
@@ -375,11 +376,12 @@ public class AReportsTabController implements Initializable {
 			// stage.setTitle("Invoice PDF");
 			// stage.setScene(new Scene(root, 1024, 800));
 			//
-			/*if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
-				pdfPane.getChildren().removeAll(pdfPane.getChildren());
-			OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
-			fx.setupViewer();
-			fx.openDefaultFile(outFile.getAbsolutePath());*/
+			/*
+			 * if (pdfPane.getChildren() != null && pdfPane.getChildren().size()
+			 * > 0) pdfPane.getChildren().removeAll(pdfPane.getChildren());
+			 * OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
+			 * fx.setupViewer(); fx.openDefaultFile(outFile.getAbsolutePath());
+			 */
 
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
@@ -449,8 +451,9 @@ public class AReportsTabController implements Initializable {
 				// ExporterInput
 				exporter.setExporterInput(exporterInput);
 				// ExporterOutput
-				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "SubsCount-"
-						+ forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
+				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "SubsCount-For-"
+						+ forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY"))  + "-At-"
+								+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) +  ".pdf";
 				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 				// Output
 				exporter.setExporterOutput(exporterOutput);
@@ -520,8 +523,9 @@ public class AReportsTabController implements Initializable {
 				// ExporterInput
 				exporter.setExporterInput(exporterInput);
 				// ExporterOutput
-				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "ProdCodeWiseSubsCount-"
-						+ forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
+				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "ProdCodeWiseSubsCount-For-"
+						+ forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + "-At-"
+						+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) + ".pdf";
 				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 				// Output
 				exporter.setExporterOutput(exporterOutput);
@@ -560,13 +564,20 @@ public class AReportsTabController implements Initializable {
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
-			String lineNum2 = addLineNumLOV2.getSelectionModel().getSelectedItem().equals("All")?null:addLineNumLOV2.getSelectionModel().getSelectedItem().split(" ")[0];
-			String paymentType = paymentTypeLOV.getSelectionModel().getSelectedItem().equals("All")?null:paymentTypeLOV.getSelectionModel().getSelectedItem();
-			String subType = subscriptionTypeLOV.getSelectionModel().getSelectedItem().equals("All")?null:subscriptionTypeLOV.getSelectionModel().getSelectedItem();
-			String freq = frequencyLOV.getSelectionModel().getSelectedItem().equals("All")?null:frequencyLOV.getSelectionModel().getSelectedItem();
-			String dow = dowLOV.getSelectionModel().getSelectedItem().equals("All")?null:dowLOV.getSelectionModel().getSelectedItem();
-			String prodName = prodNameLOV.getSelectionModel().getSelectedItem().equals("All")?null:prodNameLOV.getSelectionModel().getSelectedItem();
-			String status = statusLOV.getSelectionModel().getSelectedItem().equals("All")?null:statusLOV.getSelectionModel().getSelectedItem();
+			String lineNum2 = addLineNumLOV2.getSelectionModel().getSelectedItem().equals("All") ? null
+					: addLineNumLOV2.getSelectionModel().getSelectedItem().split(" ")[0];
+			String paymentType = paymentTypeLOV.getSelectionModel().getSelectedItem().equals("All") ? null
+					: paymentTypeLOV.getSelectionModel().getSelectedItem();
+			String subType = subscriptionTypeLOV.getSelectionModel().getSelectedItem().equals("All") ? null
+					: subscriptionTypeLOV.getSelectionModel().getSelectedItem();
+			String freq = frequencyLOV.getSelectionModel().getSelectedItem().equals("All") ? null
+					: frequencyLOV.getSelectionModel().getSelectedItem();
+			String dow = dowLOV.getSelectionModel().getSelectedItem().equals("All") ? null
+					: dowLOV.getSelectionModel().getSelectedItem();
+			String prodName = prodNameLOV.getSelectionModel().getSelectedItem().equals("All") ? null
+					: prodNameLOV.getSelectionModel().getSelectedItem();
+			String status = statusLOV.getSelectionModel().getSelectedItem().equals("All") ? null
+					: statusLOV.getSelectionModel().getSelectedItem();
 			parameters.put("HAWKER_CODE", hawkerCode);
 			parameters.put("LINE_NUM", lineNum2);
 			parameters.put("PAYMENT_TYPE", paymentType);
@@ -589,7 +600,8 @@ public class AReportsTabController implements Initializable {
 			exporter.setExporterInput(exporterInput);
 
 			// ExporterOutput
-			String filename = "C:/pds/" + hawkerCode + "-Filtered" + "-" + "SubList-" + LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ".pdf";
+			String filename = "C:/pds/" + hawkerCode + "-Filtered" + "-" + "SubList-At-"
+					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss"))  +".pdf";
 			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 			// Output
 			exporter.setExporterOutput(exporterOutput);
@@ -609,21 +621,21 @@ public class AReportsTabController implements Initializable {
 			// stage.setTitle("Invoice PDF");
 			// stage.setScene(new Scene(root, 1024, 800));
 			//
-			/*if (pdfPane.getChildren() != null && pdfPane.getChildren().size() > 0)
-				pdfPane.getChildren().removeAll(pdfPane.getChildren());
-			OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
-			fx.setupViewer();
-			fx.openDefaultFile(outFile.getAbsolutePath());*/
+			/*
+			 * if (pdfPane.getChildren() != null && pdfPane.getChildren().size()
+			 * > 0) pdfPane.getChildren().removeAll(pdfPane.getChildren());
+			 * OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
+			 * fx.setupViewer(); fx.openDefaultFile(outFile.getAbsolutePath());
+			 */
 
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
 		}
 	}
-	
 
-    @FXML
-    void upcomingEndDateListClicked(ActionEvent event) {
-    	try {
+	@FXML
+	void upcomingEndDateListClicked(ActionEvent event) {
+		try {
 			String reportSrcFile = "HawkerSubListEndDate.jrxml";
 
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
@@ -647,7 +659,8 @@ public class AReportsTabController implements Initializable {
 			exporter.setExporterInput(exporterInput);
 
 			// ExporterOutput
-			String filename = "C:/pds/" + hawkerCode + "-SubEndDateList" +LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) +  ".pdf";
+			String filename = "C:/pds/" + hawkerCode + "-SubEndDateList-At-"
+					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) + ".pdf";
 			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 			// Output
 			exporter.setExporterOutput(exporterOutput);
@@ -664,11 +677,11 @@ public class AReportsTabController implements Initializable {
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
 		}
-    }
+	}
 
-    @FXML
-    void upcomingResumeDateListClicked(ActionEvent event) {
-    	try {
+	@FXML
+	void upcomingResumeDateListClicked(ActionEvent event) {
+		try {
 			String reportSrcFile = "HawkerSubListResumeDate.jrxml";
 
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
@@ -692,7 +705,8 @@ public class AReportsTabController implements Initializable {
 			exporter.setExporterInput(exporterInput);
 
 			// ExporterOutput
-			String filename = "C:/pds/" + hawkerCode + "-SubResumeDateList" +LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) +  ".pdf";
+			String filename = "C:/pds/" + hawkerCode + "-SubResumeDateList-At-"
+					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) + ".pdf";
 			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 			// Output
 			exporter.setExporterOutput(exporterOutput);
@@ -709,19 +723,20 @@ public class AReportsTabController implements Initializable {
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
 		}
-    }
-    
+	}
 
-    @FXML
-    void upcomingEndDateListFilteredClicked(ActionEvent event) {
-    	try {
+	@FXML
+	void upcomingEndDateListFilteredClicked(ActionEvent event) {
+		try {
 			String reportSrcFile = "HawkerSubListEndDate.jrxml";
 
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
 			JasperReport jasperReport = JasperCompileManager.compileReport(input);
-			String lineNum = addLineNumLOV3.getSelectionModel().getSelectedItem().equals("All")?null:addLineNumLOV3.getSelectionModel().getSelectedItem().split(" ")[0];
-			String prodName = prodNameLOV1.getSelectionModel().getSelectedItem().equals("All")?null:prodNameLOV1.getSelectionModel().getSelectedItem();
-			
+			String lineNum = addLineNumLOV3.getSelectionModel().getSelectedItem().equals("All") ? null
+					: addLineNumLOV3.getSelectionModel().getSelectedItem().split(" ")[0];
+			String prodName = prodNameLOV1.getSelectionModel().getSelectedItem().equals("All") ? null
+					: prodNameLOV1.getSelectionModel().getSelectedItem();
+
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
@@ -742,7 +757,8 @@ public class AReportsTabController implements Initializable {
 			exporter.setExporterInput(exporterInput);
 
 			// ExporterOutput
-			String filename = "C:/pds/" + hawkerCode + "-SubEndDateListFilter" +LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) +  ".pdf";
+			String filename = "C:/pds/" + hawkerCode + "-SubEndDateListFilter-At-"
+					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) + ".pdf";
 			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 			// Output
 			exporter.setExporterOutput(exporterOutput);
@@ -759,18 +775,20 @@ public class AReportsTabController implements Initializable {
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
 		}
-    }
+	}
 
-    @FXML
-    void upcomingResumeDateListFilteredClicked(ActionEvent event) {
-    	try {
+	@FXML
+	void upcomingResumeDateListFilteredClicked(ActionEvent event) {
+		try {
 			String reportSrcFile = "HawkerSubListResumeDate.jrxml";
 
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
 			JasperReport jasperReport = JasperCompileManager.compileReport(input);
-			String lineNum = addLineNumLOV3.getSelectionModel().getSelectedItem().equals("All")?null:addLineNumLOV3.getSelectionModel().getSelectedItem().split(" ")[0];
-			String prodName = prodNameLOV1.getSelectionModel().getSelectedItem().equals("All")?null:prodNameLOV1.getSelectionModel().getSelectedItem();
-			
+			String lineNum = addLineNumLOV3.getSelectionModel().getSelectedItem().equals("All") ? null
+					: addLineNumLOV3.getSelectionModel().getSelectedItem().split(" ")[0];
+			String prodName = prodNameLOV1.getSelectionModel().getSelectedItem().equals("All") ? null
+					: prodNameLOV1.getSelectionModel().getSelectedItem();
+
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
@@ -791,7 +809,8 @@ public class AReportsTabController implements Initializable {
 			exporter.setExporterInput(exporterInput);
 
 			// ExporterOutput
-			String filename = "C:/pds/" + hawkerCode + "-SubResumeDateListFilter" +LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) +  ".pdf";
+			String filename = "C:/pds/" + hawkerCode + "-SubResumeDateListFilter-At-"
+					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) + ".pdf";
 			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 			// Output
 			exporter.setExporterOutput(exporterOutput);
@@ -808,15 +827,15 @@ public class AReportsTabController implements Initializable {
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
 		}
-    }
+	}
 
 	private void populateDOWValues(Product prod) {
-//		dowLOV.getItems().clear();
-//		dowLOV.getItems().addAll("All");
+		// dowLOV.getItems().clear();
+		// dowLOV.getItems().addAll("All");
 		dowValues.clear();
 		if (prod.getType().equals("Newspaper")) {
-			
-			dowValues.addAll("All","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+
+			dowValues.addAll("All", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
 		} else {
 			String[] dow = prod.getDow().split(",");
 			dowValues.addAll(dow);
@@ -1053,6 +1072,9 @@ public class AReportsTabController implements Initializable {
 							prodNameLOV1.setItems(productValues);
 							new AutoCompleteComboBoxListener<String>(prodNameLOV1);
 							prodNameLOV1.getSelectionModel().selectFirst();
+							prodNameLOV2.setItems(productValues);
+							new AutoCompleteComboBoxListener<String>(prodNameLOV2);
+							prodNameLOV2.getSelectionModel().selectFirst();
 
 						}
 					});
@@ -1076,7 +1098,7 @@ public class AReportsTabController implements Initializable {
 	}
 
 	private void populateStatusValues() {
-		statusLOV.getItems().addAll("Active","Stopped");
+		statusLOV.getItems().addAll("Active", "Stopped");
 		new AutoCompleteComboBoxListener<String>(statusLOV);
 		statusLOV.getSelectionModel().selectFirst();
 	}
@@ -1086,7 +1108,7 @@ public class AReportsTabController implements Initializable {
 		hawkerCodeData.clear();
 		populateHawkerCodes();
 		populateProducts();
-//		populateDurationValues();
+		// populateDurationValues();
 		populateFrequencyValues();
 		populatePaymentTypeValues();
 		populateSubscriptionTypeValues();

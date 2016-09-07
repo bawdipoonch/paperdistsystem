@@ -12,55 +12,65 @@
    <children>
       <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <MenuBar>
-              <menus>
-                <Menu mnemonicParsing="false" text="File">
-                  <items>
-                        <MenuItem mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
-                    <MenuItem mnemonicParsing="false" onAction="#exitMenuOptionClicked" text="Exit" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Operations">
-                  <items>
-                    <MenuItem mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
-                        <MenuItem mnemonicParsing="false" onAction="#changePasswordClicked" text="Change Password" />
-                        <MenuItem mnemonicParsing="false" onAction="#exportDataClicked" text="Export Data" />
-                        <MenuItem mnemonicParsing="false" onAction="#updateAdminDetails" text="Update Admin Details" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help" visible="false">
-                  <items>
-                    <MenuItem mnemonicParsing="false" text="About" />
-                  </items>
-                </Menu>
-              </menus>
-            </MenuBar>
-            <VBox alignment="TOP_CENTER" prefHeight="800.0" prefWidth="1280.0">
+            <HBox>
                <children>
-                  <HBox alignment="CENTER" maxHeight="-Infinity" prefHeight="50.0" spacing="25.0" VBox.vgrow="ALWAYS">
+                  <MenuBar>
+                    <menus>
+                      <Menu mnemonicParsing="false" text="File">
+                        <items>
+                              <MenuItem mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
+                          <MenuItem mnemonicParsing="false" onAction="#exitMenuOptionClicked" text="Exit" />
+                        </items>
+                      </Menu>
+                      <Menu mnemonicParsing="false" text="Operations">
+                        <items>
+                          <MenuItem mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
+                              <MenuItem mnemonicParsing="false" onAction="#changePasswordClicked" text="Change Password" />
+                              <MenuItem mnemonicParsing="false" onAction="#exportDataClicked" text="Export Data" />
+                              <MenuItem mnemonicParsing="false" onAction="#updateAdminDetails" text="Update Admin Details" />
+                        </items>
+                      </Menu>
+                      <Menu mnemonicParsing="false" text="Help" visible="false">
+                        <items>
+                          <MenuItem mnemonicParsing="false" text="About" />
+                        </items>
+                      </Menu>
+                    </menus>
+                  </MenuBar>
+                  <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label fx:id="adminAgencyName" alignment="CENTER_RIGHT" prefHeight="35.0" prefWidth="660.0" text="Admin Agency Name" textAlignment="CENTER" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font size="24.0" />
-                           </font>
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
+                        <HBox alignment="CENTER" prefHeight="25.0" prefWidth="785.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label fx:id="adminAgencyName" alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Admin Agency Name" textAlignment="RIGHT" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <padding>
+                                    <Insets right="25.0" />
+                                 </padding>
+                              </Label>
+                              <Label fx:id="adminMobileLabel" text="Mobile" />
+                              <Label fx:id="adminAddrLabel" text="Addr" visible="false" wrapText="true" />
+                           </children>
                            <padding>
                               <Insets right="25.0" />
                            </padding>
-                        </Label>
-                        <VBox alignment="CENTER_LEFT" prefHeight="63.0" prefWidth="376.0" spacing="5.0" HBox.hgrow="ALWAYS">
-                           <children>
-                              <Label fx:id="adminMobileLabel" prefHeight="17.0" prefWidth="348.0" text="Mobile" />
-                              <Label fx:id="adminAddrLabel" prefHeight="33.0" prefWidth="349.0" text="Addr" wrapText="true" />
-                           </children>
-                        </VBox>
+                        </HBox>
+                        <ButtonBar prefHeight="25.0" prefWidth="164.0">
+                           <buttons>
+                              <Button mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
+                              <Button mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
+                           </buttons>
+                           <padding>
+                              <Insets right="5.0" />
+                           </padding>
+                        </ButtonBar>
                      </children>
-                     <VBox.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </VBox.margin>
                   </HBox>
+               </children>
+            </HBox>
+            <VBox alignment="TOP_CENTER" prefHeight="800.0" prefWidth="1280.0">
+               <children>
                   <VBox prefHeight="691.0" prefWidth="1280.0" VBox.vgrow="ALWAYS">
                      <VBox.margin>
                         <Insets bottom="10.0" />

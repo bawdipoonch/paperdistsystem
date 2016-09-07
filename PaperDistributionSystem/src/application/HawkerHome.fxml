@@ -51,7 +51,7 @@
                                  </padding>
             						</Label>
                               <Label fx:id="adminMobileLabel" text="Mobile" />
-                              <Label fx:id="adminAddrLabel" text="Addr" wrapText="true" />
+                              <Label fx:id="adminAddrLabel" text="Addr" visible="false" wrapText="true" />
                            </children>
                            <padding>
                               <Insets right="25.0" />

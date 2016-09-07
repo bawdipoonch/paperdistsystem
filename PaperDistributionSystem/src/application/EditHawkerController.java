@@ -1,12 +1,21 @@
 package application;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
+
+import javax.imageio.ImageIO;
 
 import org.controlsfx.control.Notifications;
 
@@ -15,12 +24,18 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Duration;
 
 public class EditHawkerController implements Initializable {
@@ -78,6 +93,8 @@ public class EditHawkerController implements Initializable {
 	private TextField editBankName;
 	@FXML
 	private TextField editIfscCode;
+	@FXML
+	private ImageView logoImage;
 
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
@@ -117,7 +134,7 @@ public class EditHawkerController implements Initializable {
 		editCityTF.setText(hawkerRow.getCity());
 		editAgencyNameTF.setText(hawkerRow.getAgencyName());
 		editFeeTF.setText("" + hawkerRow.getFee());
-		if(HawkerLoginController.loggedInHawker!=null)
+		if (HawkerLoginController.loggedInHawker != null)
 			editFeeTF.setDisable(true);
 		editActiveCheck.setSelected(hawkerRow.getActiveFlag());
 		editProfile3TF.setText(hawkerRow.getProfile3());
@@ -150,6 +167,20 @@ public class EditHawkerController implements Initializable {
 		editBankAcNo.setText(hawkerRow.getBankAcNo());
 		editBankName.setText(hawkerRow.getBankName());
 		editIfscCode.setText(hawkerRow.getIfscCode());
+		try {
+			BufferedImage image = null;
+			if (HawkerLoginController.loggedInHawker.getLogo()!=null) {
+				InputStream in = HawkerLoginController.loggedInHawker.getLogo().getBinaryStream();
+				image = ImageIO.read(in);
+				logoImage.setImage(SwingFXUtils.toFXImage(image, null));
+			}
+		} catch (SQLException e) {
+			Main._logger.debug(e);
+			e.printStackTrace();
+		} catch (IOException e) {
+			Main._logger.debug(e);
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isValid() {
@@ -419,6 +450,34 @@ public class EditHawkerController implements Initializable {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	@FXML
+	void changeLogoClicked(ActionEvent event) {
+
+		try {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Open Resource File");
+			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
+			File selectedFile = fileChooser.showOpenDialog(Main.primaryStage);
+			if (selectedFile != null) {
+				Image img = new Image(new FileInputStream(selectedFile), 20, 20, true, false);
+				logoImage.setImage(img);
+				BufferedImage bImage = SwingFXUtils.fromFXImage(logoImage.getImage(), null);
+				ByteArrayOutputStream s = new ByteArrayOutputStream();
+				ImageIO.write(bImage, "png", s);
+				byte[] res = s.toByteArray();
+				s.close();
+				Blob logo = HawkerLoginController.loggedInHawker.getLogo();
+				if(logo==null) logo = Main.dbConnection.createBlob();
+				logo.setBytes(1, res);
+				HawkerLoginController.loggedInHawker.setLogo(logo);
+				HawkerLoginController.loggedInHawker.updateHawkerRecord();
+			}
+		} catch (Exception e) {
+			Main._logger.debug(e);
+		}
+
 	}
 
 	public void releaseVariables() {

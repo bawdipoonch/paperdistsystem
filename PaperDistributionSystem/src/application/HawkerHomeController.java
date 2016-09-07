@@ -155,7 +155,7 @@ public class HawkerHomeController implements Initializable {
 						reportsTabController.releaseVariables();
 					}
 					if (oldValue == hawkerProfileTab) {
-						hawkerProfileTabController.releaseVariables();
+//						hawkerProfileTabController.releaseVariables();
 					}
 					System.gc();
 				}

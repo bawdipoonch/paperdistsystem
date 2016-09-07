@@ -168,7 +168,6 @@ public class AddCustomerExtraScreenController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			hawkerLineNumData.clear();
 			PreparedStatement stmt = con
 					.prepareStatement("select max(house_seq)+1 seq from customer where hawker_code=? and line_num=?");
 			stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());

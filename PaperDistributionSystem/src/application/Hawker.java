@@ -1,24 +1,16 @@
 package application;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.imageio.ImageIO;
-
 import org.controlsfx.control.Notifications;
-import org.jpedal.parser.image.ImageUtils;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 
@@ -142,6 +134,7 @@ public class Hawker {
 		setBankAcNo(hawkerRow.getBankAcNo());
 		setBankName(hawkerRow.getBankName());
 		setIfscCode(hawkerRow.getIfscCode());
+		setLogo(hawkerRow.getLogo());
 	}
 
 	public Long getHawkerId() {
@@ -439,7 +432,8 @@ public class Hawker {
 		this.stopHistoryAccess.set(stopHistoryAccess);
 	}
 
-	public Image getLogo() {
+	public Blob getLogo() {
+		/*logo.setb
 		BufferedImage image = null;
 		try {
 			InputStream in = this.logo.getBinaryStream();  
@@ -447,9 +441,9 @@ public class Hawker {
 		} catch (SQLException | IOException e) {
 			Main._logger.debug("Error :",e);
 			e.printStackTrace();
-		}
+		}*/
 		
-		return image;
+		return logo;
 	}
 
 	public void setLogo(Blob logo) {
@@ -487,7 +481,7 @@ public class Hawker {
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=?, initials=?, employment=?, comments=?, point_name=?, building_street=?, bank_ac_no=?, bank_name=?, ifsc_code=?, stop_history_access=? where hawker_id = ?";
+			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=?, initials=?, employment=?, comments=?, point_name=?, building_street=?, bank_ac_no=?, bank_name=?, ifsc_code=?, stop_history_access=?, logo=? where hawker_id = ?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setString(1, getName());
 			updateStmt.setString(2, getHawkerCode());
@@ -523,7 +517,8 @@ public class Hawker {
 			updateStmt.setString(32, getBankName());
 			updateStmt.setString(33, getIfscCode());
 			updateStmt.setString(34, getStopHistoryAccess());
-			updateStmt.setLong(35, getHawkerId());
+			updateStmt.setBlob(35, logo);
+			updateStmt.setLong(36, getHawkerId());
 			updateStmt.executeUpdate();
 			con.commit();
 

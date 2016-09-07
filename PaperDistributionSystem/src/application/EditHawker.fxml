@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
 <?import java.lang.*?>
@@ -80,6 +81,13 @@
             <TextField fx:id="editBankAcNo" GridPane.columnIndex="3" GridPane.rowIndex="10" />
             <TextField fx:id="editBankName" GridPane.columnIndex="3" GridPane.rowIndex="11" />
             <TextField fx:id="editIfscCode" GridPane.columnIndex="3" GridPane.rowIndex="12" />
+            <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="3" GridPane.rowIndex="13">
+               <children>
+                  <ImageView fx:id="logoImage" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
+                  <Button mnemonicParsing="false" onAction="#changeLogoClicked" prefHeight="25.0" prefWidth="123.0" text="Change Logo" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+            <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="200.0" text="Logo" GridPane.columnIndex="2" GridPane.rowIndex="13" />
          </children>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-07-11T21:21:55 -->
+<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
+<!-- 2016-09-07T21:36:16 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HwkLineAllSubsList" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="cbc78f29-314b-4511-a88f-82bf0570151f">
 	<property name="com.jaspersoft.studio.data.sql.tables" value="IkhXS19MSU5FX1NVQlNfTElTVCIgLDE1LDE1LDYwZTE2MGUyLWUxOTQtNDRiYi1hYTRhLWU4ZGIw&#xA;NTBiZDE2MDs="/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
@@ -90,6 +90,7 @@
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 		<parameter name="HAWKER_CODE" class="java.lang.String"/>
 		<parameter name="LINE_NUM" class="java.lang.String"/>
+		<parameter name="PROD_NAME" class="java.lang.String"/>
 		<queryString>
 			<![CDATA[SELECT "HWK_LINE_SUBS_LIST"."LINE_NUM",
 	"HWK_LINE_SUBS_LIST"."CUST_CODE",
@@ -107,7 +108,8 @@
 FROM "HWK_LINE_SUBS_LIST"
 WHERE 
 	"HWK_LINE_SUBS_LIST"."HAWKER_CODE"=$P{HAWKER_CODE}
-	AND "HWK_LINE_SUBS_LIST"."LINE_NUM"=$P{LINE_NUM}]]>
+	AND "HWK_LINE_SUBS_LIST"."LINE_NUM"=$P{LINE_NUM}
+AND ("HWK_LINE_SUBS_LIST"."PROD_NAME"=$P{PROD_NAME}  OR $P{PROD_NAME} IS NULL)]]>
 		</queryString>
 		<field name="LINE_NUM" class="java.math.BigDecimal"/>
 		<field name="CUST_CODE" class="java.math.BigDecimal"/>
@@ -128,15 +130,19 @@ WHERE
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 		<parameter name="HAWKER_CODE" class="java.lang.String"/>
 		<parameter name="LINE_NUM" class="java.lang.String"/>
+		<parameter name="PROD_NAME" class="java.lang.String"/>
 		<queryString>
-			<![CDATA[SELECT "HWK_LINE_SUBS_LIST_COUNTS"."PRD",
+			<![CDATA[SELECT "HWK_LINE_SUBS_LIST_COUNTS"."PROD_NAME",
+"HWK_LINE_SUBS_LIST_COUNTS"."PRD",
 	"HWK_LINE_SUBS_LIST_COUNTS"."CNT",
 	"HWK_LINE_SUBS_LIST_COUNTS"."HAWKER_CODE",
 	"HWK_LINE_SUBS_LIST_COUNTS"."LINE_NUM"
 FROM "HWK_LINE_SUBS_LIST_COUNTS"
 WHERE "HWK_LINE_SUBS_LIST_COUNTS"."HAWKER_CODE"=$P{HAWKER_CODE}
-AND "HWK_LINE_SUBS_LIST_COUNTS"."LINE_NUM"=$P{LINE_NUM}]]>
+AND "HWK_LINE_SUBS_LIST_COUNTS"."LINE_NUM"=$P{LINE_NUM}
+AND ("HWK_LINE_SUBS_LIST_COUNTS"."PROD_NAME"=$P{PROD_NAME}  OR $P{PROD_NAME} IS NULL)]]>
 		</queryString>
+		<field name="PROD_NAME" class="java.lang.String"/>
 		<field name="PRD" class="java.lang.String"/>
 		<field name="CNT" class="java.math.BigDecimal"/>
 		<field name="HAWKER_CODE" class="java.lang.String"/>
@@ -144,6 +150,7 @@ AND "HWK_LINE_SUBS_LIST_COUNTS"."LINE_NUM"=$P{LINE_NUM}]]>
 	</subDataset>
 	<parameter name="HAWKER_CODE" class="java.lang.String"/>
 	<parameter name="LINE_NUM" class="java.lang.String"/>
+	<parameter name="PROD_NAME" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT "HWK_LINE_SUBS_LIST"."LINE_NUM",
 	"HWK_LINE_SUBS_LIST"."CUST_CODE",
@@ -161,7 +168,8 @@ AND "HWK_LINE_SUBS_LIST_COUNTS"."LINE_NUM"=$P{LINE_NUM}]]>
 FROM "HWK_LINE_SUBS_LIST"
 WHERE 
 	"HWK_LINE_SUBS_LIST"."HAWKER_CODE"=$P{HAWKER_CODE}
-	AND "HWK_LINE_SUBS_LIST"."LINE_NUM"=$P{LINE_NUM}]]>
+	AND "HWK_LINE_SUBS_LIST"."LINE_NUM"=$P{LINE_NUM}
+AND ("HWK_LINE_SUBS_LIST"."PROD_NAME"=$P{PROD_NAME}  OR $P{PROD_NAME} IS NULL)]]>
 	</queryString>
 	<field name="LINE_NUM" class="java.math.BigDecimal"/>
 	<field name="CUST_CODE" class="java.math.BigDecimal"/>
@@ -221,12 +229,15 @@ WHERE
 					<property name="com.jaspersoft.studio.components.autoresize.next" value="true"/>
 				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-					<datasetRun subDataset="TableDS" uuid="f939144f-aa11-4b2a-862c-317e07953467">
+					<datasetRun subDataset="TableDS" uuid="770822e7-5467-4ebd-946c-e82f9e1d4968">
 						<datasetParameter name="HAWKER_CODE">
 							<datasetParameterExpression><![CDATA[$P{HAWKER_CODE}]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="LINE_NUM">
 							<datasetParameterExpression><![CDATA[$P{LINE_NUM}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="PROD_NAME">
+							<datasetParameterExpression><![CDATA[$P{PROD_NAME}]]></datasetParameterExpression>
 						</datasetParameter>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
@@ -385,12 +396,15 @@ WHERE
 					<property name="com.jaspersoft.studio.components.autoresize.proportional" value="true"/>
 				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-					<datasetRun subDataset="CountsDS" uuid="85941b6e-cba2-47d5-b7ab-6b5c3bdd5dbd">
+					<datasetRun subDataset="CountsDS" uuid="5e390c29-f545-47c8-870b-4fd6021fccdc">
 						<datasetParameter name="HAWKER_CODE">
 							<datasetParameterExpression><![CDATA[$P{HAWKER_CODE}]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="LINE_NUM">
 							<datasetParameterExpression><![CDATA[$P{LINE_NUM}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="PROD_NAME">
+							<datasetParameterExpression><![CDATA[$P{PROD_NAME}]]></datasetParameterExpression>
 						</datasetParameter>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
