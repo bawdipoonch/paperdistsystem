@@ -61,6 +61,8 @@ public class AReportsTabController implements Initializable {
 	private ComboBox<String> addLineNumLOV2;
 	@FXML
 	private ComboBox<String> addLineNumLOV3;
+	@FXML
+	private ComboBox<String> addLineNumLOV4;
 
 	@FXML
 	private AnchorPane pdfPane;
@@ -199,13 +201,16 @@ public class AReportsTabController implements Initializable {
 							addLineNumLOV.setItems(hawkerLineNumData);
 							addLineNumLOV2.setItems(hawkerLineNumData2);
 							addLineNumLOV3.setItems(hawkerLineNumData2);
+							addLineNumLOV4.setItems(hawkerLineNumData2);
 
 							new AutoCompleteComboBoxListener<>(addLineNumLOV);
 							new AutoCompleteComboBoxListener<>(addLineNumLOV2);
 							new AutoCompleteComboBoxListener<>(addLineNumLOV3);
+							new AutoCompleteComboBoxListener<>(addLineNumLOV4);
 							addLineNumLOV.getSelectionModel().selectFirst();
 							addLineNumLOV2.getSelectionModel().selectFirst();
 							addLineNumLOV3.getSelectionModel().selectFirst();
+							addLineNumLOV4.getSelectionModel().selectFirst();
 						}
 					});
 				} catch (SQLException e) {
@@ -1096,6 +1101,63 @@ public class AReportsTabController implements Initializable {
 
 		new Thread(task).start();
 	}
+
+    @FXML
+    void fixedRateSubCostBtnClicked(ActionEvent event) {
+    	try {
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			String hawkerId = Long.toString(hawkerIdForCode(hawkerCode));
+			String lineNum = addLineNumLOV4.getSelectionModel().getSelectedIndex()==1?"All":addLineNumLOV4.getSelectionModel().getSelectedItem().split(" ")[0];
+			
+			String reportSrcFile = lineNum.equalsIgnoreCase("All")?"HwkAllLineFixedRateSubsCost.jrxml":"HwkLineFixedRateSubsCost.jrxml";
+			//HwkAllLineFixedRateSubsCost.jrxml
+			//HwkLineFixedRateSubsCost.jrxml
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+			if(addLineNumLOV4.getSelectionModel().getSelectedIndex()>1){
+				String lineId = Long.toString((!lineNum.equalsIgnoreCase("All"))?ACustomerInfoTabController.lineIdForNumHwkCode(Integer.parseInt(lineNum), hawkerCode):null);
+			
+				parameters.put("LINE_NUM", lineNum);
+				parameters.put("LINE_ID", lineId);
+			}
+			parameters.put("HAWKER_ID", hawkerId);
+			parameters.put("HAWKER_CODE", hawkerCode);
+			
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-" + ((!lineNum.equalsIgnoreCase("All"))?lineNum:"" )+ "-" + "FixedRateCost"  + "-At-"
+					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) +  ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+
+			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Report PDF Generation: ", e);
+		}
+    }
 
 	private void populateStatusValues() {
 		statusLOV.getItems().addAll("Active", "Stopped");

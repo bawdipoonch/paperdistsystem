@@ -39,7 +39,7 @@
                   </MenuBar>
                   <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                      <children>
-                        <HBox alignment="CENTER" prefHeight="25.0" prefWidth="785.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER" prefHeight="25.0" spacing="10.0" HBox.hgrow="ALWAYS">
                            <children>
                               <Label fx:id="adminAgencyName" alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Admin Agency Name" textAlignment="RIGHT" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
@@ -56,15 +56,18 @@
                               <Insets right="25.0" />
                            </padding>
                         </HBox>
-                        <ButtonBar prefHeight="25.0" prefWidth="164.0">
-                           <buttons>
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
+                           <children>
                               <Button mnemonicParsing="false" onAction="#refreshClicked" text="Refresh" />
+                              <Button mnemonicParsing="false" onAction="#changePasswordClicked" text="Change Password" />
+                              <Button mnemonicParsing="false" onAction="#exportDataClicked" text="Export Data" />
+                              <Button mnemonicParsing="false" onAction="#updateAdminDetails" prefHeight="25.0" text="Update Admin Details" />
                               <Button mnemonicParsing="false" onAction="#logoutClicked" text="Logout" />
-                           </buttons>
-                           <padding>
-                              <Insets right="5.0" />
-                           </padding>
-                        </ButtonBar>
+                           </children>
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </HBox>
                      </children>
                   </HBox>
                </children>

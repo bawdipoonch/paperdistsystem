@@ -474,13 +474,150 @@ public class AProductsTabController implements Initializable {
 					}
 
 				});
+				
+
+				MenuItem mnuChangeFreq = new MenuItem("Change Frequency");
+				mnuChangeFreq.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Product productRow = productsTable.getSelectionModel().getSelectedItem();
+						Boolean valid = true;
+						if(productRow == null){
+							valid=false;
+							Notifications.create().title("Product not selected.").text("Please select a product first.").hideAfter(Duration.seconds(5)).showError();
+						}
+						if(valid  && !productRow.getType().equalsIgnoreCase("Magazine")){
+
+							valid=false;
+							Notifications.create().title("Select a magazine.").text("Please select a Magazine only.").hideAfter(Duration.seconds(5)).showError();
+						}
+						if(valid  && !(productRow.getSupportingFreq().split(",").length==1)){
+
+							valid=false;
+							Notifications.create().title("Multiple frequencies not supported.").text("Please select a Magazine having single frequency only.").hideAfter(Duration.seconds(5)).showError();
+						}
+						if (valid) {
+							Dialog<ButtonType> freqWarning = new Dialog<ButtonType>();
+							freqWarning.setTitle("Change Product Frequency");
+							freqWarning.setHeaderText("Please select the new Product Frequency");
+							ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+							freqWarning.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+							GridPane grid = new GridPane();
+							grid.setHgap(10);
+							grid.setVgap(10);
+							grid.setPadding(new Insets(20, 150, 10, 10));
+
+							grid.add(new Label("Current Frequency"), 0, 0);
+							Label existingFreq = new Label(productRow.getSupportingFreq());
+							ComboBox<String> freqTF = new ComboBox<String>();
+							freqTF.getItems().addAll("Weekly","14 Days", "15 Days", "Monthly", "Quarterly", "Half Yearly", "Yearly");
+							freqTF.getItems().remove(productRow.getSupportingFreq());
+							ComboBox<String> dowTF = new ComboBox<String>();
+							dowTF.getItems().addAll("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+//							dowTF.getItems().remove(productRow.getDow());
+							grid.add(new Label("New DayOfWeek"), 0, 2);
+							grid.add(dowTF, 1, 2);
+							freqTF.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+								@Override
+								public void changed(ObservableValue<? extends String> observable, String oldValue,
+										String newValue) {
+									if(newValue!=null && newValue.equalsIgnoreCase("Weekly")){
+										dowTF.setVisible(true);
+
+										dowTF.getSelectionModel().selectFirst();
+									} else {
+										dowTF.getSelectionModel().clearSelection();
+										dowTF.setVisible(false);
+									}
+									
+								}
+							});
+							freqTF.getSelectionModel().selectFirst();
+							// pauseDP.setDisable(true);
+							grid.add(existingFreq, 1, 0);
+							grid.add(new Label("New Frequency"), 0, 1);
+							grid.add(freqTF, 1, 1);
+							
+							freqWarning.getDialogPane().setContent(grid);
+							Button saveBtn = (Button) freqWarning.getDialogPane().lookupButton(saveButtonType);
+
+							/*saveBtn.addEventFilter(ActionEvent.ACTION, btnevent -> {
+
+								try {
+									if(productRow.getType().equals("Magazine") && productRow.getSupportingFreq().equals("Weekly")){
+										
+									}else{
+
+										Notifications.create().title("Invalid product")
+												.text("You can change DayOfWeek only for Weekly Magazine.")
+												.hideAfter(Duration.seconds(5)).showError();
+										btnevent.consume();
+									}
+										
+								} catch (NumberFormatException e) {
+									Notifications.create().title("Invalid value")
+											.text("Please enter only NUMERIC values in Total Due.")
+											.hideAfter(Duration.seconds(5)).showError();
+
+									Main._logger.debug("Error :",e);
+									e.printStackTrace();
+									btnevent.consume();
+								} catch (Exception e) {
+									Main._logger.debug("Error :",e);
+									e.printStackTrace();
+								}
+
+							});*/
+							Optional<ButtonType> result = freqWarning.showAndWait();
+							if (result.isPresent() && result.get() == saveButtonType) {
+								productRow.setSupportingFreq(freqTF.getSelectionModel().getSelectedItem());
+								if(!freqTF.getSelectionModel().getSelectedItem().equalsIgnoreCase("Weekly")){
+									productRow.setDow(null);
+								}else {
+									productRow.setDow(dowTF.getSelectionModel().getSelectedItem());
+								}
+								productRow.updateProductRecord();
+								Task<Void> task = new Task<Void>() {
+									Notifications n = Notifications.create().title("Please wait")
+											.text("Updating Frequency in all subscriptions for this product.");
+									
+
+									@Override
+									protected Void call() throws Exception {
+										updateSubscriptionFreq(productRow,freqTF.getSelectionModel().getSelectedItem(), dowTF.getSelectionModel().getSelectedItem());
+										Platform.runLater(new Runnable() {
+
+											@Override
+											public void run() {
+
+												n.hideAfter(Duration.seconds(5)).showInformation();
+												refreshProductsTable();
+											}
+										});
+										
+										return null;
+									}
+
+
+
+								};
+
+								new Thread(task).start();
+							}
+
+
+						}
+					}
+
+				});
 
 				if (HawkerLoginController.loggedInHawker == null) {
 					ContextMenu menu = new ContextMenu();
 					if (HawkerLoginController.loggedInHawker != null) {
 						menu.getItems().addAll(mnuEdit, mnuView, mnuDuplicate, mnuAddSpcl);
 					} else {
-						menu.getItems().addAll(mnuEdit, mnuView, mnuDuplicate, mnuDel, mnuAddSpcl,mnuChangeDay);
+						menu.getItems().addAll(mnuEdit, mnuView, mnuDuplicate, mnuDel, mnuAddSpcl,mnuChangeDay, mnuChangeFreq);
 					}
 
 					row.contextMenuProperty().bind(Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu)
@@ -1737,6 +1874,45 @@ public class AProductsTabController implements Initializable {
 		}
 	}
 
+	private void updateSubscriptionFreq(Product productRow, String freq,
+			String dow) {
+		try {
+
+			Connection con = Main.dbConnection;
+			while (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String updateString;
+			PreparedStatement updateStmt ;
+			if(!freq.equalsIgnoreCase("Weekly")){
+				updateString = "update subscription set FREQUENCY=?, dow=null where product_id=?";
+				updateStmt = con.prepareStatement(updateString);
+				updateStmt.setString(1, freq);
+				updateStmt.setLong(2, productRow.getProductId());
+			}else {
+				updateString = "update subscription set dow=?, FREQUENCY=? where product_id=?";
+				updateStmt = con.prepareStatement(updateString);
+				updateStmt.setString(1, dow);
+				updateStmt.setString(2, freq);
+				updateStmt.setLong(3, productRow.getProductId());
+			}
+			
+			updateStmt.executeUpdate();
+			con.commit();
+			updateStmt.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+			Notifications.create().title("Failed").text("Product record update failed").showError();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
+	}
+	
 	// @Override
 	public void reloadData() {
 		if (HawkerLoginController.loggedInHawker == null) {
