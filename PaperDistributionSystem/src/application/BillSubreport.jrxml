@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-09-06T23:16:02 -->
+<!-- 2016-09-16T20:06:39 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BillSubreport" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Empty" uuid="435ca022-c2cc-41c8-9032-2d400a444245">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -113,19 +113,19 @@ AND  (SELECT NVL("BILLING_LINES"."AMOUNT",0.0) + NVL("BILLING_LINES"."TEA_EXPENS
 						</datasetParameter>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
-					<jr:column width="102" uuid="98b105ae-4f84-459c-975a-2491f7a15153">
+					<jr:column width="90" uuid="98b105ae-4f84-459c-975a-2491f7a15153">
 						<jr:columnHeader style="Table_CH" height="12">
 							<staticText>
-								<reportElement key="" style="Table_TD" x="0" y="0" width="102" height="12" uuid="f2aa333d-4b5a-4270-adf0-72209c3e5660"/>
+								<reportElement key="" style="Table_TD" x="0" y="0" width="90" height="12" uuid="f2aa333d-4b5a-4270-adf0-72209c3e5660"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="9" isBold="true" isUnderline="false"/>
 								</textElement>
-								<text><![CDATA[Pub]]></text>
+								<text><![CDATA[Publication]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="12">
 							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="102" height="12" uuid="e7e63f76-baf5-4528-b6d0-2b9c59c01f3b"/>
+								<reportElement x="0" y="0" width="90" height="12" uuid="e7e63f76-baf5-4528-b6d0-2b9c59c01f3b"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="6" isBold="false"/>
 								</textElement>
@@ -133,10 +133,10 @@ AND  (SELECT NVL("BILLING_LINES"."AMOUNT",0.0) + NVL("BILLING_LINES"."TEA_EXPENS
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="38" uuid="0b726ba7-7f23-4cdb-8924-6b1734991ab7">
+					<jr:column width="42" uuid="0b726ba7-7f23-4cdb-8924-6b1734991ab7">
 						<jr:columnHeader style="Table_CH" height="12">
 							<staticText>
-								<reportElement style="Table_TD" x="0" y="0" width="38" height="12" uuid="1c8cfd85-4535-4aef-aced-1e1460bce9b1"/>
+								<reportElement style="Table_TD" x="0" y="0" width="42" height="12" uuid="1c8cfd85-4535-4aef-aced-1e1460bce9b1"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="9" isBold="true" isUnderline="false"/>
 								</textElement>
@@ -145,18 +145,19 @@ AND  (SELECT NVL("BILLING_LINES"."AMOUNT",0.0) + NVL("BILLING_LINES"."TEA_EXPENS
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="12">
 							<textField pattern="#,##0.00#" isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="38" height="12" uuid="0a3835ef-161a-4118-a8c6-ceddc6ef028c"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle">
+								<reportElement x="0" y="0" width="42" height="12" uuid="0a3835ef-161a-4118-a8c6-ceddc6ef028c"/>
+								<box rightPadding="3"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
 									<font size="8" isBold="false"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{AMOUNT}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="23" uuid="a1c58252-33f3-45fa-a3d6-51b528d7f612">
+					<jr:column width="31" uuid="a1c58252-33f3-45fa-a3d6-51b528d7f612">
 						<jr:columnHeader style="Table_CH" height="12">
 							<staticText>
-								<reportElement style="Table_TD" x="0" y="0" width="23" height="12" uuid="8af87378-3b77-4f01-b7c1-1fab6401ce1c"/>
+								<reportElement style="Table_TD" x="0" y="0" width="31" height="12" uuid="8af87378-3b77-4f01-b7c1-1fab6401ce1c"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="9" isBold="true" isUnderline="false"/>
 								</textElement>
@@ -165,8 +166,9 @@ AND  (SELECT NVL("BILLING_LINES"."AMOUNT",0.0) + NVL("BILLING_LINES"."TEA_EXPENS
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="12">
 							<textField pattern="#,##0.00#" isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="23" height="12" uuid="fa453d34-ab1e-4744-aa77-12dc015716f2"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle">
+								<reportElement x="0" y="0" width="31" height="12" uuid="fa453d34-ab1e-4744-aa77-12dc015716f2"/>
+								<box rightPadding="3"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
 									<font size="8" isBold="false"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{TEA_EXPENSES}]]></textFieldExpression>

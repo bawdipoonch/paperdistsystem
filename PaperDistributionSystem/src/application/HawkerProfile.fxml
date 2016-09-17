@@ -23,21 +23,24 @@
                   </Label>
                   <Label fx:id="adminMobileLabel" text="Mobile">
                      <font>
-                        <Font name="Arial" size="18.0" />
+                        <Font name="Arial" size="28.0" />
                      </font>
                   </Label>
                   <Label fx:id="adminAddrLabel" text="Addr" wrapText="true">
                      <font>
-                        <Font name="Arial" size="18.0" />
+                        <Font name="Arial" size="24.0" />
                      </font>
                   </Label>
                </children>
+               <VBox.margin>
+                  <Insets top="150.0" />
+               </VBox.margin>
             </VBox>
             <VBox alignment="TOP_CENTER" spacing="10.0">
                <children>
-                  <Label text="Hawker Details : ">
+                  <Label text="Hawker Details" underline="true">
                      <font>
-                        <Font name="Arial" size="18.0" />
+                        <Font name="Arial" size="24.0" />
                      </font>
                   </Label>
                   <VBox alignment="CENTER" spacing="10.0">
@@ -50,18 +53,18 @@
                               <Font size="24.0" />
                            </font>
                         </Label>
+                        <Label fx:id="editMobileNumTF" alignment="CENTER_LEFT">
+                           <font>
+                              <Font name="Arial" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="editNameTF">
+                           <font>
+                              <Font name="Arial" size="18.0" />
+                           </font>
+                        </Label>
                         <HBox alignment="CENTER" spacing="10.0">
                            <children>
-                              <Label text="Name :">
-                                 <font>
-                                    <Font name="Arial" size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="editNameTF">
-                                 <font>
-                                    <Font name="Arial" size="18.0" />
-                                 </font>
-                              </Label>
                               <Label text="Code : ">
                                  <font>
                                     <Font name="Arial" size="18.0" />
@@ -74,11 +77,6 @@
                               </Label>
                            </children>
                         </HBox>
-                        <Label fx:id="editMobileNumTF" alignment="CENTER_LEFT">
-                           <font>
-                              <Font name="Arial" size="18.0" />
-                           </font>
-                        </Label>
                         <HBox alignment="CENTER" spacing="10.0">
                            <children>
                               <Label text="Bill Category :">
@@ -97,6 +95,7 @@
                   </VBox>
                   <HBox alignment="CENTER" spacing="15.0">
                      <children>
+                        <Button mnemonicParsing="false" onAction="#viewHawkerClicked" text="View Hawker Details" />
                         <Button mnemonicParsing="false" onAction="#changeMobileClicked" text="Edit Hawker Details" />
                         <Button mnemonicParsing="false" onAction="#changePasswordClicked" text="Change Password" />
                      </children>

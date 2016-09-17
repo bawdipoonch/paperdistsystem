@@ -1,5 +1,6 @@
 package application;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,9 +14,12 @@ import org.controlsfx.control.Notifications;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
 import javafx.util.Duration;
@@ -97,6 +101,34 @@ public class HawkerProfileController implements Initializable{
 		AHawkerInfoTabController.showEditHawkerDialog(HawkerLoginController.loggedInHawker);
 
 		
+	}
+	
+	@FXML
+	private void viewHawkerClicked(ActionEvent evt){
+		try {
+
+			Dialog<Hawker> editHawkerDialog = new Dialog<Hawker>();
+			editHawkerDialog.setTitle("View hawker data");
+			editHawkerDialog.setHeaderText("View the hawker data below");
+
+			editHawkerDialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+
+			FXMLLoader editHawkerLoader = new FXMLLoader(getClass().getResource("EditHawker.fxml"));
+			Parent editHawkerGrid = (Parent) editHawkerLoader.load();
+			EditHawkerController editHawkerController = editHawkerLoader.<EditHawkerController> getController();
+
+			editHawkerDialog.getDialogPane().setContent(editHawkerGrid);
+			editHawkerController.setHawkerToEdit(HawkerLoginController.loggedInHawker);
+			editHawkerController.setupBindings();
+			editHawkerController.gridPane.setDisable(true);
+			Optional<Hawker> updatedHawker = editHawkerDialog.showAndWait();
+			// refreshCustomerTable();
+
+		} catch (IOException e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
 	}
 
 	private void populateAdminHeaders() {

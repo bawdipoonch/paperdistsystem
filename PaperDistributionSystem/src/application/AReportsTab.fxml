@@ -82,24 +82,24 @@
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="180.0" prefWidth="180.0" />
                           </columnConstraints>
                           <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="181.0" text="Product Name :" />
-                              <ComboBox fx:id="prodNameLOV" prefHeight="25.0" prefWidth="181.0" GridPane.columnIndex="1" />
-                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="181.0" text="Subscription Type :" GridPane.rowIndex="1" />
-                              <ComboBox fx:id="subscriptionTypeLOV" prefHeight="25.0" prefWidth="181.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="181.0" text="Payment Type :" GridPane.rowIndex="2" />
-                              <ComboBox fx:id="paymentTypeLOV" prefHeight="25.0" prefWidth="181.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="190.0" text="Line Number :" />
+                              <ComboBox fx:id="addLineNumLOV2" prefHeight="25.0" prefWidth="180.0" GridPane.columnIndex="1" />
+                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="181.0" text="Product Name :" GridPane.rowIndex="1" />
+                              <ComboBox fx:id="prodNameLOV" prefHeight="25.0" prefWidth="181.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="181.0" text="Subscription Type :" GridPane.rowIndex="2" />
+                              <ComboBox fx:id="subscriptionTypeLOV" prefHeight="25.0" prefWidth="181.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="181.0" text="Payment Type :" GridPane.rowIndex="3" />
+                              <ComboBox fx:id="paymentTypeLOV" prefHeight="25.0" prefWidth="181.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                               <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="181.0" text="Frequency :" GridPane.columnIndex="2" />
                               <ComboBox fx:id="frequencyLOV" prefHeight="25.0" prefWidth="181.0" GridPane.columnIndex="3" />
-                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="190.0" text="Line Number :" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                              <ComboBox fx:id="addLineNumLOV2" prefHeight="25.0" prefWidth="180.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                              <ComboBox fx:id="dowLOV" prefHeight="25.0" prefWidth="182.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="204.0" text="Day of Week :" GridPane.rowIndex="3" />
+                              <ComboBox fx:id="dowLOV" prefHeight="25.0" prefWidth="182.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                              <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="204.0" text="Day of Week :" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                               <ComboBox fx:id="statusLOV" prefHeight="25.0" prefWidth="199.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                               <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="220.0" text="Status :" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                               <Button fx:id="generateFilteredReportButton" mnemonicParsing="false" onAction="#generateFilteredReportButtonClicked" prefWidth="173.0" text="Generate Filtered Report" GridPane.columnIndex="3" GridPane.rowIndex="3" />
