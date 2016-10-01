@@ -1,6 +1,5 @@
 package application;
 
-import javafx.scene.image.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +23,9 @@ import javax.imageio.ImageIO;
 
 import org.controlsfx.control.Notifications;
 
-import javafx.embed.swing.SwingFXUtils;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.S3Object;
+
 import javafx.util.Duration;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -1802,13 +1803,15 @@ public class BillingUtilityClass {
 			JasperReport jasperSummaryReport = JasperCompileManager.compileReport(summaryreport);
 			// JasperCompileManager.compileReportToFile(reportSrcFile);
 			// Connection conn = ConnectionUtils.getConnection();
-			Image img = null;
+//			Image img = null;
+			BufferedImage image = null;
+			AmazonS3 s3logoclient = Main.s3logoclient;
+			S3Object s3o = s3logoclient.getObject("pdslogobucket", hawkerCode+"logo.jpg");
 			try {
-				BufferedImage image = null;
 				if (HawkerLoginController.loggedInHawker.getLogo() != null) {
 					InputStream in = HawkerLoginController.loggedInHawker.getLogo().getBinaryStream();
-					image = ImageIO.read(in);
-					img = SwingFXUtils.toFXImage(image, null);
+					image = ImageIO.read(s3o.getObjectContent());
+//					img = SwingFXUtils.toFXImage(image, null);
 				}
 			} catch (SQLException e) {
 				Main._logger.debug(e);
@@ -1824,7 +1827,7 @@ public class BillingUtilityClass {
 			parameters.put("INVOICE_DATE", invoiceDate);
 			parameters.put("SubReportParam", jasperSubReport);
 			parameters.put("SummaryReportParam", jasperSummaryReport);
-			parameters.put("logo", img);
+			parameters.put("logo", image);
 			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
 
 			// Make sure the output directory exists.
@@ -1858,6 +1861,98 @@ public class BillingUtilityClass {
 		} catch (JRException e) {
 			Main._logger.debug("Error during Bill PDF Generation: ", e);
 			// e.printStackTrace();
+		}
+		return null;
+
+	}
+
+
+	public static File generateInvoiceADVPDF(String hawkerCode, int lineNum, String invoiceDate) throws JRException {
+
+		try {
+
+			String reportSrcFile = "MasterInvoiceAdv.jrxml";
+			String subReportPath = "BillSubreport.jrxml";
+			String summaryReportPath = "BillGeneratedLineSummary.jrxml";
+			Hawker hwkRow = hawkerForHwkCode(hawkerCode);
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			InputStream subreport = BillingUtilityClass.class.getResourceAsStream(subReportPath);
+			InputStream summaryreport = BillingUtilityClass.class.getResourceAsStream(summaryReportPath);
+			// First, compile jrxml file.
+			// JasperReport subReport =
+			// JasperCompileManager.compileReport(report);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+			JasperReport jasperSubReport = JasperCompileManager.compileReport(subreport);
+			JasperReport jasperSummaryReport = JasperCompileManager.compileReport(summaryreport);
+			// JasperCompileManager.compileReportToFile(reportSrcFile);
+			// Connection conn = ConnectionUtils.getConnection();
+//			Image img = null;
+			BufferedImage image = null;
+			AmazonS3 s3logoclient = Main.s3logoclient;
+			S3Object s3o = s3logoclient.getObject("pdslogobucket", hawkerCode+"logo.jpg");
+			S3Object s3oAdv1 = s3logoclient.getObject("pdslogobucket", hwkRow.getPointName().toUpperCase().replace(' ', '-')+"ADV1.jpg");
+			S3Object s3oAdv2 = s3logoclient.getObject("pdslogobucket", hwkRow.getPointName().toUpperCase().replace(' ', '-')+"ADV2.jpg");
+			image = ImageIO.read(s3o.getObjectContent());
+			BufferedImage adv1 =  ImageIO.read(s3oAdv1.getObjectContent());
+			BufferedImage adv2 =  ImageIO.read(s3oAdv2.getObjectContent());
+			/*try {
+				if (HawkerLoginController.loggedInHawker.getLogo() != null) {
+					InputStream in = HawkerLoginController.loggedInHawker.getLogo().getBinaryStream();
+//					img = SwingFXUtils.toFXImage(image, null);
+				}
+			} catch (SQLException e) {
+				Main._logger.debug(e);
+				e.printStackTrace();
+			} catch (IOException e) {
+				Main._logger.debug(e);
+				e.printStackTrace();
+			}*/
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			parameters.put("HWK_CODE", hawkerCode);
+			parameters.put("LINE_NUM", lineNum);
+			parameters.put("INVOICE_DATE", invoiceDate);
+			parameters.put("SubReportParam", jasperSubReport);
+			parameters.put("SummaryReportParam", jasperSummaryReport);
+			parameters.put("logo", image);
+			parameters.put("ADV1", adv1);
+			parameters.put("ADV2", adv2);
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-" + Integer.toString(lineNum) + "-"
+					+ invoiceDate.replace('/', '-') + ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+
+			Notifications.create().title("Invocie PDF Created").text("Invoice PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+			return outFile;
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Bill PDF Generation: ", e);
+			// e.printStackTrace();
+		} catch (IOException e1) {
+			Main._logger.debug(e1);
+			e1.printStackTrace();
 		}
 		return null;
 

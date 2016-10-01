@@ -25,6 +25,8 @@ import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -37,6 +39,7 @@ import java.util.Properties;
 public class Main extends Application {
 	public static Connection dbConnection = null;
 	public static String dateFormat = "dd/MM/yyyy";
+	public static AmazonS3 s3logoclient;
 	public static StringConverter<LocalDate> dateConvertor = new StringConverter<LocalDate>() {
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(Main.dateFormat);
 
@@ -113,7 +116,7 @@ public class Main extends Application {
 			DescribeDBInstancesResult result = client.describeDBInstances();
 			DBInstance dbInstance = (DBInstance) result.getDBInstances().toArray()[0];
 			String address=dbInstance.getEndpoint().getAddress();
-			
+			s3logoclient = new AmazonS3Client(credentials);
 			// step2 create the connection object
 			dbConnection = DriverManager.getConnection("jdbc:oracle:thin:@"+dbInstance.getEndpoint().getAddress()+":"+dbInstance.getEndpoint().getPort()+":ORCL", "admin", "LateefAhmedPDS");
 

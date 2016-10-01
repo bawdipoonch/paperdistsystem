@@ -99,6 +99,9 @@
                         <Button mnemonicParsing="false" onAction="#changeMobileClicked" text="Edit Hawker Details" />
                         <Button mnemonicParsing="false" onAction="#changePasswordClicked" text="Change Password" />
                      </children>
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
                   </HBox>
                </children>
                <VBox.margin>

@@ -1,5 +1,10 @@
 package application;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,11 +14,18 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import javax.imageio.ImageIO;
+
 import org.controlsfx.control.Notifications;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -35,9 +47,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
@@ -181,6 +196,18 @@ public class AdditionalItemsController implements Initializable {
 					}
 
 				});
+				MenuItem mnuAdv = new MenuItem("Add advertisements");
+				mnuNew.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						PointName pointRow = pointNamesTable.getSelectionModel().getSelectedItem();
+						if (pointRow != null) {
+							addPointNameInCategory(pointRow);
+							reloadData();
+						}
+					}
+
+				});
 				ContextMenu menu = new ContextMenu();
 				menu.getItems().addAll(mnuEdit, mnuDel, mnuNew);
 				row.contextMenuProperty().bind(
@@ -229,7 +256,8 @@ public class AdditionalItemsController implements Initializable {
 				}
 
 				profileValues.clear();
-				PreparedStatement stmt = con.prepareStatement("delete from lov_lookup where code = 'PROFILE_VALUES' AND value=?");
+				PreparedStatement stmt = con
+						.prepareStatement("delete from lov_lookup where code = 'PROFILE_VALUES' AND value=?");
 				stmt.setString(1, item);
 				stmt.executeUpdate();
 				Notifications.create().text("Profile deleted").text("Profile value successfully deleted")
@@ -237,17 +265,17 @@ public class AdditionalItemsController implements Initializable {
 				reloadData();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of profile has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 
 	private void showEditProfileValue() {
@@ -278,11 +306,11 @@ public class AdditionalItemsController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 
@@ -330,11 +358,11 @@ public class AdditionalItemsController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 				reloadData();
@@ -365,11 +393,11 @@ public class AdditionalItemsController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -403,11 +431,11 @@ public class AdditionalItemsController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 
@@ -454,11 +482,11 @@ public class AdditionalItemsController implements Initializable {
 
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 
@@ -501,13 +529,13 @@ public class AdditionalItemsController implements Initializable {
 				reloadData();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of employment status has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -530,24 +558,30 @@ public class AdditionalItemsController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
 	}
 
-	private boolean checkExistingPointName(String pointName) {
+	private boolean checkExistingPointName(String pointName, Long pointId) {
 		try {
 
 			Connection con = Main.dbConnection;
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			PreparedStatement stmt = con.prepareStatement("select count(*) from point_name where lower(name) = ? ");
+			PreparedStatement stmt;
+			if (pointId == null) {
+				stmt = con.prepareStatement("select count(*) from point_name where lower(name) = ?");
+			} else {
+				stmt = con.prepareStatement("select count(*) from point_name where lower(name) = ? and pointId <> ?");
+				stmt.setLong(2, pointId);
+			}
 			stmt.setString(1, pointName.toLowerCase());
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
@@ -555,11 +589,11 @@ public class AdditionalItemsController implements Initializable {
 			}
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		return false;
@@ -598,7 +632,7 @@ public class AdditionalItemsController implements Initializable {
 						.hideAfter(Duration.seconds(5)).showError();
 				btnevent.consume();
 			}
-			if (checkExistingPointName(nameField.getText().toLowerCase())) {
+			if (checkExistingPointName(nameField.getText().toLowerCase(), null)) {
 				Notifications.create().title("Duplicate Point Name")
 						.text("Point with same name already exists, please enter different name.")
 						.hideAfter(Duration.seconds(5)).showError();
@@ -621,7 +655,7 @@ public class AdditionalItemsController implements Initializable {
 				Notifications.create().title("Invalid Fee Value").text("Please enter only NUMBERS in Fee value")
 						.hideAfter(Duration.seconds(5)).showError();
 				btnevent.consume();
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 
@@ -664,11 +698,11 @@ public class AdditionalItemsController implements Initializable {
 					pointNamesTable.refresh();
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 			}
@@ -707,7 +741,7 @@ public class AdditionalItemsController implements Initializable {
 						.hideAfter(Duration.seconds(5)).showError();
 				btnevent.consume();
 			}
-			if (checkExistingPointName(nameField.getText().toLowerCase())) {
+			if (checkExistingPointName(nameField.getText().toLowerCase(), point.getPointId())) {
 				Notifications.create().title("Duplicate Point Name")
 						.text("Point with same name already exists, please enter different name.")
 						.hideAfter(Duration.seconds(5)).showError();
@@ -730,7 +764,7 @@ public class AdditionalItemsController implements Initializable {
 				Notifications.create().title("Invalid Fee Value").text("Please enter only NUMBERS in Fee value")
 						.hideAfter(Duration.seconds(5)).showError();
 				btnevent.consume();
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 
@@ -773,11 +807,11 @@ public class AdditionalItemsController implements Initializable {
 					pointNamesTable.refresh();
 				} catch (SQLException e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				} catch (Exception e) {
 
-					Main._logger.debug("Error :",e);
+					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
 			}
@@ -803,11 +837,11 @@ public class AdditionalItemsController implements Initializable {
 			profileValuesListView.refresh();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -832,11 +866,11 @@ public class AdditionalItemsController implements Initializable {
 			employmentValuesListView.refresh();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -862,11 +896,11 @@ public class AdditionalItemsController implements Initializable {
 			pointNamesTable.refresh();
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -896,13 +930,13 @@ public class AdditionalItemsController implements Initializable {
 				reloadData();
 			} catch (SQLException e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 				Notifications.create().hideAfter(Duration.seconds(5)).title("Delete failed")
 						.text("Delete request of point has failed").showError();
 			} catch (Exception e) {
 
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		}
@@ -912,7 +946,7 @@ public class AdditionalItemsController implements Initializable {
 	private void showEditPointNameDialog(PointName pointRow) {
 		Dialog<ArrayList<String>> dialog = new Dialog<>();
 		dialog.setTitle("Edit Point");
-		dialog.setHeaderText("Update the point details below");
+		dialog.setHeaderText("Advertisement banner should be of Width 575px - Height 75px");
 		ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
 		dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 		Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
@@ -927,10 +961,15 @@ public class AdditionalItemsController implements Initializable {
 		grid.add(new Label("Point City"), 0, 1);
 		grid.add(new Label("Bill Category"), 0, 2);
 		grid.add(new Label("Fee"), 0, 3);
+		grid.add(new Label("Top Advertisement"), 0, 4);
+		grid.add(new Label("Bottom Advertisement"), 0, 5);
 		TextField nameField = new TextField();
 		TextField cityField = new TextField();
 		TextField billCategoryField = new TextField();
 		TextField feeField = new TextField();
+		Button topAdvButton = new Button("Top Adv Banner");
+		Button bottomAdvButton = new Button("Bottom Adv Banner");
+
 		nameField.setText(pointRow.getPointName());
 		cityField.setText(pointRow.getCity());
 		billCategoryField.setText(pointRow.getBillCategory());
@@ -939,13 +978,59 @@ public class AdditionalItemsController implements Initializable {
 		grid.add(cityField, 1, 1);
 		grid.add(billCategoryField, 1, 2);
 		grid.add(feeField, 1, 3);
+		grid.add(topAdvButton, 1, 4);
+		grid.add(bottomAdvButton, 1, 5);
+
+		topAdvButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+			try {
+				AmazonS3 s3logoclient = Main.s3logoclient;
+				FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Select Top Advertisement banner.");
+				fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
+				File selectedFile = fileChooser.showOpenDialog(Main.primaryStage);
+				if (selectedFile != null) {
+					Image img = new Image(new FileInputStream(selectedFile), 575, 75, true, false);
+					ByteArrayOutputStream os = new ByteArrayOutputStream();
+					ImageIO.write(SwingFXUtils.fromFXImage(img, null), "jpg", os);
+					InputStream fis = new ByteArrayInputStream(os.toByteArray());
+					String uploadFileName = pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV1.jpg";
+					// File hwkLogo = new File(uploadFileName);
+					s3logoclient.putObject(
+							new PutObjectRequest("pdslogobucket", uploadFileName, fis, new ObjectMetadata()));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		bottomAdvButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+			try {
+				AmazonS3 s3logoclient = Main.s3logoclient;
+				FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Select Top Advertisement banner.");
+				fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
+				File selectedFile = fileChooser.showOpenDialog(Main.primaryStage);
+				if (selectedFile != null) {
+					Image img = new Image(new FileInputStream(selectedFile), 575, 75, true, false);
+					ByteArrayOutputStream os = new ByteArrayOutputStream();
+					ImageIO.write(SwingFXUtils.fromFXImage(img, null), "jpg", os);
+					InputStream fis = new ByteArrayInputStream(os.toByteArray());
+					String uploadFileName = pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV2.jpg";
+					// File hwkLogo = new File(uploadFileName);
+					s3logoclient.putObject(
+							new PutObjectRequest("pdslogobucket", uploadFileName, fis, new ObjectMetadata()));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+
 		saveButton.addEventFilter(ActionEvent.ACTION, btnevent -> {
 			if (nameField.getText().isEmpty()) {
 				Notifications.create().title("Invalid Point Name").text("Please enter some value in Point Name")
 						.hideAfter(Duration.seconds(5)).showError();
 				btnevent.consume();
 			}
-			if (checkExistingPointName(nameField.getText().toLowerCase())) {
+			if (checkExistingPointName(nameField.getText().toLowerCase(), pointRow.getPointId())) {
 				Notifications.create().title("Duplicate Point Name")
 						.text("Point with same name already exists, please enter different name.")
 						.hideAfter(Duration.seconds(5)).showError();
@@ -968,7 +1053,7 @@ public class AdditionalItemsController implements Initializable {
 				Notifications.create().title("Invalid Fee Value").text("Please enter only NUMBERS in Fee value")
 						.hideAfter(Duration.seconds(5)).showError();
 				btnevent.consume();
-				Main._logger.debug("Error :",e);
+				Main._logger.debug("Error :", e);
 				e.printStackTrace();
 			}
 		});

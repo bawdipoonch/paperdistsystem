@@ -142,7 +142,10 @@ public class EditSubscriptionController implements Initializable {
 					if (newValue.equals("Weekly")) {
 						dowLOV.setDisable(false);
 					} else
+					{
 						dowLOV.setDisable(true);
+						dowLOV.getSelectionModel().clearSelection();
+					}
 				}
 
 			}
@@ -527,6 +530,7 @@ public class EditSubscriptionController implements Initializable {
 		subsRow.setDuration(durationLOV.getSelectionModel().getSelectedItem());
 		subsRow.setOfferMonths((int) offerMonthsTF.getValue());
 		subsRow.setSubNumber(subNumberTF.getText());
+		subsRow.setAddToBill(Double.parseDouble(addToBillTF.getText()));
 		this.subsRow.updateSubscriptionRecord();
 	}
 

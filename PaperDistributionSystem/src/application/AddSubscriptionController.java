@@ -573,16 +573,6 @@ public class AddSubscriptionController implements Initializable {
 					.text("Duration selection cannot be left empty for Coupon Copy or Free Copy subscription")
 					.hideAfter(Duration.seconds(5)).showError();
 		}
-		// if
-		// ((subscriptionTypeLOV.getSelectionModel().getSelectedItem().equals("Coupon
-		// Copy/Adv Payment"))
-		// && subNumberTF.getText() == null) {
-		// valid = false;
-		// Notifications.create().title("Empty Subscription Number")
-		// .text("Subscription number cannot be empty for Coupon Copy/Adv
-		// Payment")
-		// .hideAfter(Duration.seconds(5)).showError();
-		// }
 		if (frequencyLOV.getSelectionModel().getSelectedItem() == null) {
 			valid = false;
 			Notifications.create().title("Invalid Frequency Selection")

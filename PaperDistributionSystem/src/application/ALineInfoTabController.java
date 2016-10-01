@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.Notifications;
 import org.jpedal.examples.viewer.OpenViewerFX;
-import org.json.JSONArray;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -589,7 +588,7 @@ public class ALineInfoTabController implements Initializable {
 										Notifications.create().title("Generating Invoice PDF")
 												.text("Generating Invoice PDF for selected line. Please wait...")
 												.hideAfter(Duration.seconds(10)).showInformation();
-										File pdfFile = BillingUtilityClass.generateInvoicePDF(
+										File pdfFile = BillingUtilityClass.generateInvoiceADVPDF(
 												hawkerComboBox.getSelectionModel().getSelectedItem(),
 												lineRow.getLineNum(), dateBox.getSelectionModel().getSelectedItem()
 														.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
