@@ -481,7 +481,6 @@ public class AReportsTabController implements Initializable {
 		} catch (JRException e) {
 			Main._logger.debug("Error during Bill PDF Generation: ", e);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -553,7 +552,6 @@ public class AReportsTabController implements Initializable {
 		} catch (JRException e) {
 			Main._logger.debug("Error during Bill PDF Generation: ", e);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

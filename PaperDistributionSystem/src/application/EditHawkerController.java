@@ -1,11 +1,9 @@
 package application;
 
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
@@ -188,8 +186,10 @@ public class EditHawkerController implements Initializable {
 		}*/
 
 		AmazonS3 s3logoclient = Main.s3logoclient;
-		S3Object s3o = s3logoclient.getObject("pdslogobucket", this.hawkerRow.getHawkerCode()+"logo.jpg");
-		logoImage.setImage(new Image(s3o.getObjectContent()));
+		if(s3logoclient.doesObjectExist("pdslogobucket", this.hawkerRow.getHawkerCode()+"logo.jpg")){
+			S3Object s3o =  s3logoclient.getObject("pdslogobucket", this.hawkerRow.getHawkerCode()+"logo.jpg");
+			logoImage.setImage(new Image(s3o.getObjectContent()));
+		}		
 	}
 
 	public boolean isValid() {
@@ -466,8 +466,11 @@ public class EditHawkerController implements Initializable {
 
 		try {
 			AmazonS3 s3logoclient = Main.s3logoclient;
-			S3Object s3o = s3logoclient.getObject("pdslogobucket", this.hawkerRow.getHawkerCode()+"logo.jpg");
-			logoImage.setImage(new Image(s3o.getObjectContent()));
+			if(s3logoclient.doesObjectExist("pdslogobucket", this.hawkerRow.getHawkerCode()+"logo.jpg")){
+				S3Object s3o = s3logoclient.getObject("pdslogobucket", this.hawkerRow.getHawkerCode() + "logo.jpg");
+				logoImage.setImage(new Image(s3o.getObjectContent()));
+			}
+			
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Open Logo File");
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
@@ -475,23 +478,24 @@ public class EditHawkerController implements Initializable {
 			if (selectedFile != null) {
 				Image img = new Image(new FileInputStream(selectedFile), 200, 200, true, false);
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				ImageIO.write(SwingFXUtils.fromFXImage(img, null),"jpg", os); 
+				ImageIO.write(SwingFXUtils.fromFXImage(img, null), "jpg", os);
 				InputStream fis = new ByteArrayInputStream(os.toByteArray());
-				String uploadFileName = this.hawkerRow.getHawkerCode()+"logo.jpg";
-//				File hwkLogo = new File(uploadFileName);
-				s3logoclient.putObject(new PutObjectRequest(
-		                 "pdslogobucket", uploadFileName, fis,new ObjectMetadata()));
+				String uploadFileName = this.hawkerRow.getHawkerCode() + "logo.jpg";
+				// File hwkLogo = new File(uploadFileName);
+				s3logoclient
+						.putObject(new PutObjectRequest("pdslogobucket", uploadFileName, fis, new ObjectMetadata()));
 				logoImage.setImage(img);
-				/*BufferedImage bImage = SwingFXUtils.fromFXImage(logoImage.getImage(), null);
-				ByteArrayOutputStream s = new ByteArrayOutputStream();
-				ImageIO.write(bImage, "png", s);
-				byte[] res = s.toByteArray();
-				s.close();
-				Blob logo = this.hawkerRow.getLogo();
-				if(logo==null) logo = Main.dbConnection.createBlob();
-				logo.setBytes(1, res);
-				this.hawkerRow.setLogo(logo);
-				this.hawkerRow.updateHawkerRecord();*/
+				/*
+				 * BufferedImage bImage =
+				 * SwingFXUtils.fromFXImage(logoImage.getImage(), null);
+				 * ByteArrayOutputStream s = new ByteArrayOutputStream();
+				 * ImageIO.write(bImage, "png", s); byte[] res =
+				 * s.toByteArray(); s.close(); Blob logo =
+				 * this.hawkerRow.getLogo(); if(logo==null) logo =
+				 * Main.dbConnection.createBlob(); logo.setBytes(1, res);
+				 * this.hawkerRow.setLogo(logo);
+				 * this.hawkerRow.updateHawkerRecord();
+				 */
 			}
 		} catch (Exception e) {
 			Main._logger.debug(e);

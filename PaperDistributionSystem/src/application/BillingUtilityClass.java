@@ -569,8 +569,8 @@ public class BillingUtilityClass {
 				bill = calculateActualBilling(subRow, startDate, endDate);
 			else {
 				bill = calculateFixedRateBilling(subRow, startDate, endDate)
-						+ ("Month End".equals(subRow.getPaymentType())
-								? calculateProdDiff(subRow, startDate, endDate) : 0.0);
+						+ ("Month End".equals(subRow.getPaymentType()) ? calculateProdDiff(subRow, startDate, endDate)
+								: 0.0);
 			}
 		}
 		return bill;
@@ -1803,15 +1803,15 @@ public class BillingUtilityClass {
 			JasperReport jasperSummaryReport = JasperCompileManager.compileReport(summaryreport);
 			// JasperCompileManager.compileReportToFile(reportSrcFile);
 			// Connection conn = ConnectionUtils.getConnection();
-//			Image img = null;
+			// Image img = null;
 			BufferedImage image = null;
 			AmazonS3 s3logoclient = Main.s3logoclient;
-			S3Object s3o = s3logoclient.getObject("pdslogobucket", hawkerCode+"logo.jpg");
+			S3Object s3o = s3logoclient.getObject("pdslogobucket", hawkerCode + "logo.jpg");
 			try {
 				if (HawkerLoginController.loggedInHawker.getLogo() != null) {
 					InputStream in = HawkerLoginController.loggedInHawker.getLogo().getBinaryStream();
 					image = ImageIO.read(s3o.getObjectContent());
-//					img = SwingFXUtils.toFXImage(image, null);
+					// img = SwingFXUtils.toFXImage(image, null);
 				}
 			} catch (SQLException e) {
 				Main._logger.debug(e);
@@ -1866,47 +1866,46 @@ public class BillingUtilityClass {
 
 	}
 
-
 	public static File generateInvoiceADVPDF(String hawkerCode, int lineNum, String invoiceDate) throws JRException {
 
 		try {
 
-			String reportSrcFile = "MasterInvoiceAdv.jrxml";
+			AmazonS3 s3logoclient = Main.s3logoclient;
+			Hawker hwkRow = hawkerForHwkCode(hawkerCode);
+			boolean adv = s3logoclient.doesObjectExist("pdslogobucket",
+					hwkRow.getPointName().toUpperCase().replace(' ', '-') + "ADV1.jpg")
+					&& s3logoclient.doesObjectExist("pdslogobucket",
+							hwkRow.getPointName().toUpperCase().replace(' ', '-') + "ADV2.jpg");
+			boolean logoexists = s3logoclient.doesObjectExist("pdslogobucket", hawkerCode + "logo.jpg");
+			S3Object s3oAdv1 = null;
+			S3Object s3oAdv2 = null;
+			S3Object s3o = null;
+			BufferedImage image = null;
+			BufferedImage adv1 = null;
+			BufferedImage adv2 = null;
+			if (logoexists) {
+				s3o = s3logoclient.getObject("pdslogobucket", hawkerCode + "logo.jpg");
+				image = ImageIO.read(s3o.getObjectContent());
+			}
+			if (adv) {
+				s3oAdv1 = s3logoclient.getObject("pdslogobucket",
+						hwkRow.getPointName().toUpperCase().replace(' ', '-') + "ADV1.jpg");
+				s3oAdv2 = s3logoclient.getObject("pdslogobucket",
+						hwkRow.getPointName().toUpperCase().replace(' ', '-') + "ADV2.jpg");
+				adv1 = ImageIO.read(s3oAdv1.getObjectContent());
+				adv2 = ImageIO.read(s3oAdv2.getObjectContent());
+			}
+			String reportSrcFile = !adv ? "MasterInvoice.jrxml" : "MasterInvoiceAdv2.jrxml";
 			String subReportPath = "BillSubreport.jrxml";
 			String summaryReportPath = "BillGeneratedLineSummary.jrxml";
-			Hawker hwkRow = hawkerForHwkCode(hawkerCode);
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
 			InputStream subreport = BillingUtilityClass.class.getResourceAsStream(subReportPath);
 			InputStream summaryreport = BillingUtilityClass.class.getResourceAsStream(summaryReportPath);
-			// First, compile jrxml file.
-			// JasperReport subReport =
-			// JasperCompileManager.compileReport(report);
+
 			JasperReport jasperReport = JasperCompileManager.compileReport(input);
 			JasperReport jasperSubReport = JasperCompileManager.compileReport(subreport);
 			JasperReport jasperSummaryReport = JasperCompileManager.compileReport(summaryreport);
-			// JasperCompileManager.compileReportToFile(reportSrcFile);
-			// Connection conn = ConnectionUtils.getConnection();
-//			Image img = null;
-			BufferedImage image = null;
-			AmazonS3 s3logoclient = Main.s3logoclient;
-			S3Object s3o = s3logoclient.getObject("pdslogobucket", hawkerCode+"logo.jpg");
-			S3Object s3oAdv1 = s3logoclient.getObject("pdslogobucket", hwkRow.getPointName().toUpperCase().replace(' ', '-')+"ADV1.jpg");
-			S3Object s3oAdv2 = s3logoclient.getObject("pdslogobucket", hwkRow.getPointName().toUpperCase().replace(' ', '-')+"ADV2.jpg");
-			image = ImageIO.read(s3o.getObjectContent());
-			BufferedImage adv1 =  ImageIO.read(s3oAdv1.getObjectContent());
-			BufferedImage adv2 =  ImageIO.read(s3oAdv2.getObjectContent());
-			/*try {
-				if (HawkerLoginController.loggedInHawker.getLogo() != null) {
-					InputStream in = HawkerLoginController.loggedInHawker.getLogo().getBinaryStream();
-//					img = SwingFXUtils.toFXImage(image, null);
-				}
-			} catch (SQLException e) {
-				Main._logger.debug(e);
-				e.printStackTrace();
-			} catch (IOException e) {
-				Main._logger.debug(e);
-				e.printStackTrace();
-			}*/
+
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			parameters.put("HWK_CODE", hawkerCode);
@@ -1914,9 +1913,15 @@ public class BillingUtilityClass {
 			parameters.put("INVOICE_DATE", invoiceDate);
 			parameters.put("SubReportParam", jasperSubReport);
 			parameters.put("SummaryReportParam", jasperSummaryReport);
-			parameters.put("logo", image);
-			parameters.put("ADV1", adv1);
-			parameters.put("ADV2", adv2);
+			if (logoexists)
+				parameters.put("logo", image);
+			else
+				parameters.put("logo", null);
+			if (adv) {
+				parameters.put("ADV1", adv1);
+				parameters.put("ADV2", adv2);
+
+			}
 			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
 
 			// Make sure the output directory exists.

@@ -196,7 +196,7 @@ public class AdditionalItemsController implements Initializable {
 					}
 
 				});
-				MenuItem mnuAdv = new MenuItem("Add advertisements");
+				/*MenuItem mnuAdv = new MenuItem("Add advertisements");
 				mnuNew.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent t) {
@@ -207,7 +207,7 @@ public class AdditionalItemsController implements Initializable {
 						}
 					}
 
-				});
+				});*/
 				ContextMenu menu = new ContextMenu();
 				menu.getItems().addAll(mnuEdit, mnuDel, mnuNew);
 				row.contextMenuProperty().bind(
@@ -579,7 +579,7 @@ public class AdditionalItemsController implements Initializable {
 			if (pointId == null) {
 				stmt = con.prepareStatement("select count(*) from point_name where lower(name) = ?");
 			} else {
-				stmt = con.prepareStatement("select count(*) from point_name where lower(name) = ? and pointId <> ?");
+				stmt = con.prepareStatement("select count(*) from point_name where lower(name) = ? and point_id <> ?");
 				stmt.setLong(2, pointId);
 			}
 			stmt.setString(1, pointName.toLowerCase());
@@ -961,8 +961,10 @@ public class AdditionalItemsController implements Initializable {
 		grid.add(new Label("Point City"), 0, 1);
 		grid.add(new Label("Bill Category"), 0, 2);
 		grid.add(new Label("Fee"), 0, 3);
-		grid.add(new Label("Top Advertisement"), 0, 4);
-		grid.add(new Label("Bottom Advertisement"), 0, 5);
+		grid.add(new Label("Right Advertisement"), 0, 4);
+		grid.add(new Label("Width: 180 x Height: 270"), 0, 5);
+		grid.add(new Label("Bottom Advertisement"), 0, 6);
+		grid.add(new Label("Width: 270 x Height: 75"), 0, 7);
 		TextField nameField = new TextField();
 		TextField cityField = new TextField();
 		TextField billCategoryField = new TextField();
@@ -979,7 +981,7 @@ public class AdditionalItemsController implements Initializable {
 		grid.add(billCategoryField, 1, 2);
 		grid.add(feeField, 1, 3);
 		grid.add(topAdvButton, 1, 4);
-		grid.add(bottomAdvButton, 1, 5);
+		grid.add(bottomAdvButton, 1, 6);
 
 		topAdvButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
 			try {
@@ -989,7 +991,7 @@ public class AdditionalItemsController implements Initializable {
 				fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
 				File selectedFile = fileChooser.showOpenDialog(Main.primaryStage);
 				if (selectedFile != null) {
-					Image img = new Image(new FileInputStream(selectedFile), 575, 75, true, false);
+					Image img = new Image(new FileInputStream(selectedFile), 180, 270, true, false);
 					ByteArrayOutputStream os = new ByteArrayOutputStream();
 					ImageIO.write(SwingFXUtils.fromFXImage(img, null), "jpg", os);
 					InputStream fis = new ByteArrayInputStream(os.toByteArray());
@@ -1010,7 +1012,7 @@ public class AdditionalItemsController implements Initializable {
 				fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
 				File selectedFile = fileChooser.showOpenDialog(Main.primaryStage);
 				if (selectedFile != null) {
-					Image img = new Image(new FileInputStream(selectedFile), 575, 75, true, false);
+					Image img = new Image(new FileInputStream(selectedFile), 270, 75, true, false);
 					ByteArrayOutputStream os = new ByteArrayOutputStream();
 					ImageIO.write(SwingFXUtils.fromFXImage(img, null), "jpg", os);
 					InputStream fis = new ByteArrayInputStream(os.toByteArray());

@@ -78,8 +78,8 @@ public class PointName {
 			updateStmt.setString(1, getPointName());
 			updateStmt.setString(2, getCity().toLowerCase());
 			updateStmt.setString(3, getBillCategory().toLowerCase());
-			updateStmt.setDouble(3, getFee());
-			updateStmt.setLong(4, getPointId());
+			updateStmt.setDouble(4, getFee());
+			updateStmt.setLong(5, getPointId());
 			updateStmt.executeUpdate();
 			con.commit();
 

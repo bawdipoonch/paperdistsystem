@@ -138,11 +138,10 @@ public class EditSubscriptionController implements Initializable {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (newValue!=null) {
+				if (newValue != null) {
 					if (newValue.equals("Weekly")) {
 						dowLOV.setDisable(false);
-					} else
-					{
+					} else {
 						dowLOV.setDisable(true);
 						dowLOV.getSelectionModel().clearSelection();
 					}
@@ -270,9 +269,11 @@ public class EditSubscriptionController implements Initializable {
 		this.subsRow = subsRow;
 
 	}
-	public void setEndDateValue(){
-		int offerMonths = offerMonthsTF.getSelectionModel().getSelectedItem()!=null?offerMonthsTF.getSelectionModel().getSelectedItem():0;
-		
+
+	public void setEndDateValue() {
+		int offerMonths = offerMonthsTF.getSelectionModel().getSelectedItem() != null
+				? offerMonthsTF.getSelectionModel().getSelectedItem() : 0;
+
 		switch (durationLOV.getSelectionModel().getSelectedItem()) {
 		case "3 MONTHS":
 			endDate.setValue(startDate.getValue().plusMonths(3 + offerMonths).minusDays(1));
@@ -283,8 +284,7 @@ public class EditSubscriptionController implements Initializable {
 			break;
 		case "12 MONTHS":
 
-			endDate.setValue(
-					startDate.getValue().plusYears(1).plusMonths(offerMonths).minusDays(1));
+			endDate.setValue(startDate.getValue().plusYears(1).plusMonths(offerMonths).minusDays(1));
 			break;
 		default:
 			endDate.setValue(null);
@@ -309,11 +309,11 @@ public class EditSubscriptionController implements Initializable {
 			}
 
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		subscriptionTypeLOV.getItems().clear();
@@ -339,11 +339,11 @@ public class EditSubscriptionController implements Initializable {
 			}
 
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		paymentTypeLOV.getItems().clear();
@@ -369,11 +369,11 @@ public class EditSubscriptionController implements Initializable {
 			}
 
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 		durationLOV.getItems().clear();
@@ -415,11 +415,11 @@ public class EditSubscriptionController implements Initializable {
 			prodNameLOV.getItems().addAll(productValues);
 
 		} catch (SQLException e) {
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 
@@ -498,16 +498,17 @@ public class EditSubscriptionController implements Initializable {
 						rs.getDate(13) == null ? null : rs.getDate(13).toLocalDate(),
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
-						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(), rs.getDouble(21));
+						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
+						rs.getDouble(21));
 			}
 
 		} catch (SQLException e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			Main._logger.debug("Error :",e);
+			Main._logger.debug("Error :", e);
 			e.printStackTrace();
 		}
 	}
@@ -517,8 +518,9 @@ public class EditSubscriptionController implements Initializable {
 		subsRow.setSubscriptionType(subscriptionTypeLOV.getSelectionModel().getSelectedItem());
 		subsRow.setCost(Double
 				.parseDouble(priceTF.getText() == null || priceTF.getText().isEmpty() ? "0.0" : priceTF.getText()));
-		if (frequencyLOV.getSelectionModel().getSelectedItem().equals("Weekly"))
-			subsRow.setDow(dowLOV.getSelectionModel().getSelectedItem());
+		// if
+		// (frequencyLOV.getSelectionModel().getSelectedItem().equals("Weekly"))
+		subsRow.setDow(dowLOV.getSelectionModel().getSelectedItem());
 		subsRow.setFrequency(frequencyLOV.getSelectionModel().getSelectedItem());
 		subsRow.setPaymentType(paymentTypeLOV.getSelectionModel().getSelectedItem());
 		subsRow.setServiceCharge(
@@ -531,6 +533,7 @@ public class EditSubscriptionController implements Initializable {
 		subsRow.setOfferMonths((int) offerMonthsTF.getValue());
 		subsRow.setSubNumber(subNumberTF.getText());
 		subsRow.setAddToBill(Double.parseDouble(addToBillTF.getText()));
+		// subsRow.setDow(dow);
 		this.subsRow.updateSubscriptionRecord();
 	}
 

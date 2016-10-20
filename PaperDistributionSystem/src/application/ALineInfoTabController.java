@@ -1384,7 +1384,7 @@ public class ALineInfoTabController implements Initializable {
 				ContextMenu menu = new ContextMenu();
 
 				if (HawkerLoginController.loggedInHawker != null) {
-					menu.getItems().addAll(mnuEdit, mnuView, mnuSubs, mnuPause, mnuResume, mnuBill, mnuAddDue, mnuDue);
+					menu.getItems().addAll(mnuEdit, mnuView,mnuDel,  mnuSubs, mnuPause, mnuResume, mnuBill, mnuAddDue, mnuDue);
 				} else {
 					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuSubs, mnuPause, mnuResume, mnuBill, mnuAddDue,
 							mnuDue);
@@ -1463,11 +1463,11 @@ public class ALineInfoTabController implements Initializable {
 					public void handle(ActionEvent t) {
 						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
 						if (subsRow != null) {
-							if (HawkerLoginController.loggedInHawker != null && subscriptionMasterData.size() > 1) {
-								Notifications.create().title("Delete not allowed")
-										.text("Delete not allowed if customer has more than one subscription")
-										.hideAfter(Duration.seconds(10)).showError();
-							} else
+//							if (HawkerLoginController.loggedInHawker != null && subscriptionMasterData.size() > 1) {
+//								Notifications.create().title("Delete not allowed")
+//										.text("Delete not allowed if customer has more than one subscription")
+//										.hideAfter(Duration.seconds(10)).showError();
+//							} else
 								deleteSubscription(subsRow);
 
 						}
@@ -2879,6 +2879,39 @@ public class ALineInfoTabController implements Initializable {
 				}
 				String deleteString = "delete from customer where customer_id=?";
 				PreparedStatement deleteStmt = con.prepareStatement(deleteString);
+				deleteStmt.setLong(1, custRow.getCustomerId());
+
+				deleteStmt.executeUpdate();
+				con.commit();
+				deleteString = "delete from subscription where customer_id=?";
+				deleteStmt = con.prepareStatement(deleteString);
+				deleteStmt.setLong(1, custRow.getCustomerId());
+
+				deleteStmt.executeUpdate();
+				con.commit();
+				
+				deleteString = "delete from stop_history where sub_id in (select distinct subscription_id from subscription where customer_id=?)";
+				deleteStmt = con.prepareStatement(deleteString);
+				deleteStmt.setLong(1, custRow.getCustomerId());
+
+				deleteStmt.executeUpdate();
+				con.commit();
+				
+				deleteString = "delete from STOP_HISTORY_BKP where sub_id in (select distinct subscription_id from subscription where customer_id=?)";
+				deleteStmt = con.prepareStatement(deleteString);
+				deleteStmt.setLong(1, custRow.getCustomerId());
+
+				deleteStmt.executeUpdate();
+				con.commit();
+				deleteString = "delete from billing_lines where bill_invoice_num in (select distinct bill_invoice_num from billing where customer_id=?)";
+				deleteStmt = con.prepareStatement(deleteString);
+				deleteStmt.setLong(1, custRow.getCustomerId());
+
+				deleteStmt.executeUpdate();
+				con.commit();
+				
+				deleteString = "delete from billing where customer_id=?";
+				deleteStmt = con.prepareStatement(deleteString);
 				deleteStmt.setLong(1, custRow.getCustomerId());
 
 				deleteStmt.executeUpdate();
