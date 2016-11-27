@@ -27,21 +27,21 @@ public class ProductSpecialPrice {
 		setPrice(price);
 	}
 
-	private void setPrice(double price) {
+	public void setPrice(double price) {
 		this.price.set(price);
 	}
 
-	private void setFullDate(LocalDate fullDate) {
+	public void setFullDate(LocalDate fullDate) {
 		this.fullDate.set(fullDate);
 
 	}
 
-	private void setProductId(long productId) {
+	public void setProductId(long productId) {
 		this.productId.set(productId);
 
 	}
 
-	private void setSpclPriceId(long spclProductId) {
+	public void setSpclPriceId(long spclProductId) {
 		this.spclPriceId.set(spclProductId);
 
 	}
@@ -73,7 +73,7 @@ public class ProductSpecialPrice {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String updateString = "update prod_spcl_price set full_date=?, price=? where prod_spcl_id=?";
+			String updateString = "update prod_spcl_price set full_date=?, price=? where spcl_price_id=?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setDate(1, Date.valueOf(getFullDate()));
 			updateStmt.setDouble(2, getPrice());

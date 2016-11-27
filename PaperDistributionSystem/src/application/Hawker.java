@@ -51,6 +51,7 @@ public class Hawker {
 	private SimpleStringProperty bankName = new SimpleStringProperty("");
 	private SimpleStringProperty ifscCode = new SimpleStringProperty("");
 	private SimpleStringProperty stopHistoryAccess = new SimpleStringProperty("");
+	private SimpleStringProperty benName = new SimpleStringProperty("");
 	private Blob logo;
 
 	public Hawker(long hawkerId, String name, String hawkerCode, String moblieNum, String agencyName,
@@ -98,6 +99,52 @@ public class Hawker {
 		setLogo(logo);
 	}
 
+	public Hawker(long hawkerId, String name, String hawkerCode, String moblieNum, String agencyName,
+			boolean activeFlag, double fee, String oldHouseNum, String newHouseNum, String addrLine1, String addrLine2,
+			String locality, String city, String state, String customerAccess, String billingAccess,
+			String lineInfoAccess, String lineDistAccess, String pausedCustAccess, String productAccess,
+			String reportsAccess, String profile1, String profile2, String profile3, String initials, String password,
+			String employment, String comments, String pointName, String buildingStreet, String bankAcNo,
+			String bankName, String ifscCode, String stopHistoryAccess, Blob logo, String benName) {
+		super();
+		setHawkerId(hawkerId);
+		setName(name);
+		setHawkerCode(hawkerCode);
+		setMobileNum(moblieNum);
+		setAgencyName(("" + agencyName));
+		setActiveFlag(activeFlag);
+		setFee(fee);
+		setOldHouseNum(oldHouseNum);
+		setNewHouseNum(newHouseNum);
+		setAddrLine1(addrLine1);
+		setAddrLine2(addrLine2);
+		setLocality(locality);
+		setCity(city);
+		setState(state);
+		setCustomerAccess(customerAccess);
+		setBillingAccess(billingAccess);
+		setLineInfoAccess(lineInfoAccess);
+		setLineDistAccess(lineDistAccess);
+		setPausedCustAccess(pausedCustAccess);
+		setProductAccess(productAccess);
+		setReportsAccess(reportsAccess);
+		setProfile1(profile1);
+		setProfile2(profile2);
+		setProfile3(profile3);
+		setInitials(initials);
+		setPassword(password);
+		setEmployment(employment);
+		setComments(comments);
+		setPointName(pointName);
+		setBuildingStreet(buildingStreet);
+		setBankAcNo(bankAcNo);
+		setBankName(bankName);
+		setIfscCode(ifscCode);
+		setStopHistoryAccess(stopHistoryAccess);
+		setLogo(logo);
+		setBenName(benName);
+	}
+
 	public Hawker(Hawker hawkerRow) {
 		setHawkerId(hawkerRow.getHawkerId());
 		setName(hawkerRow.getName());
@@ -135,6 +182,7 @@ public class Hawker {
 		setBankName(hawkerRow.getBankName());
 		setIfscCode(hawkerRow.getIfscCode());
 		setLogo(hawkerRow.getLogo());
+		setBenName(hawkerRow.getBenName());
 	}
 
 	public Long getHawkerId() {
@@ -432,6 +480,13 @@ public class Hawker {
 		this.stopHistoryAccess.set(stopHistoryAccess);
 	}
 
+	public String getBenName() {
+		return benName.get();
+	}
+
+	public void setBenName(String benName) {
+		this.benName.set(benName);
+	}
 	public Blob getLogo() {
 		/*logo.setb
 		BufferedImage image = null;
@@ -481,7 +536,7 @@ public class Hawker {
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=?, initials=?, employment=?, comments=?, point_name=?, building_street=?, bank_ac_no=?, bank_name=?, ifsc_code=?, stop_history_access=?, logo=? where hawker_id = ?";
+			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=?, initials=?, employment=?, comments=?, point_name=?, building_street=?, bank_ac_no=?, bank_name=?, ifsc_code=?, stop_history_access=?, logo=? , BEN_NAME=? where hawker_id = ?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setString(1, getName());
 			updateStmt.setString(2, getHawkerCode());
@@ -518,7 +573,8 @@ public class Hawker {
 			updateStmt.setString(33, getIfscCode());
 			updateStmt.setString(34, getStopHistoryAccess());
 			updateStmt.setBlob(35, logo);
-			updateStmt.setLong(36, getHawkerId());
+			updateStmt.setString(36, getBenName());
+			updateStmt.setLong(37, getHawkerId());
 			updateStmt.executeUpdate();
 			con.commit();
 

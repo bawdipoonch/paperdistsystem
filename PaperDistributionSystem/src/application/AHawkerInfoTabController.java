@@ -185,6 +185,8 @@ public class AHawkerInfoTabController implements Initializable {
 	private TableColumn<Hawker, String> bankNameColumn;
 	@FXML
 	private TableColumn<Hawker, String> ifscCodeColumn;
+	@FXML
+	private TableColumn<Hawker, String> benNameColumn;
 
 	// Billing columns
 	@FXML
@@ -278,6 +280,7 @@ public class AHawkerInfoTabController implements Initializable {
 		bankAcNumColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("bankAcNo"));
 		bankNameColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("bankName"));
 		ifscCodeColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("ifscCode"));
+		benNameColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("benName"));
 
 		hwkBillStartDateColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Date>("startDate"));
 		hwkBillEndDateColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Date>("endDate"));
@@ -966,17 +969,17 @@ public class AHawkerInfoTabController implements Initializable {
 					if (HawkerLoginController.loggedInHawker == null) {
 						if (showAllRadioButton.isSelected()) {
 							stmt = con.prepareStatement(
-									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo from hawker_info order by name");
+									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo,ben_name from hawker_info order by name");
 							// stmt.setString(1,
 							// addPointName.getSelectionModel().getSelectedItem());
 						} else {
 							stmt = con.prepareStatement(
-									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo from hawker_info where point_name=? order by name");
+									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo,ben_name from hawker_info where point_name=? order by name");
 							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 						}
 					} else {
 						stmt = con.prepareStatement(
-								"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo from hawker_info where point_name=? order by name");
+								"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo,ben_name from hawker_info where point_name=? order by name");
 						stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 					}
 					// hawkerTable.setDisable(true);
@@ -991,7 +994,7 @@ public class AHawkerInfoTabController implements Initializable {
 								rs.getString(21), rs.getString(22), rs.getString(23), rs.getString(24),
 								rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
 								rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32),
-								rs.getString(33), rs.getString(34), rs.getBlob(35));
+								rs.getString(33), rs.getString(34), rs.getBlob(35), rs.getString(36));
 						// hwkRow.calculateTotalDue();
 						hawkerMasterData.add(hwkRow);
 					}

@@ -623,6 +623,12 @@ public class AProductsTabController implements Initializable {
 					row.contextMenuProperty().bind(Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu)
 							.otherwise((ContextMenu) null));
 				}
+				if (HawkerLoginController.loggedInHawker != null) {
+					ContextMenu menu = new ContextMenu();
+					menu.getItems().addAll(mnuView);
+					row.contextMenuProperty().bind(Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu)
+							.otherwise((ContextMenu) null));
+				} 
 				return row;
 			}
 		});
@@ -704,7 +710,7 @@ public class AProductsTabController implements Initializable {
 
 				if (HawkerLoginController.loggedInHawker == null) {
 					ContextMenu menu = new ContextMenu();
-					menu.getItems().addAll(mnuDel);
+					menu.getItems().addAll(mnuEdit,mnuDel);
 					row.contextMenuProperty().bind(Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu)
 							.otherwise((ContextMenu) null));
 				}
@@ -1385,16 +1391,17 @@ public class AProductsTabController implements Initializable {
 	}
 
 	public void refreshProdSpecialPriceTable() {
-		Task<Void> task = new Task<Void>() {
+		/*Task<Void> task = new Task<Void>() {
 
 			@Override
-			protected Void call() throws Exception {
+			protected Void call() throws Exception {*/
 				try {
 
 					Connection con = Main.dbConnection;
 					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
+					spclPriceTable.getItems().clear();
 					prodSpclPriceValues=FXCollections.observableArrayList();
 					if(productsTable.getSelectionModel().getSelectedItem()!=null){
 						PreparedStatement stmt = con.prepareStatement(
@@ -1427,11 +1434,11 @@ public class AProductsTabController implements Initializable {
 					Main._logger.debug("Error :",e);
 					e.printStackTrace();
 				}
-				return null;
+				/*return null;
 			}
 
 		};
-		new Thread(task).start();
+		new Thread(task).start();*/
 
 	}
 
@@ -1660,7 +1667,68 @@ public class AProductsTabController implements Initializable {
 	}
 
 	private void showEditProductSpclDialog(ProductSpecialPrice prodSpclRow) {
+		try {
+			
+			TextInputDialog editProductSpclDialog = new TextInputDialog();
+			editProductSpclDialog.setTitle("Edit Product Special Price");
+			editProductSpclDialog.setHeaderText("Update the Product Special Price below");
 
+			// Set the button types.
+//			ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
+//			editProductSpclDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+			Button saveButton = (Button) editProductSpclDialog.getDialogPane().lookupButton(ButtonType.OK);
+
+			editProductSpclDialog.getEditor().setText((new Double(prodSpclRow.getPrice())).toString());
+			saveButton.addEventFilter(ActionEvent.ACTION, btnEvent -> {
+				boolean valid=true;
+				if(editProductSpclDialog.getEditor().getText()!=null){
+						try {
+							double d = Double.parseDouble(editProductSpclDialog.getEditor().getText().trim());
+						} catch (NumberFormatException e) {
+							Main._logger.debug("Error :",e);
+							Notifications.create().title("Invalid Number").text("Please enter valid number only").hideAfter(Duration.seconds(5)).showError();
+							e.printStackTrace();
+							valid=false;
+						} catch(Exception e){
+							Main._logger.debug("Error :",e);
+							Notifications.create().title("Invalid Number").text("Please enter valid number only").hideAfter(Duration.seconds(5)).showError();
+							e.printStackTrace();
+							valid=false;
+						}
+				} else {
+					valid=false;
+				}
+				if(valid){
+					prodSpclRow.setPrice(Double.parseDouble(editProductSpclDialog.getEditor().getText().trim()));
+					prodSpclRow.updateProductSpecialPriceRecord();
+					Notifications.create().title("Successful").text("Product Special Price updated successfully.").hideAfter(Duration.seconds(5)).showInformation();
+				}
+			});
+
+			/*editProductSpclDialog.setResultConverter(dialogButton -> {
+				if (dialogButton == saveButtonType) {
+					Product edittedProduct = editProductsController.returnUpdatedProduct();
+					return edittedProduct;
+				}
+				return null;
+			});*/
+
+			Optional<String> updatedProduct = editProductSpclDialog.showAndWait();
+			// refreshCustomerTable();
+
+			updatedProduct.ifPresent(new Consumer<String>() {
+
+				@Override
+				public void accept(String t) {
+					refreshProdSpecialPriceTable();
+				}
+			});
+
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :",e);
+			e.printStackTrace();
+		}
 	}
 
 	@FXML

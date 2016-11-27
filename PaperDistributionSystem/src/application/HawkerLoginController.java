@@ -165,7 +165,7 @@ public class HawkerLoginController implements Initializable {
 			existsStmt.setString(2, password.getText());
 			if (existsStmt.executeQuery().next()) {
 				PreparedStatement stmt = con.prepareStatement(
-						"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo  from hawker_info where mobile_num = ?");
+						"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo,ben_name  from hawker_info where mobile_num = ?");
 				stmt.setString(1, mobileNum.getText());
 				ResultSet rs = stmt.executeQuery();
 				if (rs.next()) {
@@ -178,7 +178,7 @@ public class HawkerLoginController implements Initializable {
 								rs.getString(21), rs.getString(22), rs.getString(23), rs.getString(24),
 								rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
 								rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32),
-								rs.getString(33), rs.getString(34), rs.getBlob(35));
+								rs.getString(33), rs.getString(34), rs.getBlob(35), rs.getString(36));
 //						callLineInfoListFunction();
 						Notifications.create().hideAfter(Duration.seconds(5)).title("Logged in")
 								.text("Login successful").showInformation();

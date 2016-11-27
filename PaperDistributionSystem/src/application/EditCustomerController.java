@@ -1,17 +1,34 @@
 package application;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import org.controlsfx.control.Notifications;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.lambda.AWSLambdaClient;
+import com.amazonaws.services.lambda.invoke.LambdaFunctionException;
+import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.amazonaws.services.lambda.model.InvokeResult;
+import com.amazonaws.util.Base64;
 import com.amazonaws.util.NumberUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -77,7 +94,7 @@ public class EditCustomerController implements Initializable {
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
 	private int seq;
-
+	Gson gson = new GsonBuilder().serializeNulls().create();
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
@@ -292,7 +309,7 @@ public class EditCustomerController implements Initializable {
 			edittedCustomer.setHawkerCode(editHawkerCodeLOV.getSelectionModel().getSelectedItem());
 			edittedCustomer
 					.setLineNum(Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0]));
-			edittedCustomer.setHouseSeq(Integer.parseInt(editHouseSeqTF.getText()));
+			edittedCustomer.setHouseSeq(Integer.parseInt(editHouseSeqTF.getText().trim()));
 			edittedCustomer.setOldHouseNum(editOldHouseNumTF.getText());
 			edittedCustomer.setNewHouseNum(editNewHouseNumTF.getText());
 			edittedCustomer.setAddrLine1(editAddrLine1.getText());
@@ -312,12 +329,78 @@ public class EditCustomerController implements Initializable {
 			edittedCustomer.setLineId(ACustomerInfoTabController.lineIdForNumHwkCode(
 					Integer.parseInt(editLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0]),
 					editHawkerCodeLOV.getSelectionModel().getSelectedItem()));
+//			editCustomerFunction();
+			
 			edittedCustomer.updateCustomerRecord();
+			
 			return edittedCustomer;
 		} else
 			return null;
 	}
+	private void editCustomerFunction() {
 
+		String ACCESS_KEY = "AKIAIZ53M3FYTTP6B5GQ";
+		String SECRET = "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";
+//		Gson gson = new Gson();
+		AWSCredentials credentials = null;
+		credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+		AWSLambdaClient lambdaClient = new AWSLambdaClient(credentials);
+		HashMap<String,String> map = new HashMap<String,String>();
+		map.put("customerId", custRow.getCustomerId().toString());
+		map.put("customerCode", (new Long(custRow.getCustomerCode())).toString());
+		map.put("name", custRow.getName());
+		map.put("mobileNum", custRow.getMobileNum());
+		map.put("hawkerCode", custRow.getHawkerCode());
+		map.put("lineNum", custRow.getLineNum().toString());
+		map.put("houseSeq", new Integer(custRow.getHouseSeq()).toString());
+		map.put("oldHouseNum", custRow.getOldHouseNum());
+		map.put("newHouseNum", custRow.getNewHouseNum());
+		map.put("addrLine1", custRow.getAddrLine1());
+		map.put("addrLine2", custRow.getAddrLine2());
+		map.put("locality", custRow.getLocality());
+		map.put("city", custRow.getCity());
+		map.put("state", custRow.getState());
+		map.put("profile1", custRow.getProfile1());
+		map.put("profile2", custRow.getProfile2());
+		map.put("profile3", custRow.getProfile3());
+		map.put("initials", custRow.getInitials());
+		map.put("employment", custRow.getEmployment());
+		map.put("comments", custRow.getComments());
+		map.put("buildingStreet", custRow.getBuildingStreet());
+		map.put("totalDue", new Double(custRow.getTotalDue()).toString());
+		map.put("hawkerId", custRow.getHawkerId().toString());
+		map.put("lineId", custRow.getLineId().toString());
+        lambdaClient.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+        try {
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("EditCustomer");
+//            HashMap<String,String> map = new HashMap<String,String>();
+//            map.put("hawkerId", HawkerLoginController.loggedInHawker.getHawkerId().toString());
+//            map.put("lineId",lineNumTable.getSelectionModel().getSelectedItem().getLineId().toString());
+            invokeRequest.setPayload(ByteBuffer.wrap(gson.toJson(map).getBytes()));
+            InvokeResult invokeResult = lambdaClient.invoke(invokeRequest);
+            
+            if (invokeResult.getLogResult() != null) { 
+                System.out.println(" log: " 
+                        + new String(Base64.decode(invokeResult.getLogResult()))); 
+            } 
+     
+            if (invokeResult.getFunctionError() != null) { 
+                throw new LambdaFunctionException(invokeResult.getFunctionError(), 
+                        false, new String(invokeResult.getPayload().array())); 
+            } 
+     
+            if (invokeResult.getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT ) { 
+                return; 
+            } 
+            System.out.println(gson.fromJson(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))), ArrayList.class));
+        }catch (LambdaFunctionException e){
+        	e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+	}
 	private void shuffleHouseSequences() {
 		if (this.custRow.getHawkerCode().equals(editHawkerCodeLOV.getSelectionModel().getSelectedItem())) {
 			if (this.custRow.getLineNum() == Long

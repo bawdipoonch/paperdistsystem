@@ -97,6 +97,8 @@ public class EditHawkerController implements Initializable {
 	@FXML
 	private TextField editIfscCode;
 	@FXML
+	private TextField editBenName;
+	@FXML
 	private ImageView logoImage;
 
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
@@ -170,6 +172,7 @@ public class EditHawkerController implements Initializable {
 		editBankAcNo.setText(hawkerRow.getBankAcNo());
 		editBankName.setText(hawkerRow.getBankName());
 		editIfscCode.setText(hawkerRow.getIfscCode());
+		editBenName.setText(hawkerRow.getBenName());
 		/*try {
 			BufferedImage image = null;
 			if (HawkerLoginController.loggedInHawker.getLogo()!=null) {
@@ -330,6 +333,7 @@ public class EditHawkerController implements Initializable {
 			edittedHawker.setBankAcNo(editBankAcNo.getText());
 			edittedHawker.setBankName(editBankName.getText());
 			edittedHawker.setIfscCode(editIfscCode.getText());
+			edittedHawker.setBenName(editBenName.getText());
 			edittedHawker.updateHawkerRecord();
 			return edittedHawker;
 		} else

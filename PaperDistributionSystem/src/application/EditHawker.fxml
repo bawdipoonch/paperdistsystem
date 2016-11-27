@@ -32,7 +32,8 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="211.0" text="Name" GridPane.rowIndex="2" />
@@ -83,7 +84,8 @@
                   <TextField fx:id="editBankAcNo" GridPane.columnIndex="3" GridPane.rowIndex="10" />
                   <TextField fx:id="editBankName" GridPane.columnIndex="3" GridPane.rowIndex="11" />
                   <TextField fx:id="editIfscCode" GridPane.columnIndex="3" GridPane.rowIndex="12" />
-                  <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="3" GridPane.rowIndex="13">
+                  <TextField fx:id="editBenName" GridPane.columnIndex="3" GridPane.rowIndex="13" GridPane.vgrow="NEVER" />
+                  <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="3" GridPane.rowIndex="14">
                      <children>
                         <VBox alignment="CENTER" spacing="3.0" HBox.hgrow="ALWAYS">
                            <children>
@@ -93,6 +95,7 @@
                         </VBox>
                      </children>
                   </HBox>
+                  <Label alignment="CENTER_RIGHT" prefHeight="21.0" prefWidth="131.0" text="Beneficiary Name" textAlignment="RIGHT" GridPane.columnIndex="2" GridPane.rowIndex="13" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

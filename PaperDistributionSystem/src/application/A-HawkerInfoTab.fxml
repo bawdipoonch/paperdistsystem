@@ -159,6 +159,7 @@
                   <TableColumn fx:id="bankAcNumColumn" prefWidth="192.0" text="Bank Account Num" />
                   <TableColumn fx:id="bankNameColumn" prefWidth="192.0" text="Bank Name" />
                   <TableColumn fx:id="ifscCodeColumn" prefWidth="192.0" text="IFSC Code" />
+                  <TableColumn fx:id="benNameColumn" prefWidth="192.0" text="Beneficiary Name" />
                </columns>
             </TableView>
             <HBox minHeight="-Infinity" prefHeight="200.0">

@@ -114,6 +114,14 @@ public class AReportsTabController implements Initializable {
 	@FXML
 	private ComboBox<String> statusLOV;
 
+
+    @FXML
+    private ComboBox<String> invoiceDateLOV;
+
+    @FXML
+    private Button allLineInvDateSummaryButton1;
+
+	private ObservableList<String> invoiceDatesData = FXCollections.observableArrayList();
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
@@ -831,7 +839,110 @@ public class AReportsTabController implements Initializable {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
 		}
 	}
+	
 
+    @FXML
+    void allLineInvSummaryButtonClicked(ActionEvent event) {
+    	try {
+			String reportSrcFile = "HwkAllLineInvoiceSummary.jrxml";
+
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+			String lineNum = addLineNumLOV3.getSelectionModel().getSelectedItem().equals("All") ? null
+					: addLineNumLOV3.getSelectionModel().getSelectedItem().split(" ")[0];
+			String prodName = prodNameLOV1.getSelectionModel().getSelectedItem().equals("All") ? null
+					: prodNameLOV1.getSelectionModel().getSelectedItem();
+
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			String hawkerCode = HawkerLoginController.loggedInHawker.getHawkerCode();
+			String invoiceDate = invoiceDateLOV.getSelectionModel().getSelectedItem();
+			parameters.put("HWK_CODE", hawkerCode);
+			parameters.put("INVOICE_DATE", invoiceDate);
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-HwkAllLineInvoiceSummary-At-"
+					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) + ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+
+			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Report PDF Generation: ", e);
+		}
+    }
+
+    private void populateInvoiceDates(){
+    	Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						invoiceDatesData = FXCollections.observableArrayList();
+						String insertStmt = "select distinct TO_CHAR(INVOICE_DATE,'DD/MM/YYYY') INVOICE_DATE from BILLING where customer_id in (select distinct customer_id from customer where hawker_id = ?) order by invoice_date desc";
+						PreparedStatement stmt = con.prepareStatement(insertStmt);
+						stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							invoiceDatesData.add(rs.getString(1));
+						}
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								invoiceDateLOV.getItems().clear();
+								invoiceDateLOV.setItems(invoiceDatesData);
+								invoiceDateLOV.getSelectionModel().selectFirst();
+							}
+						});
+						rs.close();
+						stmt.close();
+
+					} catch (SQLException e) {
+
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+    }
 	private void populateDOWValues(Product prod) {
 		// dowLOV.getItems().clear();
 		// dowLOV.getItems().addAll("All");
@@ -1173,6 +1284,7 @@ public class AReportsTabController implements Initializable {
 		populatePaymentTypeValues();
 		populateSubscriptionTypeValues();
 		populateStatusValues();
+		populateInvoiceDates();
 	}
 
 	public void releaseVariables() {
