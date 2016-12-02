@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-11-26T23:19:56 -->
+<!-- 2016-12-02T16:14:56 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoice" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="0" bottomMargin="0" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -196,6 +196,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	"INVOICE_QUERY"."BUILDING_STREET",
 	"INVOICE_QUERY"."BANK_NAME",
 	"INVOICE_QUERY"."IFSC_CODE",
+	"INVOICE_QUERY"."BEN_NAME",
 	"INVOICE_QUERY"."CUST_BLDG",
 	"INVOICE_QUERY"."BILL_INVOICE_NUM",
 	"INVOICE_QUERY"."INVOICE_DATE",
@@ -266,6 +267,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	<field name="TOTAL" class="java.lang.Double"/>
 	<field name="GTOTAL" class="java.lang.Double"/>
 	<field name="LINE_NUM1" class="java.lang.Integer"/>
+	<field name="BEN_NAME" class="java.lang.String"/>
 	<sortField name="HAWKER_CODE"/>
 	<sortField name="LINE_NUM"/>
 	<sortField name="HOUSE_SEQ"/>
@@ -1118,7 +1120,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 						<textElement textAlignment="Center" verticalAlignment="Middle">
 							<font fontName="Arial" size="8"/>
 						</textElement>
-						<textFieldExpression><![CDATA["Line Num : " + $F{LINE_NUM}]]></textFieldExpression>
+						<textFieldExpression><![CDATA["L.No: " + $F{LINE_NUM} + "\n H.Seq: " + $F{HOUSE_SEQ}]]></textFieldExpression>
 					</textField>
 					<subreport>
 						<reportElement stretchType="RelativeToBandHeight" x="110" y="75" width="163" height="124" isPrintWhenDetailOverflows="true" uuid="62320ff7-13ca-4f69-b56a-f0b54c7bec9e"/>
@@ -1131,7 +1133,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 						<subreportExpression><![CDATA[$P{SubReportParam}]]></subreportExpression>
 					</subreport>
-					<textField>
+					<textField isBlankWhenNull="false">
 						<reportElement x="275" y="21" width="95" height="18" uuid="449eac8a-af4c-477a-81bf-c4c126359992"/>
 						<box>
 							<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
@@ -1140,9 +1142,9 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 							<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
 						</box>
 						<textElement textAlignment="Center" verticalAlignment="Middle">
-							<font fontName="Arial" size="8"/>
+							<font fontName="Arial" size="6"/>
 						</textElement>
-						<textFieldExpression><![CDATA["House Seq : " + $F{HOUSE_SEQ}]]></textFieldExpression>
+						<textFieldExpression><![CDATA["Ben:" + $F{BEN_NAME}]]></textFieldExpression>
 					</textField>
 					<image hAlign="Center" vAlign="Middle" evaluationTime="Report">
 						<reportElement key="" x="0" y="2" width="37" height="37" uuid="a7811abb-aec2-4a7c-8b80-c019e88ed94a">

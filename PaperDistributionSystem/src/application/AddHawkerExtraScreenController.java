@@ -76,6 +76,8 @@ public class AddHawkerExtraScreenController implements Initializable {
 	private TextField addBankName;
 	@FXML
 	private TextField addIfscCode;
+	@FXML
+	private TextField addBenName;
 
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
@@ -350,8 +352,8 @@ public class AddHawkerExtraScreenController implements Initializable {
 
 		if (isValid()) {
 			PreparedStatement insertHawker = null;
-			String insertStatement = "INSERT INTO HAWKER_INFO(NAME,HAWKER_CODE, MOBILE_NUM, AGENCY_NAME,FEE,ACTIVE_FLAG, OLD_HOUSE_NUM, NEW_HOUSE_NUM,ADDR_LINE1,ADDR_LINE2,LOCALITY,CITY,STATE,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials, employment, comments, point_name, building_street,password,BANK_AC_NO,BANK_NAME,IFSC_CODE ) "
-					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			String insertStatement = "INSERT INTO HAWKER_INFO(NAME,HAWKER_CODE, MOBILE_NUM, AGENCY_NAME,FEE,ACTIVE_FLAG, OLD_HOUSE_NUM, NEW_HOUSE_NUM,ADDR_LINE1,ADDR_LINE2,LOCALITY,CITY,STATE,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials, employment, comments, point_name, building_street,password,BANK_AC_NO,BANK_NAME,IFSC_CODE,BEN_NAME ) "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
 				if (!con.isValid(0)) {
@@ -391,6 +393,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 				insertHawker.setString(30, addBankAcNo.getText());
 				insertHawker.setString(31, addBankName.getText());
 				insertHawker.setString(32, addIfscCode.getText());
+				insertHawker.setString(33, addBenName.getText());
 
 				insertHawker.executeUpdate();
 
@@ -462,6 +465,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 		addPointNameLOV.getSelectionModel().clearSelection();
 		addComments.clear();
 		addBldgStreet.clear();
+		addBenName.clear();
 
 	}
 
