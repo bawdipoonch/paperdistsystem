@@ -78,13 +78,13 @@
                   <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="254.0" text="Employment" GridPane.columnIndex="2" GridPane.rowIndex="8" />
                   <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="178.0" text="Comments" GridPane.columnIndex="2" GridPane.rowIndex="9" />
                   <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="143.0" text="Point Name" GridPane.rowIndex="1" />
-                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="151.0" text="Bank Account Num" GridPane.columnIndex="2" GridPane.rowIndex="10" />
-                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="215.0" text="Bank Name" GridPane.columnIndex="2" GridPane.rowIndex="11" />
-                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="186.0" text="IFSC Code" GridPane.columnIndex="2" GridPane.rowIndex="12" />
-                  <TextField fx:id="editBankAcNo" GridPane.columnIndex="3" GridPane.rowIndex="10" />
-                  <TextField fx:id="editBankName" GridPane.columnIndex="3" GridPane.rowIndex="11" />
-                  <TextField fx:id="editIfscCode" GridPane.columnIndex="3" GridPane.rowIndex="12" />
-                  <TextField fx:id="editBenName" GridPane.columnIndex="3" GridPane.rowIndex="13" GridPane.vgrow="NEVER" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="151.0" text="Account Number" GridPane.columnIndex="2" GridPane.rowIndex="11" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="215.0" text="Bank Name" GridPane.columnIndex="2" GridPane.rowIndex="12" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="186.0" text="IFSC Code" GridPane.columnIndex="2" GridPane.rowIndex="13" />
+                  <TextField fx:id="editBenName" GridPane.columnIndex="3" GridPane.rowIndex="10" GridPane.vgrow="NEVER" />
+                  <TextField fx:id="editBankAcNo" GridPane.columnIndex="3" GridPane.rowIndex="11" />
+                  <TextField fx:id="editBankName" GridPane.columnIndex="3" GridPane.rowIndex="12" />
+                  <TextField fx:id="editIfscCode" GridPane.columnIndex="3" GridPane.rowIndex="13" />
                   <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="3" GridPane.rowIndex="14">
                      <children>
                         <VBox alignment="CENTER" spacing="3.0" HBox.hgrow="ALWAYS">
@@ -95,7 +95,7 @@
                         </VBox>
                      </children>
                   </HBox>
-                  <Label alignment="CENTER_RIGHT" prefHeight="21.0" prefWidth="131.0" text="Beneficiary Name" textAlignment="RIGHT" GridPane.columnIndex="2" GridPane.rowIndex="13" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="21.0" prefWidth="131.0" text="Beneficiary Name" textAlignment="RIGHT" GridPane.columnIndex="2" GridPane.rowIndex="10" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
