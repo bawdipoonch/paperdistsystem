@@ -53,8 +53,8 @@
                   <TextField fx:id="editMobileNumTF" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                   <TextField fx:id="editAgencyNameTF" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                   <TextField fx:id="editFeeTF" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                  <TextField fx:id="editOldHouseNumTF" maxWidth="-Infinity" prefWidth="40.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                  <TextField fx:id="editNewHouseNumTF" maxWidth="-Infinity" prefWidth="40.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                  <TextField fx:id="editOldHouseNumTF" maxWidth="-Infinity" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                  <TextField fx:id="editNewHouseNumTF" maxWidth="-Infinity" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                   <TextField fx:id="editBldgStreetTF" GridPane.columnIndex="1" GridPane.rowIndex="10" />
                   <CheckBox fx:id="editActiveCheck" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="11" />
                   <TextField fx:id="editAddrLine1" GridPane.columnIndex="1" GridPane.rowIndex="12" />

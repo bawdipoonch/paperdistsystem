@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-12-02T22:28:27 -->
+<!-- 2016-12-05T20:43:56 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoiceAdv" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="0" bottomMargin="0" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -730,7 +730,7 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font fontName="Arial" size="8"/>
 					</textElement>
-					<textFieldExpression><![CDATA["BEN:" + $F{BEN_NAME}]]></textFieldExpression>
+					<textFieldExpression><![CDATA["BEN: " + ($F{BEN_NAME}!=null?$F{BEN_NAME}:"")]]></textFieldExpression>
 				</textField>
 				<image hAlign="Center" vAlign="Middle" evaluationTime="Report">
 					<reportElement key="" x="0" y="5" width="37" height="37" uuid="ed89118f-2558-4a66-8b90-488b83509fde">

@@ -104,6 +104,7 @@ public class EditHawkerController implements Initializable {
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
 	private ObservableList<String> pointNameValues = FXCollections.observableArrayList();
+	private ObservableList<String> stateValues = FXCollections.observableArrayList();
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -117,13 +118,14 @@ public class EditHawkerController implements Initializable {
 	}
 
 	public void setupBindings() {
+		editStateLOV.setItems(stateValues);
 		editStateLOV.getItems().addAll("Tamil Nadu", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
 				"Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand",
 				"Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland",
 				"Odisha", "Punjab", "Rajasthan", "Sikkim", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
 				"West Bengal");
-		editStateLOV.getSelectionModel().select(hawkerRow.getState());
 		new AutoCompleteComboBoxListener<>(editStateLOV);
+		editStateLOV.getSelectionModel().select(stateValues.indexOf(hawkerRow.getState()));
 
 		populateEmploymentValues();
 		populateProfileValues();
@@ -133,6 +135,7 @@ public class EditHawkerController implements Initializable {
 		editMobileNumTF.setText(hawkerRow.getMobileNum());
 		editOldHouseNumTF.setText(hawkerRow.getOldHouseNum());
 		editNewHouseNumTF.setText(hawkerRow.getNewHouseNum());
+		editBldgStreetTF.setText(hawkerRow.getBuildingStreet());
 		editAddrLine1.setText(hawkerRow.getAddrLine1());
 		editAddrLine2.setText(hawkerRow.getAddrLine2());
 		editLocalityTF.setText(hawkerRow.getLocality());
