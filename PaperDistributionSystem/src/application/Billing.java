@@ -82,12 +82,13 @@ public class Billing {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String updateString = "update billing set INVOICE_DATE=?, PDF_URL=?, DUE=? where BILL_INVOICE_NUM=?";
+			String updateString = "update billing set INVOICE_DATE=?, PDF_URL=?, DUE=?, MONTH=? where BILL_INVOICE_NUM=?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setDate(1, Date.valueOf(getInvoiceDate()));
 			updateStmt.setString(2, getPdfURL());
 			updateStmt.setDouble(3, getDue());
-			updateStmt.setLong(4, getBillInvoiceNum());
+			updateStmt.setLong(5, getBillInvoiceNum());
+			updateStmt.setString(4, getMonth());
 			updateStmt.executeUpdate();
 			con.commit();
 

@@ -62,7 +62,7 @@ public class Main extends Application {
 		}
 	};
 
-	final private static String dbConnectionString = "jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL";
+	private static String dbConnectionString = "jdbc:oracle:thin:@lateefahmedpds.c3in7ocqfbfv.ap-southeast-1.rds.amazonaws.com:1521:ORCL";
 	public static Stage primaryStage;
 	public static DecimalFormat df = new DecimalFormat("#.##");
 	
@@ -118,7 +118,8 @@ public class Main extends Application {
 			String address=dbInstance.getEndpoint().getAddress();
 			s3logoclient = new AmazonS3Client(credentials);
 			// step2 create the connection object
-			dbConnection = DriverManager.getConnection("jdbc:oracle:thin:@"+dbInstance.getEndpoint().getAddress()+":"+dbInstance.getEndpoint().getPort()+":ORCL", "admin", "LateefAhmedPDS");
+			dbConnectionString = "jdbc:oracle:thin:@"+dbInstance.getEndpoint().getAddress()+":"+dbInstance.getEndpoint().getPort()+":ORCL";
+			dbConnection = DriverManager.getConnection(dbConnectionString, "admin", "LateefAhmedPDS");
 
 		} catch (Exception e) {
 			System.out.println(e);

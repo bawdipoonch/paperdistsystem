@@ -234,6 +234,7 @@ public class BillingUtilityClass {
 		}
 
 		bill.setMonth(month);
+		bill.updateBillingRecord();
 		createBillingLines(bill, custForCustId(customerId), startDate, endDate, regenerate);
 
 	}
@@ -1701,6 +1702,31 @@ public class BillingUtilityClass {
 				 * startDate, endDate)); break; }
 				 */
 			} else if (frequency.equals("14 Days")) {
+				double previous = Math.ceil(ChronoUnit.DAYS.between(prod.getFirstDeliveryDate(), startDate.minusMonths(1)) / 14.0);
+				dateList.append("Price : " + prod.getPrice() + ", ");
+				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
+//								(prod.getSupportingFreq().equals("Weekly")?prod.getDow():""));
+				LocalDate firstpreviousDate = prod.getFirstDeliveryDate().plusDays((int) (14 * previous));
+				LocalDate secondpreviousDate = !firstpreviousDate.plusDays(14).isAfter(endDate) ? firstpreviousDate.plusDays(14) : null;
+				LocalDate thirdpreviousDate = secondpreviousDate == null ? null
+						: !secondpreviousDate.plusDays(14).isAfter(endDate) ? secondpreviousDate.plusDays(14) : null;
+				if (!(firstpreviousDate.isBefore(startDate.minusMonths(1))) && (!firstpreviousDate.isAfter(endDate.minusMonths(1)))) {
+					dateList.append(firstpreviousDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+
+				}
+				if (secondpreviousDate != null) {
+					if (!(secondpreviousDate.isBefore(startDate.minusMonths(1))) && (!secondpreviousDate.isAfter(endDate.minusMonths(1)))) {
+						dateList.append(secondpreviousDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+
+					}
+				}
+				if (thirdpreviousDate != null) {
+					if (!(thirdpreviousDate.isBefore(startDate.minusMonths(1))) && (!thirdpreviousDate.isAfter(endDate.minusMonths(1)))) {
+						dateList.append(thirdpreviousDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+
+					}
+				}
+				
 				double first = Math.ceil(ChronoUnit.DAYS.between(prod.getFirstDeliveryDate(), startDate) / 14.0);
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusDays((int) (14 * first));
 				LocalDate secondDate = !firstDate.plusDays(14).isAfter(endDate) ? firstDate.plusDays(14) : null;
@@ -1723,6 +1749,23 @@ public class BillingUtilityClass {
 					}
 				}
 			} else if (frequency.equals("15 Days")) {
+				dateList.append("Price : " + prod.getPrice() + ", ");
+				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
+				int prevmonths = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate.minusMonths(1)).getYears() * 12
+						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate.minusMonths(1)).getMonths();
+				LocalDate firstprevDate = prod.getFirstDeliveryDate().plusMonths(prevmonths);
+				LocalDate secondprevDate = firstprevDate.plusDays(15);
+				if (!(firstprevDate.isBefore(startDate.minusMonths(1))) && (!firstprevDate.isAfter(endDate.minusMonths(1)))) {
+					dateList.append(firstprevDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+
+				}
+				if (secondprevDate != null) {
+					if (!(secondprevDate.isBefore(startDate.minusMonths(1))) && (!secondprevDate.isAfter(endDate.minusMonths(1)))) {
+						dateList.append(secondprevDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
+
+					}
+				}
+				
 				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
@@ -1738,6 +1781,8 @@ public class BillingUtilityClass {
 					}
 				}
 			} else if (frequency.equals("Monthly")) {
+				dateList.append("Price : " + prod.getPrice() + ", ");
+				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
@@ -1747,6 +1792,8 @@ public class BillingUtilityClass {
 
 				}
 			} else if (frequency.equals("Quarterly")) {
+				dateList.append("Price : " + prod.getPrice() + ", ");
+				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
@@ -1758,6 +1805,8 @@ public class BillingUtilityClass {
 					}
 				}
 			} else if (frequency.equals("Half Yearly")) {
+				dateList.append("Price : " + prod.getPrice() + ", ");
+				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
@@ -1769,6 +1818,8 @@ public class BillingUtilityClass {
 					}
 				}
 			} else if (frequency.equals("Yearly")) {
+				dateList.append("Price : " + prod.getPrice() + ", ");
+				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
@@ -1791,16 +1842,19 @@ public class BillingUtilityClass {
 			String reportSrcFile = "MasterInvoice.jrxml";
 			String subReportPath = "BillSubreport.jrxml";
 			String summaryReportPath = "BillGeneratedLineSummary.jrxml";
-
+			String summaryReportPath1 = "HwkLineSubEnding90Days.jrxml";
+			Hawker hwk = hawkerForHwkCode(hawkerCode);
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
 			InputStream subreport = BillingUtilityClass.class.getResourceAsStream(subReportPath);
 			InputStream summaryreport = BillingUtilityClass.class.getResourceAsStream(summaryReportPath);
+			InputStream summaryreport1 = BillingUtilityClass.class.getResourceAsStream(summaryReportPath1);
 			// First, compile jrxml file.
 			// JasperReport subReport =
 			// JasperCompileManager.compileReport(report);
 			JasperReport jasperReport = JasperCompileManager.compileReport(input);
 			JasperReport jasperSubReport = JasperCompileManager.compileReport(subreport);
 			JasperReport jasperSummaryReport = JasperCompileManager.compileReport(summaryreport);
+			JasperReport jasperSummaryReport1 = JasperCompileManager.compileReport(summaryreport1);
 			// JasperCompileManager.compileReportToFile(reportSrcFile);
 			// Connection conn = ConnectionUtils.getConnection();
 			// Image img = null;
@@ -1808,8 +1862,8 @@ public class BillingUtilityClass {
 			AmazonS3 s3logoclient = Main.s3logoclient;
 			S3Object s3o = s3logoclient.getObject("pdslogobucket", hawkerCode + "logo.jpg");
 			try {
-				if (HawkerLoginController.loggedInHawker.getLogo() != null) {
-					InputStream in = HawkerLoginController.loggedInHawker.getLogo().getBinaryStream();
+				if (hwk.getLogo() != null) {
+					InputStream in = hwk.getLogo().getBinaryStream();
 					image = ImageIO.read(s3o.getObjectContent());
 					// img = SwingFXUtils.toFXImage(image, null);
 				}
@@ -1827,6 +1881,7 @@ public class BillingUtilityClass {
 			parameters.put("INVOICE_DATE", invoiceDate);
 			parameters.put("SubReportParam", jasperSubReport);
 			parameters.put("SummaryReportParam", jasperSummaryReport);
+			parameters.put("SummaryReportParam1", jasperSummaryReport1);
 			parameters.put("logo", image);
 			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
 
@@ -1898,13 +1953,16 @@ public class BillingUtilityClass {
 			String reportSrcFile = !adv ? "MasterInvoice.jrxml" : "MasterInvoiceAdv2.jrxml";
 			String subReportPath = "BillSubreport.jrxml";
 			String summaryReportPath = "BillGeneratedLineSummary.jrxml";
+			String summaryReportPath1 = "HwkLineSubEnding90Days.jrxml";
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
 			InputStream subreport = BillingUtilityClass.class.getResourceAsStream(subReportPath);
 			InputStream summaryreport = BillingUtilityClass.class.getResourceAsStream(summaryReportPath);
+			InputStream summaryreport1 = BillingUtilityClass.class.getResourceAsStream(summaryReportPath1);
 
 			JasperReport jasperReport = JasperCompileManager.compileReport(input);
 			JasperReport jasperSubReport = JasperCompileManager.compileReport(subreport);
 			JasperReport jasperSummaryReport = JasperCompileManager.compileReport(summaryreport);
+			JasperReport jasperSummaryReport1 = JasperCompileManager.compileReport(summaryreport1);
 
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
@@ -1913,6 +1971,7 @@ public class BillingUtilityClass {
 			parameters.put("INVOICE_DATE", invoiceDate);
 			parameters.put("SubReportParam", jasperSubReport);
 			parameters.put("SummaryReportParam", jasperSummaryReport);
+			parameters.put("SummaryReportParam1", jasperSummaryReport1);
 			if (logoexists)
 				parameters.put("logo", image);
 			else
@@ -1937,6 +1996,104 @@ public class BillingUtilityClass {
 
 			// ExporterOutput
 			String filename = "C:/pds/" + hawkerCode + "-" + Integer.toString(lineNum) + "-"
+					+ invoiceDate.replace('/', '-') + ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+			File outFile = new File(filename);
+
+			Notifications.create().title("Invocie PDF Created").text("Invoice PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+			return outFile;
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Bill PDF Generation: ", e);
+			// e.printStackTrace();
+		} catch (IOException e1) {
+			Main._logger.debug(e1);
+			e1.printStackTrace();
+		}
+		return null;
+
+	}
+
+	public static File generateInvoiceADVPDFCust(String hawkerCode, int lineNum, Customer custRow, String invoiceDate) throws JRException {
+
+		try {
+
+			AmazonS3 s3logoclient = Main.s3logoclient;
+			Hawker hwkRow = hawkerForHwkCode(hawkerCode);
+			boolean adv = s3logoclient.doesObjectExist("pdslogobucket",
+					hwkRow.getPointName().toUpperCase().replace(' ', '-') + "ADV1.jpg")
+					&& s3logoclient.doesObjectExist("pdslogobucket",
+							hwkRow.getPointName().toUpperCase().replace(' ', '-') + "ADV2.jpg");
+			boolean logoexists = s3logoclient.doesObjectExist("pdslogobucket", hawkerCode + "logo.jpg");
+			S3Object s3oAdv1 = null;
+			S3Object s3oAdv2 = null;
+			S3Object s3o = null;
+			BufferedImage image = null;
+			BufferedImage adv1 = null;
+			BufferedImage adv2 = null;
+			if (logoexists) {
+				s3o = s3logoclient.getObject("pdslogobucket", hawkerCode + "logo.jpg");
+				image = ImageIO.read(s3o.getObjectContent());
+			}
+			if (adv) {
+				s3oAdv1 = s3logoclient.getObject("pdslogobucket",
+						hwkRow.getPointName().toUpperCase().replace(' ', '-') + "ADV1.jpg");
+				s3oAdv2 = s3logoclient.getObject("pdslogobucket",
+						hwkRow.getPointName().toUpperCase().replace(' ', '-') + "ADV2.jpg");
+				adv1 = ImageIO.read(s3oAdv1.getObjectContent());
+				adv2 = ImageIO.read(s3oAdv2.getObjectContent());
+			}
+			String reportSrcFile = !adv ? "MasterInvoice.jrxml" : "MasterInvoiceAdvCust.jrxml";
+			String subReportPath = "BillSubreport.jrxml";
+//			String summaryReportPath = "BillGeneratedLineSummary.jrxml";
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			InputStream subreport = BillingUtilityClass.class.getResourceAsStream(subReportPath);
+//			InputStream summaryreport = BillingUtilityClass.class.getResourceAsStream(summaryReportPath);
+
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+			JasperReport jasperSubReport = JasperCompileManager.compileReport(subreport);
+//			JasperReport jasperSummaryReport = JasperCompileManager.compileReport(summaryreport);
+
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			parameters.put("HWK_CODE", hawkerCode);
+			parameters.put("LINE_NUM", lineNum);
+			parameters.put("CUSTOMER_ID", custRow.getCustomerId());
+			parameters.put("INVOICE_DATE", invoiceDate);
+			parameters.put("SubReportParam", jasperSubReport);
+//			parameters.put("SummaryReportParam", jasperSummaryReport);
+			if (logoexists)
+				parameters.put("logo", image);
+			else
+				parameters.put("logo", null);
+			if (adv) {
+				parameters.put("ADV1", adv1);
+				parameters.put("ADV2", adv2);
+
+			}
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-" + Integer.toString(lineNum) + "-" + custRow.getCustomerCode() + "-"
 					+ invoiceDate.replace('/', '-') + ".pdf";
 			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
 			// Output

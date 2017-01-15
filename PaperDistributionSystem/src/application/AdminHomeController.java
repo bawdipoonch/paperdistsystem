@@ -32,8 +32,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 
@@ -74,6 +72,8 @@ public class AdminHomeController implements Initializable {
 	private Tab productsTab;
 	@FXML
 	private Tab stopHistoryTab;
+	@FXML
+	private Tab reportsTab;
 
 	private ACustomerInfoTabController customerTabController;
 	private AHawkerInfoTabController hawkerTabController;
@@ -83,6 +83,7 @@ public class AdminHomeController implements Initializable {
 	private AdditionalItemsController additionalItemsTabController;
 	private AProductsTabController productsTabController;
 	private AStopHistoryTabController stopHistTabController;
+	private AReportsTabController reportsTabController;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -117,6 +118,9 @@ public class AdminHomeController implements Initializable {
 					if (oldValue == stopHistoryTab) {
 						stopHistTabController.releaseVariables();
 					}
+					if (oldValue == reportsTab) {
+						reportsTabController.releaseVariables();
+					}
 					System.gc();
 				}
 
@@ -144,6 +148,9 @@ public class AdminHomeController implements Initializable {
 					}
 					if (newValue == stopHistoryTab) {
 						stopHistTabController.reloadData();
+					}
+					if (newValue == reportsTab) {
+						reportsTabController.reloadData();
 					}
 
 				}
@@ -248,6 +255,13 @@ public class AdminHomeController implements Initializable {
 			pausedCustTab.setText("Stopped Customers");
 			pausedCustTab.setContent(pausedcustroot);
 
+			reportsTab = new Tab();
+			FXMLLoader reportsTabLoader = new FXMLLoader(getClass().getResource("AReportsTab.fxml"));
+			Parent reportsRoot = (Parent) reportsTabLoader.load();
+			reportsTabController = reportsTabLoader.<AReportsTabController> getController();
+			reportsTab.setText("Reports");
+			reportsTab.setContent(reportsRoot);
+
 			stopHistoryTab = new Tab();
 			FXMLLoader stopHistTabLoader = new FXMLLoader(getClass().getResource("AStopHistoryTab.fxml"));
 			Parent stopHistRoot = (Parent) stopHistTabLoader.load();
@@ -256,7 +270,7 @@ public class AdminHomeController implements Initializable {
 			stopHistoryTab.setContent(stopHistRoot);
 
 			tabPane.getTabs().addAll(hawkerTab, lineInfoTab,customersTab,  lineDistTab, productsTab, additionalItemsTab,
-					pausedCustTab, stopHistoryTab);
+					pausedCustTab, stopHistoryTab, reportsTab);
 		} catch (IOException e) {
 
 			Main._logger.debug("Error :",e);
@@ -294,6 +308,9 @@ public class AdminHomeController implements Initializable {
 			}
 			if (t == stopHistoryTab) {
 				stopHistTabController.reloadData();
+			}
+			if (t == reportsTab) {
+				reportsTabController.reloadData();
 			}
 
 		}

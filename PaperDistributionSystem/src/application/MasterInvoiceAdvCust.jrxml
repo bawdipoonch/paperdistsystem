@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2017-01-15T23:31:44 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoiceAdv" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="0" bottomMargin="0" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
+<!-- 2017-01-12T21:56:39 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoiceAdvCust" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="0" bottomMargin="0" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -158,7 +158,6 @@ AND "INVOICE_QUERY"."INVOICE_DATE"=$P{INVOICE_DATE}]]>
 	<parameter name="INVOICE_DATE" class="java.lang.String"/>
 	<parameter name="SubReportParam" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
 	<parameter name="SummaryReportParam" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
-	<parameter name="SummaryReportParam1" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
 	<parameter name="logo" class="Object" isForPrompting="false"/>
 	<parameter name="ADV1" class="Object" isForPrompting="false"/>
 	<parameter name="ADV2" class="Object" isForPrompting="false"/>
@@ -815,41 +814,10 @@ AND ("INVOICE_QUERY"."CUSTOMER_ID"=$P{CUSTOMER_ID} OR $P{CUSTOMER_ID} IS NULL)]]
 		<band splitType="Stretch"/>
 	</pageFooter>
 	<summary>
-		<band height="160" splitType="Stretch">
-			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-			<subreport>
-				<reportElement x="0" y="15" width="575" height="60" uuid="946eec30-dbfa-4ed5-906d-39d5ebd3b837">
-					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-				</reportElement>
-				<subreportParameter name="HAWKER_CODE">
-					<subreportParameterExpression><![CDATA[$P{HWK_CODE}]]></subreportParameterExpression>
-				</subreportParameter>
-				<subreportParameter name="LINE_NUM">
-					<subreportParameterExpression><![CDATA[$P{LINE_NUM}]]></subreportParameterExpression>
-				</subreportParameter>
-				<subreportParameter name="INVOICE_DATE">
-					<subreportParameterExpression><![CDATA[$P{INVOICE_DATE}]]></subreportParameterExpression>
-				</subreportParameter>
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-				<subreportExpression><![CDATA[$P{SummaryReportParam}]]></subreportExpression>
-			</subreport>
+		<band height="75" splitType="Stretch">
 			<break>
 				<reportElement x="0" y="8" width="565" height="1" uuid="da9dbffb-982a-4cdf-9e93-97986e07c3db"/>
 			</break>
-			<break>
-				<reportElement x="0" y="78" width="575" height="1" uuid="4f4f5912-a834-4c15-accf-5c53ff356170"/>
-			</break>
-			<subreport>
-				<reportElement x="0" y="86" width="575" height="57" uuid="e400cfae-d0a5-4df4-8295-f1c3c857aba7"/>
-				<subreportParameter name="LINE_NUM">
-					<subreportParameterExpression><![CDATA[$P{LINE_NUM}]]></subreportParameterExpression>
-				</subreportParameter>
-				<subreportParameter name="HAWKER_CODE">
-					<subreportParameterExpression><![CDATA[$P{HWK_CODE}]]></subreportParameterExpression>
-				</subreportParameter>
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-				<subreportExpression><![CDATA[$P{SummaryReportParam1}]]></subreportExpression>
-			</subreport>
 		</band>
 	</summary>
 </jasperReport>

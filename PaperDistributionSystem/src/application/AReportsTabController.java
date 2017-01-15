@@ -133,6 +133,7 @@ public class AReportsTabController implements Initializable {
 					addLineNumLOV.getItems().clear();
 					populateLineNumbersForHawkerCode(newValue);
 					addLineNumLOV.getSelectionModel().clearSelection();
+					populateProducts();
 				} else {
 					hawkerLineNumData = FXCollections.observableArrayList();
 					addLineNumLOV.setItems(hawkerLineNumData);
@@ -150,6 +151,7 @@ public class AReportsTabController implements Initializable {
 					if (prodNameLOV.getSelectionModel().getSelectedIndex() > 1) {
 						Product prod = productValues2.get(prodNameLOV.getSelectionModel().getSelectedIndex() - 1);
 						populateDOWValues(prod);
+						datesList.setText("");
 						datesList.setText(BillingUtilityClass.findDeliveryDatesForMonth(prod));
 					} else {
 						datesList.setText("");
@@ -378,7 +380,7 @@ public class AReportsTabController implements Initializable {
 			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
-			File outFile = new File(filename);
+//			File outFile = new File(filename);
 
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
@@ -474,7 +476,7 @@ public class AReportsTabController implements Initializable {
 				SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 				exporter.setConfiguration(configuration);
 				exporter.exportReport();
-				File outFile = new File(filename);
+//				File outFile = new File(filename);
 				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
 						.hideAfter(Duration.seconds(15)).showInformation();
 				stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
@@ -545,7 +547,7 @@ public class AReportsTabController implements Initializable {
 				SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 				exporter.setConfiguration(configuration);
 				exporter.exportReport();
-				File outFile = new File(filename);
+//				File outFile = new File(filename);
 				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
 						.hideAfter(Duration.seconds(15)).showInformation();
 				stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
@@ -621,7 +623,7 @@ public class AReportsTabController implements Initializable {
 			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
-			File outFile = new File(filename);
+//			File outFile = new File(filename);
 
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
@@ -680,7 +682,7 @@ public class AReportsTabController implements Initializable {
 			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
-			File outFile = new File(filename);
+//			File outFile = new File(filename);
 
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
@@ -726,7 +728,7 @@ public class AReportsTabController implements Initializable {
 			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
-			File outFile = new File(filename);
+//			File outFile = new File(filename);
 
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
@@ -778,7 +780,7 @@ public class AReportsTabController implements Initializable {
 			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
-			File outFile = new File(filename);
+//			File outFile = new File(filename);
 
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
@@ -830,7 +832,7 @@ public class AReportsTabController implements Initializable {
 			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
-			File outFile = new File(filename);
+//			File outFile = new File(filename);
 
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
@@ -848,14 +850,15 @@ public class AReportsTabController implements Initializable {
 
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
 			JasperReport jasperReport = JasperCompileManager.compileReport(input);
-			String lineNum = addLineNumLOV3.getSelectionModel().getSelectedItem().equals("All") ? null
-					: addLineNumLOV3.getSelectionModel().getSelectedItem().split(" ")[0];
-			String prodName = prodNameLOV1.getSelectionModel().getSelectedItem().equals("All") ? null
-					: prodNameLOV1.getSelectionModel().getSelectedItem();
+//			String lineNum = addLineNumLOV3.getSelectionModel().getSelectedItem().equals("All") ? null
+//					: addLineNumLOV3.getSelectionModel().getSelectedItem().split(" ")[0];
+//			String prodName = prodNameLOV1.getSelectionModel().getSelectedItem().equals("All") ? null
+//					: prodNameLOV1.getSelectionModel().getSelectedItem();
 
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
-			String hawkerCode = HawkerLoginController.loggedInHawker.getHawkerCode();
+			String hawkerCode = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerCode():
+				addHawkerCodeLOV.getSelectionModel().getSelectedItem();
 			String invoiceDate = invoiceDateLOV.getSelectionModel().getSelectedItem();
 			parameters.put("HWK_CODE", hawkerCode);
 			parameters.put("INVOICE_DATE", invoiceDate);
@@ -883,7 +886,7 @@ public class AReportsTabController implements Initializable {
 			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
-			File outFile = new File(filename);
+//			File outFile = new File(filename);
 
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
@@ -908,7 +911,8 @@ public class AReportsTabController implements Initializable {
 						invoiceDatesData = FXCollections.observableArrayList();
 						String insertStmt = "select distinct TO_CHAR(INVOICE_DATE,'DD/MM/YYYY') INVOICE_DATE from BILLING where customer_id in (select distinct customer_id from customer where hawker_id = ?) order by invoice_date desc";
 						PreparedStatement stmt = con.prepareStatement(insertStmt);
-						stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
+						Long hawkerId = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+						stmt.setLong(1, hawkerId);
 						ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
 							invoiceDatesData.add(rs.getString(1));
@@ -950,7 +954,7 @@ public class AReportsTabController implements Initializable {
 		if (prod.getType().equals("Newspaper")) {
 
 			dowValues.addAll("All", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-		} else {
+		} else if(prod.getDow()!=null) {
 			String[] dow = prod.getDow().split(",");
 			dowValues.addAll(dow);
 		}
@@ -1164,7 +1168,8 @@ public class AReportsTabController implements Initializable {
 					productValues2 = FXCollections.observableArrayList();
 					PreparedStatement stmt = con.prepareStatement(
 							"SELECT prod.PRODUCT_ID, prod.NAME, prod.TYPE, prod.SUPPORTED_FREQ, prod.MONDAY, prod.TUESDAY, prod.WEDNESDAY, prod.THURSDAY, prod.FRIDAY, prod.SATURDAY, prod.SUNDAY, prod.PRICE, prod.CODE, prod.DOW, prod.FIRST_DELIVERY_DATE, prod.ISSUE_DATE, prod.bill_category FROM products prod, hawker_info hwk, point_name pn where hwk.point_name=pn.name and lower(pn.bill_category)=lower(prod.bill_category) and hwk.hawker_id=? ORDER BY prod.name");
-					stmt.setLong(1, HawkerLoginController.loggedInHawker.getHawkerId());
+					Long hawkerId = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+					stmt.setLong(1, hawkerId);
 					ResultSet rs = stmt.executeQuery();
 					productValues.add("All");
 					while (rs.next()) {
@@ -1258,7 +1263,7 @@ public class AReportsTabController implements Initializable {
 			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
 			exporter.setConfiguration(configuration);
 			exporter.exportReport();
-			File outFile = new File(filename);
+//			File outFile = new File(filename);
 
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
