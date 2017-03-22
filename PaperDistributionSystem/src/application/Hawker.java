@@ -105,7 +105,7 @@ public class Hawker {
 			String lineInfoAccess, String lineDistAccess, String pausedCustAccess, String productAccess,
 			String reportsAccess, String profile1, String profile2, String profile3, String initials, String password,
 			String employment, String comments, String pointName, String buildingStreet, String bankAcNo,
-			String bankName, String ifscCode, String stopHistoryAccess, Blob logo, String benName) {
+			String bankName, String ifscCode, String stopHistoryAccess, Blob logo, String benName, double totalDue) {
 		super();
 		setHawkerId(hawkerId);
 		setName(name);
@@ -143,6 +143,7 @@ public class Hawker {
 		setStopHistoryAccess(stopHistoryAccess);
 		setLogo(logo);
 		setBenName(benName);
+		setTotalDue(totalDue);
 	}
 
 	public Hawker(Hawker hawkerRow) {
@@ -183,6 +184,7 @@ public class Hawker {
 		setIfscCode(hawkerRow.getIfscCode());
 		setLogo(hawkerRow.getLogo());
 		setBenName(hawkerRow.getBenName());
+		setTotalDue(hawkerRow.getTotalDue());
 	}
 
 	public Long getHawkerId() {

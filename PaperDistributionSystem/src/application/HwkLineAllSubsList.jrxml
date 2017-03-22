@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-09-07T21:36:16 -->
+<!-- 2017-02-08T00:24:03 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HwkLineAllSubsList" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="cbc78f29-314b-4511-a88f-82bf0570151f">
-	<property name="com.jaspersoft.studio.data.sql.tables" value="IkhXS19MSU5FX1NVQlNfTElTVCIgLDE1LDE1LDYwZTE2MGUyLWUxOTQtNDRiYi1hYTRhLWU4ZGIw&#xA;NTBiZDE2MDs="/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<style name="Table_TH" mode="Opaque" backcolor="#E1B171">
 		<box>
@@ -91,6 +91,7 @@
 		<parameter name="HAWKER_CODE" class="java.lang.String"/>
 		<parameter name="LINE_NUM" class="java.lang.String"/>
 		<parameter name="PROD_NAME" class="java.lang.String"/>
+		<parameter name="TESTDATE" class="java.sql.Date"/>
 		<queryString>
 			<![CDATA[SELECT "HWK_LINE_SUBS_LIST"."LINE_NUM",
 	"HWK_LINE_SUBS_LIST"."CUST_CODE",
@@ -131,6 +132,7 @@ AND ("HWK_LINE_SUBS_LIST"."PROD_NAME"=$P{PROD_NAME}  OR $P{PROD_NAME} IS NULL)]]
 		<parameter name="HAWKER_CODE" class="java.lang.String"/>
 		<parameter name="LINE_NUM" class="java.lang.String"/>
 		<parameter name="PROD_NAME" class="java.lang.String"/>
+		<parameter name="TESTDATE" class="java.sql.Date"/>
 		<queryString>
 			<![CDATA[SELECT "HWK_LINE_SUBS_LIST_COUNTS"."PROD_NAME",
 "HWK_LINE_SUBS_LIST_COUNTS"."PRD",
@@ -151,6 +153,7 @@ AND ("HWK_LINE_SUBS_LIST_COUNTS"."PROD_NAME"=$P{PROD_NAME}  OR $P{PROD_NAME} IS 
 	<parameter name="HAWKER_CODE" class="java.lang.String"/>
 	<parameter name="LINE_NUM" class="java.lang.String"/>
 	<parameter name="PROD_NAME" class="java.lang.String"/>
+	<parameter name="TESTDATE" class="java.sql.Date"/>
 	<queryString>
 		<![CDATA[SELECT "HWK_LINE_SUBS_LIST"."LINE_NUM",
 	"HWK_LINE_SUBS_LIST"."CUST_CODE",

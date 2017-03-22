@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 
 public class Subscription {
 	SimpleLongProperty subscriptionId = new SimpleLongProperty();
@@ -39,11 +40,13 @@ public class Subscription {
 	SimpleBooleanProperty pausedProp = new SimpleBooleanProperty();
 	SimpleBooleanProperty activeProp = new SimpleBooleanProperty();
 	SimpleDoubleProperty addToBill = new SimpleDoubleProperty();
+	SimpleBooleanProperty chequeRcvd = new SimpleBooleanProperty();
 
 	public Subscription(long subscriptionId, long customerId, long productId, String productName, String productType,
 			String paymentType, double cost, double serviceCharge, String frequency, String subscriptionType,
 			String dow, String status, LocalDate startDate, LocalDate pausedDate, String productCode,
-			LocalDate stopDate, String duration, int offerMonths, String subNumber, LocalDate resumeDate, double addToBill) {
+			LocalDate stopDate, String duration, int offerMonths, String subNumber, LocalDate resumeDate, 
+			double addToBill, Boolean chequeRcvd) {
 		setSubscriptionId(subscriptionId);
 		setCustomerId(customerId);
 		setProductId(productId);
@@ -65,6 +68,7 @@ public class Subscription {
 		setSubNumber(subNumber);
 		setResumeDate(resumeDate);
 		setAddToBill(addToBill);
+		setChequeRcvd(chequeRcvd);
 	}
 
 	public long getSubscriptionId() {
@@ -241,6 +245,19 @@ public class Subscription {
 	public void setAddToBill(double addToBill) {
 		this.addToBill.set(addToBill);
 	}
+	
+	public Boolean getChequeRcvd(){
+		return this.chequeRcvd.get();
+	}
+	
+	public void setChequeRcvd(Boolean chequeRcvd){
+		this.chequeRcvd.set(chequeRcvd);
+	}
+	
+
+	public SimpleBooleanProperty isChequeReceived() {
+		return chequeRcvd;
+	}
 
 	public void updateSubscriptionRecord() {
 		try {
@@ -249,7 +266,7 @@ public class Subscription {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String updateString = "update subscription set PAYMENT_TYPE=?, SUBSCRIPTION_COST=?, SERVICE_CHARGE=?, FREQUENCY=?, TYPE=?, DOW=?, STATUS=?, START_DATE=?, PAUSED_DATE=?, STOP_DATE=?, DURATION=?, OFFER_MONTHS=?, RESUME_DATE=?, ADD_TO_BILL=?  where subscription_id=?";
+			String updateString = "update subscription set PAYMENT_TYPE=?, SUBSCRIPTION_COST=?, SERVICE_CHARGE=?, FREQUENCY=?, TYPE=?, DOW=?, STATUS=?, START_DATE=?, PAUSED_DATE=?, STOP_DATE=?, DURATION=?, OFFER_MONTHS=?, RESUME_DATE=?, ADD_TO_BILL=?, CHEQUE_RCVD=?  where subscription_id=?";
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
 			updateStmt.setString(1, getPaymentType());
 			updateStmt.setDouble(2, getCost());
@@ -265,7 +282,8 @@ public class Subscription {
 			updateStmt.setInt(12, getOfferMonths());
 			updateStmt.setDate(13, getResumeDate() == null ? null : Date.valueOf(getResumeDate()));
 			updateStmt.setDouble(14, getAddToBill());
-			updateStmt.setLong(15, getSubscriptionId());
+			updateStmt.setString(15, getChequeRcvd()?"Y":"N");
+			updateStmt.setLong(16, getSubscriptionId());
 			updateStmt.executeUpdate();
 			con.commit();
 
@@ -293,7 +311,7 @@ public class Subscription {
 			updateStmt.setLong(2, this.subscriptionId.get());
 			updateStmt.executeUpdate();
 			con.commit();
-
+			updateStmt.close();
 		} catch (SQLException e) {
 			Main._logger.debug("Error :",e);
 			e.printStackTrace();

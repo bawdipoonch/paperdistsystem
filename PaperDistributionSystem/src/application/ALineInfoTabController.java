@@ -62,6 +62,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
@@ -76,6 +77,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
@@ -176,6 +178,10 @@ public class ALineInfoTabController implements Initializable {
 	private TableColumn<Subscription, LocalDate> subsResumeDateColumn;
 	@FXML
 	private TableColumn<Subscription, String> subsNumberColumn;
+	@FXML
+	private TableColumn<Subscription, Boolean> subsChequeReceivedColumn;
+	@FXML
+	private CheckBox extendSubscription;
 	@FXML
 	private Button addLineButton;
 	@FXML
@@ -313,6 +319,8 @@ public class ALineInfoTabController implements Initializable {
 		subsResumeDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("resumeDate"));
 		subsNumberColumn.setCellValueFactory(new PropertyValueFactory<Subscription, String>("subNumber"));
 		subsStopDateColumn.setCellValueFactory(new PropertyValueFactory<Subscription, LocalDate>("stopDate"));
+		subsChequeReceivedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(subsChequeReceivedColumn));
+		subsChequeReceivedColumn.setCellValueFactory(param -> param.getValue().isChequeReceived());
 
 		prodCol.setCellValueFactory(new PropertyValueFactory<BillingLine, String>("product"));
 		amountCol.setCellValueFactory(new PropertyValueFactory<BillingLine, Double>("amount"));
@@ -716,13 +724,16 @@ public class ALineInfoTabController implements Initializable {
 												}
 											});
 											disableAll();
-											generateBillingFunction(hawkerComboBox.getSelectionModel().getSelectedItem(), ((Integer)lineRow.getLineNum()).toString(), 
-													pauseDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1).toString());
-//											BillingUtilityClass.createBillingInvoiceForHwkLine(
-//													hawkerComboBox.getSelectionModel().getSelectedItem(),
-//													lineRow.getLineNum(), pauseDP.getValue().withDayOfMonth(1),
-//													pauseDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1),
-//													true);
+											generateBillingFunction(
+													hawkerComboBox.getSelectionModel().getSelectedItem(),
+													((Integer) lineRow.getLineNum()).toString(), pauseDP.getValue()
+															.withDayOfMonth(1).plusMonths(1).minusDays(1).toString());
+											// BillingUtilityClass.createBillingInvoiceForHwkLine(
+											// hawkerComboBox.getSelectionModel().getSelectedItem(),
+											// lineRow.getLineNum(),
+											// pauseDP.getValue().withDayOfMonth(1),
+											// pauseDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1),
+											// true);
 
 											populateCustomersForLine();
 											Platform.runLater(new Runnable() {
@@ -1106,8 +1117,8 @@ public class ALineInfoTabController implements Initializable {
 						Customer custRow = lineNumCustomersTable.getSelectionModel().getSelectedItem();
 
 						Dialog<ButtonType> deleteWarning = new Dialog<ButtonType>();
-						deleteWarning.setTitle("Start Subscriptions");
-						deleteWarning.setHeaderText("Are you sure you want to START this subscription?");
+						deleteWarning.setTitle("Resume Subscriptions");
+						deleteWarning.setHeaderText("Are you sure you want to RESUME this subscription?");
 						ButtonType saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
 						deleteWarning.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
@@ -1267,7 +1278,8 @@ public class ALineInfoTabController implements Initializable {
 												.hideAfter(Duration.seconds(10)).showInformation();
 										File pdfFile = BillingUtilityClass.generateInvoiceADVPDFCust(
 												hawkerComboBox.getSelectionModel().getSelectedItem(),
-												custRow.getLineNum().intValue(),custRow, dateBox.getSelectionModel().getSelectedItem()
+												custRow.getLineNum().intValue(), custRow,
+												dateBox.getSelectionModel().getSelectedItem()
 														.format(DateTimeFormatter.ofPattern("dd/MM/YYYY")));
 										// openPDFWindow(pdfFile);
 									} catch (JRException e) {
@@ -1446,11 +1458,11 @@ public class ALineInfoTabController implements Initializable {
 				ContextMenu menu = new ContextMenu();
 
 				if (HawkerLoginController.loggedInHawker != null) {
-					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuSubs, mnuPause, mnuResume, mnuBill, mnuPDF, mnuAddDue,
-							mnuDue);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuSubs, mnuPause, mnuResume, mnuBill, mnuPDF,
+							mnuAddDue, mnuDue);
 				} else {
-					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuSubs, mnuPause, mnuResume, mnuBill, mnuPDF, mnuAddDue,
-							mnuDue);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuSubs, mnuPause, mnuResume, mnuBill, mnuPDF,
+							mnuAddDue, mnuDue);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -1547,8 +1559,32 @@ public class ALineInfoTabController implements Initializable {
 					public void handle(ActionEvent t) {
 						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
 						if (subsRow != null) {
-							showEditSubscriptionDialog(subsRow);
+							showEditSubscriptionDialog(subsRow, false);
 							// refreshSubscriptions();
+						}
+					}
+
+				});
+
+				MenuItem mnuExtend = new MenuItem("Extend Coupon Copy Subscription");
+				mnuExtend.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
+						if (subsRow != null) {
+							if ("Coupon Copy/Adv Payment".equalsIgnoreCase(subsRow.getSubscriptionType())) {
+								showEditSubscriptionDialog(subsRow, true);
+								if (subsRow.getStatus().equalsIgnoreCase("Stopped")) {
+									resumeStopHistoryForSub(subsRow, subsRow.getPausedDate(), subsRow.getStartDate());
+									subsRow.resumeSubscription();
+									populateCustomersForLine();
+								}
+								// refreshSubscriptions();
+							} else {
+								Notifications.create().title("Please select valid subscription")
+										.text("Please select a subscription of type Coupon Copy/Adv Payment only")
+										.hideAfter(Duration.seconds(5)).showError();
+							}
 						}
 					}
 
@@ -1760,9 +1796,9 @@ public class ALineInfoTabController implements Initializable {
 				ContextMenu menu = new ContextMenu();
 
 				if (HawkerLoginController.loggedInHawker != null) {
-					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd, mnuDel);
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd, mnuDel, mnuExtend);
 				} else {
-					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd, mnuDel);
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd, mnuDel, mnuExtend);
 				}
 
 				row.contextMenuProperty().bind(
@@ -1948,7 +1984,7 @@ public class ALineInfoTabController implements Initializable {
 		}
 	}
 
-	private void showEditSubscriptionDialog(Subscription subsRow) {
+	private void showEditSubscriptionDialog(Subscription subsRow, boolean extendMode) {
 		try {
 
 			Dialog<Subscription> editSubscriptionDialog = new Dialog<Subscription>();
@@ -1965,7 +2001,7 @@ public class ALineInfoTabController implements Initializable {
 					.<EditSubscriptionController> getController();
 
 			editSubscriptionDialog.getDialogPane().setContent(editSubscriptionGrid);
-			editSubsController.setSubscriptionToEdit(subsRow);
+			editSubsController.setSubscriptionToEdit(subsRow, extendMode);
 			editSubsController.setupBindings();
 			Button saveBtn = (Button) editSubscriptionDialog.getDialogPane().lookupButton(saveButtonType);
 			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
@@ -2016,7 +2052,7 @@ public class ALineInfoTabController implements Initializable {
 					.<EditSubscriptionController> getController();
 
 			editSubscriptionDialog.getDialogPane().setContent(editSubscriptionGrid);
-			editSubsController.setSubscriptionToEdit(subsRow);
+			editSubsController.setSubscriptionToEdit(subsRow, false);
 			editSubsController.setupBindings();
 			editSubsController.gridPane.setDisable(true);
 
@@ -2073,7 +2109,7 @@ public class ALineInfoTabController implements Initializable {
 						}
 						disableAll();
 						subscriptionMasterData = FXCollections.observableArrayList();
-						String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by sub.STATUS,prod.name";
+						String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by sub.STATUS,prod.name";
 						PreparedStatement stmt = con.prepareStatement(query);
 						Customer cust = lineNumCustomersTable.getSelectionModel().getSelectedItem();
 						stmt.setLong(1, cust != null ? cust.getCustomerId() : null);
@@ -2086,7 +2122,8 @@ public class ALineInfoTabController implements Initializable {
 									rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 									rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17),
 									rs.getInt(18), rs.getString(19),
-									rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(), rs.getDouble(21)));
+									rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(), rs.getDouble(21),
+									rs.getString(22).equalsIgnoreCase("Y")));
 						}
 						rs.close();
 						stmt.close();
@@ -2129,7 +2166,7 @@ public class ALineInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			subsList = FXCollections.observableArrayList();
-			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Active' order by sub.subscription_id";
+			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Active' order by sub.subscription_id";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, custRow.getCustomerId());
 			ResultSet rs = stmt.executeQuery();
@@ -2141,7 +2178,7 @@ public class ALineInfoTabController implements Initializable {
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
 						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
-						rs.getDouble(21)));
+						rs.getDouble(21), rs.getString(22).equalsIgnoreCase("Y")));
 			}
 			rs.close();
 			stmt.close();
@@ -2167,7 +2204,7 @@ public class ALineInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			subsList = FXCollections.observableArrayList();
-			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Stopped' order by sub.subscription_id";
+			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Stopped' order by sub.subscription_id";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, custRow.getCustomerId());
 			ResultSet rs = stmt.executeQuery();
@@ -2179,7 +2216,7 @@ public class ALineInfoTabController implements Initializable {
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
 						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
-						rs.getDouble(21)));
+						rs.getDouble(21), rs.getString(22).equalsIgnoreCase("Y")));
 			}
 			rs.close();
 			stmt.close();
@@ -3765,6 +3802,7 @@ public class ALineInfoTabController implements Initializable {
 		}
 		return null;
 	}
+
 	private ObservableList<LocalDate> getInvoiceDateListForCust(Customer custRow) {
 		try {
 

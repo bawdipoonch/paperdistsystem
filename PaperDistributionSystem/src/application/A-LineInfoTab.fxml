@@ -103,6 +103,7 @@
 																		<TableColumn fx:id="subsPausedDateColumn" prefWidth="86.0" text="Stop Date" />
 																		<TableColumn fx:id="subsResumeDateColumn" prefWidth="86.0" text="Reminder Date" />
 																		<TableColumn fx:id="subsNumberColumn" prefWidth="86.0" text="Subscription Number" />
+                                                      <TableColumn fx:id="subsChequeReceivedColumn" prefWidth="120.0" text="Cheque Rcvd" />
 																	</columns>
 																	<VBox.margin>
 																		<Insets top="5.0" />

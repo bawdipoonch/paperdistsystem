@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2017-01-16T00:10:45 -->
+<!-- 2017-01-16T21:35:19 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MasterInvoice" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="0" bottomMargin="0" uuid="076ecdb0-b51d-4e63-8fbd-6662e0cbbfc9">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PDSTokyo"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -1228,20 +1228,17 @@ AND ("INVOICE_QUERY"."CUSTOMER_ID"=$P{CUSTOMER_ID} OR $P{CUSTOMER_ID} IS NULL)]]
 				<reportElement x="0" y="8" width="565" height="1" uuid="da9dbffb-982a-4cdf-9e93-97986e07c3db"/>
 			</break>
 			<break>
-				<reportElement x="0" y="83" width="565" height="1" uuid="9f6a8995-1913-4fcd-900f-b9596449075c"/>
+				<reportElement positionType="Float" x="0" y="83" width="565" height="1" uuid="9f6a8995-1913-4fcd-900f-b9596449075c"/>
 			</break>
 			<subreport>
-				<reportElement x="0" y="90" width="575" height="60" uuid="b25877ab-b765-42a4-b5c8-2f816e60f429">
+				<reportElement positionType="Float" x="0" y="90" width="575" height="60" uuid="b25877ab-b765-42a4-b5c8-2f816e60f429">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
-				<subreportParameter name="HAWKER_CODE">
+				<subreportParameter name="HWK_CODE">
 					<subreportParameterExpression><![CDATA[$P{HWK_CODE}]]></subreportParameterExpression>
 				</subreportParameter>
 				<subreportParameter name="LINE_NUM">
 					<subreportParameterExpression><![CDATA[$P{LINE_NUM}]]></subreportParameterExpression>
-				</subreportParameter>
-				<subreportParameter name="INVOICE_DATE">
-					<subreportParameterExpression><![CDATA[$P{INVOICE_DATE}]]></subreportParameterExpression>
 				</subreportParameter>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA[$P{SummaryReportParam1}]]></subreportExpression>

@@ -26,6 +26,7 @@ import org.controlsfx.control.Notifications;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 
+import javafx.application.Platform;
 import javafx.util.Duration;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -417,9 +418,19 @@ public class BillingUtilityClass {
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
 
-				hwk.setTotalDue(hwk.getTotalDue() + (rs.getDouble(2) * hwk.getFee()));
-				hwk.updateHawkerRecord();
-
+				HawkerBilling bill = findHawkerBill(hawkerCode,invoiceDate);
+				if (bill!=null) {
+					bill.setAmount(hwk.getTotalDue() + (rs.getDouble(2) * hwk.getFee()));
+					bill.updateHawkerBillingRecord();
+				} else {
+					stmt = con.prepareStatement("INSERT INTO HAWKER_BILLING(hawker_id, entry_date, amount, type) VALUES(?,?,?,?)");
+					stmt.setLong(1, hwk.getHawkerId());
+					stmt.setDate(2, Date.valueOf(invoiceDate));
+					stmt.setDouble(3, rs.getDouble(2) * hwk.getFee());
+					stmt.setString(4, "Bill");
+					int c = stmt.executeUpdate();
+					
+				}
 			}
 			rs.close();
 			stmt.close();
@@ -433,6 +444,36 @@ public class BillingUtilityClass {
 			e.printStackTrace();
 		}
 
+	}
+
+	private static HawkerBilling findHawkerBill(String hawkerCode, LocalDate invoiceDate) {
+		HawkerBilling bill = null;
+		try {
+
+			Connection con = Main.dbConnection;
+			if (!con.isValid(0)) {
+				con = Main.reconnect();
+			}
+			String getHwkBillingInfo = "Select hwk_bill_id, hawker_id, entry_date, amount, type from hawker_billing where hawker_id = ? and entry_date=? and type='Bill'";
+			PreparedStatement hwkBillInfo = null;
+			hwkBillInfo = con.prepareStatement(getHwkBillingInfo);
+			hwkBillInfo.setLong(1, hawkerForHwkCode(hawkerCode).getHawkerId());
+			ResultSet rs = hwkBillInfo.executeQuery();
+			if (rs.next()) {
+				bill = new HawkerBilling(rs.getLong(1), rs.getLong(2), rs.getDate(3).toLocalDate(), rs.getDouble(4), rs.getString(5));
+			}
+
+
+		} catch (SQLException e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
+		return bill;
 	}
 
 	public static void createHawkerBill(Hawker hawker, LocalDate endDate) {
@@ -530,7 +571,7 @@ public class BillingUtilityClass {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and (stop_date is null or ? between start_date and stop_date)  order by prod.name";
+			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and (stop_date is null or ? between start_date and stop_date)  order by prod.name";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, cust.getCustomerId());
 			stmt.setDate(2, Date.valueOf(endDate));
@@ -543,7 +584,7 @@ public class BillingUtilityClass {
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
 						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
-						rs.getDouble(21)));
+						rs.getDouble(21),rs.getString(22).equalsIgnoreCase("Y")));
 			}
 			rs.close();
 			stmt.close();
@@ -1166,7 +1207,7 @@ public class BillingUtilityClass {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.subscription_id =? order by prod.name";
+			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.subscription_id =? order by prod.name";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, subId);
 			ResultSet rs = stmt.executeQuery();
@@ -1178,7 +1219,7 @@ public class BillingUtilityClass {
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
 						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
-						rs.getDouble(21));
+						rs.getDouble(21),rs.getString(22).equalsIgnoreCase("Y"));
 			}
 			rs.close();
 			stmt.close();
@@ -1703,8 +1744,6 @@ public class BillingUtilityClass {
 				 */
 			} else if (frequency.equals("14 Days")) {
 				double previous = Math.ceil(ChronoUnit.DAYS.between(prod.getFirstDeliveryDate(), startDate.minusMonths(1)) / 14.0);
-				dateList.append("Price : " + prod.getPrice() + ", ");
-				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 //								(prod.getSupportingFreq().equals("Weekly")?prod.getDow():""));
 				LocalDate firstpreviousDate = prod.getFirstDeliveryDate().plusDays((int) (14 * previous));
 				LocalDate secondpreviousDate = !firstpreviousDate.plusDays(14).isAfter(endDate) ? firstpreviousDate.plusDays(14) : null;
@@ -1748,9 +1787,10 @@ public class BillingUtilityClass {
 
 					}
 				}
+
+				dateList.append("FREQ : " + prod.getSupportingFreq() + ", "); 
+				dateList.append("PRICE : " + prod.getPrice() + ", ");
 			} else if (frequency.equals("15 Days")) {
-				dateList.append("Price : " + prod.getPrice() + ", ");
-				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 				int prevmonths = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate.minusMonths(1)).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate.minusMonths(1)).getMonths();
 				LocalDate firstprevDate = prod.getFirstDeliveryDate().plusMonths(prevmonths);
@@ -1780,9 +1820,9 @@ public class BillingUtilityClass {
 
 					}
 				}
+				dateList.append("FREQ : " + prod.getSupportingFreq() + ", "); 
+				dateList.append("PRICE : " + prod.getPrice() + ", ");
 			} else if (frequency.equals("Monthly")) {
-				dateList.append("Price : " + prod.getPrice() + ", ");
-				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
@@ -1791,9 +1831,9 @@ public class BillingUtilityClass {
 					dateList.append(firstDate.format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + ", ");
 
 				}
+				dateList.append("FREQ : " + prod.getSupportingFreq() + ", "); 
+				dateList.append("PRICE : " + prod.getPrice() + ", ");
 			} else if (frequency.equals("Quarterly")) {
-				dateList.append("Price : " + prod.getPrice() + ", ");
-				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
@@ -1804,9 +1844,9 @@ public class BillingUtilityClass {
 
 					}
 				}
+				dateList.append("FREQ : " + prod.getSupportingFreq() + ", "); 
+				dateList.append("PRICE : " + prod.getPrice() + ", ");
 			} else if (frequency.equals("Half Yearly")) {
-				dateList.append("Price : " + prod.getPrice() + ", ");
-				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
@@ -1817,9 +1857,9 @@ public class BillingUtilityClass {
 
 					}
 				}
+				dateList.append("FREQ : " + prod.getSupportingFreq() + ", "); 
+				dateList.append("PRICE : " + prod.getPrice() + ", ");
 			} else if (frequency.equals("Yearly")) {
-				dateList.append("Price : " + prod.getPrice() + ", ");
-				dateList.append("Freq : " + prod.getSupportingFreq() + ", "); 
 				int months = Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getYears() * 12
 						+ Period.between(prod.getFirstDeliveryDate().withDayOfMonth(1), startDate).getMonths();
 				LocalDate firstDate = prod.getFirstDeliveryDate().plusMonths(months);
@@ -1830,6 +1870,8 @@ public class BillingUtilityClass {
 
 					}
 				}
+				dateList.append("FREQ : " + prod.getSupportingFreq() + ", "); 
+				dateList.append("PRICE : " + prod.getPrice() + ", ");
 			}
 		}
 		return dateList.toString();

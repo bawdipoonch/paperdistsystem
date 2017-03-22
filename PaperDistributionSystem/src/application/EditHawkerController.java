@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javax.imageio.ImageIO;
@@ -31,8 +32,10 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -40,6 +43,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Duration;
+import javafx.scene.control.ChoiceDialog;
 
 public class EditHawkerController implements Initializable {
 
@@ -100,6 +104,8 @@ public class EditHawkerController implements Initializable {
 	private TextField editBenName;
 	@FXML
 	private ImageView logoImage;
+	@FXML
+	private TextField editTotalDue;
 
 	private ObservableList<String> employmentData = FXCollections.observableArrayList();
 	private ObservableList<String> profileValues = FXCollections.observableArrayList();
@@ -176,26 +182,15 @@ public class EditHawkerController implements Initializable {
 		editBankName.setText(hawkerRow.getBankName());
 		editIfscCode.setText(hawkerRow.getIfscCode());
 		editBenName.setText(hawkerRow.getBenName());
-		/*try {
-			BufferedImage image = null;
-			if (HawkerLoginController.loggedInHawker.getLogo()!=null) {
-				InputStream in = HawkerLoginController.loggedInHawker.getLogo().getBinaryStream();
-				image = ImageIO.read(in);
-				logoImage.setImage(SwingFXUtils.toFXImage(image, null));
-			}
-		} catch (SQLException e) {
-			Main._logger.debug(e);
-			e.printStackTrace();
-		} catch (IOException e) {
-			Main._logger.debug(e);
-			e.printStackTrace();
-		}*/
-
+		editTotalDue.setText("" + hawkerRow.getTotalDue());
+		if(HawkerLoginController.loggedInHawker!=null)
+			editTotalDue.setDisable(true);
+		
 		AmazonS3 s3logoclient = Main.s3logoclient;
-		if(s3logoclient.doesObjectExist("pdslogobucket", this.hawkerRow.getHawkerCode()+"logo.jpg")){
-			S3Object s3o =  s3logoclient.getObject("pdslogobucket", this.hawkerRow.getHawkerCode()+"logo.jpg");
+		if (s3logoclient.doesObjectExist("pdslogobucket", this.hawkerRow.getHawkerCode() + "logo.jpg")) {
+			S3Object s3o = s3logoclient.getObject("pdslogobucket", this.hawkerRow.getHawkerCode() + "logo.jpg");
 			logoImage.setImage(new Image(s3o.getObjectContent()));
-		}		
+		}
 	}
 
 	public boolean isValid() {
@@ -247,6 +242,15 @@ public class EditHawkerController implements Initializable {
 			Long.parseLong(editMobileNumTF.getText().trim());
 		} catch (NumberFormatException e) {
 			Notifications.create().title("Invalid mobile number").text("Mobile number should only contain 10 DIGITS")
+					.hideAfter(Duration.seconds(5)).showError();
+			validate = false;
+			Main._logger.debug("Error :", e);
+			e.printStackTrace();
+		}
+		try {
+			Double.parseDouble(editTotalDue.getText().trim());
+		} catch (NumberFormatException e) {
+			Notifications.create().title("Invalid Due amount").text("Total Due amount should be a valid number")
 					.hideAfter(Duration.seconds(5)).showError();
 			validate = false;
 			Main._logger.debug("Error :", e);
@@ -337,6 +341,7 @@ public class EditHawkerController implements Initializable {
 			edittedHawker.setBankName(editBankName.getText());
 			edittedHawker.setIfscCode(editIfscCode.getText());
 			edittedHawker.setBenName(editBenName.getText());
+			edittedHawker.setTotalDue(Double.parseDouble(editTotalDue.getText().trim()));
 			edittedHawker.updateHawkerRecord();
 			return edittedHawker;
 		} else
@@ -473,11 +478,11 @@ public class EditHawkerController implements Initializable {
 
 		try {
 			AmazonS3 s3logoclient = Main.s3logoclient;
-			if(s3logoclient.doesObjectExist("pdslogobucket", this.hawkerRow.getHawkerCode()+"logo.jpg")){
+			if (s3logoclient.doesObjectExist("pdslogobucket", this.hawkerRow.getHawkerCode() + "logo.jpg")) {
 				S3Object s3o = s3logoclient.getObject("pdslogobucket", this.hawkerRow.getHawkerCode() + "logo.jpg");
 				logoImage.setImage(new Image(s3o.getObjectContent()));
 			}
-			
+
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Open Logo File");
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
@@ -492,18 +497,40 @@ public class EditHawkerController implements Initializable {
 				s3logoclient
 						.putObject(new PutObjectRequest("pdslogobucket", uploadFileName, fis, new ObjectMetadata()));
 				logoImage.setImage(img);
-				/*
-				 * BufferedImage bImage =
-				 * SwingFXUtils.fromFXImage(logoImage.getImage(), null);
-				 * ByteArrayOutputStream s = new ByteArrayOutputStream();
-				 * ImageIO.write(bImage, "png", s); byte[] res =
-				 * s.toByteArray(); s.close(); Blob logo =
-				 * this.hawkerRow.getLogo(); if(logo==null) logo =
-				 * Main.dbConnection.createBlob(); logo.setBytes(1, res);
-				 * this.hawkerRow.setLogo(logo);
-				 * this.hawkerRow.updateHawkerRecord();
-				 */
+
 			}
+		} catch (Exception e) {
+			Main._logger.debug(e);
+		}
+
+	}
+
+	@FXML
+	void removeLogoClicked(ActionEvent event) {
+
+		try {
+			Dialog<ButtonType> dialog = new Dialog<ButtonType>();
+			
+			dialog.setTitle("Confirm delete?");
+			dialog.setHeaderText("Are you sure you want to remove logo?");
+			dialog.getDialogPane().getButtonTypes().addAll(ButtonType.YES,
+					ButtonType.NO);
+			Optional<ButtonType> result = dialog.showAndWait();
+			if (result.isPresent() && result.get() == ButtonType.YES) {
+				AmazonS3 s3logoclient = Main.s3logoclient;
+				if (s3logoclient.doesObjectExist("pdslogobucket", this.hawkerRow.getHawkerCode() + "logo.jpg")) {
+					try {
+						s3logoclient.deleteObject("pdslogobucket", this.hawkerRow.getHawkerCode() + "logo.jpg");
+						Notifications.create().title("Logo deleted successfully.")
+								.text("Hawker Logo is now deleted successfully.").hideAfter(Duration.seconds(5))
+								.showInformation();
+						this.logoImage.setImage(null);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
 		} catch (Exception e) {
 			Main._logger.debug(e);
 		}

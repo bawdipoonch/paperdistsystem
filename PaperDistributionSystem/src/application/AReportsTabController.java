@@ -54,7 +54,12 @@ import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 public class AReportsTabController implements Initializable {
 
 	@FXML
-	private ComboBox<String> addHawkerCodeLOV;
+	private ComboBox<String> hawkerComboBox;
+	@FXML
+	private ComboBox<String> addPointName;
+
+	@FXML
+	ComboBox<String> cityTF;
 	@FXML
 	private ComboBox<String> addLineNumLOV;
 	@FXML
@@ -84,6 +89,8 @@ public class AReportsTabController implements Initializable {
 	@FXML
 	private DatePicker forDate;
 
+	@FXML
+	private DatePicker firstForDate;
 	private ObservableList<String> hawkerCodeData = FXCollections.observableArrayList();
 	private ObservableList<String> hawkerLineNumData = FXCollections.observableArrayList();
 
@@ -94,6 +101,8 @@ public class AReportsTabController implements Initializable {
 	private ObservableList<Product> productValues2 = FXCollections.observableArrayList();
 	private ObservableList<String> durationValues = FXCollections.observableArrayList();
 	private ObservableList<String> dowValues = FXCollections.observableArrayList();
+	private ObservableList<String> cityValues = FXCollections.observableArrayList();
+	private ObservableList<String> pointNameValues = FXCollections.observableArrayList();
 	@FXML
 	private ComboBox<String> dowLOV;
 	@FXML
@@ -125,7 +134,7 @@ public class AReportsTabController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
-		addHawkerCodeLOV.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+		hawkerComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -141,6 +150,8 @@ public class AReportsTabController implements Initializable {
 			}
 		});
 
+		firstForDate.setValue(LocalDate.now().plusDays(1));
+		firstForDate.setConverter(Main.dateConvertor);
 		forDate.setValue(LocalDate.now().plusDays(1));
 		forDate.setConverter(Main.dateConvertor);
 		prodNameLOV.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
@@ -179,6 +190,28 @@ public class AReportsTabController implements Initializable {
 		 * });
 		 */
 
+
+		addPointName.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				populateHawkerCodes();
+				// hawkerComboBox.getItems().clear();
+				// hawkerComboBox.getItems().addAll(hawkerCodeData);
+			}
+		});
+
+		cityTF.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if (newValue != null) {
+					populatePointNames();
+				} else {
+
+				}
+			}
+		});
 	}
 
 	private void populateLineNumbersForHawkerCode(String hawkerCode) {
@@ -271,77 +304,103 @@ public class AReportsTabController implements Initializable {
 	}
 
 	private void populateHawkerCodes() {
-
 		Task<Void> task = new Task<Void>() {
 
 			@Override
 			protected Void call() throws Exception {
 
-				try {
+				synchronized (this) {
+					try {
 
-					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
-						con = Main.reconnect();
-					}
-					if (HawkerLoginController.loggedInHawker != null) {
-						Platform.runLater(new Runnable() {
-
-							@Override
-							public void run() {
-								hawkerCodeData = FXCollections.observableArrayList();
-								hawkerCodeData.add(HawkerLoginController.loggedInHawker.getHawkerCode());
-								addHawkerCodeLOV.setItems(hawkerCodeData);
-								addHawkerCodeLOV.getSelectionModel().selectFirst();
-								addHawkerCodeLOV.setDisable(true);
-							}
-						});
-					} else {
-						hawkerCodeData = FXCollections.observableArrayList();
-						PreparedStatement stmt = con
-								.prepareStatement("select distinct hawker_code from hawker_info order by hawker_code");
-						ResultSet rs = stmt.executeQuery();
-						while (rs.next()) {
-							if (hawkerCodeData != null && !hawkerCodeData.contains(rs.getString(1)))
-								hawkerCodeData.add(rs.getString(1));
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
 						}
-						Platform.runLater(new Runnable() {
+						if (HawkerLoginController.loggedInHawker != null) {
+							Platform.runLater(new Runnable() {
 
-							@Override
-							public void run() {
+								@Override
+								public void run() {
+									hawkerCodeData = FXCollections.observableArrayList();
+									hawkerCodeData.add(HawkerLoginController.loggedInHawker.getHawkerCode());
+									hawkerComboBox.setItems(hawkerCodeData);
+									hawkerComboBox.getSelectionModel().selectFirst();
+									hawkerComboBox.setDisable(true);
+								}
+							});
+						} else {
+							Platform.runLater(new Runnable() {
 
-								addHawkerCodeLOV.getItems().clear();
-								addHawkerCodeLOV.setItems(hawkerCodeData);
-								new AutoCompleteComboBoxListener<>(addHawkerCodeLOV);
+								@Override
+								public void run() {
+									hawkerComboBox.setDisable(true);
+								}
+							});
+							hawkerCodeData = FXCollections.observableArrayList();
+							PreparedStatement stmt = con.prepareStatement(
+									"select distinct hawker_code from hawker_info where point_name=? order by hawker_code");
+							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								if (hawkerCodeData != null && !hawkerCodeData.contains(rs.getString(1)))
+									hawkerCodeData.add(rs.getString(1));
 							}
-						});
-						rs.close();
-						stmt.close();
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+
+									hawkerComboBox.getItems().clear();
+									hawkerComboBox.setItems(hawkerCodeData);
+									hawkerComboBox.setDisable(false);
+									new AutoCompleteComboBoxListener<>(hawkerComboBox);
+									// if (HawkerLoginController.loggedInHawker
+									// != null) {
+									// hawkerComboBox.getSelectionModel()
+									// .select(HawkerLoginController.loggedInHawker.getHawkerCode());
+									// hawkerComboBox.setDisable(true);
+									// }
+								}
+							});
+							rs.close();
+							stmt.close();
+						}
+					} catch (SQLException e) {
+
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
 					}
-				} catch (
-
-				SQLException e) {
-
-					Main._logger.debug("Error :", e);
-					e.printStackTrace();
-				} catch (Exception e) {
-
-					Main._logger.debug("Error :", e);
-					e.printStackTrace();
-
 				}
-
 				return null;
 			}
 
 		};
 
 		new Thread(task).start();
-
 	}
 
 	@FXML
 	void lineAllSubButtonClicked(ActionEvent event) {
 		try {
+			
+			if (hawkerComboBox.getSelectionModel().getSelectedItem() != null && firstForDate.getValue() != null) {
+				Connection con = Main.dbConnection;
+				if (!con.isValid(0)) {
+					con = Main.reconnect();
+				}
+				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+				stmt.executeUpdate();
+				stmt = con.prepareStatement("INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+				stmt.setDate(2, Date.valueOf(firstForDate.getValue()));
+				stmt.executeUpdate();
+				stmt.close();
+
 			String reportSrcFile = "HwkLineAllSubsList.jrxml";
 
 			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
@@ -349,13 +408,14 @@ public class AReportsTabController implements Initializable {
 
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
-			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
 			String lineNum = addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0];
 			String prodName = prodNameLOV2.getSelectionModel().getSelectedItem().equals("All") ? null
 					: prodNameLOV2.getSelectionModel().getSelectedItem();
 			parameters.put("HAWKER_CODE", hawkerCode);
 			parameters.put("LINE_NUM", lineNum);
 			parameters.put("PROD_NAME", prodName);
+			parameters.put("TESTDATE", Date.valueOf(firstForDate.getValue()));
 			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
 
 			// Make sure the output directory exists.
@@ -384,22 +444,20 @@ public class AReportsTabController implements Initializable {
 
 			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
 					.hideAfter(Duration.seconds(15)).showInformation();
-
-			// BorderPane root;
-			// root = new BorderPane();
-			// Stage stage = new Stage();
-			// stage.setTitle("Invoice PDF");
-			// stage.setScene(new Scene(root, 1024, 800));
-			//
-			/*
-			 * if (pdfPane.getChildren() != null && pdfPane.getChildren().size()
-			 * > 0) pdfPane.getChildren().removeAll(pdfPane.getChildren());
-			 * OpenViewerFX fx = new OpenViewerFX(pdfPane, null);
-			 * fx.setupViewer(); fx.openDefaultFile(outFile.getAbsolutePath());
-			 */
-
+			stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+			stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+			stmt.executeUpdate();
+			} else {
+				Notifications.create().title("Required values missing")
+						.text("Please select Hawker and Date before generating report.").hideAfter(Duration.seconds(5))
+						.showError();
+			}
 		} catch (JRException e) {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e){
+			e.printStackTrace();
 		}
 	}
 
@@ -428,28 +486,28 @@ public class AReportsTabController implements Initializable {
 	void hwkAllLineSubButtonClicked(ActionEvent event) {
 		try {
 
-			if (addHawkerCodeLOV.getSelectionModel().getSelectedItem() != null && forDate.getValue() != null) {
+			if (hawkerComboBox.getSelectionModel().getSelectedItem() != null && forDate.getValue() != null) {
 				Connection con = Main.dbConnection;
 				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
-				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
 				stmt.executeUpdate();
 				stmt = con.prepareStatement("INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
-				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
 				stmt.setDate(2, Date.valueOf(forDate.getValue()));
 				stmt.executeUpdate();
 				stmt.close();
 
-				ExportToExcel.exportHwkAllLineSubCountToExcel(addHawkerCodeLOV.getSelectionModel().getSelectedItem(),
+				ExportToExcel.exportHwkAllLineSubCountToExcel(hawkerComboBox.getSelectionModel().getSelectedItem(),
 						forDate.getValue());
 				String reportSrcFile = "HawkerAllLinesProdList.jrxml";
 				InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
 				JasperReport jasperReport = JasperCompileManager.compileReport(input);
 				// Parameters for report
 				Map<String, Object> parameters = new HashMap<String, Object>();
-				String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+				String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
 				// String lineNum =
 				// addLineNumLOV.getSelectionModel().getSelectedItem().split("
 				// ")[0];
@@ -480,7 +538,7 @@ public class AReportsTabController implements Initializable {
 				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
 						.hideAfter(Duration.seconds(15)).showInformation();
 				stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
-				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
 				stmt.executeUpdate();
 			} else {
 				Notifications.create().title("Required values missing")
@@ -499,28 +557,28 @@ public class AReportsTabController implements Initializable {
 	void hwkAllLineSubProdCodeButtonClicked(ActionEvent event) {
 		try {
 
-			if (addHawkerCodeLOV.getSelectionModel().getSelectedItem() != null && forDate.getValue() != null) {
+			if (hawkerComboBox.getSelectionModel().getSelectedItem() != null && forDate.getValue() != null) {
 				Connection con = Main.dbConnection;
 				if (!con.isValid(0)) {
 					con = Main.reconnect();
 				}
 				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
-				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
 				stmt.executeUpdate();
 				stmt = con.prepareStatement("INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
-				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
 				stmt.setDate(2, Date.valueOf(forDate.getValue()));
 				stmt.executeUpdate();
 				stmt.close();
 
-				ExportToExcel.exportHwkAllLineSubCountToExcel(addHawkerCodeLOV.getSelectionModel().getSelectedItem(),
+				ExportToExcel.exportHwkAllLineSubCountToExcel(hawkerComboBox.getSelectionModel().getSelectedItem(),
 						forDate.getValue());
 				String reportSrcFile = "HawkerAllLineProdCodeWiseList.jrxml";
 				InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
 				JasperReport jasperReport = JasperCompileManager.compileReport(input);
 				// Parameters for report
 				Map<String, Object> parameters = new HashMap<String, Object>();
-				String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+				String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
 				// String lineNum =
 				// addLineNumLOV.getSelectionModel().getSelectedItem().split("
 				// ")[0];
@@ -551,7 +609,7 @@ public class AReportsTabController implements Initializable {
 				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
 						.hideAfter(Duration.seconds(15)).showInformation();
 				stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
-				stmt.setString(1, addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
 				stmt.executeUpdate();
 			} else {
 				Notifications.create().title("Required values missing")
@@ -576,7 +634,7 @@ public class AReportsTabController implements Initializable {
 
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
-			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
 			String lineNum2 = addLineNumLOV2.getSelectionModel().getSelectedItem().equals("All") ? null
 					: addLineNumLOV2.getSelectionModel().getSelectedItem().split(" ")[0];
 			String paymentType = paymentTypeLOV.getSelectionModel().getSelectedItem().equals("All") ? null
@@ -656,7 +714,7 @@ public class AReportsTabController implements Initializable {
 
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
-			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
 			parameters.put("HAWKER_CODE", hawkerCode);
 			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
 
@@ -702,7 +760,7 @@ public class AReportsTabController implements Initializable {
 
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
-			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
 			parameters.put("HAWKER_CODE", hawkerCode);
 			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
 
@@ -752,7 +810,7 @@ public class AReportsTabController implements Initializable {
 
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
-			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
 			parameters.put("HAWKER_CODE", hawkerCode);
 			parameters.put("LINE_NUM", lineNum);
 			parameters.put("PROD_NAME", prodName);
@@ -804,7 +862,7 @@ public class AReportsTabController implements Initializable {
 
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
-			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
 			parameters.put("HAWKER_CODE", hawkerCode);
 			parameters.put("LINE_NUM", lineNum);
 			parameters.put("PROD_NAME", prodName);
@@ -858,7 +916,7 @@ public class AReportsTabController implements Initializable {
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			String hawkerCode = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerCode():
-				addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+				hawkerComboBox.getSelectionModel().getSelectedItem();
 			String invoiceDate = invoiceDateLOV.getSelectionModel().getSelectedItem();
 			parameters.put("HWK_CODE", hawkerCode);
 			parameters.put("INVOICE_DATE", invoiceDate);
@@ -911,7 +969,7 @@ public class AReportsTabController implements Initializable {
 						invoiceDatesData = FXCollections.observableArrayList();
 						String insertStmt = "select distinct TO_CHAR(INVOICE_DATE,'DD/MM/YYYY') INVOICE_DATE from BILLING where customer_id in (select distinct customer_id from customer where hawker_id = ?) order by invoice_date desc";
 						PreparedStatement stmt = con.prepareStatement(insertStmt);
-						Long hawkerId = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+						Long hawkerId = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(hawkerComboBox.getSelectionModel().getSelectedItem());
 						stmt.setLong(1, hawkerId);
 						ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
@@ -1154,10 +1212,10 @@ public class AReportsTabController implements Initializable {
 	}
 
 	public void populateProducts() {
-		Task<Void> task = new Task<Void>() {
-
-			@Override
-			protected Void call() throws Exception {
+//		Task<Void> task = new Task<Void>() {
+//
+//			@Override
+//			protected Void call() throws Exception {
 				try {
 
 					Connection con = Main.dbConnection;
@@ -1167,8 +1225,8 @@ public class AReportsTabController implements Initializable {
 					productValues = FXCollections.observableArrayList();
 					productValues2 = FXCollections.observableArrayList();
 					PreparedStatement stmt = con.prepareStatement(
-							"SELECT prod.PRODUCT_ID, prod.NAME, prod.TYPE, prod.SUPPORTED_FREQ, prod.MONDAY, prod.TUESDAY, prod.WEDNESDAY, prod.THURSDAY, prod.FRIDAY, prod.SATURDAY, prod.SUNDAY, prod.PRICE, prod.CODE, prod.DOW, prod.FIRST_DELIVERY_DATE, prod.ISSUE_DATE, prod.bill_category FROM products prod, hawker_info hwk, point_name pn where hwk.point_name=pn.name and lower(pn.bill_category)=lower(prod.bill_category) and hwk.hawker_id=? ORDER BY prod.name");
-					Long hawkerId = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(addHawkerCodeLOV.getSelectionModel().getSelectedItem());
+							"SELECT prod.PRODUCT_ID, prod.NAME, prod.TYPE, prod.SUPPORTED_FREQ, prod.MONDAY, prod.TUESDAY, prod.WEDNESDAY, prod.THURSDAY, prod.FRIDAY, prod.SATURDAY, prod.SUNDAY, prod.PRICE, prod.CODE, prod.DOW, prod.FIRST_DELIVERY_DATE, prod.ISSUE_DATE, prod.bill_category, upper(prod.NAME) FROM products prod, hawker_info hwk, point_name pn where hwk.point_name=pn.name and lower(pn.bill_category)=lower(prod.bill_category) and hwk.hawker_id=? ORDER BY upper(prod.name)");
+					Long hawkerId = HawkerLoginController.loggedInHawker!=null?HawkerLoginController.loggedInHawker.getHawkerId():hawkerIdForCode(hawkerComboBox.getSelectionModel().getSelectedItem());
 					stmt.setLong(1, hawkerId);
 					ResultSet rs = stmt.executeQuery();
 					productValues.add("All");
@@ -1208,12 +1266,12 @@ public class AReportsTabController implements Initializable {
 					Main._logger.debug("Error :", e);
 					e.printStackTrace();
 				}
-				return null;
-			}
-
-		};
-
-		new Thread(task).start();
+//				return null;
+//			}
+//
+//		};
+//
+//		new Thread(task).start();
 	}
 
     @FXML
@@ -1221,7 +1279,7 @@ public class AReportsTabController implements Initializable {
     	try {
 			// Parameters for report
 			Map<String, Object> parameters = new HashMap<String, Object>();
-			String hawkerCode = addHawkerCodeLOV.getSelectionModel().getSelectedItem();
+			String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
 			String hawkerId = Long.toString(hawkerIdForCode(hawkerCode));
 			String lineNum = addLineNumLOV4.getSelectionModel().getSelectedIndex()==1?"All":addLineNumLOV4.getSelectionModel().getSelectedItem().split(" ")[0];
 			
@@ -1272,6 +1330,161 @@ public class AReportsTabController implements Initializable {
 			Main._logger.debug("Error during Report PDF Generation: ", e);
 		}
     }
+    
+
+	public void populateCityValues() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						cityValues = FXCollections.observableArrayList();
+						PreparedStatement stmt = null;
+						if (HawkerLoginController.loggedInHawker != null) {
+							stmt = con.prepareStatement("select distinct city from point_name where name=?");
+							stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+							ResultSet rs = stmt.executeQuery();
+							if (rs.next()) {
+								cityValues.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.getItems().clear();
+									cityTF.setItems(cityValues);
+									cityTF.getSelectionModel().selectFirst();
+									cityTF.setDisable(true);
+								}
+							});
+							rs.close();
+						} else {
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.setDisable(true);
+								}
+							});
+							stmt = con.prepareStatement("select distinct city from point_name order by city");
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								if (cityValues != null && !cityValues.contains(rs.getString(1)))
+									cityValues.add(rs.getString(1));
+							}
+
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									cityTF.getItems().clear();
+									cityTF.setItems(cityValues);
+									cityTF.setDisable(false);
+									new AutoCompleteComboBoxListener<>(cityTF);
+								}
+							});
+							rs.close();
+						}
+						stmt.close();
+					} catch (SQLException e) {
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
+	}
+
+	public void populatePointNames() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				synchronized (this) {
+					try {
+
+						Connection con = Main.dbConnection;
+						if (!con.isValid(0)) {
+							con = Main.reconnect();
+						}
+						if (HawkerLoginController.loggedInHawker != null) {
+							pointNameValues = FXCollections.observableArrayList();
+							pointNameValues.add(HawkerLoginController.loggedInHawker.getPointName());
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									addPointName.setItems(pointNameValues);
+									addPointName.getSelectionModel()
+											.select(HawkerLoginController.loggedInHawker.getPointName());
+									addPointName.setDisable(true);
+								}
+							});
+						} else {
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									addPointName.getItems().clear();
+									addPointName.setDisable(true);
+								}
+							});
+							pointNameValues = FXCollections.observableArrayList();
+							PreparedStatement stmt = con.prepareStatement(
+									"select distinct name from point_name where city =? order by name");
+							stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
+							ResultSet rs = stmt.executeQuery();
+							while (rs.next()) {
+								if (pointNameValues != null && !pointNameValues.contains(rs.getString(1)))
+									pointNameValues.add(rs.getString(1));
+							}
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									addPointName.getItems().clear();
+									addPointName.setItems(pointNameValues);
+									new AutoCompleteComboBoxListener<>(addPointName);
+									addPointName.setDisable(false);
+								}
+							});
+							rs.close();
+							stmt.close();
+						}
+					} catch (SQLException e) {
+
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						Main._logger.debug("Error :", e);
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+
+		};
+
+		new Thread(task).start();
+
+	}
+
 
 	private void populateStatusValues() {
 		statusLOV.getItems().addAll("Active", "Stopped");
@@ -1282,7 +1495,7 @@ public class AReportsTabController implements Initializable {
 	public void reloadData() {
 		hawkerLineNumData.clear();
 		hawkerCodeData.clear();
-		populateHawkerCodes();
+		populateCityValues();
 		populateProducts();
 		// populateDurationValues();
 		populateFrequencyValues();

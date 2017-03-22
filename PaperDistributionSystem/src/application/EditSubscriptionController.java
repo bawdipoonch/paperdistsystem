@@ -17,6 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -72,7 +73,12 @@ public class EditSubscriptionController implements Initializable {
 	private TextField subNumberTF;
 	@FXML
 	private TextField addToBillTF;
+	@FXML
+	private CheckBox chequeRcvd;
+	@FXML
+	private TextField addToDueTF;
 
+	private boolean extendMode;
 	private Subscription subsRow;
 	private ObservableList<String> subscriptionTypeValues = FXCollections.observableArrayList();
 	private ObservableList<String> paymentTypeValues = FXCollections.observableArrayList();
@@ -116,15 +122,12 @@ public class EditSubscriptionController implements Initializable {
 			}
 		});
 		populateProducts();
-		populateDurationValues();
 		populatePaymentTypeValues();
-		populateSubscriptionTypeValues();
 		for (Object p : productValues.toArray()) {
 			if (((Product) p).getProductId() == subsRow.getProductId()) {
 				prodNameLOV.getSelectionModel().select(((Product) p));
 			}
 		}
-
 		prodType.setText(subsRow.getProductType());
 		priceTF.setText(subsRow.getCost() + "");
 		serviceChargeTF.setText(subsRow.getServiceCharge() + "");
@@ -157,29 +160,34 @@ public class EditSubscriptionController implements Initializable {
 				case "Fixed Rate":
 					priceTF.setDisable(false);
 					serviceChargeTF.setDisable(false);
+					chequeRcvd.setDisable(true);
 					break;
 				case "Actual Days Billing":
 					priceTF.setText("0.0");
 					priceTF.setDisable(true);
 					serviceChargeTF.setDisable(false);
+					chequeRcvd.setDisable(true);
 					break;
 				case "Free Copy":
 					priceTF.setText("0.0");
 					serviceChargeTF.setText("0.0");
 					priceTF.setDisable(true);
 					serviceChargeTF.setDisable(false);
+					chequeRcvd.setDisable(true);
 					break;
 				case "Coupon Copy/Adv Payment":
 					priceTF.setText("0.0");
 					serviceChargeTF.setText("0.0");
 					priceTF.setDisable(true);
 					serviceChargeTF.setDisable(false);
+					chequeRcvd.setDisable(false);
 					break;
 				}
 
 			}
 		});
 
+		populateSubscriptionTypeValues();
 		startDate.setValue(subsRow.getStartDate());
 		stopDate.setConverter(Main.dateConvertor);
 		resumeDate.setConverter(Main.dateConvertor);
@@ -208,6 +216,7 @@ public class EditSubscriptionController implements Initializable {
 
 			}
 		});
+		populateDurationValues();
 		endDate.setDisable(true);
 
 		// offerMonthsTF.getSelectionModel().selectFirst();
@@ -262,12 +271,39 @@ public class EditSubscriptionController implements Initializable {
 		resumeDate.setValue(subsRow.getResumeDate());
 		// resumeDate.setDisable(subsRow.getStatus().equals("Active"));
 		resumeDate.setDisable(true);
+		chequeRcvd.setSelected(subsRow.getChequeRcvd());
 		prodNameLOV.requestFocus();
+		if(extendMode){
+			addToDueTF.setVisible(true);
+			addToDueTF.setDisable(false);
+			subNumberTF.setDisable(false);
+			durationLOV.setDisable(false);
+			offerMonthsTF.setDisable(false);
+			endDate.setDisable(false);
+			startDate.setDisable(false);
+			chequeRcvd.setSelected(false);
+			chequeRcvd.setDisable(true);
+			
+			prodNameLOV.setDisable(true);
+			subscriptionTypeLOV.setDisable(true);
+			paymentTypeLOV.setDisable(true);
+			priceTF.setDisable(true);
+			addToBillTF.setDisable(true);
+			serviceChargeTF.setDisable(true);
+			frequencyLOV.setDisable(true);
+			dowLOV.setDisable(true);
+			
+		} else {
+
+			addToDueTF.setVisible(false);
+//			chequeRcvd.setVisible(false);
+		}
 	}
 
-	public void setSubscriptionToEdit(Subscription subsRow) {
+	public void setSubscriptionToEdit(Subscription subsRow, boolean extendMode) {
 		this.subsRow = subsRow;
-
+		this.extendMode = extendMode;
+		
 	}
 
 	public void setEndDateValue() {
@@ -487,7 +523,7 @@ public class EditSubscriptionController implements Initializable {
 			if (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.SUBSCRIPTION_ID =?";
+			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.SUBSCRIPTION_ID =?";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, subId);
 			ResultSet rs = stmt.executeQuery();
@@ -499,7 +535,7 @@ public class EditSubscriptionController implements Initializable {
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
 						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
-						rs.getDouble(21));
+						rs.getDouble(21),rs.getString(22).equalsIgnoreCase("Y"));
 			}
 
 		} catch (SQLException e) {
@@ -533,8 +569,16 @@ public class EditSubscriptionController implements Initializable {
 		subsRow.setOfferMonths((int) offerMonthsTF.getValue());
 		subsRow.setSubNumber(subNumberTF.getText());
 		subsRow.setAddToBill(Double.parseDouble(addToBillTF.getText()));
+		subsRow.setChequeRcvd("Coupon Copy/Adv Payment".equalsIgnoreCase(subscriptionTypeLOV.getSelectionModel().getSelectedItem())?chequeRcvd.isSelected():false);
 		// subsRow.setDow(dow);
 		this.subsRow.updateSubscriptionRecord();
+		
+		if(this.extendMode){
+			Customer custRow = BillingUtilityClass.custForCustId(subsRow.getCustomerId());
+			custRow.setTotalDue(custRow.getTotalDue()+Double.parseDouble(addToDueTF.getText()));
+			custRow.updateCustomerRecord();
+			
+		}
 	}
 
 	public void releaseVariables() {

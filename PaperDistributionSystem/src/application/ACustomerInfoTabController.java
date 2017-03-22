@@ -1726,7 +1726,7 @@ public class ACustomerInfoTabController implements Initializable {
 					.<EditSubscriptionController> getController();
 
 			editSubscriptionDialog.getDialogPane().setContent(editSubscriptionGrid);
-			editSubsController.setSubscriptionToEdit(subsRow);
+			editSubsController.setSubscriptionToEdit(subsRow,false);
 			editSubsController.setupBindings();
 			Button saveBtn = (Button) editSubscriptionDialog.getDialogPane().lookupButton(saveButtonType);
 			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
@@ -1783,7 +1783,7 @@ public class ACustomerInfoTabController implements Initializable {
 					.<EditSubscriptionController> getController();
 
 			editSubscriptionDialog.getDialogPane().setContent(editSubscriptionGrid);
-			editSubsController.setSubscriptionToEdit(subsRow);
+			editSubsController.setSubscriptionToEdit(subsRow,false);
 			editSubsController.setupBindings();
 			editSubsController.gridPane.setDisable(true);
 
@@ -2796,7 +2796,7 @@ public class ACustomerInfoTabController implements Initializable {
 						}
 						disableAll();
 						subscriptionMasterData = FXCollections.observableArrayList();
-						String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by sub.STATUS,prod.name";
+						String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? order by sub.STATUS,prod.name";
 						PreparedStatement stmt = con.prepareStatement(query);
 						Customer cust = ACustInfoTable.getSelectionModel().getSelectedItem();
 						stmt.setLong(1, cust != null ? cust.getCustomerId() : null);
@@ -2809,7 +2809,7 @@ public class ACustomerInfoTabController implements Initializable {
 									rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 									rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17),
 									rs.getInt(18), rs.getString(19),
-									rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(), rs.getDouble(21)));
+									rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(), rs.getDouble(21), rs.getString(22).equalsIgnoreCase("Y")));
 						}
 						rs.close();
 						stmt.close();
@@ -3344,7 +3344,7 @@ public class ACustomerInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			subsList = FXCollections.observableArrayList();
-			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Active' order by sub.subscription_id";
+			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Active' order by sub.subscription_id";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, custRow.getCustomerId());
 			ResultSet rs = stmt.executeQuery();
@@ -3356,7 +3356,7 @@ public class ACustomerInfoTabController implements Initializable {
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
 						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
-						rs.getDouble(21)));
+						rs.getDouble(21), rs.getString(22).equalsIgnoreCase("Y")));
 			}
 			rs.close();
 			stmt.close();
@@ -3382,7 +3382,7 @@ public class ACustomerInfoTabController implements Initializable {
 				con = Main.reconnect();
 			}
 			subsList = FXCollections.observableArrayList();
-			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Stopped' order by sub.subscription_id";
+			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.code, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.customer_id =? and sub.status='Stopped' order by sub.subscription_id";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setLong(1, custRow.getCustomerId());
 			ResultSet rs = stmt.executeQuery();
@@ -3394,7 +3394,7 @@ public class ACustomerInfoTabController implements Initializable {
 						rs.getDate(14) == null ? null : rs.getDate(14).toLocalDate(), rs.getString(15),
 						rs.getDate(16) == null ? null : rs.getDate(16).toLocalDate(), rs.getString(17), rs.getInt(18),
 						rs.getString(19), rs.getDate(20) == null ? null : rs.getDate(20).toLocalDate(),
-						rs.getDouble(21)));
+						rs.getDouble(21),rs.getString(22).equalsIgnoreCase("Y")));
 			}
 			rs.close();
 			stmt.close();

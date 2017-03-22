@@ -1,20 +1,42 @@
 package application;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.controlsfx.control.Notifications;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.lambda.AWSLambdaClient;
+import com.amazonaws.services.lambda.invoke.LambdaFunctionException;
+import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.amazonaws.services.lambda.model.InvokeResult;
+import com.amazonaws.util.Base64;
+import com.amazonaws.util.StringUtils;
+import com.google.gson.Gson;
+
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -41,6 +63,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -49,6 +72,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -190,15 +214,11 @@ public class AHawkerInfoTabController implements Initializable {
 
 	// Billing columns
 	@FXML
-	private TableColumn<HawkerBilling, Date> hwkBillStartDateColumn;
+	private TableColumn<HawkerBilling, LocalDate> hwkBillDateColumn;
 	@FXML
-	private TableColumn<HawkerBilling, Date> hwkBillEndDateColumn;
+	private TableColumn<HawkerBilling, Double> hwkAmountColumn;
 	@FXML
-	private TableColumn<HawkerBilling, Double> hwkBillAmountColumn;
-	@FXML
-	private TableColumn<HawkerBilling, Double> hwkBillPaidColumn;
-	@FXML
-	private TableColumn<HawkerBilling, Double> hwkBillDueColumn;
+	private TableColumn<HawkerBilling, String> hwkBillTypeColumn;
 
 	private String searchText;
 	private FilteredList<Hawker> filteredData;
@@ -282,11 +302,20 @@ public class AHawkerInfoTabController implements Initializable {
 		ifscCodeColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("ifscCode"));
 		benNameColumn.setCellValueFactory(new PropertyValueFactory<Hawker, String>("benName"));
 
-		hwkBillStartDateColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Date>("startDate"));
-		hwkBillEndDateColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Date>("endDate"));
-		hwkBillAmountColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Double>("billAmount"));
-		hwkBillPaidColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Double>("paid"));
-		hwkBillDueColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Double>("due"));
+		hwkBillDateColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, LocalDate>("entryDate"));
+		hwkBillDateColumn
+				.setCellFactory(new Callback<TableColumn<HawkerBilling, LocalDate>, TableCell<HawkerBilling, LocalDate>>() {
+ 
+					@Override
+					public TableCell<HawkerBilling, LocalDate> call(TableColumn<HawkerBilling, LocalDate> param) {
+						TextFieldTableCell<HawkerBilling, LocalDate> cell = new TextFieldTableCell<HawkerBilling, LocalDate>();
+						cell.setConverter(Main.dateConvertor);
+						
+						return cell;
+					}
+				});
+		hwkAmountColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, Double>("amount"));
+		hwkBillTypeColumn.setCellValueFactory(new PropertyValueFactory<HawkerBilling, String>("type"));
 
 		addHwkState.getItems().addAll("Tamil Nadu", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
 				"Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand",
@@ -467,7 +496,7 @@ public class AHawkerInfoTabController implements Initializable {
 						if (hawkerRow != null) {
 							showEditHawkerDialog(hawkerRow);
 							refreshHawkerTable();
-//							hawkerTable.refresh();
+							// hawkerTable.refresh();
 						}
 					}
 
@@ -541,20 +570,63 @@ public class AHawkerInfoTabController implements Initializable {
 							billWarning.getDialogPane().setContent(grid);
 							Optional<ButtonType> result = billWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.OK) {
-								BillingUtilityClass.createBillingInvoiceForHwk(hawkerRow.getHawkerCode(),
-										pauseDP.getValue().withDayOfMonth(1),
-										pauseDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1), true);
+								// BillingUtilityClass.createBillingInvoiceForHwk(hawkerRow.getHawkerCode(),
+								// pauseDP.getValue().withDayOfMonth(1),
+								// pauseDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1),
+								// true);
+								generateBillingFunction(hawkerRow.getHawkerCode(),
+										pauseDP.getValue().withDayOfMonth(1).plusMonths(1).minusDays(1).toString());
 								refreshHawkerTable();
 							}
 						}
 					}
 
 				});
+
+				MenuItem updatePaid = new MenuItem("Payment Recieved");
+				updatePaid.setOnAction(new EventHandler<ActionEvent>() {
+
+					@Override
+					public void handle(ActionEvent event) {
+						Hawker hawkerRow = hawkerTable.getSelectionModel().getSelectedItem();
+						TextInputDialog payRcvdDialog = new TextInputDialog(
+								"" + hawkerTable.getSelectionModel().getSelectedItem().getTotalDue());
+						payRcvdDialog.setTitle("Payment recieved");
+						payRcvdDialog.setHeaderText("Enter the payment recieved amount");
+						Optional<String> returnValue = payRcvdDialog.showAndWait();
+						if (returnValue.isPresent()) {
+							try {
+								Double rcvdValue = Double.parseDouble(returnValue.get().trim());
+								Connection con = Main.dbConnection;
+								if (!con.isValid(0)) {
+									con = Main.reconnect();
+								}
+								PreparedStatement stmt = con.prepareStatement(
+										"INSERT INTO HAWKER_BILLING(hawker_id, entry_date, amount, type) VALUES(?,?,?,?)");
+								stmt.setLong(1, hawkerRow.getHawkerId());
+								stmt.setDate(2, Date.valueOf(LocalDate.now()));
+								stmt.setDouble(3, rcvdValue);
+								stmt.setString(4, "Payment");
+								int c = stmt.executeUpdate();
+								stmt.close();
+								refreshHawkerTable();
+							} catch (NumberFormatException e) {
+								Main._logger.debug("Error :", e);
+								e.printStackTrace();
+								Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
+										.text("Please enter numeric value only").showError();
+							} catch (Exception e) {
+								e.printStackTrace();
+								Main._logger.debug("Error :", e);
+							}
+						}
+					}
+				});
 				ContextMenu menu = new ContextMenu();
 				if (HawkerLoginController.loggedInHawker != null) {
 					menu.getItems().addAll(mnuEdit, mnuView, mnuPwd);
 				} else {
-					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuPwd, mnuNullDue, mnuBill);
+					menu.getItems().addAll(mnuEdit, mnuView, mnuDel, mnuPwd, mnuNullDue, mnuBill,updatePaid);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -569,61 +641,24 @@ public class AHawkerInfoTabController implements Initializable {
 
 				final TableRow<HawkerBilling> row = new TableRow<HawkerBilling>();
 
-				MenuItem mnuDel = new MenuItem("Delete Bill");
+				MenuItem mnuDel = new MenuItem("Delete Entry");
 				mnuDel.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent t) {
 						HawkerBilling hwkBillRow = hawkerBillingTable.getSelectionModel().getSelectedItem();
 						if (hwkBillRow != null) {
 							deleteHawkerBill(hwkBillRow);
-							Hawker hawkerRow = hawkerMasterData.get(hawkerTable.getSelectionModel().getSelectedIndex());
-							hawkerRow.calculateTotalDue();
-							hawkerBillingTable.refresh();
-							hawkerTable.refresh();
-							hawkerTable.refresh();
+							refreshHawkerTable();
 						}
 					}
 
-				});
-
-				MenuItem updatePaid = new MenuItem("Update Payment Recieved");
-				updatePaid.setOnAction(new EventHandler<ActionEvent>() {
-
-					@Override
-					public void handle(ActionEvent event) {
-
-						HawkerBilling hwkBillRow = hawkerBillingTable.getSelectionModel().getSelectedItem();
-						TextInputDialog payRcvdDialog = new TextInputDialog(
-								"" + hawkerTable.getSelectionModel().getSelectedItem().getTotalDue());
-						payRcvdDialog.setTitle("Payment recieved");
-						payRcvdDialog.setHeaderText("Enter the payment recieved amount");
-						Optional<String> returnValue = payRcvdDialog.showAndWait();
-						if (returnValue.isPresent()) {
-							try {
-								Double rcvdValue = Double.parseDouble(returnValue.get());
-								hwkBillRow.setPaid(rcvdValue.doubleValue());
-								hwkBillRow.updateHawkerBillingRecord();
-								Hawker hawkerRow = hawkerMasterData
-										.get(hawkerTable.getSelectionModel().getSelectedIndex());
-								hawkerRow.calculateTotalDue();
-								hawkerBillingTable.refresh();
-								hawkerTable.refresh();
-							} catch (NumberFormatException e) {
-
-								Main._logger.debug("Error :", e);
-								e.printStackTrace();
-								Notifications.create().hideAfter(Duration.seconds(5)).title("Invalid value entered")
-										.text("Please enter numeric value only").showError();
-							}
-						}
-					}
 				});
 
 				ContextMenu menu = new ContextMenu();
 				if (HawkerLoginController.loggedInHawker != null) {
-					menu.getItems().addAll(updatePaid);
+					// menu.getItems().addAll(updatePaid);
 				} else {
-					menu.getItems().addAll(mnuDel, updatePaid);
+					menu.getItems().addAll(mnuDel);
 				}
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
@@ -711,37 +746,6 @@ public class AHawkerInfoTabController implements Initializable {
 		// refreshHawkerTable();
 		addHwkName.requestFocus();
 	}
-
-	/*
-	 * private void generateBill(Hawker hawkerRow) { method stub Date[]
-	 * currentMonthDR = getDateRange(); PreparedStatement insertHawker = null;
-	 * String insertStatement =
-	 * "INSERT INTO HAWKER_BILLING(hawker_id, start_date, end_date, bill_amount, paid, due) "
-	 * + "VALUES (?,?,?,?,?,?)"; Connection con = Main.dbConnection; try {
-	 * while(!con.isValid(0)){ con = Main.reconnect(); } insertHawker =
-	 * con.prepareStatement(insertStatement); insertHawker.setLong(1,
-	 * hawkerRow.getHawkerId()); insertHawker.setDate(2, currentMonthDR[0]);
-	 * insertHawker.setDate(3, currentMonthDR[1]); insertHawker.setDouble(4,
-	 * 100); insertHawker.setDouble(5, 100); insertHawker.setDouble(6, 0);
-	 * insertHawker.execute(); hawkerMasterData.add(new
-	 * Hawker(addHwkName.getText(),addHwkCode.getText(),addHwkMob.getText(),
-	 * addHwkAgencyName.getText(),addHwkActive.isSelected(), d.doubleValue(),
-	 * addHwkOldHNum.getText(),addHwkNewHNum.getText(),addHwkAddrLine1.getText()
-	 * ,addHwkAddrLine2.getText(),addHwkLocality.getText(),
-	 * addHwkCity.getText(),addHwkState.getSelectionModel().getSelectedItem()));
-	 * refreshHawkerBilling(hawkerRow.getHawkerId());
-	 * hawkerRow.calculateTotalDue(); hawkerRow.updateHawkerRecord(); //
-	 * hawkerTable.refresh(); con.commit();
-	 * 
-	 * } catch (SQLException e) { Main._logger.debug("Error :",e);
-	 * e.printStackTrace();
-	 * Notifications.create().hideAfter(Duration.seconds(5)).title("Error!").
-	 * text(
-	 * "There has been some error during hawker bill creation, please retry"
-	 * ).showError(); Main.reconnect(); }
-	 * 
-	 * }
-	 */
 
 	private void populateBillCategory() {
 		try {
@@ -872,7 +876,8 @@ public class AHawkerInfoTabController implements Initializable {
 	}
 
 	public static void showEditHawkerDialog(Hawker hawkerRow) {
-//		int selectedIndex = hawkerTable.getSelectionModel().selectedIndexProperty().get();
+		// int selectedIndex =
+		// hawkerTable.getSelectionModel().selectedIndexProperty().get();
 		try {
 
 			Dialog<Hawker> editHawkerDialog = new Dialog<Hawker>();
@@ -893,7 +898,7 @@ public class AHawkerInfoTabController implements Initializable {
 			editHawkerController.setupBindings();
 			saveBtn.addEventFilter(ActionEvent.ACTION, btnEvent -> {
 				if (!editHawkerController.isValid()) {
-					
+
 					btnEvent.consume();
 				} else {
 					editHawkerController.returnUpdatedHawker();
@@ -914,10 +919,10 @@ public class AHawkerInfoTabController implements Initializable {
 
 				@Override
 				public void accept(Hawker t) {
-					
+
 					t.updateHawkerRecord();
 					editHawkerController.releaseVariables();
-					
+
 				}
 			});
 
@@ -969,22 +974,20 @@ public class AHawkerInfoTabController implements Initializable {
 					if (HawkerLoginController.loggedInHawker == null) {
 						if (showAllRadioButton.isSelected()) {
 							stmt = con.prepareStatement(
-									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo,ben_name from hawker_info order by name");
-							// stmt.setString(1,
-							// addPointName.getSelectionModel().getSelectedItem());
+									"SELECT hwk.hawker_id, hwk.name, hwk.hawker_code, hwk.mobile_num, hwk.agency_name, hwk.active_flag, hwk.fee, hwk.old_house_num, hwk.new_house_num, hwk.addr_line1, hwk.addr_line2, hwk.locality, hwk.city, hwk.state, hwk.customer_access, hwk.billing_access, hwk.line_info_access, hwk.line_dist_access, hwk.paused_cust_access, hwk.product_access, hwk.reports_access, hwk.profile1, hwk.profile2, hwk.profile3, hwk.initials, hwk.password, hwk.employment, hwk.comments, hwk.point_name, hwk.building_street, hwk.bank_ac_no, hwk.bank_name, hwk.ifsc_code, hwk.stop_history_access, hwk.logo, hwk.ben_name, (select NVL((select sum(amount) from hawker_billing b1 where b1.hawker_id=hwk.hawker_id and b1.type='Bill'),0.0) - NVL((select sum(amount) from hawker_billing b1 where b1.hawker_id=hwk.hawker_id and b1.type='Payment'),0.0) from dual) total_due FROM hawker_info hwk ORDER BY name ");
 						} else {
 							stmt = con.prepareStatement(
-									"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo,ben_name from hawker_info where point_name=? order by name");
+									"SELECT hwk.hawker_id, hwk.name, hwk.hawker_code, hwk.mobile_num, hwk.agency_name, hwk.active_flag, hwk.fee, hwk.old_house_num, hwk.new_house_num, hwk.addr_line1, hwk.addr_line2, hwk.locality, hwk.city, hwk.state, hwk.customer_access, hwk.billing_access, hwk.line_info_access, hwk.line_dist_access, hwk.paused_cust_access, hwk.product_access, hwk.reports_access, hwk.profile1, hwk.profile2, hwk.profile3, hwk.initials, hwk.password, hwk.employment, hwk.comments, hwk.point_name, hwk.building_street, hwk.bank_ac_no, hwk.bank_name, hwk.ifsc_code, hwk.stop_history_access, hwk.logo, hwk.ben_name, (select NVL((select sum(amount) from hawker_billing b1 where b1.hawker_id=hwk.hawker_id and b1.type='Bill'),0.0) - NVL((select sum(amount) from hawker_billing b1 where b1.hawker_id=hwk.hawker_id and b1.type='Payment'),0.0) from dual) total_due FROM hawker_info hwk  where point_name=? ORDER BY name");
 							stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 						}
 					} else {
 						stmt = con.prepareStatement(
-								"select hawker_id,name,hawker_code, mobile_num, agency_name, active_flag, fee, old_house_num, new_house_num, addr_line1, addr_line2, locality, city, state,customer_access, billing_access, line_info_access, line_dist_access, paused_cust_access, product_access, reports_access,profile1,profile2,profile3,initials,password, employment, comments, point_name, building_street,bank_ac_no,bank_name,ifsc_code,stop_history_access,logo,ben_name from hawker_info where point_name=? order by name");
+								"SELECT hwk.hawker_id, hwk.name, hwk.hawker_code, hwk.mobile_num, hwk.agency_name, hwk.active_flag, hwk.fee, hwk.old_house_num, hwk.new_house_num, hwk.addr_line1, hwk.addr_line2, hwk.locality, hwk.city, hwk.state, hwk.customer_access, hwk.billing_access, hwk.line_info_access, hwk.line_dist_access, hwk.paused_cust_access, hwk.product_access, hwk.reports_access, hwk.profile1, hwk.profile2, hwk.profile3, hwk.initials, hwk.password, hwk.employment, hwk.comments, hwk.point_name, hwk.building_street, hwk.bank_ac_no, hwk.bank_name, hwk.ifsc_code, hwk.stop_history_access, hwk.logo, hwk.ben_name, (select NVL((select sum(amount) from hawker_billing b1 where b1.hawker_id=hwk.hawker_id and b1.type='Bill'),0.0) - NVL((select sum(amount) from hawker_billing b1 where b1.hawker_id=hwk.hawker_id and b1.type='Payment'),0.0) from dual) total_due FROM hawker_info hwk  where point_name=? ORDER BY name");
 						stmt.setString(1, addPointName.getSelectionModel().getSelectedItem());
 					}
 					// hawkerTable.setDisable(true);
 					ResultSet rs = stmt.executeQuery();
-					hawkerMasterData.clear();
+					hawkerMasterData = FXCollections.observableArrayList();
 					while (rs.next()) {
 						Hawker hwkRow = new Hawker(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),
 								rs.getString(5), rs.getString(6).equalsIgnoreCase("Y"), rs.getDouble(7),
@@ -994,9 +997,10 @@ public class AHawkerInfoTabController implements Initializable {
 								rs.getString(21), rs.getString(22), rs.getString(23), rs.getString(24),
 								rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
 								rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32),
-								rs.getString(33), rs.getString(34), rs.getBlob(35), rs.getString(36));
+								rs.getString(33), rs.getString(34), rs.getBlob(35), rs.getString(36), rs.getDouble(37));
 						// hwkRow.calculateTotalDue();
 						hawkerMasterData.add(hwkRow);
+
 					}
 					// hawkerTable.getItems().clear();
 					if (!hawkerMasterData.isEmpty()) {
@@ -1005,13 +1009,27 @@ public class AHawkerInfoTabController implements Initializable {
 						SortedList<Hawker> sortedData = new SortedList<>(filteredData);
 						sortedData.comparatorProperty().bind(hawkerTable.comparatorProperty());
 
-						hawkerTable.setItems(sortedData);
-						// hawkerTable.setDisable(false);
-						hawkerTable.refresh();
-						hawkerTable.getSelectionModel().select(0);
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								hawkerTable.setItems(sortedData);
+								// hawkerTable.setDisable(false);
+								hawkerTable.refresh();
+								hawkerTable.getSelectionModel().select(0);
+							}
+						});
 					} else {
-						hawkerTable.getItems().clear();
-						hawkerTable.refresh();
+
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								hawkerTable.getItems().clear();
+								hawkerTable.refresh();
+							}
+						});
 					}
 					// con.close();
 				} catch (SQLException e) {
@@ -1076,18 +1094,26 @@ public class AHawkerInfoTabController implements Initializable {
 					if (!con.isValid(0)) {
 						con = Main.reconnect();
 					}
-					String getHwkBillingInfo = "Select start_date,end_date,bill_amount,paid,due,hwk_bill_id, hawker_id from hawker_billing where hawker_id = ?";
+					String getHwkBillingInfo = "Select hwk_bill_id, hawker_id, entry_date, amount, type from hawker_billing where hawker_id = ? order by entry_date desc";
 					PreparedStatement hwkBillInfo = null;
 					hwkBillInfo = con.prepareStatement(getHwkBillingInfo);
 					hwkBillInfo.setLong(1, hawkerId);
 					ResultSet rs = hwkBillInfo.executeQuery();
 					hawkerBillingMasterData.clear();
 					while (rs.next()) {
-						hawkerBillingMasterData.add(new HawkerBilling(hawkerId, rs.getDate(1), rs.getDate(2),
-								rs.getDouble(3), rs.getDouble(4), rs.getDouble(5), rs.getLong(6)));
+						hawkerBillingMasterData.add(new HawkerBilling(rs.getLong(1), hawkerId, rs.getDate(3).toLocalDate(),
+								rs.getDouble(4), rs.getString(5)));
 					}
-					hawkerBillingTable.setItems(hawkerBillingMasterData);
-					hawkerBillingTable.refresh();
+
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+
+							hawkerBillingTable.setItems(hawkerBillingMasterData);
+							hawkerBillingTable.refresh();
+						}
+					});
 					// con.close();
 
 				} catch (SQLException e) {
@@ -1542,8 +1568,8 @@ public class AHawkerInfoTabController implements Initializable {
 			}
 			addHwkProf1.getItems().clear();
 			addHwkProf2.getItems().clear();
-			addHwkProf1.getItems().addAll(profileValues);
-			addHwkProf2.getItems().addAll(profileValues);
+			addHwkProf1.setItems(profileValues);
+			addHwkProf2.setItems(profileValues);
 		} catch (SQLException e) {
 
 			Main._logger.debug("Error :", e);
@@ -1586,37 +1612,50 @@ public class AHawkerInfoTabController implements Initializable {
 	}
 
 	public void populatePointNames() {
-		try {
+		Task<Void> task = new Task<Void>() {
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					pointNameValues = FXCollections.observableArrayList();
+					PreparedStatement stmt = con
+							.prepareStatement("select distinct name from point_name where city =? order by name");
+					stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
+					ResultSet rs = stmt.executeQuery();
+					while (rs.next()) {
+						if (pointNameValues != null && !pointNameValues.contains(rs.getString(1)))
+							pointNameValues.add(rs.getString(1));
+					}
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							addPointName.setItems(pointNameValues);
+							new AutoCompleteComboBoxListener<>(addPointName);
+						}
+					});
+					if (HawkerLoginController.loggedInHawker != null) {
+
+						addPointName.setDisable(true);
+					}
+				} catch (SQLException e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				}
+				return null;
 			}
-			pointNameValues=FXCollections.observableArrayList();
-			PreparedStatement stmt = con
-					.prepareStatement("select distinct name from point_name where city =? order by name");
-			stmt.setString(1, cityTF.getSelectionModel().getSelectedItem());
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				if(pointNameValues!=null && !pointNameValues.contains(rs.getString(1)))
-				pointNameValues.add(rs.getString(1));
-			}
-			addPointName.setItems(pointNameValues);
-			new AutoCompleteComboBoxListener<>(addPointName);
-			if (HawkerLoginController.loggedInHawker != null) {
-
-				addPointName.setDisable(true);
-			}
-		} catch (SQLException e) {
-
-			Main._logger.debug("Error :", e);
-			e.printStackTrace();
-		} catch (Exception e) {
-
-			Main._logger.debug("Error :", e);
-			e.printStackTrace();
-		}
-
+		};
+		new Thread(task).start();
 	}
 
 	private long hawkerIdForCode(String hawkerCode) {
@@ -1675,46 +1714,128 @@ public class AHawkerInfoTabController implements Initializable {
 	}
 
 	public void populateCityValues() {
+		Task<Void> task = new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Connection con = Main.dbConnection;
+					if (!con.isValid(0)) {
+						con = Main.reconnect();
+					}
+					cityValues = FXCollections.observableArrayList();
+					PreparedStatement stmt = null;
+					if (HawkerLoginController.loggedInHawker != null) {
+						stmt = con.prepareStatement("select distinct city from point_name where name=?");
+						stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
+						ResultSet rs = stmt.executeQuery();
+						if (rs.next()) {
+							cityValues.add(rs.getString(1));
+						}
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								cityTF.getItems().clear();
+								cityTF.setItems(cityValues);
+								cityTF.getSelectionModel().selectFirst();
+								cityTF.setDisable(true);
+							}
+						});
+					} else {
+						stmt = con.prepareStatement("select distinct city from point_name order by city");
+						ResultSet rs = stmt.executeQuery();
+						while (rs.next()) {
+							if (cityValues != null && !cityValues.contains(rs.getString(1)))
+								cityValues.add(rs.getString(1));
+						}
+
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								cityTF.setItems(cityValues);
+								new AutoCompleteComboBoxListener<>(cityTF);
+							}
+						});
+					}
+				} catch (SQLException e) {
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				} catch (Exception e) {
+
+					Main._logger.debug("Error :", e);
+					e.printStackTrace();
+				}
+				return null;
+			}
+		};
+		new Thread(task).start();
+
+	}
+
+	@SuppressWarnings("deprecation")
+	private void generateBillingFunction(String hawkerCode, String invoiceDate) {
+
 		try {
+			Properties prop = new Properties();
+			String propFileName = "config.properties";
 
-			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
-				con = Main.reconnect();
-			}
-			cityValues = FXCollections.observableArrayList();
-			PreparedStatement stmt = null;
-			if (HawkerLoginController.loggedInHawker != null) {
-				stmt = con.prepareStatement("select distinct city from point_name where name=?");
-				stmt.setString(1, HawkerLoginController.loggedInHawker.getPointName());
-				ResultSet rs = stmt.executeQuery();
-				if (rs.next()) {
-					cityValues.add(rs.getString(1));
-				}
+			InputStream inputStream = Main.class.getClassLoader().getResourceAsStream(propFileName);
 
-				cityTF.getItems().clear();
-				cityTF.getItems().addAll(cityValues);
-				cityTF.getSelectionModel().selectFirst();
-				cityTF.setDisable(true);
+			if (inputStream != null) {
+				prop.load(inputStream);
 			} else {
-				stmt = con.prepareStatement("select distinct city from point_name order by city");
-				ResultSet rs = stmt.executeQuery();
-				while (rs.next()) {
-					if (cityValues != null && !cityValues.contains(rs.getString(1)))
-						cityValues.add(rs.getString(1));
-				}
-				cityTF.setItems(cityValues);
-
-				new AutoCompleteComboBoxListener<>(cityTF);
+				throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
 			}
-		} catch (SQLException e) {
-			Main._logger.debug("Error :", e);
+
+			// get the property value and print it out
+			String ACCESS_KEY = prop.getProperty("ACCESS_KEY");
+			String SECRET = prop.getProperty("SECRET");
+			Gson gson = new Gson();
+			AWSCredentials credentials = null;
+			credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET);
+			AWSLambdaClient lambdaClient = new AWSLambdaClient(credentials);
+
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put("HawkerCode", hawkerCode);
+			// map.put("LinueNum", lineNum);
+			map.put("InvoiceDate", invoiceDate);
+			lambdaClient.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+			InvokeRequest invokeRequest = new InvokeRequest();
+			invokeRequest.setFunctionName("GenerateBilling");
+			invokeRequest.setPayload(ByteBuffer.wrap(gson.toJson(map).getBytes(StringUtils.UTF8)));
+			InvokeResult invokeResult = lambdaClient.invoke(invokeRequest);
+
+			if (invokeResult.getLogResult() != null) {
+				System.out.println(" log: " + new String(Base64.decode(invokeResult.getLogResult())));
+			}
+
+			if (invokeResult.getFunctionError() != null) {
+				throw new LambdaFunctionException(invokeResult.getFunctionError(), false,
+						new String(invokeResult.getPayload().array()));
+			}
+
+			if (invokeResult.getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT) {
+				return;
+			}
+			String output = gson.fromJson(
+					new BufferedReader(
+							new InputStreamReader(new ByteArrayInputStream(invokeResult.getPayload().array()))),
+					String.class);
+		} catch (LambdaFunctionException e) {
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
-
-			Main._logger.debug("Error :", e);
 			e.printStackTrace();
-		}
 
+		}
 	}
 
 	public void reloadData() {

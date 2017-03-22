@@ -70,6 +70,8 @@ public class EditProductsController implements Initializable {
 	@FXML
 	private TextField codeTF;
 	@FXML
+	private TextField dueTF;
+	@FXML
 	private ComboBox<String> billCategoryTF;
 	@FXML
 	private ComboBox<String> dowTF;
@@ -334,6 +336,28 @@ public class EditProductsController implements Initializable {
 				productRow.setIssueDate(issueDate.getValue());
 				productRow.setBillCategory(billCategoryTF.getSelectionModel().getSelectedItem());
 				productRow.updateProductRecord();
+				
+				if(dueTF.getText()!=null){
+					try {
+						Double val = Double.parseDouble(dueTF.getText().trim());
+						PreparedStatement stmt = 
+								Main.dbConnection.prepareStatement("update customer cust set cust.total_due=(cust.total_due+?) where cust.customer_id in (select distinct customer_id from subscription where product_id=? and payment_type = 'Current Month' and TYPE = 'Actual Days Billing')");
+						stmt.setDouble(1, val);
+						stmt.setLong(2, productRow.getProductId());
+						int count = stmt.executeUpdate();
+
+						Notifications.create().title("Due added to customers")
+								.text("Due amount Rs."+val+" has been added to "+count+" matching customers.")
+								.hideAfter(Duration.seconds(5)).show();
+					} catch (NumberFormatException e) {
+				Notifications.create().title("Invalid value")
+						.text("Please enter numbers for Due field.")
+						.hideAfter(Duration.seconds(5)).showError();
+						e.printStackTrace();
+					} catch(Exception e){
+						e.printStackTrace();
+					}
+				}
 			} catch (NumberFormatException e) {
 				Notifications.create().title("Invalid value")
 						.text("Please enter numbers for Price and Monday - Sunday fields")

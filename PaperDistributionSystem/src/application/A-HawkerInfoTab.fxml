@@ -179,11 +179,9 @@
                         </Label>
                         <TableView fx:id="hawkerBillingTable">
                            <columns>
-                              <TableColumn fx:id="hwkBillStartDateColumn" prefWidth="105.0" text="Start Date" />
-                              <TableColumn fx:id="hwkBillEndDateColumn" prefWidth="94.0" sortType="DESCENDING" text="End Date" />
-                              <TableColumn fx:id="hwkBillAmountColumn" minWidth="125.0" prefWidth="125.0" text="Bill Amount" />
-                              <TableColumn fx:id="hwkBillPaidColumn" minWidth="125.0" prefWidth="125.0" text="Amount Received" />
-                              <TableColumn fx:id="hwkBillDueColumn" minWidth="125.0" prefWidth="125.0" text="Payment Due" />
+                              <TableColumn fx:id="hwkBillDateColumn" prefWidth="105.0" text="Entry Date" />
+                              <TableColumn fx:id="hwkAmountColumn" minWidth="125.0" prefWidth="125.0" text="Amount" />
+                              <TableColumn fx:id="hwkBillTypeColumn" minWidth="125.0" prefWidth="167.0" text="Type" />
                            </columns>
                            <VBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

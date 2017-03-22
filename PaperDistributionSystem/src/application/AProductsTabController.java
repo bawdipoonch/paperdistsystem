@@ -1323,9 +1323,10 @@ public class AProductsTabController implements Initializable {
 							.text("Please provide appropriate values for product").hideAfter(Duration.seconds(5))
 							.showError();
 					btnEvent.consume();
-				} else {
-					editProductsController.returnUpdatedProduct();
-				}
+				} 
+//				else {
+//					editProductsController.returnUpdatedProduct();
+//				}
 			});
 
 			editProductDialog.setResultConverter(dialogButton -> {

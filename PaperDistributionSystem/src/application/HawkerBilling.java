@@ -3,32 +3,29 @@ package application;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.LocalDate;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 public class HawkerBilling {
 
 	private final SimpleLongProperty hwkBillId = new SimpleLongProperty();
 	private final SimpleLongProperty hawkerId = new SimpleLongProperty();
-	private final SimpleObjectProperty<Date> startDate = new SimpleObjectProperty<>();
-	private final SimpleObjectProperty<Date> endDate = new SimpleObjectProperty<>();
-	private final SimpleDoubleProperty billAmount = new SimpleDoubleProperty();
-	private final SimpleDoubleProperty paid = new SimpleDoubleProperty();
-	private final SimpleDoubleProperty due = new SimpleDoubleProperty();
+	private final SimpleObjectProperty<LocalDate> entryDate = new SimpleObjectProperty<>();
+	private final SimpleDoubleProperty amount = new SimpleDoubleProperty();
+	private final SimpleStringProperty type = new SimpleStringProperty();
+	
 
-	public HawkerBilling(long hawkerId, Date startDate, Date endDate, double billAmount, double paid, double due,
-			long hwkBillId) {
+	public HawkerBilling(long hwkBillId, long hawkerId, LocalDate entryDate, double amount, String type) {
 		// setHwkBillId(hwkBillId);
 		setHawkerId(hawkerId);
-		setStartDate(startDate);
-		setEndDate(endDate);
-		setBillAmount(billAmount);
-		setPaid(paid);
-		setDue(due);
+		setEntryDate(entryDate);
 		setHwkBillId(hwkBillId);
+		setAmount(amount);
+		setType(type);
 	}
 
 	public Long getHwkBillId() {
@@ -47,46 +44,30 @@ public class HawkerBilling {
 		this.hawkerId.set(hawkerId);
 	}
 
-	public Date getStartDate() {
-		return startDate.get();
+	public LocalDate getEntryDate() {
+		return entryDate.get();
 	}
 
-	public void setStartDate(Date startDate) {
-		this.startDate.set(startDate);
+	public void setEntryDate(LocalDate startDate) {
+		this.entryDate.set(startDate);
 	}
 
-	public Date getEndDate() {
-		return endDate.get();
+	public double getAmount() {
+		return this.amount.get();
 	}
 
-	public void setEndDate(Date endDate) {
-		this.endDate.set(endDate);
+	public void setAmount(double amount) {
+		this.amount.set(amount);
 	}
-
-	public double getBillAmount() {
-		return this.billAmount.get();
+	
+	public String getType(){
+		return this.type.get();
 	}
-
-	public void setBillAmount(double billAmount) {
-		this.billAmount.set(billAmount);
+	
+	public void setType(String type){
+		this.type.set(type);
+		
 	}
-
-	public double getPaid() {
-		return this.paid.get();
-	}
-
-	public void setPaid(double paid) {
-		this.paid.set(paid);
-	}
-
-	public double getDue() {
-		return this.due.get();
-	}
-
-	public void setDue(double due) {
-		this.due.set(due);
-	}
-
 	public void updateHawkerBillingRecord() {
 		try {
 
@@ -94,25 +75,15 @@ public class HawkerBilling {
 			while (!con.isValid(0)) {
 				con = Main.reconnect();
 			}
-			String updateString = "update hawker_billing set paid=? where hwk_bill_id=?";
+			String updateString = "update hawker_billing set amount=? where hwk_bill_id=?";
 
 			PreparedStatement updateStmt = con.prepareStatement(updateString);
-			updateStmt.setDouble(1, getPaid());
+			updateStmt.setDouble(1, getAmount());
 
 			updateStmt.setLong(2, getHwkBillId());
 			updateStmt.executeUpdate();
 			con.commit();
-
-			updateString = "update hawker_billing set due=bill_amount-paid where hwk_bill_id=?";
-			updateStmt = con.prepareStatement(updateString);
-			updateStmt.setDouble(1, getPaid());
-
-			updateStmt.setLong(2, getHwkBillId());
-			updateStmt.executeUpdate();
-			con.commit();
-			setDue(getBillAmount() - getPaid());
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			Main._logger.debug("Error :",e);
 			e.printStackTrace();
 		} catch (Exception e) {

@@ -35,6 +35,7 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -196,20 +197,43 @@ public class AdditionalItemsController implements Initializable {
 					}
 
 				});
-				/*MenuItem mnuAdv = new MenuItem("Add advertisements");
-				mnuNew.setOnAction(new EventHandler<ActionEvent>() {
+				MenuItem mnuRemoveAd = new MenuItem("Remove Advertisement");
+				mnuRemoveAd.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent t) {
 						PointName pointRow = pointNamesTable.getSelectionModel().getSelectedItem();
 						if (pointRow != null) {
-							addPointNameInCategory(pointRow);
-							reloadData();
+							Dialog<ButtonType> dialog = new Dialog<ButtonType>();
+							dialog.setTitle("Confirm delete?");
+							dialog.setHeaderText("Are you sure you want to remove advertisement banners?");
+							dialog.getDialogPane().getButtonTypes().addAll(ButtonType.YES,
+									ButtonType.NO);
+							Optional<ButtonType> result = dialog.showAndWait();
+							if (result.isPresent() && result.get() == ButtonType.YES) {
+								AmazonS3 s3logoclient = Main.s3logoclient;
+								if (s3logoclient.doesObjectExist("pdslogobucket",
+										pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV1.jpg")
+										&& s3logoclient.doesObjectExist("pdslogobucket",
+												pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV2.jpg")) {
+									try {
+										s3logoclient.deleteObject("pdslogobucket",
+												pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV1.jpg");
+										s3logoclient.deleteObject("pdslogobucket",
+												pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV2.jpg");
+										Notifications.create().title("Ad banners deleted successfully.")
+												.text("Ad banners of point is now deleted successfully.")
+												.hideAfter(Duration.seconds(5)).showInformation();
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
+							}
 						}
 					}
 
-				});*/
+				});
 				ContextMenu menu = new ContextMenu();
-				menu.getItems().addAll(mnuEdit, mnuDel, mnuNew);
+				menu.getItems().addAll(mnuEdit, mnuDel, mnuNew,mnuRemoveAd);
 				row.contextMenuProperty().bind(
 						Bindings.when(Bindings.isNotNull(row.itemProperty())).then(menu).otherwise((ContextMenu) null));
 				return row;
