@@ -1550,7 +1550,7 @@ public class ACustomerInfoTabController implements Initializable {
 						custRow.getLineNum().intValue());
 				shiftHouseSeqForDelete(custData, custRow.getHouseSeq());
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from customer where customer_id=?";
@@ -1681,7 +1681,7 @@ public class ACustomerInfoTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from subscription where subscription_id=?";
@@ -1857,7 +1857,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			hawkerLineNumData.clear();
@@ -1886,7 +1886,7 @@ public class ACustomerInfoTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -1916,7 +1916,7 @@ public class ACustomerInfoTabController implements Initializable {
 		long lineId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement lineIdStatement = null;
@@ -1947,7 +1947,7 @@ public class ACustomerInfoTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerStatement = null;
@@ -1980,7 +1980,7 @@ public class ACustomerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					// populateHawkerCodes();
@@ -2062,7 +2062,7 @@ public class ACustomerInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {
@@ -2123,7 +2123,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -2150,7 +2150,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			hawkerLineNumData.clear();
@@ -2247,7 +2247,7 @@ public class ACustomerInfoTabController implements Initializable {
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				insertCustomer = con.prepareStatement(insertStatement, new String[] { "CUSTOMER_ID" });
@@ -2320,7 +2320,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_code=? and line_num=? order by house_seq";
@@ -2541,7 +2541,7 @@ public class ACustomerInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {
@@ -2607,7 +2607,7 @@ public class ACustomerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					profileValues=FXCollections.observableArrayList();
@@ -2658,7 +2658,7 @@ public class ACustomerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					employmentData.clear();
@@ -2702,7 +2702,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials from customer where house_seq=? and line_num=? and hawker_code=?";
@@ -2791,7 +2791,7 @@ public class ACustomerInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						disableAll();
@@ -2849,7 +2849,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 
@@ -2916,7 +2916,7 @@ public class ACustomerInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						subscriptionMasterData = FXCollections.observableArrayList();
@@ -2962,7 +2962,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String countStmt = "select count(*) from stop_history where sub_id=? and (resume_date is null or sysdate between stop_date and resume_date-1)";
@@ -2998,7 +2998,7 @@ public class ACustomerInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						billingLinesData = FXCollections.observableArrayList();
@@ -3050,7 +3050,7 @@ public class ACustomerInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						invoiceDatesData = FXCollections.observableArrayList();
@@ -3101,7 +3101,7 @@ public class ACustomerInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						cityValues = FXCollections.observableArrayList();
@@ -3231,7 +3231,7 @@ public class ACustomerInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						// stopHistoryTable.getItems().clear();
@@ -3288,7 +3288,7 @@ public class ACustomerInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						stopHistoryBkpMasterData = FXCollections.observableArrayList();
@@ -3340,7 +3340,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			subsList = FXCollections.observableArrayList();
@@ -3378,7 +3378,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			subsList = FXCollections.observableArrayList();
@@ -3415,7 +3415,7 @@ public class ACustomerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con.prepareStatement(

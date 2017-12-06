@@ -230,7 +230,7 @@ public class EditProductsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			freqValues.clear();
@@ -257,7 +257,7 @@ public class EditProductsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			productTypeValues.clear();
@@ -377,7 +377,7 @@ public class EditProductsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			billCategoryValues=FXCollections.observableArrayList();
@@ -406,7 +406,7 @@ public class EditProductsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select count(*) from products where lower(name)=? and lower(bill_category)=? and product_id<>?";
@@ -451,7 +451,7 @@ public class EditProductsController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					prodSpclPriceValues.clear();

@@ -60,7 +60,7 @@ public class LovLookup {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update lov_lookup set value=? where lov_lookup_id=?";

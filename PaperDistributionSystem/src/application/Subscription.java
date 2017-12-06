@@ -263,7 +263,7 @@ public class Subscription {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update subscription set PAYMENT_TYPE=?, SUBSCRIPTION_COST=?, SERVICE_CHARGE=?, FREQUENCY=?, TYPE=?, DOW=?, STATUS=?, START_DATE=?, PAUSED_DATE=?, STOP_DATE=?, DURATION=?, OFFER_MONTHS=?, RESUME_DATE=?, ADD_TO_BILL=?, CHEQUE_RCVD=?  where subscription_id=?";
@@ -302,7 +302,7 @@ public class Subscription {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update subscription set STATUS=?, PAUSED_DATE=NULL, resume_date=null  where subscription_id=?";

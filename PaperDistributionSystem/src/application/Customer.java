@@ -302,7 +302,7 @@ public class Customer {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			while (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update customer set customer_code=?,  name=?, mobile_num=?, hawker_code=?,  line_Num=?,  house_Seq=?,  old_house_num=?,  new_house_num=?,  ADDRESS_LINE1=?,  ADDRESS_LINE2=?,  locality=?,  city=?,  state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, building_street=?, total_due=?, hawker_id=?, line_id=? where customer_id=?";

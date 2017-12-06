@@ -79,9 +79,13 @@ public class AReportsTabController implements Initializable {
 	private Button hwkAllLineSubButton;
 	@FXML
 	private Button hwkAllLineSubProdCodeButton;
+	@FXML
+	private Button hwkAllLineSubProdNameButton;
 
 	@FXML
 	private Button lineAllSubButton;
+	@FXML
+	private Button lineAllSubSmallButton;
 
 	@FXML
 	private Label datesList;
@@ -223,7 +227,7 @@ public class AReportsTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					ObservableList<String> hawkerLineNumData2 = FXCollections.observableArrayList();
@@ -279,7 +283,7 @@ public class AReportsTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -313,7 +317,7 @@ public class AReportsTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {
@@ -389,7 +393,7 @@ public class AReportsTabController implements Initializable {
 			
 			if (hawkerComboBox.getSelectionModel().getSelectedItem() != null && firstForDate.getValue() != null) {
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
@@ -461,6 +465,84 @@ public class AReportsTabController implements Initializable {
 		}
 	}
 
+	@FXML
+	void lineAllSubSmallButtonClicked(ActionEvent event) {
+		try {
+			
+			if (hawkerComboBox.getSelectionModel().getSelectedItem() != null && firstForDate.getValue() != null) {
+				Connection con = Main.dbConnection;
+				if (con.isClosed()) {
+					con = Main.reconnect();
+				}
+				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+				stmt.executeUpdate();
+				stmt = con.prepareStatement("INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+				stmt.setDate(2, Date.valueOf(firstForDate.getValue()));
+				stmt.executeUpdate();
+				stmt.close();
+
+			String reportSrcFile = "HwkLineAllSubsListSmall.jrxml";
+
+			InputStream input = BillingUtilityClass.class.getResourceAsStream(reportSrcFile);
+			JasperReport jasperReport = JasperCompileManager.compileReport(input);
+
+			// Parameters for report
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
+			String lineNum = addLineNumLOV.getSelectionModel().getSelectedItem().split(" ")[0];
+			String prodName = prodNameLOV2.getSelectionModel().getSelectedItem().equals("All") ? null
+					: prodNameLOV2.getSelectionModel().getSelectedItem();
+			parameters.put("HAWKER_CODE", hawkerCode);
+			parameters.put("LINE_NUM", lineNum);
+			parameters.put("PROD_NAME", prodName);
+			parameters.put("TESTDATE", Date.valueOf(firstForDate.getValue()));
+			JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+
+			// Make sure the output directory exists.
+			File outDir = new File("C:/pds");
+			outDir.mkdirs();
+
+			// PDF Exportor.
+			JRPdfExporter exporter = new JRPdfExporter();
+
+			ExporterInput exporterInput = new SimpleExporterInput(print);
+			// ExporterInput
+			exporter.setExporterInput(exporterInput);
+
+			// ExporterOutput
+			String filename = "C:/pds/" + hawkerCode + "-" + lineNum + "-" + "SubsListSmall"  + "-At-"
+					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) +  ".pdf";
+			OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+			// Output
+			exporter.setExporterOutput(exporterOutput);
+
+			//
+			SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+			exporter.setConfiguration(configuration);
+			exporter.exportReport();
+//			File outFile = new File(filename);
+
+			Notifications.create().title("Report created").text("Report PDF created at : " + filename)
+					.hideAfter(Duration.seconds(15)).showInformation();
+			stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+			stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+			stmt.executeUpdate();
+			} else {
+				Notifications.create().title("Required values missing")
+						.text("Please select Hawker and Date before generating report.").hideAfter(Duration.seconds(5))
+						.showError();
+			}
+		} catch (JRException e) {
+			Main._logger.debug("Error during Report PDF Generation: ", e);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
 	public BorderPane createAndLoad(File pdfFile) {
 		long before = System.currentTimeMillis();
 		PDFViewer notesBean = new PDFViewer();
@@ -488,7 +570,7 @@ public class AReportsTabController implements Initializable {
 
 			if (hawkerComboBox.getSelectionModel().getSelectedItem() != null && forDate.getValue() != null) {
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
@@ -559,7 +641,7 @@ public class AReportsTabController implements Initializable {
 
 			if (hawkerComboBox.getSelectionModel().getSelectedItem() != null && forDate.getValue() != null) {
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
@@ -571,8 +653,8 @@ public class AReportsTabController implements Initializable {
 				stmt.executeUpdate();
 				stmt.close();
 
-				ExportToExcel.exportHwkAllLineSubCountToExcel(hawkerComboBox.getSelectionModel().getSelectedItem(),
-						forDate.getValue());
+//				ExportToExcel.exportHwkAllLineSubCountToExcel(hawkerComboBox.getSelectionModel().getSelectedItem(),
+//						forDate.getValue());
 				String reportSrcFile = "HawkerAllLineProdCodeWiseList.jrxml";
 				InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
 				JasperReport jasperReport = JasperCompileManager.compileReport(input);
@@ -596,6 +678,79 @@ public class AReportsTabController implements Initializable {
 				exporter.setExporterInput(exporterInput);
 				// ExporterOutput
 				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "ProdCodeWiseSubsCount-For-"
+						+ forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + "-At-"
+						+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) + ".pdf";
+				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+				// Output
+				exporter.setExporterOutput(exporterOutput);
+				//
+				SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+				exporter.setConfiguration(configuration);
+				exporter.exportReport();
+//				File outFile = new File(filename);
+				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
+						.hideAfter(Duration.seconds(15)).showInformation();
+				stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+				stmt.executeUpdate();
+			} else {
+				Notifications.create().title("Required values missing")
+						.text("Please select Hawker and Date before generating report.").hideAfter(Duration.seconds(5))
+						.showError();
+			}
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during Bill PDF Generation: ", e);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	@FXML
+	void hwkAllLineSubProdNameButtonClicked(ActionEvent event) {
+		try {
+
+			if (hawkerComboBox.getSelectionModel().getSelectedItem() != null && forDate.getValue() != null) {
+				Connection con = Main.dbConnection;
+				if (con.isClosed()) {
+					con = Main.reconnect();
+				}
+				PreparedStatement stmt = con.prepareStatement("DELETE FROM REPORT_PARAM WHERE HAWKER_CODE=?");
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+				stmt.executeUpdate();
+				stmt = con.prepareStatement("INSERT INTO REPORT_PARAM(HAWKER_CODE,FORDATE) VALUES(?,?)");
+				stmt.setString(1, hawkerComboBox.getSelectionModel().getSelectedItem());
+				stmt.setDate(2, Date.valueOf(forDate.getValue()));
+				stmt.executeUpdate();
+				stmt.close();
+
+//				ExportToExcel.exportHwkAllLineSubCountToExcel(hawkerComboBox.getSelectionModel().getSelectedItem(),
+//						forDate.getValue());
+				String reportSrcFile = "HawkerAllLineProdNameWiseList.jrxml";
+				InputStream input = AReportsTabController.class.getResourceAsStream(reportSrcFile);
+				JasperReport jasperReport = JasperCompileManager.compileReport(input);
+				// Parameters for report
+				Map<String, Object> parameters = new HashMap<String, Object>();
+				String hawkerCode = hawkerComboBox.getSelectionModel().getSelectedItem();
+				// String lineNum =
+				// addLineNumLOV.getSelectionModel().getSelectedItem().split("
+				// ")[0];
+				parameters.put("HAWKER_CODE", hawkerCode);
+				parameters.put("TESTDATE", Date.valueOf(forDate.getValue()));
+				parameters.put("DayOfWeek", forDate.getValue().getDayOfWeek().name());
+				JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, Main.dbConnection);
+				// Make sure the output directory exists.
+				File outDir = new File("C:/pds");
+				outDir.mkdirs();
+				// PDF Exportor.
+				JRPdfExporter exporter = new JRPdfExporter();
+				ExporterInput exporterInput = new SimpleExporterInput(print);
+				// ExporterInput
+				exporter.setExporterInput(exporterInput);
+				// ExporterOutput
+				String filename = "C:/pds/" + hawkerCode + "-AllLine-" + "ProdNameWiseSubsCount-For-"
 						+ forDate.getValue().format(DateTimeFormatter.ofPattern("dd-MM-YYYY")) + "-At-"
 						+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) + ".pdf";
 				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
@@ -963,7 +1118,7 @@ public class AReportsTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						invoiceDatesData = FXCollections.observableArrayList();
@@ -1029,7 +1184,7 @@ public class AReportsTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					subscriptionTypeValues.clear();
@@ -1077,7 +1232,7 @@ public class AReportsTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					paymentTypeValues.clear();
@@ -1126,7 +1281,7 @@ public class AReportsTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					durationValues.clear();
@@ -1174,7 +1329,7 @@ public class AReportsTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					frequencyValues.clear();
@@ -1219,7 +1374,7 @@ public class AReportsTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					productValues = FXCollections.observableArrayList();
@@ -1341,7 +1496,7 @@ public class AReportsTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						cityValues = FXCollections.observableArrayList();
@@ -1419,7 +1574,7 @@ public class AReportsTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {

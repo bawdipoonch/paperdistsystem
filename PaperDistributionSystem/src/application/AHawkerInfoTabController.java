@@ -2,6 +2,7 @@ package application;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +16,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Properties;
@@ -78,6 +81,17 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.export.ExporterInput;
+import net.sf.jasperreports.export.OutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 
 public class AHawkerInfoTabController implements Initializable {
 
@@ -598,7 +612,7 @@ public class AHawkerInfoTabController implements Initializable {
 							try {
 								Double rcvdValue = Double.parseDouble(returnValue.get().trim());
 								Connection con = Main.dbConnection;
-								if (!con.isValid(0)) {
+								if (con.isClosed()) {
 									con = Main.reconnect();
 								}
 								PreparedStatement stmt = con.prepareStatement(
@@ -751,7 +765,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select bill_category from point_name where name =? order by bill_category";
@@ -785,7 +799,7 @@ public class AHawkerInfoTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from hawker_billing where hwk_bill_id=?";
@@ -824,7 +838,7 @@ public class AHawkerInfoTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from hawker_info where hawker_id=?";
@@ -967,7 +981,7 @@ public class AHawkerInfoTabController implements Initializable {
 			protected Void call() throws Exception {
 				try {
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt;
@@ -1091,7 +1105,7 @@ public class AHawkerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					String getHwkBillingInfo = "Select hwk_bill_id, hawker_id, entry_date, amount, type from hawker_billing where hawker_id = ? order by entry_date desc";
@@ -1193,7 +1207,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -1225,7 +1239,7 @@ public class AHawkerInfoTabController implements Initializable {
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				insertHawker = con.prepareStatement(insertStatement);
@@ -1294,7 +1308,7 @@ public class AHawkerInfoTabController implements Initializable {
 				String insertStatement = "INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + "VALUES (?,?)";
 				Connection con = Main.dbConnection;
 				try {
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					insertLineNum = con.prepareStatement(insertStatement);
@@ -1472,7 +1486,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select hawker_code,name from hawker_info where mobile_num=? and lower(hawker_code) <> ?";
@@ -1556,7 +1570,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			profileValues.clear();
@@ -1586,7 +1600,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			employmentValues = FXCollections.observableArrayList();
@@ -1619,7 +1633,7 @@ public class AHawkerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					pointNameValues = FXCollections.observableArrayList();
@@ -1663,7 +1677,7 @@ public class AHawkerInfoTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -1691,7 +1705,7 @@ public class AHawkerInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con.prepareStatement("UPDATE CUSTOMER SET TOTAL_DUE=0.0 WHERE HAWKER_CODE=?");
@@ -1721,7 +1735,7 @@ public class AHawkerInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					cityValues = FXCollections.observableArrayList();
@@ -1838,6 +1852,52 @@ public class AHawkerInfoTabController implements Initializable {
 		}
 	}
 
+
+    @FXML
+    void generateHwkBillingReport(ActionEvent event) {
+    	try {
+
+				Connection con = Main.dbConnection;
+				if (con.isClosed()) {
+					con = Main.reconnect();
+				}
+				String reportSrcFile = "HwkPendingPayment.jrxml";
+				InputStream input = AHawkerInfoTabController.class.getResourceAsStream(reportSrcFile);
+				JasperReport jasperReport = JasperCompileManager.compileReport(input);
+				
+				JasperPrint print = JasperFillManager.fillReport(jasperReport, null, Main.dbConnection);
+				// Make sure the output directory exists.
+				File outDir = new File("C:/pds");
+				outDir.mkdirs();
+				// PDF Exportor.
+				JRPdfExporter exporter = new JRPdfExporter();
+				ExporterInput exporterInput = new SimpleExporterInput(print);
+				// ExporterInput
+				exporter.setExporterInput(exporterInput);
+				// ExporterOutput
+				String filename = "C:/pds/" + "HwkPendingBillPayment-"
+						+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh-mm-ss")) + ".pdf";
+				OutputStreamExporterOutput exporterOutput = new SimpleOutputStreamExporterOutput(filename);
+				// Output
+				exporter.setExporterOutput(exporterOutput);
+				//
+				SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+				exporter.setConfiguration(configuration);
+				exporter.exportReport();
+//				File outFile = new File(filename);
+				Notifications.create().title("Report PDF Created").text("Report PDF created at : " + filename)
+						.hideAfter(Duration.seconds(15)).showInformation();
+							
+
+		} catch (JRException e) {
+			Main._logger.debug("Error during report PDF Generation: ", e);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+    }
+	
 	public void reloadData() {
 		if (HawkerLoginController.loggedInHawker == null) {
 			if (showAllRadioButton.isSelected()) {

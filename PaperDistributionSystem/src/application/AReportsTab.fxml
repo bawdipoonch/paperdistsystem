@@ -27,30 +27,43 @@
 						<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
 					</VBox.margin>
 				</HBox>
-				<HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-border-radius: 3; -fx-border-color: #333333;">
-					<children>
-						<Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="78.0" text="Line Number" />
-						<ComboBox fx:id="addLineNumLOV" prefWidth="150.0" />
-						<Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="99.0" text="Product Name : " />
-						<ComboBox fx:id="prodNameLOV2" prefHeight="25.0" prefWidth="151.0" />
-                  <Label text="Date : " textAlignment="RIGHT" />
-                  <DatePicker fx:id="firstForDate" />
-						<Button fx:id="lineAllSubButton" mnemonicParsing="false" onAction="#lineAllSubButtonClicked" text="Generate Line All Sub Report" />
-					</children>
-					<VBox.margin>
-						<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-					</VBox.margin>
-					<padding>
-						<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-					</padding>
-				</HBox>
+            <VBox spacing="10.0" style="-fx-border-radius: 3; -fx-border-color: #333333;">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+               <children>
+      				<HBox alignment="CENTER_LEFT" spacing="10.0">
+      					<children>
+      						<Label alignment="CENTER_RIGHT" prefHeight="21.0" prefWidth="100.0" text="Line Number" />
+      						<ComboBox fx:id="addLineNumLOV" prefWidth="150.0" />
+      						<Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="99.0" text="Product Name : " />
+      						<ComboBox fx:id="prodNameLOV2" prefHeight="25.0" prefWidth="151.0" />
+      						<Label text="Date : " textAlignment="RIGHT" />
+      						<DatePicker fx:id="firstForDate" />
+      					</children>
+      					<padding>
+      						<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      					</padding>
+      				</HBox>
+                  <HBox spacing="10.0">
+                     <children>
+      						<Button fx:id="lineAllSubButton" mnemonicParsing="false" onAction="#lineAllSubButtonClicked" text="Generate Line All Sub Report" />
+                        <Button fx:id="lineAllSubSmallButton" mnemonicParsing="false" onAction="#lineAllSubSmallButtonClicked" text="Generate Line Sub Report - Small" />
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="115.0" right="5.0" top="5.0" />
+                     </padding>
+                  </HBox>
+               </children>
+            </VBox>
 				<HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-border-radius: 3; -fx-border-color: #333333;">
 					<children>
 						<Label text="Date : " textAlignment="RIGHT" />
 						<DatePicker fx:id="forDate" />
 						<Label text="Hawker All Line Subscription Report : " />
-						<Button fx:id="hwkAllLineSubButton" mnemonicParsing="false" onAction="#hwkAllLineSubButtonClicked" text="Product + Frequency Wise" HBox.hgrow="ALWAYS" />
+						<Button fx:id="hwkAllLineSubButton" mnemonicParsing="false" onAction="#hwkAllLineSubButtonClicked" text="Product + Freq Wise" HBox.hgrow="ALWAYS" />
 						<Button fx:id="hwkAllLineSubProdCodeButton" mnemonicParsing="false" onAction="#hwkAllLineSubProdCodeButtonClicked" text="Product Code Wise" />
+						<Button fx:id="hwkAllLineSubProdNameButton" mnemonicParsing="false" onAction="#hwkAllLineSubProdNameButtonClicked" text="Product Name Wise" />
 					</children>
 					<VBox.margin>
 						<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

@@ -511,7 +511,7 @@ public class Hawker {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			while (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String sqlString = "select sum(due) from HAWKER_BILLING where HAWKER_ID=?";
@@ -535,7 +535,7 @@ public class Hawker {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			while (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update hawker_info set name=?, hawker_code=?,  mobile_num=?,  agency_name=?,  active_flag=?,  fee=?,  old_house_num=?,  new_house_num=?,  addr_line1=?,  addr_line2=?,  locality=?,  city=?,  state=?, customer_access=?,  billing_access=?,  line_info_access=?,  line_dist_access=?,  paused_cust_access=?,  product_access=?,  reports_access=?, total_Due=?, profile1=?, profile2=?, profile3=?, password=?, initials=?, employment=?, comments=?, point_name=?, building_street=?, bank_ac_no=?, bank_name=?, ifsc_code=?, stop_history_access=?, logo=? , BEN_NAME=? where hawker_id = ?";

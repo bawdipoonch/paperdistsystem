@@ -236,7 +236,7 @@ public class LineDistributor {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			while (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update line_distributor set name=?, mobile_num=?, line_num=?,  old_house_num=?,  new_house_num=?,  address_line1=?,  address_line2=?,  locality=?,  city=?, state=?, profile1=?, profile2=?, profile3=?, initials=?, employment=?, comments=?, building_street=?, line_id=?  where line_dist_id=?";

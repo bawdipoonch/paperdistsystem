@@ -203,7 +203,7 @@ public class StopHistory {
 
 			if (stp.getResumeDate() == null || stp.getResumeDate().isAfter(date.plusDays(1))) {
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				String insertStmt = "insert into stop_history(SUB_ID,STOP_DATE,RESUME_DATE) values(?,?,?)";
@@ -238,7 +238,7 @@ public class StopHistory {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update stop_history set STOP_DATE=?, RESUME_DATE=?, AMOUNT=? where stop_history_id=?";

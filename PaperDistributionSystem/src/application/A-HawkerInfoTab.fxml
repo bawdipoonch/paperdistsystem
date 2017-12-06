@@ -28,6 +28,7 @@
                         <Label fx:id="billCategoryLabel" />
                      </children>
                   </HBox>
+                  <Button mnemonicParsing="false" onAction="#generateHwkBillingReport" text="Generate Hawker Billing Report" />
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

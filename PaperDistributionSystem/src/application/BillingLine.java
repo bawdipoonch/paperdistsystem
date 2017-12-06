@@ -84,7 +84,7 @@ public class BillingLine {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update billing_lines set line_num=?, product=?, amount=?, tea_expenses=? where BILL_LINE_ID=?";

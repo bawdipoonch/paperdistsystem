@@ -12,16 +12,17 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.Notifications;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.rds.AmazonRDSClient;
+import com.amazonaws.services.rds.AmazonRDS;
+import com.amazonaws.services.rds.AmazonRDSClientBuilder;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
@@ -34,7 +35,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
-import java.util.Properties;
 
 public class Main extends Application {
 	public static Connection dbConnection = null;
@@ -107,10 +107,8 @@ public class Main extends Application {
 			String secret = prop.getProperty("SECRET");
 			// step1 load the driver class
 			Class.forName("oracle.jdbc.driver.OracleDriver");
-			AWSCredentials credentials = null;
-			credentials = new BasicAWSCredentials(access_key, secret);
-			AmazonRDSClient client = new AmazonRDSClient(credentials);
-			client.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+			AWSCredentials credentials = new BasicAWSCredentials(access_key, secret);
+			AmazonRDS client = AmazonRDSClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion("ap-northeast-1").build();
 			DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
 			req.setDBInstanceIdentifier("lateefahmedpds");
 			DescribeDBInstancesResult result = client.describeDBInstances();
@@ -142,7 +140,7 @@ public class Main extends Application {
 		try {
 			Notifications.create().title("Checking connection!").text("Checking database connection.")
 					.showInformation();
-			if (!dbConnection.isValid(0)) {
+			if (dbConnection.isClosed()) {
 				Notifications.create().title("Connection Error!").text("Database connection lost, reconnecting")
 						.showError();
 				// step1 load the driver class
@@ -187,10 +185,8 @@ public class Main extends Application {
 			Connection con = Main.dbConnection;
 			if(con==null){
 				Class.forName("oracle.jdbc.driver.OracleDriver");
-				AWSCredentials credentials = null;
-				credentials = new BasicAWSCredentials(access_key, secret);
-				AmazonRDSClient client = new AmazonRDSClient(credentials);
-				client.setRegion(Region.getRegion(Regions.AP_NORTHEAST_1));
+				AWSCredentials credentials = new BasicAWSCredentials(access_key, secret);
+				AmazonRDS client = AmazonRDSClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion("ap-northeast-1").build();
 				DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
 				req.setDBInstanceIdentifier("lateefahmedpds");
 				DescribeDBInstancesResult result = client.describeDBInstances();
@@ -201,7 +197,7 @@ public class Main extends Application {
 				con = DriverManager.getConnection("jdbc:oracle:thin:@"+dbInstance.getEndpoint().getAddress()+":"+dbInstance.getEndpoint().getPort()+":ORCL", "admin", "LateefAhmedPDS");
 
 			}
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select company_name,company_mobile,company_addr from admin_login where username ='admin' ";

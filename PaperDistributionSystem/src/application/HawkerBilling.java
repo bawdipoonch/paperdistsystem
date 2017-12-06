@@ -72,7 +72,7 @@ public class HawkerBilling {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			while (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update hawker_billing set amount=? where hwk_bill_id=?";

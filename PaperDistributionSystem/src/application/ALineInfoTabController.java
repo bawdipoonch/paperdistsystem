@@ -1566,6 +1566,24 @@ public class ALineInfoTabController implements Initializable {
 
 				});
 
+				MenuItem mnuChequeRcvd = new MenuItem("Mark Checque Received");
+				mnuChequeRcvd.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent t) {
+						Subscription subsRow = subscriptionsTable.getSelectionModel().getSelectedItem();
+						if (subsRow != null) {
+//							showEditSubscriptionDialog(subsRow, false);
+							subsRow.setChequeRcvd(true);
+							subsRow.updateSubscriptionRecord();
+							Notifications.create().title("Successful").text("Subscription is marked Cheque Received.")
+							.hideAfter(Duration.seconds(5)).show(); 
+							refreshSubscriptions();
+							 
+						}
+					}
+
+				});
+
 				MenuItem mnuExtend = new MenuItem("Extend Coupon Copy Subscription");
 				mnuExtend.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
@@ -1731,7 +1749,7 @@ public class ALineInfoTabController implements Initializable {
 							Optional<ButtonType> result = resumeWarning.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.YES) {
 								LocalDate maxStopDate = findMaxStopDateForSub(subsRow);
-								if (maxStopDate.isBefore(resumeDP.getValue())) {
+								if (maxStopDate.isBefore(resumeDP.getValue()) || maxStopDate.isEqual(resumeDP.getValue())) {
 									if (resumeDP.getValue().isBefore(maxStopDate.plusMonths(1).withDayOfMonth(1))) {
 										subsRow.resumeSubscription();
 										int count = subsPostCount(subsRow, "Stopped");
@@ -1756,7 +1774,7 @@ public class ALineInfoTabController implements Initializable {
 								} else {
 
 									Notifications.create().title("Invalid Resume Date")
-											.text("Resume date must be after stop date").hideAfter(Duration.seconds(5))
+											.text("Resume date must be same or after stop date").hideAfter(Duration.seconds(5))
 											.showError();
 								}
 							}
@@ -1796,9 +1814,9 @@ public class ALineInfoTabController implements Initializable {
 				ContextMenu menu = new ContextMenu();
 
 				if (HawkerLoginController.loggedInHawker != null) {
-					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd, mnuDel, mnuExtend);
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd, mnuDel, mnuExtend, mnuChequeRcvd);
 				} else {
-					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd, mnuDel, mnuExtend);
+					menu.getItems().addAll(mnuPause, mnuResume, mnuEdit, mnuView, mnuViewProd, mnuDel, mnuExtend, mnuChequeRcvd);
 				}
 
 				row.contextMenuProperty().bind(
@@ -1922,7 +1940,7 @@ public class ALineInfoTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerStatement = null;
@@ -1957,7 +1975,7 @@ public class ALineInfoTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from subscription where subscription_id=?";
@@ -2104,7 +2122,7 @@ public class ALineInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						disableAll();
@@ -2162,7 +2180,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			subsList = FXCollections.observableArrayList();
@@ -2200,7 +2218,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			subsList = FXCollections.observableArrayList();
@@ -2280,7 +2298,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update line_distributor set line_num=? where hawker_id=?, line_num=?";
@@ -2329,7 +2347,7 @@ public class ALineInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 
@@ -2382,7 +2400,7 @@ public class ALineInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						disableAll();
@@ -2443,7 +2461,7 @@ public class ALineInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {
@@ -2532,7 +2550,7 @@ public class ALineInfoTabController implements Initializable {
 
 				lineNumData = FXCollections.observableArrayList();
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				disableAll();
@@ -2607,7 +2625,7 @@ public class ALineInfoTabController implements Initializable {
 							Connection con = Main.dbConnection;
 							synchronized (this) {
 								try {
-									if (!con.isValid(0)) {
+									if (con.isClosed()) {
 										con = Main.reconnect();
 									}
 									insertLineNum = con.prepareStatement(insertStatement);
@@ -2660,7 +2678,7 @@ public class ALineInfoTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -2689,7 +2707,7 @@ public class ALineInfoTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement lineNumExists = null;
@@ -2976,7 +2994,7 @@ public class ALineInfoTabController implements Initializable {
 				ArrayList<Customer> custData = getCustomerDataToShift(custRow.getHawkerCode(), custRow.getLineId());
 				shiftHouseSeqForDelete(custData, custRow.getHouseSeq());
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				String deleteString = "delete from customer where customer_id=?";
@@ -3044,7 +3062,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select customer_id,customer_code, name,mobile_num,hawker_code, line_Num, house_Seq, old_house_num, new_house_num, ADDRESS_LINE1, ADDRESS_LINE2, locality, city, state,profile1,profile2,profile3,initials, employment, comments, building_street, total_due, hawker_id, line_id from customer where hawker_id=? and line_id=? order by house_seq";
@@ -3164,7 +3182,7 @@ public class ALineInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {
@@ -3272,7 +3290,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 
@@ -3342,7 +3360,7 @@ public class ALineInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						subscriptionMasterData = FXCollections.observableArrayList();
@@ -3387,7 +3405,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			// subscriptionsTable.getItems().clear();
@@ -3422,7 +3440,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con.prepareStatement(
@@ -3458,7 +3476,7 @@ public class ALineInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						billingLinesData = FXCollections.observableArrayList();
@@ -3510,7 +3528,7 @@ public class ALineInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						invoiceDatesData = FXCollections.observableArrayList();
@@ -3560,7 +3578,7 @@ public class ALineInfoTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					// stopHistoryTable.getItems().clear();
@@ -3616,7 +3634,7 @@ public class ALineInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						stopHistoryBkpMasterData = FXCollections.observableArrayList();
@@ -3702,7 +3720,7 @@ public class ALineInfoTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						cityValues = FXCollections.observableArrayList();
@@ -3775,7 +3793,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			ObservableList<LocalDate> dateList = FXCollections.observableArrayList();
@@ -3807,7 +3825,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			ObservableList<LocalDate> dateList = FXCollections.observableArrayList();
@@ -3838,7 +3856,7 @@ public class ALineInfoTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			ObservableList<LocalDate> dateList = FXCollections.observableArrayList();
@@ -3870,7 +3888,7 @@ public class ALineInfoTabController implements Initializable {
 		Connection con = Main.dbConnection;
 		synchronized (this) {
 			try {
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				insertLineNum = con.prepareStatement(insertStatement, new String[] { "LINE_ID" });
@@ -3937,7 +3955,7 @@ public class ALineInfoTabController implements Initializable {
 		String query = "SELECT MAX(LINE_NUM) FROM LINE_INFO WHERE HAWKER_ID=?";
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			maxLineNum = con.prepareStatement(query);

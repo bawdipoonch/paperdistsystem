@@ -333,7 +333,7 @@ public class EditSubscriptionController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			subscriptionTypeValues.clear();
@@ -363,7 +363,7 @@ public class EditSubscriptionController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			paymentTypeValues.clear();
@@ -393,7 +393,7 @@ public class EditSubscriptionController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			durationValues.clear();
@@ -432,7 +432,7 @@ public class EditSubscriptionController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			productValues.clear();
@@ -520,7 +520,7 @@ public class EditSubscriptionController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select sub.SUBSCRIPTION_ID, sub.CUSTOMER_ID, sub.PRODUCT_ID, prod.name, prod.type, sub.PAYMENT_TYPE, sub.SUBSCRIPTION_COST, sub.SERVICE_CHARGE, sub.FREQUENCY, sub.TYPE, sub.DOW, sub.STATUS, sub.START_DATE, sub.PAUSED_DATE, prod.CODE, sub.STOP_DATE, sub.DURATION, sub.OFFER_MONTHS, sub.SUB_NUMBER, sub.resume_date, sub.ADD_TO_BILL, sub.cheque_rcvd from subscription sub, products prod where sub.PRODUCT_ID=prod.PRODUCT_ID and sub.SUBSCRIPTION_ID =?";

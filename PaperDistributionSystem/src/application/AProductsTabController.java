@@ -990,7 +990,7 @@ public class AProductsTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select count(*) from products where lower(name)=? and lower(bill_category)=?";
@@ -1023,7 +1023,7 @@ public class AProductsTabController implements Initializable {
 				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			insertLineNum = con.prepareStatement(insertStatement);
@@ -1105,7 +1105,7 @@ public class AProductsTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					productValues.clear();
@@ -1175,7 +1175,7 @@ public class AProductsTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						freqValues.clear();
@@ -1217,7 +1217,7 @@ public class AProductsTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						productTypeValues.clear();
@@ -1268,7 +1268,7 @@ public class AProductsTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 
@@ -1399,7 +1399,7 @@ public class AProductsTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					spclPriceTable.getItems().clear();
@@ -1479,7 +1479,7 @@ public class AProductsTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt = con
@@ -1529,7 +1529,7 @@ public class AProductsTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con.prepareStatement(
@@ -1566,7 +1566,7 @@ public class AProductsTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 
@@ -1604,7 +1604,7 @@ public class AProductsTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						billCategoryValues=FXCollections.observableArrayList();
@@ -1741,7 +1741,7 @@ public class AProductsTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			fullBillCategoryValues.clear();
@@ -1831,7 +1831,7 @@ public class AProductsTabController implements Initializable {
 
 					ObservableList<Product> sourceProductValues = FXCollections.observableArrayList();
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					sourceProductValues.clear();
@@ -1860,7 +1860,7 @@ public class AProductsTabController implements Initializable {
 								+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 						try {
-							if (!con.isValid(0)) {
+							if (con.isClosed()) {
 								con = Main.reconnect();
 							}
 							insertLineNum = con.prepareStatement(insertStatement);
@@ -1920,7 +1920,7 @@ public class AProductsTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			while (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update subscription set dow=? where product_id=?";
@@ -1948,7 +1948,7 @@ public class AProductsTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			while (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString;

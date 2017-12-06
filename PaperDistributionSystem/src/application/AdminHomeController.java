@@ -337,7 +337,7 @@ public class AdminHomeController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				String deleteString = "update admin_login set password =? where username='admin'";
@@ -379,7 +379,7 @@ public class AdminHomeController implements Initializable {
     	
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select company_name,company_mobile,company_addr from admin_login where username ='admin' ";

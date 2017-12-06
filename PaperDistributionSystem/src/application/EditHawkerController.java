@@ -264,7 +264,7 @@ public class EditHawkerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select count(*) from hawker_info where lower(hawker_code) = ? and hawker_id<>?";
@@ -292,7 +292,7 @@ public class EditHawkerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -356,7 +356,7 @@ public class EditHawkerController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					profileValues = FXCollections.observableArrayList();
@@ -392,7 +392,7 @@ public class EditHawkerController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					employmentData = FXCollections.observableArrayList();
@@ -424,7 +424,7 @@ public class EditHawkerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			pointNameValues = FXCollections.observableArrayList();
@@ -450,7 +450,7 @@ public class EditHawkerController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select hawker_code,name from hawker_info where mobile_num=? and hawker_code <> ?";

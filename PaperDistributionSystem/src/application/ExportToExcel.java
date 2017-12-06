@@ -39,7 +39,7 @@ public class ExportToExcel {
 						}
 					});
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					String filename = hawkerCode+"-AllLineSubsCount-"+ ".xlsx";
@@ -245,7 +245,7 @@ public class ExportToExcel {
 						}
 					});
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					String filename = "data-" + new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss").format(new Date())

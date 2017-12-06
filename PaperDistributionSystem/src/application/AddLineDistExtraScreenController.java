@@ -125,7 +125,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			lineNumData.clear();
@@ -155,7 +155,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -230,7 +230,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -262,7 +262,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 						+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				Connection con = Main.dbConnection;
 				try {
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					insertLineNum = con.prepareStatement(insertStatement);
@@ -315,7 +315,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -342,7 +342,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			profileValues.clear();
@@ -370,7 +370,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			employmentData.clear();
@@ -399,7 +399,7 @@ public class AddLineDistExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			hawkerCodeData.clear();

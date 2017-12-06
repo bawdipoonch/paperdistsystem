@@ -226,7 +226,7 @@ public class PausedSubscription {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update subscription set STATUS=?, PAUSED_DATE=NULL, resume_date=null  where subscription_id=?";

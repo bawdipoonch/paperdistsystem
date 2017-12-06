@@ -141,7 +141,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select hawker_code,name from hawker_info where mobile_num=? and lower(hawker_code) <> ?";
@@ -199,7 +199,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					profileValues.clear();
@@ -248,7 +248,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					employmentData.clear();
@@ -356,7 +356,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				insertHawker = con.prepareStatement(insertStatement);
@@ -420,7 +420,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -475,7 +475,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select count(*) from hawker_info where lower(hawker_code) = ?";
@@ -507,7 +507,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					pointNameValues.clear();
@@ -552,7 +552,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select fee from point_name where name = ?";
@@ -585,7 +585,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 				String insertStatement = "INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + "VALUES (?,?)";
 				Connection con = Main.dbConnection;
 				try {
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					insertLineNum = con.prepareStatement(insertStatement);
@@ -621,7 +621,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						cityValues = FXCollections.observableArrayList();
@@ -669,7 +669,7 @@ public class AddHawkerExtraScreenController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;

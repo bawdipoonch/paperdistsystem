@@ -217,7 +217,7 @@ public class HawkerHomeController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select bill_category from point_name where name =? order by bill_category";
@@ -503,7 +503,7 @@ public class HawkerHomeController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 //				productValues.clear();
@@ -537,7 +537,7 @@ public class HawkerHomeController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			productValues.clear();

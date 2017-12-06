@@ -79,7 +79,7 @@ public class Billing {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update billing set INVOICE_DATE=?, PDF_URL=?, DUE=?, MONTH=? where BILL_INVOICE_NUM=?";

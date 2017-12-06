@@ -433,7 +433,7 @@ public class ALineDistributorTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					lineNumData.clear();
@@ -470,7 +470,7 @@ public class ALineDistributorTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -501,7 +501,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerStatement = null;
@@ -539,7 +539,7 @@ public class ALineDistributorTabController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 
@@ -719,7 +719,7 @@ public class ALineDistributorTabController implements Initializable {
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				insertLineNum = con.prepareStatement(insertStatement);
@@ -825,7 +825,7 @@ public class ALineDistributorTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -897,7 +897,7 @@ public class ALineDistributorTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt;
@@ -962,7 +962,7 @@ public class ALineDistributorTabController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			Long hawkerId = HawkerLoginController.loggedInHawker != null ? HawkerLoginController.loggedInHawker.getHawkerId()
@@ -991,7 +991,7 @@ public class ALineDistributorTabController implements Initializable {
 		long lineId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -1123,7 +1123,7 @@ public class ALineDistributorTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {
@@ -1186,7 +1186,7 @@ public class ALineDistributorTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					profileValues = FXCollections.observableArrayList();
@@ -1233,7 +1233,7 @@ public class ALineDistributorTabController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					employmentData = FXCollections.observableArrayList();
@@ -1277,7 +1277,7 @@ public class ALineDistributorTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {
@@ -1351,7 +1351,7 @@ public class ALineDistributorTabController implements Initializable {
 							String insertStatement = "INSERT INTO LINE_INFO(LINE_NUM,HAWKER_ID) " + "VALUES (?,?)";
 							Connection con = Main.dbConnection;
 							try {
-								if (!con.isValid(0)) {
+								if (con.isClosed()) {
 									con = Main.reconnect();
 								}
 								insertLineNum = con.prepareStatement(insertStatement);
@@ -1399,7 +1399,7 @@ public class ALineDistributorTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement lineNumExists = null;
@@ -1434,7 +1434,7 @@ public class ALineDistributorTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						cityValues = FXCollections.observableArrayList();

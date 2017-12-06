@@ -63,7 +63,7 @@ public class LineInfo {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			while (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update line_info set line_num=? where line_id=?";

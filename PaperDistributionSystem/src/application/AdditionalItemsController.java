@@ -35,7 +35,6 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -63,6 +62,8 @@ public class AdditionalItemsController implements Initializable {
 	private Accordion accordianPane;
 	@FXML
 	private Button addPointButton;
+	@FXML
+	private Button deleteAllAdsButton;
 	@FXML
 	private TableView<PointName> pointNamesTable;
 	@FXML
@@ -275,7 +276,7 @@ public class AdditionalItemsController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 
@@ -318,7 +319,7 @@ public class AdditionalItemsController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt = con.prepareStatement(
@@ -371,7 +372,7 @@ public class AdditionalItemsController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt = con.prepareStatement(
@@ -405,7 +406,7 @@ public class AdditionalItemsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con
@@ -444,7 +445,7 @@ public class AdditionalItemsController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt = con.prepareStatement(
@@ -494,7 +495,7 @@ public class AdditionalItemsController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt = con.prepareStatement(
@@ -540,7 +541,7 @@ public class AdditionalItemsController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 
@@ -570,7 +571,7 @@ public class AdditionalItemsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt = con.prepareStatement(
@@ -596,7 +597,7 @@ public class AdditionalItemsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement stmt;
@@ -623,6 +624,48 @@ public class AdditionalItemsController implements Initializable {
 		return false;
 	}
 
+	@FXML
+	void deleteAllAdsClicked(ActionEvent event) {
+
+		// PointName pointRow = pointNamesTable.getSelectionModel().getSelectedItem();
+
+		Dialog<ButtonType> dialog = new Dialog<ButtonType>();
+		dialog.setTitle("Confirm delete?");
+		dialog.setHeaderText("Are you sure you want to remove advertisement banners for ALL point names in the system?");
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+		Optional<ButtonType> result = dialog.showAndWait();
+		if (result.isPresent() && result.get() == ButtonType.YES) {
+			for (PointName pointRow : pointNameValues) {
+				AmazonS3 s3logoclient = Main.s3logoclient;
+				boolean success = true;
+				if (s3logoclient.doesObjectExist("pdslogobucket",
+						pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV1.jpg")
+						&& s3logoclient.doesObjectExist("pdslogobucket",
+								pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV2.jpg")) {
+					try {
+						s3logoclient.deleteObject("pdslogobucket",
+								pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV1.jpg");
+						s3logoclient.deleteObject("pdslogobucket",
+								pointRow.getPointName().toUpperCase().replace(' ', '-') + "ADV2.jpg");
+						
+					} catch (Exception e) {
+						success = false;
+						e.printStackTrace();
+					}
+					if(success) {
+						Notifications.create().title("Ad banners deleted successfully.")
+						.text("Ad banners of point is now deleted successfully.").hideAfter(Duration.seconds(5))
+						.showInformation();
+					} else {
+						Notifications.create().title("Error")
+						.text("There was some error while deleting some of the AD banners. Please send logs to administrator.")
+						.hideAfter(Duration.seconds(10))
+						.showError();
+					}
+				}
+			}
+		}
+	}
 	@FXML
 	void addPointNameClicked(ActionEvent event) {
 		Dialog<ArrayList<String>> dialog = new Dialog<>();
@@ -705,7 +748,7 @@ public class AdditionalItemsController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt = con
@@ -814,7 +857,7 @@ public class AdditionalItemsController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement stmt = con
@@ -846,7 +889,7 @@ public class AdditionalItemsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			profileValues.clear();
@@ -875,7 +918,7 @@ public class AdditionalItemsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			employmentValues.clear();
@@ -904,7 +947,7 @@ public class AdditionalItemsController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			pointNameValues.clear();
@@ -941,7 +984,7 @@ public class AdditionalItemsController implements Initializable {
 			try {
 
 				Connection con = Main.dbConnection;
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 

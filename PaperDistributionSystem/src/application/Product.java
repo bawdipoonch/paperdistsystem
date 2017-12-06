@@ -198,7 +198,7 @@ public class Product {
 		try {
 
 			Connection con = Main.dbConnection;
-			while (!con.isValid(0)) {
+			while (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update products set name=?, type=?, supported_freq=?, monday=?, tuesday=?, wednesday=?, thursday=?, friday=?, saturday=?, sunday=?, price=?, code=?, dow=?, first_delivery_date=?, issue_date=?, bill_category=? where product_id=?";

@@ -278,7 +278,7 @@ public class AStopHistoryTabController implements Initializable {
 
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerStatement = null;
@@ -312,7 +312,7 @@ public class AStopHistoryTabController implements Initializable {
 				try {
 					synchronized (this) {
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						stopHistoryTable.getItems().clear();
@@ -369,7 +369,7 @@ public class AStopHistoryTabController implements Initializable {
 				try {
 					synchronized (this) {
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						customerData.clear();
@@ -430,7 +430,7 @@ public class AStopHistoryTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {
@@ -507,7 +507,7 @@ public class AStopHistoryTabController implements Initializable {
 
 							lineNumData.clear();
 							Connection con = Main.dbConnection;
-							if (!con.isValid(0)) {
+							if (con.isClosed()) {
 								con = Main.reconnect();
 							}
 							PreparedStatement lineNumStatement = null;
@@ -556,7 +556,7 @@ public class AStopHistoryTabController implements Initializable {
 		long hawkerId = -1;
 		Connection con = Main.dbConnection;
 		try {
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			PreparedStatement hawkerIdStatement = null;
@@ -591,7 +591,7 @@ public class AStopHistoryTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						if (HawkerLoginController.loggedInHawker != null) {
@@ -719,7 +719,7 @@ public class AStopHistoryTabController implements Initializable {
 					try {
 
 						Connection con = Main.dbConnection;
-						if (!con.isValid(0)) {
+						if (con.isClosed()) {
 							con = Main.reconnect();
 						}
 						cityValues=FXCollections.observableArrayList();

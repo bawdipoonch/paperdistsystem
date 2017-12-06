@@ -141,7 +141,7 @@ public class AddProductsExtraScreenController implements Initializable {
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Connection con = Main.dbConnection;
 			try {
-				if (!con.isValid(0)) {
+				if (con.isClosed()) {
 					con = Main.reconnect();
 				}
 				insertLineNum = con.prepareStatement(insertStatement);
@@ -256,7 +256,7 @@ public class AddProductsExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			freqValues.clear();
@@ -283,7 +283,7 @@ public class AddProductsExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			productTypeValues.clear();
@@ -310,7 +310,7 @@ public class AddProductsExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String query = "select count(*) from products where lower(name)=? and lower(bill_category)=?";
@@ -338,7 +338,7 @@ public class AddProductsExtraScreenController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			billCategoryValues=FXCollections.observableArrayList();

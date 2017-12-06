@@ -362,7 +362,7 @@ public class AddSubscriptionController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					subscriptionTypeValues.clear();
@@ -401,7 +401,7 @@ public class AddSubscriptionController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					paymentTypeValues.clear();
@@ -426,7 +426,7 @@ public class AddSubscriptionController implements Initializable {
 
 				try {
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					PreparedStatement pstmt = con
@@ -478,7 +478,7 @@ public class AddSubscriptionController implements Initializable {
 				try {
 
 					Connection con = Main.dbConnection;
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					durationValues.clear();
@@ -521,7 +521,7 @@ public class AddSubscriptionController implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			productValues=FXCollections.observableArrayList();
@@ -613,7 +613,7 @@ public class AddSubscriptionController implements Initializable {
 						+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				Connection con = Main.dbConnection;
 				try {
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					insertSubscription = con.prepareStatement(insertStatement, new String[] { "SUBSCRIPTION_ID" });
@@ -687,7 +687,7 @@ public class AddSubscriptionController implements Initializable {
 						+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				Connection con = Main.dbConnection;
 				try {
-					if (!con.isValid(0)) {
+					if (con.isClosed()) {
 						con = Main.reconnect();
 					}
 					insertSubscription = con.prepareStatement(insertStatement, new String[] { "SUBSCRIPTION_ID" });

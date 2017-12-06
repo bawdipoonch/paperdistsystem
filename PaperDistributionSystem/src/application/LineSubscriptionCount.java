@@ -84,7 +84,7 @@ public class LineSubscriptionCount implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			prodList.clear();
@@ -135,7 +135,7 @@ public class LineSubscriptionCount implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			dailyValues.clear();
@@ -162,7 +162,7 @@ public class LineSubscriptionCount implements Initializable {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			weeklyValues.clear();

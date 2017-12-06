@@ -70,7 +70,7 @@ public class PointName {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update point_name set name=?, city=?, bill_category=?, fee=? where point_id=?";

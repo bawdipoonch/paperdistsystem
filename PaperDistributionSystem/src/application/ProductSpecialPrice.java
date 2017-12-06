@@ -70,7 +70,7 @@ public class ProductSpecialPrice {
 		try {
 
 			Connection con = Main.dbConnection;
-			if (!con.isValid(0)) {
+			if (con.isClosed()) {
 				con = Main.reconnect();
 			}
 			String updateString = "update prod_spcl_price set full_date=?, price=? where spcl_price_id=?";
